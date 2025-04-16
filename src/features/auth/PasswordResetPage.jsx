@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { resetPassword } from '../../services/firebase/auth';
 import logger from '../../services/logger';
+import ensoSvg from '../../assets/enso-circle.svg';
 
 const PasswordResetPage = () => {
   const [email, setEmail] = useState('');
@@ -22,7 +23,31 @@ const PasswordResetPage = () => {
     background: 'linear-gradient(to bottom, #8c9ca3, #8fa6a3, #a2b3b0)',
     color: 'white',
     padding: '1rem',
-    textAlign: 'center'
+    textAlign: 'center',
+    position: 'relative',
+    overflow: 'hidden'
+  };
+
+  const backgroundImageStyle = {
+    position: 'absolute',
+    top: '55%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '100%',
+    height: 'auto',
+    opacity: 0.5,
+    zIndex: 0,
+    filter: 'brightness(0) invert(1)',
+    pointerEvents: 'none'
+  };
+
+  const contentStyle = {
+    position: 'relative',
+    zIndex: 1,
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
   };
 
   const formStyle = {
@@ -130,54 +155,60 @@ const PasswordResetPage = () => {
 
   return (
     <div style={pageStyle} className="auth-container">
-      <h1 style={{ marginBottom: '40px', fontWeight: '300', letterSpacing: '1px' }}>KarmaCash</h1>
+      {/* Background Enso Circle */}
+      <img src={ensoSvg} alt="" style={backgroundImageStyle} />
       
-      <h2 style={{ marginBottom: '40px', fontSize: '18px', fontWeight: '300' }}>Réinitialisation du mot de passe</h2>
-      
-      {message && <div style={successMessageStyle}>{message}</div>}
-      {error && <div style={errorMessageStyle}>{error}</div>}
-      
-      <form onSubmit={handleSubmit} style={formStyle}>
-        <div style={inputContainerStyle}>
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-            style={iconStyle}
-          >
-            <rect x="2" y="4" width="20" height="16" rx="2" />
-            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-          </svg>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Entrez votre courriel"
-            required
-            style={inputStyle}
-            autoComplete="email"
-          />
-        </div>
+      {/* Content layer */}
+      <div style={contentStyle}>
+        <h1 style={{ marginBottom: '40px', fontWeight: '300', letterSpacing: '1px' }}>KarmaCash</h1>
         
-        <button 
-          type="submit" 
-          style={buttonStyle}
-          disabled={loading}
-        >
-          {loading ? 'Traitement en cours...' : 'Réinitialiser le mot de passe'}
-        </button>
-      </form>
-      
-      <Link to="/login" style={linkStyle}>
-        Retour à la connexion
-      </Link>
+        <h2 style={{ marginBottom: '40px', fontSize: '18px', fontWeight: '300' }}>Réinitialisation du mot de passe</h2>
+        
+        {message && <div style={successMessageStyle}>{message}</div>}
+        {error && <div style={errorMessageStyle}>{error}</div>}
+        
+        <form onSubmit={handleSubmit} style={formStyle}>
+          <div style={inputContainerStyle}>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              style={iconStyle}
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Entrez votre courriel"
+              required
+              style={inputStyle}
+              autoComplete="email"
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            style={buttonStyle}
+            disabled={loading}
+          >
+            {loading ? 'Traitement en cours...' : 'Réinitialiser le mot de passe'}
+          </button>
+        </form>
+        
+        <Link to="/login" style={linkStyle}>
+          Retour à la connexion
+        </Link>
+      </div>
     </div>
   );
 };
