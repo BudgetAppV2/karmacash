@@ -14,8 +14,7 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: var(--color-primary);
-    background-image: linear-gradient(to bottom, #7A8D99, var(--color-primary));
+    background-image: linear-gradient(to bottom, var(--primary-sage), #6B7359);
     padding: var(--space-4);
     text-align: center;
     color: white;
