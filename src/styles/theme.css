@@ -309,7 +309,6 @@ input::placeholder {
   align-items: center;
   min-height: 100vh;
   padding: var(--space-4);
-  background: linear-gradient(135deg, #F3F0E8 0%, #E8E4D8 100%);
 }
 
 .auth-card {
@@ -328,10 +327,24 @@ input::placeholder {
   margin-bottom: var(--space-6);
 }
 
+/* Main enso-logo styling */
 .enso-logo {
-  width: 80px;
-  height: 80px;
+  width: 30px;
+  height: 30px;
+  opacity: 0.2;
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  filter: brightness(0.9);
+}
+
+/* Specific styling for the auth pages enso logo */
+.auth-logo .enso-logo {
+  width: 50px;
+  height: 50px;
   margin-bottom: var(--space-2);
+  opacity: 0.7;
 }
 
 .auth-form {
@@ -433,11 +446,6 @@ input::placeholder {
   font-size: var(--text-2xl);
   margin: 0;
   margin-left: var(--space-2);
-}
-
-.enso-logo {
-  width: 40px;
-  height: 40px;
 }
 
 .balance-display {
@@ -709,8 +717,9 @@ input::placeholder {
   }
   
   .enso-logo {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
   }
   
   .nav-link {
@@ -725,3 +734,45 @@ input::placeholder {
       /* Dark mode variables will be defined here later */
     }
   }
+
+/* Additional app-header styles for MainLayout */
+.app-header__logo {
+  width: 30px;
+  height: 30px;
+  opacity: 0.2;
+  filter: brightness(0.9);
+}
+
+.app-header__logo-title {
+  display: flex;
+  align-items: center;
+}
+
+.app-header__title {
+  margin: 0;
+  margin-left: var(--space-2);
+  font-size: var(--text-xl);
+}
+
+.app-header__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-6);
+}
+
+@media (max-width: 767px) {
+  .app-header__logo {
+    width: 24px;
+    height: 24px;
+    opacity: 0.2;
+  }
+  
+  .app-header__content {
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  .app-header__title {
+    font-size: var(--text-lg);
+  }
+}

@@ -13,7 +13,7 @@ import {
   limit,
   serverTimestamp
 } from 'firebase/firestore';
-import { db } from './firestore';
+import { db } from './firebaseInit';
 import logger from '../logger';
 
 /**

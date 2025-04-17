@@ -1,6 +1,6 @@
 // src/services/logger.js
 
-import { getAuth } from 'firebase/auth'; // For getting current user
+import { auth } from './firebase/firebaseInit';
 
 // Define log levels
 const LogLevel = {
@@ -25,7 +25,6 @@ const levelNames = {
 
 // Helper function to get current user
 const getCurrentUser = () => {
-  const auth = getAuth();
   return auth.currentUser;
 };
 

@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { getFirestore, doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 import logger from '../services/logger';
+import { db } from '../services/firebase/firebaseInit';
 
 const SettingsContext = createContext();
 
@@ -34,7 +35,6 @@ export function SettingsProvider({ children }) {
       userId: currentUser.uid
     });
 
-    const db = getFirestore();
     const userRef = doc(db, 'users', currentUser.uid);
     
     const unsubscribe = onSnapshot(userRef, (doc) => {
@@ -63,7 +63,6 @@ export function SettingsProvider({ children }) {
 
     const operation = 'updateSettings';
     try {
-      const db = getFirestore();
       const userRef = doc(db, 'users', currentUser.uid);
       
       // Merge with existing settings

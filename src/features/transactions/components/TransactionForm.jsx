@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getCategories } from '../../../services/firebase/categories';
+import { getCategories, initializeDefaultCategories } from '../../../services/firebase/categories';
 import { addTransaction } from '../../../services/firebase/transactions';
 import logger from '../../../services/logger';
 
@@ -28,25 +28,68 @@ const TransactionForm = ({ onSuccess }) => {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showInitializeButton, setShowInitializeButton] = useState(false);
   
   // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
+      if (!currentUser) return;
+      
+      setIsLoading(true);
+      setError('');
+      setShowInitializeButton(false);
+      
       try {
-        logger.debug('TransactionForm', 'fetchCategories', 'Fetching categories');
-        const fetchedCategories = await getCategories(currentUser.uid);
-        setCategories(fetchedCategories);
+        logger.debug('Fetching categories', { 
+          component: 'TransactionForm', 
+          operation: 'fetchCategories',
+          userId: currentUser.uid 
+        });
         
-        // Set default category if available
-        if (fetchedCategories.length > 0) {
-          const defaultExpenseCategory = fetchedCategories.find(cat => cat.type === 'expense');
-          if (defaultExpenseCategory) {
-            setCategoryId(defaultExpenseCategory.id);
+        const fetchedCategories = await getCategories(currentUser.uid);
+        
+        // Check if categories exist
+        if (!fetchedCategories || fetchedCategories.length === 0) {
+          logger.warn('No categories found for user', { 
+            component: 'TransactionForm', 
+            operation: 'fetchCategories',
+            userId: currentUser.uid 
+          });
+          
+          setError('Erreur lors du chargement des catégories');
+          setShowInitializeButton(true);
+          setCategories([]);
+        } else {
+          logger.info('Categories loaded successfully', {
+            component: 'TransactionForm',
+            operation: 'fetchCategories',
+            count: fetchedCategories.length
+          });
+          
+          setCategories(fetchedCategories);
+          setShowInitializeButton(false);
+          setError('');
+          
+          // Set default category if available
+          if (fetchedCategories.length > 0) {
+            const defaultExpenseCategory = fetchedCategories.find(cat => cat.type === 'expense');
+            if (defaultExpenseCategory) {
+              setCategoryId(defaultExpenseCategory.id);
+            }
           }
         }
       } catch (error) {
-        logger.error('TransactionForm', 'fetchCategories', 'Error fetching categories', { error });
+        logger.error('Error fetching categories', { 
+          component: 'TransactionForm', 
+          operation: 'fetchCategories',
+          userId: currentUser.uid,
+          error: error.message
+        });
         setError('Erreur lors du chargement des catégories');
+        setShowInitializeButton(true);
+        setCategories([]);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -54,6 +97,38 @@ const TransactionForm = ({ onSuccess }) => {
       fetchCategories();
     }
   }, [currentUser]);
+  
+  // Handle initialization of default categories
+  const handleInitializeCategories = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      logger.info('TransactionForm', 'handleInitializeCategories', 'Initializing default categories');
+      await initializeDefaultCategories(currentUser.uid);
+      
+      // After initialization, fetch categories again
+      const fetchedCategories = await getCategories(currentUser.uid);
+      setCategories(fetchedCategories);
+      
+      // Set default category if available
+      if (fetchedCategories.length > 0) {
+        const defaultExpenseCategory = fetchedCategories.find(cat => cat.type === 'expense');
+        if (defaultExpenseCategory) {
+          setCategoryId(defaultExpenseCategory.id);
+        }
+      }
+      
+      setShowInitializeButton(false);
+      
+      logger.info('TransactionForm', 'handleInitializeCategories', 'Categories initialized successfully');
+    } catch (error) {
+      logger.error('TransactionForm', 'handleInitializeCategories', 'Error initializing categories', { error });
+      setError('Erreur lors de l\'initialisation des catégories. Veuillez réessayer plus tard.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   // Filter categories based on selected type
   const filteredCategories = categories.filter(category => category.type === type);
@@ -148,234 +223,265 @@ const TransactionForm = ({ onSuccess }) => {
           marginBottom: '16px'
         }}>
           {error}
+          
+          {showInitializeButton && (
+            <button
+              type="button"
+              onClick={handleInitializeCategories}
+              style={{
+                marginTop: '12px',
+                padding: '8px 16px',
+                backgroundColor: primaryColor,
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                opacity: isLoading ? 0.7 : 1
+              }}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Chargement...' : 'Initialiser les catégories par défaut'}
+            </button>
+          )}
         </div>
       )}
       
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '20px' }}>
-          <label 
-            htmlFor="transaction-date"
-            style={{
-              display: 'block',
-              marginBottom: '8px',
-              color: '#88837A',
-              fontSize: '0.9rem'
-            }}
-          >
-            Date
-          </label>
-          <input
-            id="transaction-date"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid rgba(136, 131, 122, 0.4)',
-              borderRadius: '6px',
-              fontSize: '1rem'
-            }}
-            required
-          />
-        </div>
-        
-        <div style={{ marginBottom: '20px' }}>
-          <label
-            style={{
-              display: 'block',
-              marginBottom: '8px',
-              color: '#88837A',
-              fontSize: '0.9rem'
-            }}
-          >
-            Type
-          </label>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              type="button"
-              onClick={() => setType('expense')}
+      {/* Render form only if there are categories or show just the initialization UI */}
+      {(categories.length > 0 || !showInitializeButton) ? (
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '20px' }}>
+            <label 
+              htmlFor="transaction-date"
               style={{
-                flex: 1,
-                padding: '12px',
-                backgroundColor: type === 'expense' ? negativeColor : 'transparent',
-                color: type === 'expense' ? 'white' : '#2F2F2F',
-                border: type === 'expense' ? 'none' : '1px solid rgba(136, 131, 122, 0.4)',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: 500,
-                transition: 'all 0.3s ease'
+                display: 'block',
+                marginBottom: '8px',
+                color: '#88837A',
+                fontSize: '0.9rem'
               }}
             >
-              Dépense
-            </button>
-            <button
-              type="button"
-              onClick={() => setType('income')}
-              style={{
-                flex: 1,
-                padding: '12px',
-                backgroundColor: type === 'income' ? positiveColor : 'transparent',
-                color: type === 'income' ? 'white' : '#2F2F2F',
-                border: type === 'income' ? 'none' : '1px solid rgba(136, 131, 122, 0.4)',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: 500,
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Revenu
-            </button>
-          </div>
-        </div>
-        
-        <div style={{ marginBottom: '20px' }}>
-          <label 
-            htmlFor="transaction-category"
-            style={{
-              display: 'block',
-              marginBottom: '8px',
-              color: '#88837A',
-              fontSize: '0.9rem'
-            }}
-          >
-            Catégorie
-          </label>
-          <select
-            id="transaction-category"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid rgba(136, 131, 122, 0.4)',
-              borderRadius: '6px',
-              backgroundColor: 'white',
-              fontSize: '1rem'
-            }}
-            required
-          >
-            <option value="">Sélectionner une catégorie</option>
-            {filteredCategories.map(category => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div style={{ marginBottom: '20px' }}>
-          <label 
-            htmlFor="transaction-amount"
-            style={{
-              display: 'block',
-              marginBottom: '8px',
-              color: '#88837A',
-              fontSize: '0.9rem'
-            }}
-          >
-            Montant
-          </label>
-          <div style={{ position: 'relative' }}>
-            <span style={{
-              position: 'absolute',
-              left: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: '#88837A'
-            }}>
-              $
-            </span>
+              Date
+            </label>
             <input
-              id="transaction-amount"
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              id="transaction-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               style={{
                 width: '100%',
                 padding: '12px',
-                paddingLeft: '24px',
                 border: '1px solid rgba(136, 131, 122, 0.4)',
                 borderRadius: '6px',
                 fontSize: '1rem'
               }}
-              placeholder="0.00"
               required
             />
           </div>
+          
+          <div style={{ marginBottom: '20px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                color: '#88837A',
+                fontSize: '0.9rem'
+              }}
+            >
+              Type
+            </label>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setType('expense')}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: type === 'expense' ? negativeColor : 'transparent',
+                  color: type === 'expense' ? 'white' : '#2F2F2F',
+                  border: type === 'expense' ? 'none' : '1px solid rgba(136, 131, 122, 0.4)',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Dépense
+              </button>
+              <button
+                type="button"
+                onClick={() => setType('income')}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: type === 'income' ? positiveColor : 'transparent',
+                  color: type === 'income' ? 'white' : '#2F2F2F',
+                  border: type === 'income' ? 'none' : '1px solid rgba(136, 131, 122, 0.4)',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Revenu
+              </button>
+            </div>
+          </div>
+          
+          <div style={{ marginBottom: '20px' }}>
+            <label 
+              htmlFor="transaction-category"
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                color: '#88837A',
+                fontSize: '0.9rem'
+              }}
+            >
+              Catégorie
+            </label>
+            <select
+              id="transaction-category"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '1px solid rgba(136, 131, 122, 0.4)',
+                borderRadius: '6px',
+                backgroundColor: 'white',
+                fontSize: '1rem'
+              }}
+              required
+            >
+              <option value="">Sélectionner une catégorie</option>
+              {filteredCategories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div style={{ marginBottom: '20px' }}>
+            <label 
+              htmlFor="transaction-amount"
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                color: '#88837A',
+                fontSize: '0.9rem'
+              }}
+            >
+              Montant
+            </label>
+            <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#88837A'
+              }}>
+                $
+              </span>
+              <input
+                id="transaction-amount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  paddingLeft: '24px',
+                  border: '1px solid rgba(136, 131, 122, 0.4)',
+                  borderRadius: '6px',
+                  fontSize: '1rem'
+                }}
+                placeholder="0.00"
+                required
+              />
+            </div>
+          </div>
+          
+          <div style={{ marginBottom: '24px' }}>
+            <label 
+              htmlFor="transaction-description"
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                color: '#88837A',
+                fontSize: '0.9rem'
+              }}
+            >
+              Description
+            </label>
+            <input
+              id="transaction-description"
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '1px solid rgba(136, 131, 122, 0.4)',
+                borderRadius: '6px',
+                fontSize: '1rem'
+              }}
+              placeholder="Description de la transaction"
+              required
+            />
+          </div>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/transactions')}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: 'transparent',
+                color: primaryColor,
+                border: `1.5px solid ${primaryColor}`,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: 500,
+                transition: 'all 0.2s ease-out'
+              }}
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: primaryColor,
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                fontSize: '1rem',
+                fontWeight: 500,
+                opacity: isLoading ? 0.7 : 1,
+                transition: 'all 0.2s ease-out'
+              }}
+            >
+              {isLoading ? 'Chargement...' : 'Ajouter'}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div style={{
+          textAlign: 'center',
+          padding: '20px',
+          color: '#88837A'
+        }}>
+          Veuillez initialiser les catégories pour pouvoir ajouter des transactions.
         </div>
-        
-        <div style={{ marginBottom: '24px' }}>
-          <label 
-            htmlFor="transaction-description"
-            style={{
-              display: 'block',
-              marginBottom: '8px',
-              color: '#88837A',
-              fontSize: '0.9rem'
-            }}
-          >
-            Description
-          </label>
-          <input
-            id="transaction-description"
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid rgba(136, 131, 122, 0.4)',
-              borderRadius: '6px',
-              fontSize: '1rem'
-            }}
-            placeholder="Description de la transaction"
-            required
-          />
-        </div>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-          <button
-            type="button"
-            onClick={() => navigate('/transactions')}
-            style={{
-              padding: '12px 24px',
-              backgroundColor: 'transparent',
-              color: primaryColor,
-              border: `1.5px solid ${primaryColor}`,
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: 500,
-              transition: 'all 0.2s ease-out'
-            }}
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              padding: '12px 24px',
-              backgroundColor: primaryColor,
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              fontSize: '1rem',
-              fontWeight: 500,
-              opacity: isLoading ? 0.7 : 1,
-              transition: 'all 0.2s ease-out'
-            }}
-          >
-            {isLoading ? 'Chargement...' : 'Ajouter'}
-          </button>
-        </div>
-      </form>
+      )}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import ensoCircleSvg from '../../assets/enso-circle.svg';
 
 function MainLayout() {
   const { currentUser } = useAuth();
@@ -13,7 +14,7 @@ function MainLayout() {
       <header className="app-header">
         <div className="app-header__content">
           <div className="app-header__logo-title">
-            <img src="/logo.svg" alt="KarmaCash Logo" className="app-header__logo" />
+            <img src={ensoCircleSvg} alt="KarmaCash Logo" className="app-header__logo" />
             <h1 className="app-header__title">KarmaCash</h1>
           </div>
           

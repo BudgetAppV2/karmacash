@@ -4,6 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link, useLocation } from 'react-router-dom';
 import { formatCurrency } from '../../utils/formatters';
+import ensoCircleSvg from '../../assets/enso-circle.svg';
 
 const Header = ({ currentBalance, currency }) => {
   const location = useLocation();
@@ -16,16 +17,7 @@ const Header = ({ currentBalance, currency }) => {
       <div className="header-content">
         <div className="logo-container">
           <Link to="/dashboard" className="logo-link">
-            <svg className="enso-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="#919A7F" strokeWidth="3" strokeDasharray="0 12" />
-              <path
-                d="M 85 50 A 35 35 0 1 1 50 15"
-                fill="none"
-                stroke="#919A7F"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
+            <img src={ensoCircleSvg} alt="KarmaCash Logo" className="enso-logo" />
             <h1>KarmaCash</h1>
           </Link>
         </div>

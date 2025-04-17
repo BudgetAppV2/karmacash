@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import MainLayout from '../components/navigation/MainLayout';
 
 // Authentication Pages
-import LoginPage from '../features/auth/LoginPage';
+import NewLoginPage from '../features/auth/NewLoginPage';
 import SignupPage from '../features/auth/SignupPage';
 import TestPage from '../features/auth/TestPage';
 import PasswordResetPage from '../features/auth/PasswordResetPage';
@@ -24,6 +24,7 @@ import ProfilePage from '../features/auth/profile/ProfilePage';
 import InfoCardDemo from '../components/ui/InfoCardDemo';
 import CategoryDisplayDemo from '../features/categories/CategoryDisplayDemo';
 import ActionConfirmDemo from '../components/ui/ActionConfirmDemo';
+import TestCategoryInit from '../components/TestCategoryInit';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }) {
@@ -44,7 +45,7 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/login" element={<NewLoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/test" element={<TestPage />} />
       <Route path="/forgot-password" element={<PasswordResetPage />} />
@@ -53,6 +54,7 @@ function AppRoutes() {
       <Route path="/demo/infocard" element={<InfoCardDemo />} />
       <Route path="/demo/categories" element={<CategoryDisplayDemo />} />
       <Route path="/demo/action-confirm" element={<ActionConfirmDemo />} />
+      <Route path="/test-categories" element={<TestCategoryInit />} />
       
       {/* Protected routes */}
       <Route path="/" element={

@@ -14,10 +14,12 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-image: linear-gradient(to bottom, var(--primary-sage), #6B7359);
+    position: relative; /* For the Enso background */
+    background: linear-gradient(135deg, var(--primary-sage) 0%, #6B7359 100%);
     padding: var(--space-4);
     text-align: center;
     color: white;
+    overflow: hidden; /* Ensure the Enso doesn't cause scrollbars */
   }
   
   .auth-form-wrapper {

@@ -15,7 +15,7 @@ import {
   serverTimestamp,
   Timestamp
 } from 'firebase/firestore';
-import { db } from './firestore';
+import { db } from './firebaseInit';
 import logger from '../logger';
 
 /**

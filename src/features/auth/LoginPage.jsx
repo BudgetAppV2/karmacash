@@ -1,220 +1,100 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { loginUser } from '../../services/firebase/auth';
 import ensoSvg from '../../assets/enso-circle.svg';
+import './auth.css';
 
-function LoginPage() {
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Styles to ensure proper styling and override any conflicting CSS
-  const pageStyle = {
-    minHeight: '100vh',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    background: 'linear-gradient(to bottom, #8c9ca3, #8fa6a3, #a2b3b0)',
-    color: 'white',
-    padding: '1rem',
-    textAlign: 'center',
-    position: 'relative',
-    overflow: 'hidden'
-  };
-
-  const backgroundImageStyle = {
-    position: 'absolute',
-    top: '55%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '100%',
-    height: 'auto',
-    opacity: 0.5,
-    zIndex: 0,
-    filter: 'brightness(0) invert(1)',
-    pointerEvents: 'none'
-  };
-
-  const contentStyle = {
-    position: 'relative',
-    zIndex: 1,
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center'
-  };
-
-  const formStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
-    maxWidth: '320px',
-  };
-
-  const inputContainerStyle = {
-    position: 'relative',
-    marginBottom: '16px',
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: '16px 16px 16px 48px',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    border: 'none',
-    borderRadius: '8px',
-    color: 'white',
-    fontSize: '16px',
-  };
-
-  const iconStyle = {
-    position: 'absolute',
-    left: '16px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    color: 'white',
-    opacity: '0.7',
-  };
-
-  const buttonStyle = {
-    width: '100%',
-    padding: '16px',
-    marginTop: '24px',
-    background: 'rgba(255, 255, 255, 0.25)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    fontWeight: '500',
-  };
-
-  const linkStyle = {
-    color: 'rgba(255, 255, 255, 0.8)',
-    textDecoration: 'none',
-    fontSize: '14px',
-    marginTop: '16px',
-  };
-
-  const altActionStyle = {
-    marginTop: '30px',
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: '14px',
-  };
-
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     
-    if (!email || !password) {
-      setError('Veuillez entrer votre courriel et mot de passe');
-      return;
-    }
-
     try {
-      setError('');
-      setIsLoading(true);
-      await login(email, password);
+      await loginUser(email, password);
       navigate('/');
     } catch (err) {
-      setError('La connexion a échoué: ' + (err.message || 'Veuillez vérifier vos informations'));
+      let errorMessage = 'Échec de la connexion. Veuillez vérifier vos informations.';
+      
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        errorMessage = 'Courriel ou mot de passe incorrect.';
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = 'Format de courriel invalide.';
+      } else if (err.code === 'auth/too-many-requests') {
+        errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard.';
+      }
+      
+      setError(errorMessage);
+      console.error('Login error:', err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div style={pageStyle} className="auth-container">
-      {/* Background Enso Circle */}
-      <img src={ensoSvg} alt="" style={backgroundImageStyle} />
-      
-      {/* Content layer */}
-      <div style={contentStyle}>
-        <h1 style={{ marginBottom: '40px', fontWeight: '300', letterSpacing: '1px' }}>KarmaCash</h1>
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="logo-container">
+          <img src={ensoSvg} alt="KarmaCash Logo" className="enso-logo" />
+        </div>
+        <h1 className="app-title">KarmaCash</h1>
+        <p className="app-slogan">Retrouvez votre zen financier</p>
         
-        <p style={{ marginBottom: '40px', fontSize: '16px', fontWeight: '300' }}>Retrouvez votre zen financier</p>
-        
-        {error && <div style={{ backgroundColor: 'rgba(220, 53, 69, 0.3)', padding: '8px 16px', borderRadius: '4px', marginBottom: '16px', fontSize: '14px' }}>{error}</div>}
-        
-        <form onSubmit={handleSubmit} style={formStyle}>
-          <div style={inputContainerStyle}>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="20" 
-              height="20" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-              style={iconStyle}
-            >
-              <rect x="2" y="4" width="20" height="16" rx="2" />
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-            </svg>
+        <form onSubmit={handleSubmit} className="auth-form">
+          {error && <div className="auth-error">{error}</div>}
+          
+          <div className="form-group">
             <input
-              id="email"
               type="email"
+              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Courriel"
               required
-              autoComplete="username"
-              style={inputStyle}
+              className="auth-input"
             />
           </div>
           
-          <div style={inputContainerStyle}>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="20" 
-              height="20" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-              style={iconStyle}
-            >
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
+          <div className="form-group">
             <input
-              id="password"
               type="password"
+              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Mot de passe"
               required
+              className="auth-input"
               autoComplete="current-password"
-              style={inputStyle}
             />
           </div>
           
           <button 
             type="submit" 
-            style={buttonStyle} 
-            disabled={isLoading}
+            className="auth-button" 
+            disabled={loading}
           >
-            {isLoading ? 'Connexion en cours...' : 'Se connecter'}
+            {loading ? 'Connexion...' : 'Se connecter'}
           </button>
         </form>
         
-        <Link to="/forgot-password" style={linkStyle}>
-          Mot de passe oublié?
-        </Link>
-        
-        <div style={altActionStyle}>
-          Pas encore de compte? <Link to="/signup" style={{ ...linkStyle, marginTop: 0 }}>Créer un compte</Link>
+        <div className="auth-links">
+          <Link to="/forgot-password" className="auth-link">
+            Mot de passe oublié?
+          </Link>
+          
+          <Link to="/signup" className="auth-link">
+            Pas encore de compte? Créer un compte
+          </Link>
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default LoginPage;
+export default LoginPage; 

@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import AppRoutes from './app/AppRoutes';
-import { auth } from './services/firebase/auth';
+import { auth } from './services/firebase/firebaseInit';
 import { syncUserProfile } from './services/firebase/firestore';
 import logger from './services/logger';
 

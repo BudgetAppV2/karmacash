@@ -1,7 +1,6 @@
 // src/services/firebase/auth.js
 
 import { 
-    getAuth, 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
     signOut, 
@@ -12,8 +11,7 @@ import {
     updatePassword
   } from 'firebase/auth';
   import logger from '../logger';
-  
-  const auth = getAuth();
+  import { auth } from './firebaseInit';
   
   /**
    * Register a new user with email and password

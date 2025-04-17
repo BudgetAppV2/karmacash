@@ -1,22 +1,19 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { 
-  getAuth, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
   sendPasswordResetEmail,
-  sendEmailVerification as sendEmailVerificationToUser
+  sendEmailVerification as sendEmailVerificationToUser,
+  updateProfile
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
-import firebaseConfig from '../services/firebase/config';
+import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import logger from '../services/logger';
+import { initializeDefaultCategories } from '../services/firebase/categories';
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Import our initialized Firebase instances
+import { auth, db } from '../services/firebase/firebaseInit';
 
 const AuthContext = createContext();
 
@@ -44,6 +41,39 @@ export function AuthProvider({ children }) {
           balanceDisplayMode: 'cumulative'
         }
       });
+      
+      // Initialize default categories as a fallback to Cloud Functions
+      try {
+        logger.debug('AuthContext', operation, 'Checking if categories need initialization');
+        
+        // Check if categories already exist for the user
+        const categoriesQuery = query(
+          collection(db, 'categories'),
+          where('userId', '==', userCredential.user.uid)
+        );
+        
+        const categoriesSnapshot = await getDocs(categoriesQuery);
+        
+        if (categoriesSnapshot.empty) {
+          logger.info('AuthContext', operation, 'No categories found, initializing defaults', {
+            userId: userCredential.user.uid
+          });
+          
+          // Initialize default categories
+          await initializeDefaultCategories(userCredential.user.uid);
+        } else {
+          logger.info('AuthContext', operation, 'Categories already exist for user', {
+            userId: userCredential.user.uid,
+            count: categoriesSnapshot.size
+          });
+        }
+      } catch (categoryError) {
+        // Log the error but continue with the signup process
+        logger.error('AuthContext', operation, 'Error initializing categories', { 
+          error: categoryError,
+          userId: userCredential.user.uid
+        });
+      }
       
       logger.info('AuthContext', operation, 'User signup successful', {
         userId: userCredential.user.uid

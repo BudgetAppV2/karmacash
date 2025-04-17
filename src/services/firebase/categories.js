@@ -11,9 +11,10 @@ import {
   query,
   where,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  addDoc
 } from 'firebase/firestore';
-import { db } from './firestore';
+import { db } from './firebaseInit';
 import logger from '../logger';
 
 /**
@@ -49,7 +50,7 @@ export const getCategories = async (userId) => {
       error: error.message,
       userId
     });
-    throw error;
+    return handleMissingIndex(error);
   }
 };
 
@@ -183,7 +184,7 @@ export const deleteCategory = async (categoryId) => {
 /**
  * Initialize default categories for a new user
  * @param {string} userId - User ID
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>} - Success indicator
  */
 export const initializeDefaultCategories = async (userId) => {
   try {
@@ -191,24 +192,49 @@ export const initializeDefaultCategories = async (userId) => {
       userId 
     });
     
+    // Check if user already has categories
+    const existingCategoriesQuery = query(
+      collection(db, 'categories'),
+      where('userId', '==', userId)
+    );
+    
+    const existingSnapshot = await getDocs(existingCategoriesQuery);
+    
+    if (!existingSnapshot.empty) {
+      logger.info('CategoryService', 'initializeDefaultCategories', 'User already has categories', {
+        userId,
+        count: existingSnapshot.size
+      });
+      return true;
+    }
+    
     const defaultCategories = [
-      { name: 'Alimentation', icon: 'shopping-cart', color: '#4CAF50', order: 1, type: 'expense' },
-      { name: 'Logement', icon: 'home', color: '#2196F3', order: 2, type: 'expense' },
-      { name: 'Transport', icon: 'directions-car', color: '#FF9800', order: 3, type: 'expense' },
-      { name: 'Loisirs', icon: 'local-movies', color: '#9C27B0', order: 4, type: 'expense' },
-      { name: 'Santé', icon: 'favorite', color: '#F44336', order: 5, type: 'expense' },
-      { name: 'Éducation', icon: 'school', color: '#795548', order: 6, type: 'expense' },
-      { name: 'Services', icon: 'build', color: '#607D8B', order: 7, type: 'expense' },
-      { name: 'Salaire', icon: 'work', color: '#00C853', order: 8, type: 'income' },
-      { name: 'Cadeaux', icon: 'card-giftcard', color: '#AA00FF', order: 9, type: 'income' },
-      { name: 'Autres Revenus', icon: 'attach-money', color: '#00BFA5', order: 10, type: 'income' }
+      { name: 'Alimentation', icon: 'restaurant', color: '#919A7F', order: 1, type: 'expense' }, // Sage green
+      { name: 'Transport', icon: 'directions_car', color: '#568E8D', order: 2, type: 'expense' }, // Muted teal
+      { name: 'Logement', icon: 'home', color: '#919A7F', order: 3, type: 'expense' }, // Sage green
+      { name: 'Divertissement', icon: 'movie', color: '#568E8D', order: 4, type: 'expense' }, // Muted teal
+      { name: 'Shopping', icon: 'shopping_cart', color: '#919A7F', order: 5, type: 'expense' }, // Sage green
+      { name: 'Services', icon: 'power', color: '#568E8D', order: 6, type: 'expense' }, // Muted teal
+      { name: 'Santé', icon: 'favorite', color: '#C17C74', order: 7, type: 'expense' }, // Soft terra cotta
+      { name: 'Éducation', icon: 'school', color: '#A58D7F', order: 8, type: 'expense' }, // Taupe
+      { name: 'Salaire', icon: 'work', color: '#568E8D', order: 9, type: 'income' }, // Muted teal
+      { name: 'Cadeaux', icon: 'card_giftcard', color: '#919A7F', order: 10, type: 'income' }, // Sage green
+      { name: 'Investissements', icon: 'trending_up', color: '#568E8D', order: 11, type: 'income' }, // Muted teal
+      { name: 'Autres Revenus', icon: 'attach_money', color: '#919A7F', order: 12, type: 'income' } // Sage green
     ];
     
     // Create batch operations for all default categories
     const batch = [];
     
     for (const category of defaultCategories) {
-      batch.push(createCategory(userId, category));
+      batch.push(
+        addDoc(collection(db, 'categories'), {
+          ...category,
+          userId,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        })
+      );
     }
     
     // Execute all category creations in parallel
@@ -218,11 +244,35 @@ export const initializeDefaultCategories = async (userId) => {
       userId,
       count: defaultCategories.length
     });
+    
+    return true;
   } catch (error) {
     logger.error('CategoryService', 'initializeDefaultCategories', 'Failed to initialize default categories', {
       error: error.message,
       userId
     });
-    throw error;
+    return handleMissingIndex(error);
   }
+};
+
+// Add a function to handle missing indexes by providing clear instructions
+export const handleMissingIndex = (error) => {
+  if (error.code === 'failed-precondition' || error.message.includes('requires an index')) {
+    console.error('Firebase index error detected. Please create the required index by:');
+    console.error('1. Going to the Firebase console');
+    console.error('2. Click on the link in the error message below:');
+    console.error(error.message);
+    console.error('3. Click "Create Index" in the Firebase console');
+    
+    return {
+      error: true,
+      message: 'Firebase database index needs to be created. Please see console for instructions.',
+      indexUrl: error.message.match(/https:\/\/console\.firebase\.google\.com[^\s]+/)?.[0] || null
+    };
+  }
+  
+  return {
+    error: true,
+    message: error.message
+  };
 }; 
