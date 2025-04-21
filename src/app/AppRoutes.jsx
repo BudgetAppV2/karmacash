@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ToastProvider } from '../contexts/ToastContext';
 
 // Layout
 import MainLayout from '../components/navigation/MainLayout';
@@ -25,6 +26,8 @@ import InfoCardDemo from '../components/ui/InfoCardDemo';
 import CategoryDisplayDemo from '../features/categories/CategoryDisplayDemo';
 import ActionConfirmDemo from '../components/ui/ActionConfirmDemo';
 import TestCategoryInit from '../components/TestCategoryInit';
+// Re-enable toast demo with improved implementation
+import ToastDemo from '../components/ui/ToastDemo';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }) {
@@ -54,6 +57,12 @@ function AppRoutes() {
       <Route path="/demo/infocard" element={<InfoCardDemo />} />
       <Route path="/demo/categories" element={<CategoryDisplayDemo />} />
       <Route path="/demo/action-confirm" element={<ActionConfirmDemo />} />
+      {/* Use ToastProvider directly to allow access without authentication */}
+      <Route path="/demo/toast" element={
+        <ToastProvider>
+          <ToastDemo />
+        </ToastProvider>
+      } />
       <Route path="/test-categories" element={<TestCategoryInit />} />
       
       {/* Protected routes */}

@@ -4,7 +4,9 @@ import { Link } from 'react-router-dom';
 import { formatCurrency, formatRelativeDate } from '../../../utils/formatters';
 import { deleteTransaction } from '../../../services/firebase/transactions';
 import { getCategory } from '../../../services/firebase/categories';
+import { useToast } from '../../../contexts/ToastContext';
 import logger from '../../../services/logger';
+import './TransactionList.css';
 
 /**
  * TransactionList component that displays transactions grouped by day
@@ -16,10 +18,12 @@ import logger from '../../../services/logger';
  * @returns {JSX.Element} Transaction list grouped by day
  */
 const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' }) => {
+  const { showSuccess, showError } = useToast();
   const [categoryMap, setCategoryMap] = useState({});
   const [expandedDay, setExpandedDay] = useState(null);
   const [swipedTransactionId, setSwipedTransactionId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
   const touchStartXRef = useRef(0);
   
   // Fetch category details for all transactions
@@ -57,6 +61,18 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     
     if (transactions.length > 0) {
       fetchCategoryDetails();
+      
+      // Auto-expand the first day if there are transactions
+      const firstDate = new Date(transactions[0].date);
+      firstDate.setHours(0, 0, 0, 0);
+      setExpandedDay(firstDate.toISOString());
+      
+      // Hide swipe hint after 5 seconds
+      const timer = setTimeout(() => {
+        setShowSwipeHint(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
     }
   }, [transactions]);
   
@@ -115,6 +131,34 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     }
   };
   
+  // Mouse events for desktop users
+  const handleMouseDown = (e, transactionId) => {
+    touchStartXRef.current = e.clientX;
+    
+    const handleMouseMove = (moveEvent) => {
+      if (swipedTransactionId && swipedTransactionId !== transactionId) {
+        return;
+      }
+      
+      const mouseMoveX = moveEvent.clientX;
+      const diff = touchStartXRef.current - mouseMoveX;
+      
+      if (diff > 50) {
+        setSwipedTransactionId(transactionId);
+      } else if (diff < -50) {
+        setSwipedTransactionId(null);
+      }
+    };
+    
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+  
   // Handle delete transaction
   const handleDeleteTransaction = async (transactionId) => {
     if (isDeleting) return;
@@ -134,15 +178,32 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
       if (onTransactionDeleted) {
         onTransactionDeleted(transactionId);
       }
+      
+      showSuccess('Transaction supprimée avec succès');
     } catch (error) {
       logger.error('TransactionList', 'handleDeleteTransaction', 'Error deleting transaction', {
         transactionId,
         error
       });
+      showError('Échec de la suppression de la transaction');
     } finally {
       setIsDeleting(false);
     }
   };
+  
+  // Cancel swipe on click elsewhere
+  const handlePageClick = (e) => {
+    if (swipedTransactionId && !e.target.closest('.transaction-item-wrapper')) {
+      setSwipedTransactionId(null);
+    }
+  };
+  
+  useEffect(() => {
+    document.addEventListener('click', handlePageClick);
+    return () => {
+      document.removeEventListener('click', handlePageClick);
+    };
+  }, [swipedTransactionId]);
   
   // Get category name for a transaction
   const getCategoryName = (transaction) => {
@@ -160,45 +221,16 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     return '#919A7F'; // Default sage green
   };
   
-  // Primary colors from Zen/Tranquility theme
-  const primaryColor = '#919A7F'; // Sage green
-  const negativeColor = '#C17C74'; // Soft terra cotta for expenses
-  const positiveColor = '#568E8D'; // Muted teal for income
-  const backgroundColor = '#F3F0E8'; // Soft off-white
-  
   // If no transactions, show empty state
   if (!transactions || transactions.length === 0) {
     return (
-      <div 
-        className="empty-state"
-        style={{
-          textAlign: 'center',
-          padding: '48px 24px',
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-        }}
-      >
-        <p style={{ 
-          fontSize: '1.1rem', 
-          color: '#88837A',
-          marginBottom: '24px'
-        }}>
+      <div className="empty-state">
+        <p className="empty-state-message">
           Aucune transaction à afficher
         </p>
         <Link 
           to="/add" 
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            backgroundColor: primaryColor,
-            color: 'white',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontSize: '1rem',
-            fontWeight: 500,
-            transition: 'all 0.2s ease-out'
-          }}
+          className="add-transaction-btn"
         >
           Ajouter une transaction
         </Link>
@@ -208,6 +240,14 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
   
   return (
     <div className="transaction-list">
+      {/* Swipe Hint - Only shows initially */}
+      {showSwipeHint && transactions.length > 0 && (
+        <div className="swipe-hint">
+          <span className="swipe-hint-icon">←</span>
+          Glissez une transaction vers la gauche pour la supprimer
+        </div>
+      )}
+    
       {sortedGroups.map((group) => {
         // Calculate daily total
         const dailyTotal = group.transactions.reduce(
@@ -223,82 +263,36 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
           <div 
             key={dateKey}
             className="transaction-day-card"
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              marginBottom: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-              transition: 'all 0.3s ease'
-            }}
           >
             {/* Day Header */}
             <div 
               className="day-header"
-              style={{
-                padding: '16px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: isExpanded ? '1px solid #e9ecef' : 'none',
-                cursor: 'pointer'
-              }}
               onClick={() => toggleDay(dateKey)}
               role="button"
               tabIndex={0}
             >
-              <div className="day-date" style={{ fontWeight: 500 }}>
+              <div className="day-date">
                 {formatRelativeDate(group.date)}
               </div>
-              <div 
-                className={`day-total ${dailyTotal < 0 ? 'negative' : 'positive'}`}
-                style={{
-                  color: dailyTotal < 0 ? negativeColor : positiveColor,
-                  fontWeight: 600
-                }}
-              >
+              <div className={`day-total ${dailyTotal < 0 ? 'negative' : 'positive'}`}>
                 {formatCurrency(dailyTotal, currency)}
               </div>
             </div>
             
             {/* Transactions */}
             {isExpanded && (
-              <div 
-                className="day-transactions"
-                style={{
-                  padding: '8px 0'
-                }}
-              >
+              <div className="day-transactions">
                 {group.transactions.map(transaction => (
                   <div
                     key={transaction.id}
                     className="transaction-item-wrapper"
-                    style={{
-                      position: 'relative',
-                      overflow: 'hidden',
-                      touchAction: 'pan-y'
-                    }}
                     onTouchStart={(e) => handleTouchStart(e, transaction.id)}
                     onTouchMove={(e) => handleTouchMove(e, transaction.id)}
+                    onMouseDown={(e) => handleMouseDown(e, transaction.id)}
                   >
                     {/* Delete Button (revealed on swipe) */}
                     <div
-                      className="delete-button"
-                      style={{
-                        position: 'absolute',
-                        right: 0,
-                        top: 0,
-                        bottom: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '80px',
-                        backgroundColor: negativeColor,
-                        color: 'white',
-                        fontWeight: 500,
-                        transform: swipedTransactionId === transaction.id ? 'translateX(0)' : 'translateX(100%)',
-                        transition: 'transform 0.3s ease'
-                      }}
+                      className={`delete-button ${swipedTransactionId === transaction.id ? 'visible' : 'hidden'}`}
                       onClick={() => handleDeleteTransaction(transaction.id)}
                     >
                       {isDeleting ? 'Suppression...' : 'Supprimer'}
@@ -306,45 +300,13 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
                     
                     {/* Transaction Item */}
                     <div
-                      className="transaction-item"
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '16px',
-                        borderBottom: '1px solid #f5f5f5',
-                        backgroundColor: 'white',
-                        transform: swipedTransactionId === transaction.id ? 'translateX(-80px)' : 'translateX(0)',
-                        transition: 'transform 0.3s ease'
-                      }}
+                      className={`transaction-item ${swipedTransactionId === transaction.id ? 'swiped' : ''}`}
                     >
-                      <div 
-                        className="transaction-details"
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '4px'
-                        }}
-                      >
-                        <div 
-                          className="transaction-description"
-                          style={{
-                            fontWeight: 500,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}
-                        >
+                      <div className="transaction-details">
+                        <div className="transaction-description">
                           {transaction.isRecurringInstance && (
                             <span
-                              style={{
-                                display: 'inline-block',
-                                width: '8px',
-                                height: '8px',
-                                borderRadius: '50%',
-                                backgroundColor: '#7A8D99', // Information color
-                                marginRight: '4px'
-                              }}
+                              className="recurring-indicator"
                               title="Transaction récurrente"
                             />
                           )}
@@ -353,34 +315,17 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
                         
                         <div 
                           className="transaction-category"
-                          style={{
-                            fontSize: '0.85rem',
-                            color: getCategoryColor(transaction),
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
+                          style={{ color: getCategoryColor(transaction) }}
                         >
                           <span
-                            style={{
-                              display: 'inline-block',
-                              width: '8px',
-                              height: '8px',
-                              borderRadius: '50%',
-                              backgroundColor: getCategoryColor(transaction)
-                            }}
+                            className="category-indicator"
+                            style={{ backgroundColor: getCategoryColor(transaction) }}
                           />
                           {getCategoryName(transaction)}
                         </div>
                       </div>
                       
-                      <div 
-                        className={`transaction-amount ${transaction.amount < 0 ? 'negative' : 'positive'}`}
-                        style={{
-                          fontWeight: 600,
-                          color: transaction.amount < 0 ? negativeColor : positiveColor
-                        }}
-                      >
+                      <div className={`transaction-amount ${transaction.amount < 0 ? 'negative' : 'positive'}`}>
                         {formatCurrency(transaction.amount, currency)}
                       </div>
                     </div>

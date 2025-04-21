@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { ToastProvider } from '../../contexts/ToastContext';
 import ensoCircleSvg from '../../assets/enso-circle.svg';
 
 function MainLayout() {
@@ -28,7 +29,9 @@ function MainLayout() {
       </header>
 
       <main className="app-main">
-        <Outlet />
+        <ToastProvider>
+          <Outlet />
+        </ToastProvider>
       </main>
       
       <nav className="app-nav">

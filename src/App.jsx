@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 import AppRoutes from './app/AppRoutes';
 import { auth } from './services/firebase/firebaseInit';
 import { syncUserProfile } from './services/firebase/firestore';
@@ -38,7 +39,10 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <AppRoutes />
+        {/* Keep ToastProvider at app level to ensure toast functionality for public routes */}
+        <ToastProvider>
+          <AppRoutes />
+        </ToastProvider>
       </AuthProvider>
     </Router>
   );

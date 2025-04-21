@@ -171,8 +171,8 @@ export const deleteTransaction = async (transactionId) => {
 /**
  * Get transactions for a user within a date range
  * @param {string} userId - User ID
- * @param {Date} startDate - Start date
- * @param {Date} endDate - End date
+ * @param {Date|Timestamp} startDate - Start date
+ * @param {Date|Timestamp} endDate - End date
  * @param {Object} options - Query options (limit, orderDirection)
  * @returns {Promise<Array>} - Array of transactions
  */
@@ -189,42 +189,106 @@ export const getTransactionsInRange = async (userId, startDate, endDate, options
       orderDirection = 'desc'
     } = options;
     
-    // Convert dates to Firestore Timestamps
-    const startTimestamp = Timestamp.fromDate(startDate);
-    const endTimestamp = Timestamp.fromDate(endDate);
+    // Ensure dates are Firestore Timestamps
+    const startTimestamp = startDate instanceof Timestamp 
+      ? startDate 
+      : Timestamp.fromDate(new Date(startDate));
     
-    // Create query
-    const q = query(
-      collection(db, 'transactions'),
-      where('userId', '==', userId),
-      where('date', '>=', startTimestamp),
-      where('date', '<=', endTimestamp),
-      orderBy('date', orderDirection),
-      limit(queryLimit)
-    );
+    const endTimestamp = endDate instanceof Timestamp 
+      ? endDate 
+      : Timestamp.fromDate(new Date(endDate));
     
-    const querySnapshot = await getDocs(q);
+    logger.debug('TransactionService', 'getTransactionsInRange', 'Using timestamp range', {
+      startTimestamp,
+      endTimestamp
+    });
     
-    const transactions = querySnapshot.docs.map(doc => {
-      const data = doc.data();
+    // Reference to transactions collection
+    const transactionsRef = collection(db, 'transactions');
+    
+    try {
+      // Create query with orderBy
+      const q = query(
+        transactionsRef,
+        where('userId', '==', userId),
+        where('date', '>=', startTimestamp),
+        where('date', '<=', endTimestamp),
+        orderBy('date', orderDirection),
+        limit(queryLimit)
+      );
       
-      // Convert Firestore Timestamp to JS Date
-      if (data.date && data.date instanceof Timestamp) {
-        data.date = data.date.toDate();
+      const querySnapshot = await getDocs(q);
+      
+      const transactions = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        
+        // Convert Firestore Timestamp to JS Date
+        if (data.date && data.date instanceof Timestamp) {
+          data.date = data.date.toDate();
+        }
+        
+        transactions.push({
+          id: doc.id,
+          ...data
+        });
+      });
+      
+      logger.info('TransactionService', 'getTransactionsInRange', 'Transactions fetched successfully', {
+        count: transactions.length
+      });
+      
+      return transactions;
+    } catch (indexError) {
+      // Check if this is an index error
+      if (indexError.message && indexError.message.includes('index')) {
+        logger.warn('TransactionService', 'getTransactionsInRange', 'Missing index, falling back to simpler query', {
+          error: indexError.message
+        });
+        
+        // Try again without orderBy (will require client-side sorting)
+        const simpleQuery = query(
+          transactionsRef,
+          where('userId', '==', userId),
+          where('date', '>=', startTimestamp),
+          where('date', '<=', endTimestamp)
+        );
+        
+        const querySnapshot = await getDocs(simpleQuery);
+        
+        const transactions = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          
+          // Convert Firestore Timestamp to JS Date
+          if (data.date && data.date instanceof Timestamp) {
+            data.date = data.date.toDate();
+          }
+          
+          transactions.push({
+            id: doc.id,
+            ...data
+          });
+        });
+        
+        // Sort manually on client side
+        transactions.sort((a, b) => {
+          // Handle if dates are already processed
+          const dateA = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
+          const dateB = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
+          return orderDirection === 'desc' ? dateB - dateA : dateA - dateB;
+        });
+        
+        logger.info('TransactionService', 'getTransactionsInRange', 'Transactions fetched with client-side sorting', {
+          count: transactions.length
+        });
+        
+        return transactions;
       }
       
-      return {
-        id: doc.id,
-        ...data
-      };
-    });
-    
-    logger.info('TransactionService', 'getTransactionsInRange', 'Transactions retrieved successfully', { 
-      userId,
-      count: transactions.length
-    });
-    
-    return transactions;
+      // If it's not an index error, rethrow
+      throw indexError;
+    }
   } catch (error) {
     logger.error('TransactionService', 'getTransactionsInRange', 'Failed to get transactions', {
       error: error.message,

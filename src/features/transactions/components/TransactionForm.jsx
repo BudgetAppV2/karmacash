@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { getCategories, initializeDefaultCategories } from '../../../services/firebase/categories';
 import { addTransaction } from '../../../services/firebase/transactions';
 import logger from '../../../services/logger';
@@ -16,6 +17,7 @@ import logger from '../../../services/logger';
 const TransactionForm = ({ onSuccess }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { showSuccess, showError } = useToast();
   
   // Form state
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -59,6 +61,7 @@ const TransactionForm = ({ onSuccess }) => {
           setError('Erreur lors du chargement des catégories');
           setShowInitializeButton(true);
           setCategories([]);
+          showError('Aucune catégorie disponible');
         } else {
           logger.info('Categories loaded successfully', {
             component: 'TransactionForm',
@@ -88,6 +91,7 @@ const TransactionForm = ({ onSuccess }) => {
         setError('Erreur lors du chargement des catégories');
         setShowInitializeButton(true);
         setCategories([]);
+        showError('Échec du chargement des catégories');
       } finally {
         setIsLoading(false);
       }
@@ -96,7 +100,7 @@ const TransactionForm = ({ onSuccess }) => {
     if (currentUser) {
       fetchCategories();
     }
-  }, [currentUser]);
+  }, [currentUser, showError]);
   
   // Handle initialization of default categories
   const handleInitializeCategories = async () => {
@@ -120,11 +124,13 @@ const TransactionForm = ({ onSuccess }) => {
       }
       
       setShowInitializeButton(false);
+      showSuccess('Catégories initialisées avec succès');
       
       logger.info('TransactionForm', 'handleInitializeCategories', 'Categories initialized successfully');
     } catch (error) {
       logger.error('TransactionForm', 'handleInitializeCategories', 'Error initializing categories', { error });
       setError('Erreur lors de l\'initialisation des catégories. Veuillez réessayer plus tard.');
+      showError('Échec de l\'initialisation des catégories');
     } finally {
       setIsLoading(false);
     }
@@ -140,6 +146,7 @@ const TransactionForm = ({ onSuccess }) => {
     // Validate form
     if (!categoryId || !amount || !description || !date) {
       setError('Veuillez remplir tous les champs');
+      showError('Veuillez remplir tous les champs');
       return;
     }
     
@@ -167,6 +174,7 @@ const TransactionForm = ({ onSuccess }) => {
       await addTransaction(currentUser.uid, transactionData);
       
       logger.info('TransactionForm', 'handleSubmit', 'Transaction added successfully');
+      showSuccess('Transaction ajoutée avec succès');
       
       // Clear form
       setDate(new Date().toISOString().slice(0, 10));
@@ -181,6 +189,7 @@ const TransactionForm = ({ onSuccess }) => {
     } catch (error) {
       logger.error('TransactionForm', 'handleSubmit', 'Error adding transaction', { error });
       setError(`Erreur lors de l'ajout de la transaction: ${error.message}`);
+      showError('Échec de l\'ajout de la transaction');
     } finally {
       setIsLoading(false);
     }

@@ -24,33 +24,201 @@ import logger from '../logger';
  */
 export const getCategories = async (userId) => {
   try {
-    logger.debug('CategoryService', 'getCategories', 'Fetching categories', { userId });
+    console.log('🔍 getCategories: Starting fetch for userId:', userId);
     
-    const q = query(
-      collection(db, 'categories'),
-      where('userId', '==', userId),
-      orderBy('order', 'asc')
-    );
-    
-    const querySnapshot = await getDocs(q);
-    
-    const categories = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    logger.info('CategoryService', 'getCategories', 'Categories retrieved successfully', { 
+    logger.debug('CategoryService', 'getCategories', 'Fetching categories', { 
       userId,
-      count: categories.length
+      timestamp: new Date().toISOString()
     });
     
-    return categories;
+    // First, check how many categories exist for this user (without ordering)
+    const countQuery = query(
+      collection(db, 'categories'),
+      where('userId', '==', userId)
+    );
+    
+    const countSnapshot = await getDocs(countQuery);
+    
+    // Log details of what we found
+    console.log(`🔢 Found ${countSnapshot.size} categories for user ${userId}`);
+    
+    // Get a preview of the categories
+    const previewCategories = countSnapshot.docs.map(doc => ({
+      id: doc.id, 
+      name: doc.data().name,
+      type: doc.data().type,
+      order: doc.data().order
+    }));
+    console.log('👀 Preview of categories found:', previewCategories);
+    
+    logger.debug('CategoryService', 'getCategories', 'Initial count query result', {
+      count: countSnapshot.size,
+      empty: countSnapshot.empty
+    });
+    
+    // If collection is empty, return empty array early
+    if (countSnapshot.empty) {
+      logger.info('CategoryService', 'getCategories', 'No categories found for user', { userId });
+      return [];
+    }
+    
+    // Now try the query with ordering
+    try {
+      // Create a query to fetch categories by userId, ordered by the order field
+      const q = query(
+        collection(db, 'categories'),
+        where('userId', '==', userId),
+        orderBy('order', 'asc')
+      );
+      
+      logger.debug('CategoryService', 'getCategories', 'Executing Firestore query with ordering');
+      const querySnapshot = await getDocs(q);
+      
+      // Compare results
+      console.log(`🔄 Query with ordering returned ${querySnapshot.size} categories compared to ${countSnapshot.size} from count query`);
+      
+      if (querySnapshot.size < countSnapshot.size) {
+        console.warn(`⚠️ Some categories were filtered out by the ordering query. This might be because some don't have an order field.`);
+        
+        // Check which categories are missing
+        const orderedIds = new Set(querySnapshot.docs.map(doc => doc.id));
+        const allCategoryIds = new Set(countSnapshot.docs.map(doc => doc.id));
+        
+        const missingIds = [...allCategoryIds].filter(id => !orderedIds.has(id));
+        console.log(`❌ Missing categories by ID:`, missingIds);
+        
+        // Get details of missing categories
+        const missingCategories = countSnapshot.docs
+          .filter(doc => missingIds.includes(doc.id))
+          .map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        console.log(`❓ Details of missing categories:`, missingCategories);
+      }
+      
+      // Map documents to JavaScript objects
+      const categories = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      // Check if we need to add any missing categories
+      if (querySnapshot.size < countSnapshot.size) {
+        // Get the IDs of categories we already have
+        const existingIds = new Set(categories.map(cat => cat.id));
+        
+        // Find categories from the count query that are missing
+        const missingCategories = countSnapshot.docs
+          .filter(doc => !existingIds.has(doc.id))
+          .map(doc => {
+            const data = doc.data();
+            // Add default order if missing (using a very high number to put at end)
+            if (!data.order) {
+              data.order = 9999999;
+            }
+            return {
+              id: doc.id,
+              ...data
+            };
+          });
+        
+        console.log(`➕ Adding ${missingCategories.length} categories that were missing order fields`);
+        
+        // Add missing categories to our result
+        categories.push(...missingCategories);
+        
+        // Sort all categories by order
+        categories.sort((a, b) => {
+          const orderA = a.order || 9999999;
+          const orderB = b.order || 9999999;
+          return orderA - orderB;
+        });
+      }
+      
+      // Convert Firebase timestamps to regular dates
+      categories.forEach(category => {
+        if (category.createdAt && typeof category.createdAt.toDate === 'function') {
+          category.createdAt = category.createdAt.toDate();
+        }
+        if (category.updatedAt && typeof category.updatedAt.toDate === 'function') {
+          category.updatedAt = category.updatedAt.toDate();
+        }
+      });
+      
+      logger.info('CategoryService', 'getCategories', 'Categories retrieved successfully with ordering', { 
+        userId,
+        count: categories.length,
+        categoryNames: categories.map(c => c.name).join(', ')
+      });
+      
+      return categories;
+    } catch (orderError) {
+      // If ordering fails, fall back to unordered query
+      logger.warn('CategoryService', 'getCategories', 'Failed to fetch with ordering, using fallback', {
+        error: orderError.message
+      });
+      
+      // Map the results from our count query since we already have them
+      const fallbackCategories = countSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      // Convert timestamps
+      fallbackCategories.forEach(category => {
+        if (category.createdAt && typeof category.createdAt.toDate === 'function') {
+          category.createdAt = category.createdAt.toDate();
+        }
+        if (category.updatedAt && typeof category.updatedAt.toDate === 'function') {
+          category.updatedAt = category.updatedAt.toDate();
+        }
+      });
+      
+      logger.info('CategoryService', 'getCategories', 'Categories retrieved using fallback', {
+        count: fallbackCategories.length,
+        categoryNames: fallbackCategories.map(c => c.name).join(', ')
+      });
+      
+      return fallbackCategories;
+    }
   } catch (error) {
     logger.error('CategoryService', 'getCategories', 'Failed to get categories', {
       error: error.message,
+      errorCode: error.code,
+      stack: error.stack,
       userId
     });
-    return handleMissingIndex(error);
+    
+    // Try one last simple approach
+    try {
+      logger.info('CategoryService', 'getCategories', 'Attempting direct collection fetch as last resort');
+      
+      const simpleSnapshot = await getDocs(collection(db, 'categories'));
+      
+      // Filter for this user's categories directly in code
+      const userCategories = simpleSnapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .filter(cat => cat.userId === userId);
+      
+      logger.info('CategoryService', 'getCategories', 'Last resort query successful', {
+        totalCount: simpleSnapshot.size,
+        userCount: userCategories.length
+      });
+      
+      return userCategories;
+    } catch (lastError) {
+      logger.error('CategoryService', 'getCategories', 'All attempts failed', {
+        error: lastError.message
+      });
+      
+      // If all else fails, return an error object
+      return {
+        error: true,
+        message: 'Failed to retrieve categories after multiple attempts. Please try again later.'
+      };
+    }
   }
 };
 
@@ -96,29 +264,44 @@ export const createCategory = async (userId, categoryData) => {
   try {
     logger.debug('CategoryService', 'createCategory', 'Creating new category', { 
       userId,
-      categoryName: categoryData.name
+      categoryName: categoryData.name,
+      categoryData: JSON.stringify(categoryData)
     });
+    
+    // Ensure order field exists
+    if (!categoryData.order) {
+      categoryData.order = Date.now();
+    }
     
     // Create a new document reference with auto-generated ID
     const categoryRef = doc(collection(db, 'categories'));
     
-    // Create category document
-    await setDoc(categoryRef, {
+    // Create category document with all required fields
+    const fullCategoryData = {
       userId,
       ...categoryData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
+    };
+    
+    logger.debug('CategoryService', 'createCategory', 'Full category data', { 
+      data: JSON.stringify(fullCategoryData)
     });
+    
+    await setDoc(categoryRef, fullCategoryData);
     
     logger.info('CategoryService', 'createCategory', 'Category created successfully', { 
       userId,
-      categoryId: categoryRef.id
+      categoryId: categoryRef.id,
+      categoryName: categoryData.name
     });
     
+    // Return full category object with ID for immediate UI update
     return categoryRef.id;
   } catch (error) {
     logger.error('CategoryService', 'createCategory', 'Failed to create category', {
       error: error.message,
+      stack: error.stack,
       userId
     });
     throw error;

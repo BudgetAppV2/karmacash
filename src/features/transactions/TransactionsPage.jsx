@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSettings } from '../../contexts/SettingsContext';
-import { getTransactionsInRange } from '../../services/firebase/transactions';
 import { formatYearMonth, formatDate } from '../../utils/formatters';
-import TransactionList from './components/TransactionList';
-import TransactionSummary from './components/TransactionSummary';
+import TransactionListWithFetch from './components/TransactionListWithFetch';
 import logger from '../../services/logger';
 
 /**
@@ -17,9 +15,7 @@ const TransactionsPage = () => {
   const { currentUser } = useAuth();
   const { settings } = useSettings();
   
-  // State for transactions and loading
-  const [transactions, setTransactions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // State for error handling
   const [error, setError] = useState('');
   
   // Period state (week or month)
@@ -69,47 +65,6 @@ const TransactionsPage = () => {
     });
   }, [currentDate, viewMode]);
   
-  // Fetch transactions within the date range
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      if (!currentUser || !startDate || !endDate) return;
-      
-      setIsLoading(true);
-      setError('');
-      
-      try {
-        logger.info('TransactionsPage', 'fetchTransactions', 'Fetching transactions', {
-          userId: currentUser.uid,
-          startDate,
-          endDate,
-          viewMode
-        });
-        
-        const fetchedTransactions = await getTransactionsInRange(
-          currentUser.uid, 
-          startDate, 
-          endDate,
-          { orderDirection: 'desc' }
-        );
-        
-        setTransactions(fetchedTransactions);
-        
-        logger.info('TransactionsPage', 'fetchTransactions', 'Transactions fetched successfully', {
-          count: fetchedTransactions.length
-        });
-      } catch (error) {
-        logger.error('TransactionsPage', 'fetchTransactions', 'Error fetching transactions', {
-          error
-        });
-        setError('Erreur lors du chargement des transactions');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchTransactions();
-  }, [currentUser, startDate, endDate]);
-  
   // Navigate to previous period
   const handlePrevious = () => {
     const newDate = new Date(currentDate);
@@ -155,15 +110,11 @@ const TransactionsPage = () => {
     }
   };
   
-  // Handle transaction deletion
-  const handleTransactionDeleted = (transactionId) => {
-    // Update local state to remove the deleted transaction
-    setTransactions(prevTransactions => 
-      prevTransactions.filter(t => t.id !== transactionId)
-    );
-    
-    logger.info('TransactionsPage', 'handleTransactionDeleted', 'Transaction removed from list', {
-      transactionId
+  // Handle transaction loading error
+  const handleTransactionError = (error) => {
+    setError(`Erreur: ${error.message}`);
+    logger.error('TransactionsPage', 'handleTransactionError', 'Error from transaction list', {
+      error: error.message
     });
   };
   
@@ -363,32 +314,12 @@ const TransactionsPage = () => {
         </div>
       )}
       
-      {/* Loading State */}
-      {isLoading ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '32px',
-          color: '#88837A'
-        }}>
-          Chargement...
-        </div>
-      ) : (
-        <>
-          {/* Transaction Summary */}
-          <TransactionSummary 
-            transactions={transactions}
-            currency={settings?.currency || 'CAD'}
-            period={formatPeriodLabel()}
-          />
-          
-          {/* Transaction List */}
-          <TransactionList 
-            transactions={transactions}
-            onTransactionDeleted={handleTransactionDeleted}
-            currency={settings?.currency || 'CAD'}
-          />
-        </>
-      )}
+      {/* Transaction List with Fetch */}
+      <TransactionListWithFetch 
+        startDate={startDate}
+        endDate={endDate}
+        onError={handleTransactionError}
+      />
     </div>
   );
 };
