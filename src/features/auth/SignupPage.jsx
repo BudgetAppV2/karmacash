@@ -24,14 +24,10 @@ const SignupPage = () => {
     setLoading(true);
     
     try {
-      // Create the user account
-      const userCredential = await registerUser(email, password);
+      // Create the user account with the display name
+      const userCredential = await registerUser(email, password, displayName.trim());
       
-      // If display name was provided, update the user profile
-      if (displayName.trim()) {
-        await updateUserProfile({ displayName });
-      }
-      
+      // No need to update profile separately as registerUser now handles this
       navigate('/');
     } catch (err) {
       let errorMessage = 'Échec de la création du compte.';

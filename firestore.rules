@@ -1,34 +1,88 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow authenticated users to read and write their own data
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Checks if the requesting user is the owner of the specific user document
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Checks if the data being written belongs to the requesting user
+    // Use this for 'create' rules on subcollections
+    function isCreatingOwnData() {
+      return isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // --- User Profiles ---
+    // Users can read and write their own profile document.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // User settings
-      match /settings/{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
+
+      // --- User Subcollections ---
+
+      // Categories: Allow full CRUD if the user owns the parent user document
+      //             AND the category data includes the correct userId.
+      match /categories/{categoryId} {
+        allow read: if isOwner(userId); // Owner can read their categories
+        allow create: if isOwner(userId) && isCreatingOwnData(); // Owner can create if userId matches
+        allow update, delete: if isOwner(userId); // Owner can update/delete their categories
+        // Add validation for create/update if needed:
+        // && request.resource.data.name is string
+        // && request.resource.data.type is string
+        // etc.
       }
-      
-      // User transactions
-      match /transactions/{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Transactions: Allow full CRUD if the user owns the parent user document
+      //               AND the transaction data includes the correct userId.
+      match /transactions/{transactionId} {
+        allow read: if isOwner(userId); // Owner can read their transactions
+        allow create: if isOwner(userId) && isCreatingOwnData(); // Owner can create if userId matches
+        allow update, delete: if isOwner(userId); // Owner can update/delete their transactions
+         // Add validation for create/update if needed:
+        // && request.resource.data.amount is number
+        // && request.resource.data.date is timestamp
+        // etc.
       }
-      
-      // User categories
-      match /categories/{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Budgets: Allow full CRUD if the user owns the parent user document
+      //          AND the budget data includes the correct userId.
+      match /budgets/{budgetId} { // budgetId is likely 'YYYY-MM' format
+        allow read: if isOwner(userId); // Owner can read their budgets
+        allow create: if isOwner(userId) && isCreatingOwnData(); // Owner can create if userId matches
+        allow update, delete: if isOwner(userId); // Owner can update/delete their budgets
+         // Add validation for create/update if needed:
+        // && request.resource.data.allocations is map
+        // etc.
       }
-      
-      // User budgets
-      match /budgets/{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Recurring Rules: Allow full CRUD if the user owns the parent user document
+      //                  AND the rule data includes the correct userId.
+      match /recurringRules/{ruleId} {
+        allow read: if isOwner(userId); // Owner can read their rules
+        allow create: if isOwner(userId) && isCreatingOwnData(); // Owner can create if userId matches
+        allow update, delete: if isOwner(userId); // Owner can update/delete their rules
+         // Add validation for create/update if needed:
+        // && request.resource.data.frequency is string
+        // && request.resource.data.amount is number
+        // etc.
       }
+
+      // --- End User Subcollections ---
     }
-    
-    // Deny access to all other documents by default
-    match /{document=**} {
-      allow read, write: if false;
-    }
+
+    // --- Deny access to all other top-level collections by default ---
+    // (This rule is implicitly applied if no other top-level match exists,
+    // but can be left for clarity. It prevents access to collections like
+    // the old top-level 'categories', 'transactions' etc.)
+    // match /{path=**}/documents { allow read, write: if false; }
+    // A slightly safer default might be:
+    // match /{document=**} { allow read, write: if false; } // Keep your original one if preferred
+
   }
-} 
+}

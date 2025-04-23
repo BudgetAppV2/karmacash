@@ -29,6 +29,14 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
   // Fetch category details for all transactions
   useEffect(() => {
     const fetchCategoryDetails = async () => {
+      // Make sure we have transactions and we can get the userId
+      if (!transactions.length || !transactions[0].userId) {
+        logger.warn('TransactionList', 'fetchCategoryDetails', 'No transactions or missing userId');
+        return;
+      }
+      
+      const userId = transactions[0].userId;
+      
       const uniqueCategoryIds = [...new Set(
         transactions
           .filter(t => t.categoryId)
@@ -40,7 +48,7 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
       await Promise.all(
         uniqueCategoryIds.map(async (categoryId) => {
           try {
-            const category = await getCategory(categoryId);
+            const category = await getCategory(userId, categoryId);
             if (category) {
               categoryDetailsMap[categoryId] = {
                 name: category.name,
@@ -49,8 +57,9 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
             }
           } catch (error) {
             logger.error('TransactionList', 'fetchCategoryDetails', 'Error fetching category', {
+              userId,
               categoryId,
-              error
+              error: error.message
             });
           }
         })
@@ -165,11 +174,21 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     
     try {
       setIsDeleting(true);
+      
+      // Get the transaction to find the userId
+      const transaction = transactions.find(t => t.id === transactionId);
+      if (!transaction) {
+        throw new Error('Transaction not found');
+      }
+      
+      const userId = transaction.userId;
+      
       logger.info('TransactionList', 'handleDeleteTransaction', 'Deleting transaction', {
+        userId,
         transactionId
       });
       
-      await deleteTransaction(transactionId);
+      await deleteTransaction(userId, transactionId);
       
       logger.info('TransactionList', 'handleDeleteTransaction', 'Transaction deleted successfully');
       
@@ -183,7 +202,7 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     } catch (error) {
       logger.error('TransactionList', 'handleDeleteTransaction', 'Error deleting transaction', {
         transactionId,
-        error
+        error: error.message
       });
       showError('Échec de la suppression de la transaction');
     } finally {

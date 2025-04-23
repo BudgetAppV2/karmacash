@@ -136,8 +136,10 @@ const TransactionForm = ({ onSuccess }) => {
     }
   };
   
-  // Filter categories based on selected type
-  const filteredCategories = categories.filter(category => category.type === type);
+  // Filter categories based on selected type and sort alphabetically
+  const filteredCategories = categories
+    .filter(category => category.type === type)
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
   
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -150,12 +152,19 @@ const TransactionForm = ({ onSuccess }) => {
       return;
     }
     
+    // Check if user is authenticated
+    if (!currentUser || !currentUser.uid) {
+      setError('Vous devez être connecté pour ajouter une transaction');
+      showError('Veuillez vous connecter à nouveau');
+      return;
+    }
+    
     setIsLoading(true);
     setError('');
     
     try {
       logger.debug('TransactionForm', 'handleSubmit', 'Adding transaction', { 
-        type, categoryId, amount, date 
+        type, categoryId, amount, date, userId: currentUser.uid 
       });
       
       // Format data
@@ -187,8 +196,19 @@ const TransactionForm = ({ onSuccess }) => {
         onSuccess();
       }
     } catch (error) {
-      logger.error('TransactionForm', 'handleSubmit', 'Error adding transaction', { error });
-      setError(`Erreur lors de l'ajout de la transaction: ${error.message}`);
+      logger.error('TransactionForm', 'handleSubmit', 'Error adding transaction', { 
+        error: error.message,
+        code: error.code,
+        userId: currentUser?.uid 
+      });
+      
+      // Handle specific error cases
+      if (error.code === 'permission-denied') {
+        setError('Erreur d\'autorisation. Veuillez vous reconnecter et réessayer.');
+      } else {
+        setError(`Erreur lors de l'ajout de la transaction: ${error.message}`);
+      }
+      
       showError('Échec de l\'ajout de la transaction');
     } finally {
       setIsLoading(false);

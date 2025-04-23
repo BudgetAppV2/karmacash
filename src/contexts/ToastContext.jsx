@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Toast from '../components/ui/Toast';
 import '../components/ui/Toast.css';
@@ -23,6 +23,7 @@ export const ToastProvider = ({ children }) => {
   
   const [toasts, setToasts] = useState([]);
   const [hasError, setHasError] = useState(false);
+  const toastIdCounter = useRef(1);
   
   // Error boundary effect
   useEffect(() => {
@@ -35,7 +36,8 @@ export const ToastProvider = ({ children }) => {
   const addToast = useCallback((message, type = 'info', duration = 3000) => {
     if (hasError) return -1;
     try {
-      const id = Date.now();
+      // Generate a unique ID using a counter instead of timestamp
+      const id = `toast_${toastIdCounter.current++}`;
       setToasts(prevToasts => [...prevToasts, { id, message, type, duration }]);
       return id;
     } catch (error) {

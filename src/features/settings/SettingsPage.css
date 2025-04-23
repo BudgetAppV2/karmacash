@@ -1,0 +1,127 @@
+/* src/features/settings/SettingsPage.css */
+
+.settings-page-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.settings-header {
+  margin-bottom: 32px;
+}
+
+.settings-header h1 {
+  color: #2F2F2F;
+  margin-bottom: 8px;
+}
+
+.settings-header p {
+  color: #88837A;
+  font-size: 0.9rem;
+}
+
+.settings-section {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.settings-section h2 {
+  color: #2F2F2F;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.section-description {
+  color: #88837A;
+  margin-bottom: 20px;
+}
+
+.account-info {
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.account-info p {
+  margin: 8px 0;
+}
+
+.maintenance-tools {
+  margin-top: 16px;
+}
+
+/* Migration tool styles */
+.migration-tool {
+  margin-top: 20px;
+}
+
+.migration-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.migration-card h4 {
+  color: #2F2F2F;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.migration-card p {
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.migration-card button {
+  background-color: #919A7F;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.migration-card button:hover {
+  background-color: #7E876D;
+}
+
+.migration-card button:disabled {
+  background-color: #c5c5c5;
+  cursor: not-allowed;
+}
+
+.migration-result {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.migration-result.success {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.migration-result.error {
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+}
+
+.migration-result h5 {
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.migration-stats {
+  margin-top: 8px;
+  font-size: 0.85rem;
+}
+
+.migration-stats p {
+  margin: 4px 0;
+} 

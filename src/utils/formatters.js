@@ -1,4 +1,6 @@
 // src/utils/formatters.js
+import { format, formatRelative, differenceInDays, startOfDay, setMonth, isToday, isYesterday } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 /**
  * Format a number as currency
@@ -18,20 +20,18 @@ export const formatCurrency = (amount, currencyCode = 'CAD') => {
   };
   
   /**
-   * Format a date in the user's locale
+   * Format a date in the user's locale using date-fns
    * @param {Date} date - The date to format
-   * @param {Object} options - Intl.DateTimeFormat options
+   * @param {string} formatStr - The format string for date-fns
    * @returns {string} - Formatted date string
    */
-  export const formatDate = (date, options = {}) => {
-    const defaultOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      ...options
-    };
+  export const formatDate = (date, formatStr = 'd MMM yyyy') => {
+    if (!date) return '';
     
-    return new Intl.DateTimeFormat('fr-CA', defaultOptions).format(date);
+    // Handle Firestore Timestamp objects
+    const dateObj = date.toDate ? date.toDate() : date;
+    
+    return format(dateObj, formatStr, { locale: fr });
   };
   
   /**
@@ -40,47 +40,42 @@ export const formatCurrency = (amount, currencyCode = 'CAD') => {
    * @returns {string} - Relative date string
    */
   export const formatRelativeDate = (date) => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const dateToCheck = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    if (!date) return '';
     
-    const diffTime = today.getTime() - dateToCheck.getTime();
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    // Handle Firestore Timestamp objects
+    const dateObj = date.toDate ? date.toDate() : date;
     
-    if (diffDays === 0) {
+    if (isToday(dateObj)) {
       return "Aujourd'hui";
-    } else if (diffDays === 1) {
+    } else if (isYesterday(dateObj)) {
       return "Hier";
-    } else if (diffDays > 1 && diffDays < 7) {
-      return `Il y a ${Math.floor(diffDays)} jours`;
     } else {
-      return formatDate(date);
+      const days = differenceInDays(new Date(), dateObj);
+      if (days > 1 && days < 7) {
+        return `Il y a ${days} jours`;
+      } else {
+        return formatDate(dateObj);
+      }
     }
   };
   
   /**
-   * Format a month name
+   * Format a month name using date-fns
    * @param {number} month - Month number (0-11)
    * @returns {string} - Month name
    */
   export const formatMonth = (month) => {
-    const date = new Date();
-    date.setMonth(month);
-    
-    return new Intl.DateTimeFormat('fr-CA', { month: 'long' }).format(date);
+    const date = setMonth(new Date(), month);
+    return format(date, 'MMMM', { locale: fr });
   };
   
   /**
-   * Format a year and month
+   * Format a year and month using date-fns
    * @param {number} year - Year
    * @param {number} month - Month number (0-11)
    * @returns {string} - Formatted year and month
    */
   export const formatYearMonth = (year, month) => {
     const date = new Date(year, month);
-    
-    return new Intl.DateTimeFormat('fr-CA', { 
-      year: 'numeric', 
-      month: 'long' 
-    }).format(date);
+    return format(date, 'MMMM yyyy', { locale: fr });
   };

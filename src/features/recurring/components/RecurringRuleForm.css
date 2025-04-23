@@ -1,0 +1,190 @@
+/* src/features/recurring/components/RecurringRuleForm.css */
+
+/* Form Container */
+.recurring-rule-form {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.recurring-rule-form h3 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: #2F2F2F;
+  font-weight: 500;
+  font-size: 1.3rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 16px;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #2F2F2F;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-shadow: none;
+  background-color: transparent;
+}
+
+/* Required Field Marker */
+.required-mark {
+  color: #C17C74;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+/* Form Inputs */
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(136, 131, 122, 0.3);
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #FFFFFF;
+  color: #2F2F2F;
+  transition: border-color 0.2s ease;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #568E8D;
+  box-shadow: 0 0 0 2px rgba(86, 142, 141, 0.1);
+}
+
+.form-input[type="date"] {
+  min-height: 42px;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Input with prefix ($ sign) */
+.input-with-prefix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 12px;
+  color: #2F2F2F;
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.form-input.with-prefix {
+  padding-left: 24px;
+}
+
+/* Checkbox Styling */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  cursor: pointer;
+  margin-bottom: 0 !important;
+  color: #2F2F2F;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.form-actions button {
+  min-width: 120px;
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Button Styles */
+.btn-secondary {
+  background-color: #f5f5f5;
+  color: #2F2F2F;
+  border: 1px solid rgba(136, 131, 122, 0.3);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #e5e5e5;
+}
+
+.btn-success {
+  background-color: #919A7F;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #828b70;
+}
+
+/* Error Styling */
+.input-error {
+  border-color: #C17C74 !important;
+  background-color: rgba(193, 124, 116, 0.05);
+}
+
+.error-text {
+  color: #C17C74;
+  font-size: 0.8rem;
+  margin-top: 6px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .recurring-rule-form {
+    padding: 16px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+} 

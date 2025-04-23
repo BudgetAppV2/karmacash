@@ -104,7 +104,7 @@ const TransactionsPage = () => {
   // Format period label based on view mode
   const formatPeriodLabel = () => {
     if (viewMode === 'week') {
-      return `${formatDate(startDate, { year: 'numeric', month: 'short', day: 'numeric' })} - ${formatDate(endDate, { year: 'numeric', month: 'short', day: 'numeric' })}`;
+      return `${formatDate(startDate, 'd MMM yyyy')} - ${formatDate(endDate, 'd MMM yyyy')}`;
     } else {
       return formatYearMonth(startDate.getFullYear(), startDate.getMonth());
     }

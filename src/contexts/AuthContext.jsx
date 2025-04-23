@@ -32,9 +32,10 @@ export function AuthProvider({ children }) {
       logger.info('AuthContext', operation, 'Starting user signup');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Create user document in Firestore
+      // Create user document in Firestore with the correct structure
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         email: userCredential.user.email,
+        displayName: userCredential.user.displayName || '',
         createdAt: new Date(),
         settings: {
           currency: 'CAD',
@@ -42,17 +43,17 @@ export function AuthProvider({ children }) {
         }
       });
       
+      logger.info('AuthContext', operation, 'User document created in Firestore', {
+        userId: userCredential.user.uid
+      });
+      
       // Initialize default categories as a fallback to Cloud Functions
       try {
         logger.debug('AuthContext', operation, 'Checking if categories need initialization');
         
-        // Check if categories already exist for the user
-        const categoriesQuery = query(
-          collection(db, 'categories'),
-          where('userId', '==', userCredential.user.uid)
-        );
-        
-        const categoriesSnapshot = await getDocs(categoriesQuery);
+        // Check if categories already exist for the user in the new path structure
+        const categoriesCollection = collection(db, `users/${userCredential.user.uid}/categories`);
+        const categoriesSnapshot = await getDocs(categoriesCollection);
         
         if (categoriesSnapshot.empty) {
           logger.info('AuthContext', operation, 'No categories found, initializing defaults', {
@@ -99,14 +100,67 @@ export function AuthProvider({ children }) {
       const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
       if (!userDoc.exists()) {
         // Create user document if it doesn't exist
+        logger.info('AuthContext', operation, 'Creating user document that does not exist', {
+          userId: userCredential.user.uid
+        });
+        
         await setDoc(doc(db, 'users', userCredential.user.uid), {
           email: userCredential.user.email,
+          displayName: userCredential.user.displayName || '',
           createdAt: new Date(),
           settings: {
             currency: 'CAD',
             balanceDisplayMode: 'cumulative'
           }
         });
+        
+        // Initialize default categories for this new user
+        try {
+          logger.debug('AuthContext', operation, 'Checking if categories need initialization for new user document');
+          
+          // Check if categories exist in the new path structure
+          const categoriesCollection = collection(db, `users/${userCredential.user.uid}/categories`);
+          const categoriesSnapshot = await getDocs(categoriesCollection);
+          
+          if (categoriesSnapshot.empty) {
+            logger.info('AuthContext', operation, 'No categories found for new user, initializing defaults', {
+              userId: userCredential.user.uid
+            });
+            
+            // Initialize default categories
+            await initializeDefaultCategories(userCredential.user.uid);
+          }
+        } catch (categoryError) {
+          // Log the error but continue with the login process
+          logger.error('AuthContext', operation, 'Error initializing categories during login', { 
+            error: categoryError,
+            userId: userCredential.user.uid
+          });
+        }
+      } else {
+        // Even if the user document exists, check if they have categories
+        try {
+          logger.debug('AuthContext', operation, 'Checking if existing user needs categories');
+          
+          // Check if categories exist in the new path structure
+          const categoriesCollection = collection(db, `users/${userCredential.user.uid}/categories`);
+          const categoriesSnapshot = await getDocs(categoriesCollection);
+          
+          if (categoriesSnapshot.empty) {
+            logger.info('AuthContext', operation, 'Existing user has no categories, initializing defaults', {
+              userId: userCredential.user.uid
+            });
+            
+            // Initialize default categories
+            await initializeDefaultCategories(userCredential.user.uid);
+          }
+        } catch (categoryError) {
+          // Log the error but continue with the login process
+          logger.error('AuthContext', operation, 'Error checking categories for existing user', { 
+            error: categoryError,
+            userId: userCredential.user.uid
+          });
+        }
       }
       
       return userCredential.user;

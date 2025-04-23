@@ -12,7 +12,8 @@ import {
   where,
   orderBy,
   serverTimestamp,
-  addDoc
+  addDoc,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from './firebaseInit';
 import logger from '../logger';
@@ -31,155 +32,73 @@ export const getCategories = async (userId) => {
       timestamp: new Date().toISOString()
     });
     
-    // First, check how many categories exist for this user (without ordering)
-    const countQuery = query(
-      collection(db, 'categories'),
-      where('userId', '==', userId)
-    );
+    // Query all categories for the user from the subcollection
+    const path = `users/${userId}/categories`;
+    console.log('🔍 ACCESSING CATEGORIES PATH:', path);
+    const categoriesCollection = collection(db, path);
+    const querySnapshot = await getDocs(categoriesCollection);
     
-    const countSnapshot = await getDocs(countQuery);
-    
-    // Log details of what we found
-    console.log(`🔢 Found ${countSnapshot.size} categories for user ${userId}`);
-    
-    // Get a preview of the categories
-    const previewCategories = countSnapshot.docs.map(doc => ({
-      id: doc.id, 
-      name: doc.data().name,
-      type: doc.data().type,
-      order: doc.data().order
-    }));
-    console.log('👀 Preview of categories found:', previewCategories);
-    
-    logger.debug('CategoryService', 'getCategories', 'Initial count query result', {
-      count: countSnapshot.size,
-      empty: countSnapshot.empty
+    logger.debug('CategoryService', 'getCategories', 'Query result', {
+      count: querySnapshot.size,
+      empty: querySnapshot.empty
     });
     
     // If collection is empty, return empty array early
-    if (countSnapshot.empty) {
+    if (querySnapshot.empty) {
       logger.info('CategoryService', 'getCategories', 'No categories found for user', { userId });
+      console.log('⚠️ NO CATEGORIES FOUND for user:', userId);
       return [];
     }
     
-    // Now try the query with ordering
-    try {
-      // Create a query to fetch categories by userId, ordered by the order field
-      const q = query(
-        collection(db, 'categories'),
-        where('userId', '==', userId),
-        orderBy('order', 'asc')
-      );
+    // Convert to array and ensure all categories have an order field
+    let categories = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      const category = {
+        id: doc.id,
+        ...data
+      };
       
-      logger.debug('CategoryService', 'getCategories', 'Executing Firestore query with ordering');
-      const querySnapshot = await getDocs(q);
-      
-      // Compare results
-      console.log(`🔄 Query with ordering returned ${querySnapshot.size} categories compared to ${countSnapshot.size} from count query`);
-      
-      if (querySnapshot.size < countSnapshot.size) {
-        console.warn(`⚠️ Some categories were filtered out by the ordering query. This might be because some don't have an order field.`);
+      // Ensure order field exists
+      if (category.order === undefined || category.order === null) {
+        // Log that we found a category without an order field
+        console.log(`⚠️ Category without order field detected: ${category.id} (${category.name})`);
         
-        // Check which categories are missing
-        const orderedIds = new Set(querySnapshot.docs.map(doc => doc.id));
-        const allCategoryIds = new Set(countSnapshot.docs.map(doc => doc.id));
+        // Assign a high order value to put it at the end
+        category.order = 10000 + Date.now() % 1000;
         
-        const missingIds = [...allCategoryIds].filter(id => !orderedIds.has(id));
-        console.log(`❌ Missing categories by ID:`, missingIds);
-        
-        // Get details of missing categories
-        const missingCategories = countSnapshot.docs
-          .filter(doc => missingIds.includes(doc.id))
-          .map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        console.log(`❓ Details of missing categories:`, missingCategories);
+        // Schedule an update to add the order field to the category in Firestore
+        // This is done asynchronously and doesn't block the current operation
+        updateCategoryOrderField(userId, category.id, category.order)
+          .catch(err => logger.error('CategoryService', 'getCategories', 'Failed to update missing order field', {
+            categoryId: category.id,
+            error: err.message
+          }));
       }
       
-      // Map documents to JavaScript objects
-      const categories = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      
-      // Check if we need to add any missing categories
-      if (querySnapshot.size < countSnapshot.size) {
-        // Get the IDs of categories we already have
-        const existingIds = new Set(categories.map(cat => cat.id));
-        
-        // Find categories from the count query that are missing
-        const missingCategories = countSnapshot.docs
-          .filter(doc => !existingIds.has(doc.id))
-          .map(doc => {
-            const data = doc.data();
-            // Add default order if missing (using a very high number to put at end)
-            if (!data.order) {
-              data.order = 9999999;
-            }
-            return {
-              id: doc.id,
-              ...data
-            };
-          });
-        
-        console.log(`➕ Adding ${missingCategories.length} categories that were missing order fields`);
-        
-        // Add missing categories to our result
-        categories.push(...missingCategories);
-        
-        // Sort all categories by order
-        categories.sort((a, b) => {
-          const orderA = a.order || 9999999;
-          const orderB = b.order || 9999999;
-          return orderA - orderB;
-        });
+      return category;
+    });
+    
+    // Convert Firebase timestamps to regular dates
+    categories.forEach(category => {
+      if (category.createdAt && typeof category.createdAt.toDate === 'function') {
+        category.createdAt = category.createdAt.toDate();
       }
-      
-      // Convert Firebase timestamps to regular dates
-      categories.forEach(category => {
-        if (category.createdAt && typeof category.createdAt.toDate === 'function') {
-          category.createdAt = category.createdAt.toDate();
-        }
-        if (category.updatedAt && typeof category.updatedAt.toDate === 'function') {
-          category.updatedAt = category.updatedAt.toDate();
-        }
-      });
-      
-      logger.info('CategoryService', 'getCategories', 'Categories retrieved successfully with ordering', { 
-        userId,
-        count: categories.length,
-        categoryNames: categories.map(c => c.name).join(', ')
-      });
-      
-      return categories;
-    } catch (orderError) {
-      // If ordering fails, fall back to unordered query
-      logger.warn('CategoryService', 'getCategories', 'Failed to fetch with ordering, using fallback', {
-        error: orderError.message
-      });
-      
-      // Map the results from our count query since we already have them
-      const fallbackCategories = countSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      
-      // Convert timestamps
-      fallbackCategories.forEach(category => {
-        if (category.createdAt && typeof category.createdAt.toDate === 'function') {
-          category.createdAt = category.createdAt.toDate();
-        }
-        if (category.updatedAt && typeof category.updatedAt.toDate === 'function') {
-          category.updatedAt = category.updatedAt.toDate();
-        }
-      });
-      
-      logger.info('CategoryService', 'getCategories', 'Categories retrieved using fallback', {
-        count: fallbackCategories.length,
-        categoryNames: fallbackCategories.map(c => c.name).join(', ')
-      });
-      
-      return fallbackCategories;
-    }
+      if (category.updatedAt && typeof category.updatedAt.toDate === 'function') {
+        category.updatedAt = category.updatedAt.toDate();
+      }
+    });
+    
+    // Sort by order
+    categories.sort((a, b) => (a.order || 9999) - (b.order || 9999));
+    
+    logger.info('CategoryService', 'getCategories', 'Categories retrieved successfully', { 
+      userId,
+      count: categories.length,
+      categoryNames: categories.map(c => c.name).join(', ')
+    });
+    
+    console.log(`✅ SUCCESS: Found ${categories.length} categories`);
+    return categories;
   } catch (error) {
     logger.error('CategoryService', 'getCategories', 'Failed to get categories', {
       error: error.message,
@@ -188,58 +107,66 @@ export const getCategories = async (userId) => {
       userId
     });
     
-    // Try one last simple approach
-    try {
-      logger.info('CategoryService', 'getCategories', 'Attempting direct collection fetch as last resort');
-      
-      const simpleSnapshot = await getDocs(collection(db, 'categories'));
-      
-      // Filter for this user's categories directly in code
-      const userCategories = simpleSnapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-        .filter(cat => cat.userId === userId);
-      
-      logger.info('CategoryService', 'getCategories', 'Last resort query successful', {
-        totalCount: simpleSnapshot.size,
-        userCount: userCategories.length
-      });
-      
-      return userCategories;
-    } catch (lastError) {
-      logger.error('CategoryService', 'getCategories', 'All attempts failed', {
-        error: lastError.message
-      });
-      
-      // If all else fails, return an error object
-      return {
-        error: true,
-        message: 'Failed to retrieve categories after multiple attempts. Please try again later.'
-      };
-    }
+    console.log('❌ ERROR in getCategories:', error.message);
+    return [];
+  }
+};
+
+/**
+ * Helper function to update the order field of a category
+ * @param {string} userId - User ID
+ * @param {string} categoryId - Category ID
+ * @param {number} orderValue - Order value to set
+ * @returns {Promise<void>}
+ */
+const updateCategoryOrderField = async (userId, categoryId, orderValue) => {
+  try {
+    const categoryRef = doc(db, `users/${userId}/categories`, categoryId);
+    await updateDoc(categoryRef, { 
+      order: orderValue,
+      updatedAt: serverTimestamp()
+    });
+    
+    logger.info('CategoryService', 'updateCategoryOrderField', 'Order field updated successfully', {
+      userId,
+      categoryId,
+      orderValue
+    });
+  } catch (error) {
+    logger.error('CategoryService', 'updateCategoryOrderField', 'Failed to update order field', {
+      error: error.message,
+      userId,
+      categoryId
+    });
+    throw error;
   }
 };
 
 /**
  * Get a category by ID
+ * @param {string} userId - User ID
  * @param {string} categoryId - Category ID
  * @returns {Promise<Object>} - Category data
  */
-export const getCategory = async (categoryId) => {
+export const getCategory = async (userId, categoryId) => {
   try {
-    logger.debug('CategoryService', 'getCategory', 'Fetching category', { categoryId });
+    logger.debug('CategoryService', 'getCategory', 'Fetching category', { userId, categoryId });
     
-    const docRef = doc(db, 'categories', categoryId);
+    const docRef = doc(db, `users/${userId}/categories`, categoryId);
     const docSnap = await getDoc(docRef);
     
     if (!docSnap.exists()) {
-      logger.warn('CategoryService', 'getCategory', 'Category not found', { categoryId });
+      logger.warn('CategoryService', 'getCategory', 'Category not found', { 
+        userId, 
+        categoryId 
+      });
       return null;
     }
     
-    logger.info('CategoryService', 'getCategory', 'Category retrieved successfully');
+    logger.info('CategoryService', 'getCategory', 'Category retrieved successfully', { 
+      userId, 
+      categoryId 
+    });
     
     return {
       id: docSnap.id,
@@ -248,6 +175,9 @@ export const getCategory = async (categoryId) => {
   } catch (error) {
     logger.error('CategoryService', 'getCategory', 'Failed to get category', {
       error: error.message,
+      errorCode: error.code,
+      stack: error.stack,
+      userId,
       categoryId
     });
     throw error;
@@ -258,7 +188,7 @@ export const getCategory = async (categoryId) => {
  * Create a new category
  * @param {string} userId - User ID
  * @param {Object} categoryData - Category data
- * @returns {Promise<string>} - Category ID
+ * @returns {Promise<Object>} - Created category with ID
  */
 export const createCategory = async (userId, categoryData) => {
   try {
@@ -268,13 +198,17 @@ export const createCategory = async (userId, categoryData) => {
       categoryData: JSON.stringify(categoryData)
     });
     
-    // Ensure order field exists
-    if (!categoryData.order) {
+    // Ensure order field exists and is a number
+    if (categoryData.order === undefined || categoryData.order === null) {
+      // Generate a timestamp-based order value
+      // This ensures new categories are added at the end
       categoryData.order = Date.now();
     }
     
     // Create a new document reference with auto-generated ID
-    const categoryRef = doc(collection(db, 'categories'));
+    const path = `users/${userId}/categories`;
+    console.log('🔍 CREATING CATEGORY AT PATH:', path);
+    const categoryRef = doc(collection(db, path));
     
     // Create category document with all required fields
     const fullCategoryData = {
@@ -296,8 +230,16 @@ export const createCategory = async (userId, categoryData) => {
       categoryName: categoryData.name
     });
     
+    console.log('✅ CATEGORY CREATED:', categoryRef.id, 'at path:', path);
+    
     // Return full category object with ID for immediate UI update
-    return categoryRef.id;
+    return {
+      id: categoryRef.id,
+      ...categoryData,
+      userId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
   } catch (error) {
     logger.error('CategoryService', 'createCategory', 'Failed to create category', {
       error: error.message,
@@ -310,31 +252,54 @@ export const createCategory = async (userId, categoryData) => {
 
 /**
  * Update a category
+ * @param {string} userId - User ID
  * @param {string} categoryId - Category ID
- * @param {Object} categoryData - Updated category data
- * @returns {Promise<void>}
+ * @param {Object} categoryData - Category data to update
+ * @returns {Promise<Object>} - Updated category
  */
-export const updateCategory = async (categoryId, categoryData) => {
+export const updateCategory = async (userId, categoryId, categoryData) => {
   try {
-    logger.debug('CategoryService', 'updateCategory', 'Updating category', { categoryId });
+    logger.debug('CategoryService', 'updateCategory', 'Updating category', { 
+      userId,
+      categoryId,
+      categoryData 
+    });
     
-    const categoryRef = doc(db, 'categories', categoryId);
+    const categoryRef = doc(db, `users/${userId}/categories`, categoryId);
+    const docSnap = await getDoc(categoryRef);
     
-    // Add updated timestamp
-    const updatedData = {
+    // Check if category exists
+    if (!docSnap.exists()) {
+      const error = new Error(`Category ${categoryId} not found`);
+      logger.error('CategoryService', 'updateCategory', 'Category not found', { 
+        userId,
+        categoryId 
+      });
+      throw error;
+    }
+    
+    // Update in the user's subcollection
+    await updateDoc(categoryRef, {
       ...categoryData,
       updatedAt: serverTimestamp()
-    };
-    
-    // Update category
-    await updateDoc(categoryRef, updatedData);
+    });
     
     logger.info('CategoryService', 'updateCategory', 'Category updated successfully', { 
+      userId,
       categoryId 
     });
+    
+    return {
+      id: categoryId,
+      ...docSnap.data(),
+      ...categoryData
+    };
   } catch (error) {
     logger.error('CategoryService', 'updateCategory', 'Failed to update category', {
       error: error.message,
+      errorCode: error.code,
+      stack: error.stack,
+      userId,
       categoryId
     });
     throw error;
@@ -343,21 +308,42 @@ export const updateCategory = async (categoryId, categoryData) => {
 
 /**
  * Delete a category
+ * @param {string} userId - User ID
  * @param {string} categoryId - Category ID
  * @returns {Promise<void>}
  */
-export const deleteCategory = async (categoryId) => {
+export const deleteCategory = async (userId, categoryId) => {
   try {
-    logger.debug('CategoryService', 'deleteCategory', 'Deleting category', { categoryId });
-    
-    await deleteDoc(doc(db, 'categories', categoryId));
-    
-    logger.info('CategoryService', 'deleteCategory', 'Category deleted successfully', { 
+    logger.debug('CategoryService', 'deleteCategory', 'Deleting category', { 
+      userId,
       categoryId 
     });
+    
+    // Check if category exists
+    const categoryRef = doc(db, `users/${userId}/categories`, categoryId);
+    const docSnap = await getDoc(categoryRef);
+    
+    if (!docSnap.exists()) {
+      logger.warn('CategoryService', 'deleteCategory', 'Category not found', { 
+        userId,
+        categoryId 
+      });
+      return; // Nothing to delete
+    }
+    
+    // Delete the category
+    await deleteDoc(categoryRef);
+    logger.info('CategoryService', 'deleteCategory', 'Category deleted successfully', { 
+      userId,
+      categoryId 
+    });
+    
   } catch (error) {
     logger.error('CategoryService', 'deleteCategory', 'Failed to delete category', {
       error: error.message,
+      errorCode: error.code,
+      stack: error.stack,
+      userId,
       categoryId
     });
     throw error;
@@ -376,18 +362,17 @@ export const initializeDefaultCategories = async (userId) => {
     });
     
     // Check if user already has categories
-    const existingCategoriesQuery = query(
-      collection(db, 'categories'),
-      where('userId', '==', userId)
-    );
-    
-    const existingSnapshot = await getDocs(existingCategoriesQuery);
+    const categoriesPath = `users/${userId}/categories`;
+    console.log('🔍 CHECKING FOR EXISTING CATEGORIES at path:', categoriesPath);
+    const categoriesCollection = collection(db, categoriesPath);
+    const existingSnapshot = await getDocs(categoriesCollection);
     
     if (!existingSnapshot.empty) {
       logger.info('CategoryService', 'initializeDefaultCategories', 'User already has categories', {
         userId,
         count: existingSnapshot.size
       });
+      console.log(`✅ User already has ${existingSnapshot.size} categories`);
       return true;
     }
     
@@ -397,44 +382,51 @@ export const initializeDefaultCategories = async (userId) => {
       { name: 'Logement', icon: 'home', color: '#919A7F', order: 3, type: 'expense' }, // Sage green
       { name: 'Divertissement', icon: 'movie', color: '#568E8D', order: 4, type: 'expense' }, // Muted teal
       { name: 'Shopping', icon: 'shopping_cart', color: '#919A7F', order: 5, type: 'expense' }, // Sage green
-      { name: 'Services', icon: 'power', color: '#568E8D', order: 6, type: 'expense' }, // Muted teal
-      { name: 'Santé', icon: 'favorite', color: '#C17C74', order: 7, type: 'expense' }, // Soft terra cotta
-      { name: 'Éducation', icon: 'school', color: '#A58D7F', order: 8, type: 'expense' }, // Taupe
-      { name: 'Salaire', icon: 'work', color: '#568E8D', order: 9, type: 'income' }, // Muted teal
-      { name: 'Cadeaux', icon: 'card_giftcard', color: '#919A7F', order: 10, type: 'income' }, // Sage green
-      { name: 'Investissements', icon: 'trending_up', color: '#568E8D', order: 11, type: 'income' }, // Muted teal
-      { name: 'Autres Revenus', icon: 'attach_money', color: '#919A7F', order: 12, type: 'income' } // Sage green
+      { name: 'Services', icon: 'home_repair_service', color: '#568E8D', order: 6, type: 'expense' }, // Muted teal
+      { name: 'Santé', icon: 'favorite', color: '#919A7F', order: 7, type: 'expense' }, // Sage green
+      { name: 'Éducation', icon: 'school', color: '#568E8D', order: 8, type: 'expense' }, // Muted teal
+      { name: 'Autres Dépenses', icon: 'more_horiz', color: '#919A7F', order: 9, type: 'expense' }, // Sage green
+      { name: 'Salaire', icon: 'work', color: '#568E8D', order: 1, type: 'income' }, // Muted teal
+      { name: 'Investissements', icon: 'trending_up', color: '#919A7F', order: 2, type: 'income' }, // Sage green
+      { name: 'Cadeaux', icon: 'card_giftcard', color: '#568E8D', order: 3, type: 'income' }, // Muted teal
+      { name: 'Autres Revenus', icon: 'more_horiz', color: '#919A7F', order: 4, type: 'income' } // Sage green
     ];
     
-    // Create batch operations for all default categories
-    const batch = [];
+    console.log(`🔍 CREATING ${defaultCategories.length} DEFAULT CATEGORIES at path:`, categoriesPath);
     
-    for (const category of defaultCategories) {
-      batch.push(
-        addDoc(collection(db, 'categories'), {
-          ...category,
-          userId,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        })
-      );
-    }
+    // Use a batch for better performance
+    const batch = writeBatch(db);
     
-    // Execute all category creations in parallel
-    await Promise.all(batch);
+    // Create all default categories in a batch
+    defaultCategories.forEach(category => {
+      const categoryDocRef = doc(collection(db, categoriesPath));
+      
+      // Add necessary fields to each category
+      batch.set(categoryDocRef, {
+        ...category,
+        userId: userId, // Include userId for security rules
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    });
     
-    logger.info('CategoryService', 'initializeDefaultCategories', 'Default categories initialized successfully', { 
+    // Commit the batch
+    await batch.commit();
+    
+    logger.info('CategoryService', 'initializeDefaultCategories', 'Default categories created successfully', {
       userId,
       count: defaultCategories.length
     });
     
+    console.log(`✅ CREATED ${defaultCategories.length} DEFAULT CATEGORIES for user`);
     return true;
   } catch (error) {
     logger.error('CategoryService', 'initializeDefaultCategories', 'Failed to initialize default categories', {
-      error: error.message,
-      userId
+      userId,
+      error: error.message
     });
-    return handleMissingIndex(error);
+    console.error('❌ ERROR INITIALIZING DEFAULT CATEGORIES:', error.message);
+    return false;
   }
 };
 
@@ -458,4 +450,93 @@ export const handleMissingIndex = (error) => {
     error: true,
     message: error.message
   };
+};
+
+/**
+ * Migrate categories to ensure all have an order field
+ * @param {string} userId - User ID
+ * @returns {Promise<Object>} - Migration results with counts
+ */
+export const migrateCategories = async (userId) => {
+  try {
+    logger.info('CategoryService', 'migrateCategories', 'Starting categories migration', { userId });
+    
+    // Get all categories for the user from their subcollection
+    const categoriesPath = `users/${userId}/categories`;
+    const categoriesCollection = collection(db, categoriesPath);
+    const querySnapshot = await getDocs(categoriesCollection);
+    
+    if (querySnapshot.empty) {
+      logger.info('CategoryService', 'migrateCategories', 'No categories found to migrate', { userId });
+      return { total: 0, updated: 0, success: true };
+    }
+    
+    // Find categories without an order field
+    const categoriesToUpdate = [];
+    
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.order === undefined || data.order === null) {
+        categoriesToUpdate.push({
+          id: doc.id,
+          name: data.name || 'Unknown'
+        });
+      }
+    });
+    
+    logger.info('CategoryService', 'migrateCategories', 'Categories needing migration', { 
+      total: querySnapshot.size,
+      toUpdate: categoriesToUpdate.length,
+      categories: categoriesToUpdate.map(c => c.name).join(', ')
+    });
+    
+    if (categoriesToUpdate.length === 0) {
+      return { 
+        total: querySnapshot.size, 
+        updated: 0, 
+        success: true, 
+        message: 'All categories already have order fields' 
+      };
+    }
+    
+    // Use batch update for efficiency
+    const batch = writeBatch(db);
+    const now = Date.now();
+    
+    // Add each category to the batch with an order value
+    categoriesToUpdate.forEach((category, index) => {
+      const categoryRef = doc(db, `users/${userId}/categories`, category.id);
+      // Use base timestamp + index to ensure unique ordering
+      batch.update(categoryRef, { 
+        order: now + index,
+        updatedAt: serverTimestamp()
+      });
+    });
+    
+    // Commit the batch
+    await batch.commit();
+    
+    logger.info('CategoryService', 'migrateCategories', 'Migration completed successfully', {
+      updated: categoriesToUpdate.length
+    });
+    
+    return {
+      total: querySnapshot.size,
+      updated: categoriesToUpdate.length,
+      success: true,
+      message: `Successfully updated ${categoriesToUpdate.length} categories`
+    };
+  } catch (error) {
+    logger.error('CategoryService', 'migrateCategories', 'Failed to migrate categories', {
+      error: error.message,
+      stack: error.stack,
+      userId
+    });
+    
+    return {
+      success: false,
+      error: error.message,
+      message: 'Failed to migrate categories'
+    };
+  }
 }; 
