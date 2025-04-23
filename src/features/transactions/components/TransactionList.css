@@ -6,52 +6,160 @@
 }
 
 .transaction-day-card {
-  background-color: var(--surface);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--space-6);
+  background-color: #FFFFFF; /* Surface White per spec */
+  border-radius: 8px; /* Medium scale border radius per B3.8 v2 Section 6.1 */
+  margin-bottom: 16px; /* 4 units on the 4px scale for vertical spacing between cards */
   overflow: hidden;
-  box-shadow: var(--shadow-level-2);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03); /* Level 1 shadow per B3.8 v2 Section 5.1 */
   transition: all 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  padding: 16px; /* Base padding for mobile */
+}
+
+/* Tablet/Desktop Adjustments */
+@media (min-width: 640px) {
+  .transaction-day-card {
+    padding: 24px; /* Increased padding for sm breakpoint and up (6 units) */
+  }
 }
 
 .day-header {
-  padding: var(--space-4) var(--space-5);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; /* Align items center for the simplified layout */
   cursor: pointer;
   transition: background-color var(--transition-fast);
+  margin-bottom: 8px; /* Add space between header and transactions */
 }
 
 .day-header:hover {
   background-color: rgba(145, 154, 127, 0.05);
 }
 
-.day-date {
-  font-weight: var(--font-medium);
-  letter-spacing: -0.02em;
-  font-size: var(--text-lg);
+.day-header:focus-visible {
+  outline: 2px solid #568E8D;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
+.day-header-right {
+  display: flex;
+  align-items: center; /* Center alignment for simplified display */
+  gap: 8px;
+}
+
+/* Simplified day total (Net only) */
 .day-total {
-  font-weight: var(--font-semibold);
+  font-weight: 600; /* Semibold weight per spec */
   font-variant-numeric: tabular-nums;
+  font-size: 16px; /* base - 1rem / 16px */
+  white-space: nowrap;
 }
 
 .day-total.negative {
-  color: var(--negative);
+  color: #C17C74; /* Negative Soft Terra Cotta per spec */
 }
 
 .day-total.positive {
-  color: var(--positive);
+  color: #568E8D; /* Positive Muted Teal per spec */
+}
+
+.day-total.neutral {
+  color: #88837A; /* Text Secondary for zero values */
+}
+
+.day-date {
+  font-family: var(--font-heading, 'Work Sans'); /* Apply the heading font */
+  font-size: 20px; /* xl - 1.25rem / 20px per spec */
+  font-weight: 500; /* Medium weight per spec */
+  color: #2F2F2F; /* Text Primary per spec */
+  letter-spacing: -0.02em; /* Per spec for heading style */
+  line-height: 1.25; /* Tight line height per spec */
+}
+
+/* Income/Expense breakdown in expanded content */
+.daily-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(136, 131, 122, 0.1);
+}
+
+.daily-breakdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-size: 14px; /* sm - 0.875rem / 14px */
+  font-weight: 500; /* Medium weight */
+  font-variant-numeric: tabular-nums;
+}
+
+.daily-breakdown-item span:first-child {
+  margin-right: auto;
+  color: #88837A; /* Text Secondary color */
+  font-weight: 400;
+}
+
+.daily-breakdown-item span:last-child {
+  min-width: 90px; /* Match transaction-amount width */
+  text-align: right;
+}
+
+.daily-breakdown-item.income {
+  color: #568E8D; /* Positive Muted Teal */
+}
+
+.daily-breakdown-item.expense {
+  color: #C17C74; /* Negative Soft Terra Cotta */
+}
+
+/* Side-by-side layout for larger screens */
+@media (min-width: 768px) {
+  .daily-breakdown {
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid rgba(136, 131, 122, 0.1);
+    padding-right: 0;
+  }
+  
+  .daily-breakdown-item {
+    width: 100%;
+    padding-right: 0;
+  }
+}
+
+/* Chevron icon styling - without CSS rotation animation */
+.chevron-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chevron-icon {
+  color: #88837A; /* Text Secondary color */
+}
+
+/* Day transactions wrapper - Framer Motion handles the animation */
+.day-transactions-wrapper {
+  overflow: hidden;
+  background-color: #FFFFFF;
+}
+
+/* Transaction content */
+.day-transactions {
+  padding: 0; /* Remove padding to use the card's padding instead */
 }
 
 .transaction-item-wrapper {
   position: relative;
   overflow: hidden;
   touch-action: pan-y;
+  will-change: transform; /* Optimize for animation performance */
 }
 
+/* Refined delete button styling */
 .delete-button {
   position: absolute;
   right: 0;
@@ -60,12 +168,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
+  width: 90px; /* Slightly wider for better touch target */
   min-height: 44px;
-  background-color: var(--negative);
-  color: var(--surface);
-  font-weight: var(--font-medium);
-  transition: transform 250ms cubic-bezier(0.0, 0.0, 0.2, 1);
+  background-color: #C17C74; /* Negative Soft Terra Cotta per spec */
+  color: #FFFFFF;
+  font-size: 16px; /* base size 1rem/16px per spec */
+  font-weight: 600; /* Semibold weight for button text */
+  border-radius: 6px 0 0 6px; /* Standard button radius on left side only */
+  transition: transform 250ms cubic-bezier(0.2, 0.0, 0.0, 1); /* Subtle spring-like easing */
+  overflow: hidden;
+  padding: 0 16px; /* Horizontal padding */
+  box-shadow: inset 1px 0 3px rgba(0, 0, 0, 0.05); /* Subtle inner shadow for depth */
 }
 
 .delete-button.visible {
@@ -80,49 +193,53 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-4) var(--space-5);
+  padding: 16px 0; /* Increased padding to 16px (4 units) for vertical spacing */
   border-bottom: 1px solid rgba(136, 131, 122, 0.1);
-  background-color: var(--surface);
-  transition: transform 300ms cubic-bezier(0.4, 0.0, 0.2, 1), background-color 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  background-color: transparent; /* Ensure background is transparent */
+  transition: transform 300ms cubic-bezier(0.2, 0.0, 0.0, 1), background-color 200ms ease-out; /* Improved smooth, spring-like easing */
+  margin-bottom: 0; /* No margin between items, using padding instead */
+  will-change: transform; /* Optimize for animation performance */
 }
 
 .transaction-item.swiped {
-  transform: translateX(-80px);
+  transform: translateX(-90px); /* Match the width of the delete button */
 }
 
 .transaction-item:hover {
-  background-color: rgba(145, 154, 127, 0.03);
+  background-color: #F8F9FA; /* Subtle hover background per spec */
 }
 
 .transaction-item:last-child {
   border-bottom: none;
-}
-
-.day-transactions {
-  padding: var(--space-2) 0;
+  padding-bottom: 0; /* Remove bottom padding for the last item */
 }
 
 .transaction-details {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding-left: var(--space-4);
+  gap: 4px; /* 1 unit spacing between description and category */
+  padding-left: 0; /* Remove left padding to align with card padding */
 }
 
 .transaction-description {
-  font-weight: var(--font-medium);
+  font-size: 16px; /* base size 1rem/16px for primary text */
+  font-weight: 500; /* Medium weight for primary text */
+  color: #2F2F2F; /* Text Primary color */
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 8px; /* 2 units spacing */
   letter-spacing: 0.01em;
+  line-height: 1.5; /* Regular line height for readability */
 }
 
 .transaction-category {
-  font-size: var(--text-sm);
+  font-size: 14px; /* sm size 0.875rem/14px for secondary text */
+  color: #88837A; /* Text Secondary color */
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 8px; /* 2 units spacing */
   letter-spacing: 0.01em;
+  line-height: 1.4; /* Slightly tighter line height for secondary text */
 }
 
 .category-indicator {
@@ -133,17 +250,20 @@
 }
 
 .transaction-amount {
-  font-weight: var(--font-semibold);
-  font-variant-numeric: tabular-nums;
-  padding-right: var(--space-4);
+  font-weight: 600; /* Semibold (600) per spec */
+  font-size: 16px; /* base size same as primary text */
+  font-variant-numeric: tabular-nums; /* Ensure proper number alignment */
+  padding-right: 0; /* Remove right padding to align with card padding */
+  text-align: right;
+  min-width: 90px; /* Ensure consistent width for alignment */
 }
 
 .transaction-amount.negative {
-  color: var(--negative);
+  color: #C17C74; /* Negative Soft Terra Cotta per spec */
 }
 
 .transaction-amount.positive {
-  color: var(--positive);
+  color: #568E8D; /* Positive Muted Teal per spec */
 }
 
 .recurring-indicator {
@@ -152,43 +272,7 @@
   height: 8px;
   border-radius: 50%;
   background-color: var(--information);
-  margin-right: var(--space-1);
-}
-
-.empty-state {
-  text-align: center;
-  padding: var(--space-12) var(--space-6);
-  background-color: var(--surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-level-2);
-  margin: var(--space-6) 0;
-}
-
-.empty-state-message {
-  font-size: var(--text-lg);
-  color: var(--text-secondary);
-  margin-bottom: var(--space-6);
-  font-weight: var(--font-regular);
-  letter-spacing: 0.01em;
-}
-
-.add-transaction-btn {
-  display: inline-block;
-  padding: var(--space-3) var(--space-6);
-  background-color: var(--primary-sage);
-  color: var(--surface);
-  border-radius: var(--radius-sm);
-  text-decoration: none;
-  font-size: var(--text-base);
-  font-weight: var(--font-medium);
-  transition: all var(--transition-fast);
-  border: none;
-  cursor: pointer;
-  letter-spacing: -0.01em;
-}
-
-.add-transaction-btn:hover {
-  background-color: #828b71;
+  margin-right: 0; /* Remove margin as we're using gap */
 }
 
 /* Swipe instruction hint that appears when page loads */
@@ -272,6 +356,7 @@
   font-size: var(--text-sm);
 }
 
+/* Animations */
 @keyframes swipeLeft {
   0%, 100% {
     transform: translateX(0);
@@ -290,6 +375,27 @@
   }
   100% {
     opacity: 0;
+  }
+}
+
+/* Respect prefers-reduced-motion - Mostly handled by Framer Motion now,
+   but we still need to adjust some CSS transitions */
+@media (prefers-reduced-motion: reduce) {
+  .transaction-item {
+    transition: transform 100ms linear, background-color 100ms linear;
+  }
+  
+  .delete-button {
+    transition: transform 100ms linear;
+  }
+  
+  .swipe-hint-icon {
+    animation: none;
+  }
+  
+  .swipe-hint {
+    animation: none;
+    opacity: 1;
   }
 }
 
@@ -325,17 +431,41 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .transaction-day-card {
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-4);
-  }
-  
-  .day-header, .transaction-item {
-    padding: var(--space-3) var(--space-4);
-  }
-  
-  .financial-summary {
-    padding: var(--space-4);
-    margin-bottom: var(--space-4);
-  }
+  /* Remove this media query and its contents as we're using a mobile-first approach now */
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-level-2);
+  margin: var(--space-6) 0;
+}
+
+.empty-state-message {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  font-weight: var(--font-regular);
+  letter-spacing: 0.01em;
+}
+
+.add-transaction-btn {
+  display: inline-block;
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--primary-sage);
+  color: var(--surface);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-fast);
+  border: none;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+}
+
+.add-transaction-btn:hover {
+  background-color: #828b71;
 } 

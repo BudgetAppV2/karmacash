@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { ChevronDownIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
+import { motion, AnimatePresence } from 'framer-motion';
 import { formatCurrency, formatRelativeDate } from '../../../utils/formatters';
 import { deleteTransaction } from '../../../services/firebase/transactions';
 import { getCategory } from '../../../services/firebase/categories';
@@ -25,6 +27,21 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   const touchStartXRef = useRef(0);
+  const swipeThreshold = 70; // Pixels needed to trigger the swipe action
+  const prefersReducedMotion = useRef(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // Listen for prefers-reduced-motion changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleMediaChange = () => {
+      prefersReducedMotion.current = mediaQuery.matches;
+    };
+    
+    mediaQuery.addEventListener('change', handleMediaChange);
+    return () => {
+      mediaQuery.removeEventListener('change', handleMediaChange);
+    };
+  }, []);
   
   // Fetch category details for all transactions
   useEffect(() => {
@@ -119,12 +136,26 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     }
   };
   
+  // Handle keyboard navigation for accessibility
+  const handleKeyDown = (e, dateKey) => {
+    // Toggle on Enter or Space key
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault(); // Prevent scrolling on space
+      toggleDay(dateKey);
+    }
+  };
+  
   // Handle swipe start
   const handleTouchStart = (e, transactionId) => {
+    // Close any previously swiped item when starting a new swipe
+    if (swipedTransactionId && swipedTransactionId !== transactionId) {
+      setSwipedTransactionId(null);
+    }
+    
     touchStartXRef.current = e.touches[0].clientX;
   };
   
-  // Handle swipe move
+  // Handle swipe move - enhanced for smoother iOS-like feel
   const handleTouchMove = (e, transactionId) => {
     if (swipedTransactionId && swipedTransactionId !== transactionId) {
       return;
@@ -133,28 +164,40 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     const touchEndX = e.touches[0].clientX;
     const diff = touchStartXRef.current - touchEndX;
     
-    if (diff > 50) {
+    // Use a higher threshold for more intentional swipes
+    if (diff > swipeThreshold) {
       setSwipedTransactionId(transactionId);
-    } else if (diff < -50) {
+      // Add haptic feedback if available (iOS)
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(10); // Subtle vibration
+      }
+    } else if (diff < -20) { // Lower threshold to close, for easier reset
       setSwipedTransactionId(null);
     }
   };
   
-  // Mouse events for desktop users
+  // Handle touch end - allows for completing the swipe on release
+  const handleTouchEnd = (e, transactionId) => {
+    // Implementation intentionally left minimal - the CSS transition handles the animation
+  };
+  
+  // Mouse events for desktop users - enhanced for better experience
   const handleMouseDown = (e, transactionId) => {
+    // Close any previously swiped item when starting a new swipe
+    if (swipedTransactionId && swipedTransactionId !== transactionId) {
+      setSwipedTransactionId(null);
+    }
+    
     touchStartXRef.current = e.clientX;
     
     const handleMouseMove = (moveEvent) => {
-      if (swipedTransactionId && swipedTransactionId !== transactionId) {
-        return;
-      }
-      
       const mouseMoveX = moveEvent.clientX;
       const diff = touchStartXRef.current - mouseMoveX;
       
-      if (diff > 50) {
+      // Use same threshold as touch for consistency
+      if (diff > swipeThreshold) {
         setSwipedTransactionId(transactionId);
-      } else if (diff < -50) {
+      } else if (diff < -20) { // Lower threshold to close
         setSwipedTransactionId(null);
       }
     };
@@ -240,6 +283,18 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     return '#919A7F'; // Default sage green
   };
   
+  // Calculate daily income and expense totals
+  const calculateDailyTotals = (transactions) => {
+    return transactions.reduce((totals, transaction) => {
+      if (transaction.amount > 0) {
+        totals.income += transaction.amount;
+      } else {
+        totals.expense += Math.abs(transaction.amount);
+      }
+      return totals;
+    }, { income: 0, expense: 0, net: 0 });
+  };
+  
   // If no transactions, show empty state
   if (!transactions || transactions.length === 0) {
     return (
@@ -257,6 +312,43 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
     );
   }
   
+  // Animation variants for Framer Motion
+  const contentVariants = {
+    hidden: { 
+      height: 0,
+      opacity: 0,
+      transition: { 
+        duration: prefersReducedMotion.current ? 0 : 0.5,
+        ease: "easeInOut"
+      }
+    },
+    visible: { 
+      height: "auto",
+      opacity: 1,
+      transition: {
+        duration: prefersReducedMotion.current ? 0 : 0.5,
+        ease: "easeInOut"
+      }
+    }
+  };
+  
+  const chevronVariants = {
+    collapsed: { 
+      rotate: 0,
+      transition: { 
+        duration: prefersReducedMotion.current ? 0 : 0.5,
+        ease: "easeInOut"
+      }
+    },
+    expanded: { 
+      rotate: 180,
+      transition: { 
+        duration: prefersReducedMotion.current ? 0 : 0.5,
+        ease: "easeInOut"
+      }
+    }
+  };
+  
   return (
     <div className="transaction-list">
       {/* Swipe Hint - Only shows initially */}
@@ -268,11 +360,9 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
       )}
     
       {sortedGroups.map((group) => {
-        // Calculate daily total
-        const dailyTotal = group.transactions.reduce(
-          (total, transaction) => total + transaction.amount, 
-          0
-        );
+        // Calculate daily totals (income, expense, and net)
+        const dailyTotals = calculateDailyTotals(group.transactions);
+        dailyTotals.net = dailyTotals.income - dailyTotals.expense;
         
         // Format date key for comparison
         const dateKey = group.date.toISOString();
@@ -287,71 +377,119 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
             <div 
               className="day-header"
               onClick={() => toggleDay(dateKey)}
+              onKeyDown={(e) => handleKeyDown(e, dateKey)}
               role="button"
               tabIndex={0}
+              aria-expanded={isExpanded}
+              aria-controls={`day-transactions-${dateKey.split('T')[0]}`}
             >
               <div className="day-date">
                 {formatRelativeDate(group.date)}
               </div>
-              <div className={`day-total ${dailyTotal < 0 ? 'negative' : 'positive'}`}>
-                {formatCurrency(dailyTotal, currency)}
+              
+              <div className="day-header-right">
+                {/* Only net total in header (simplified display) */}
+                <div className={`day-total ${dailyTotals.net < 0 ? 'negative' : dailyTotals.net > 0 ? 'positive' : 'neutral'}`}>
+                  {formatCurrency(dailyTotals.net, currency)}
+                </div>
+                
+                <motion.div
+                  animate={isExpanded ? "expanded" : "collapsed"}
+                  variants={chevronVariants}
+                  className="chevron-icon-container"
+                >
+                  <ChevronDownIcon
+                    className="chevron-icon"
+                    width={20}
+                    height={20}
+                    aria-hidden="true"
+                  />
+                </motion.div>
               </div>
             </div>
             
-            {/* Transactions */}
-            {isExpanded && (
-              <div className="day-transactions">
-                {group.transactions.map(transaction => (
-                  <div
-                    key={transaction.id}
-                    className="transaction-item-wrapper"
-                    onTouchStart={(e) => handleTouchStart(e, transaction.id)}
-                    onTouchMove={(e) => handleTouchMove(e, transaction.id)}
-                    onMouseDown={(e) => handleMouseDown(e, transaction.id)}
-                  >
-                    {/* Delete Button (revealed on swipe) */}
-                    <div
-                      className={`delete-button ${swipedTransactionId === transaction.id ? 'visible' : 'hidden'}`}
-                      onClick={() => handleDeleteTransaction(transaction.id)}
-                    >
-                      {isDeleting ? 'Suppression...' : 'Supprimer'}
+            {/* Transactions - Using Framer Motion for animations */}
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  id={`day-transactions-${dateKey.split('T')[0]}`}
+                  className="day-transactions-wrapper"
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={contentVariants}
+                >
+                  {/* Income/Expense breakdown - visible only when expanded */}
+                  <div className="daily-breakdown">
+                    <div className="daily-breakdown-item income">
+                      <span>Revenus</span>
+                      <ArrowUpIcon width={16} height={16} />
+                      <span>{formatCurrency(dailyTotals.income, currency)}</span>
                     </div>
-                    
-                    {/* Transaction Item */}
-                    <div
-                      className={`transaction-item ${swipedTransactionId === transaction.id ? 'swiped' : ''}`}
-                    >
-                      <div className="transaction-details">
-                        <div className="transaction-description">
-                          {transaction.isRecurringInstance && (
-                            <span
-                              className="recurring-indicator"
-                              title="Transaction récurrente"
-                            />
-                          )}
-                          {transaction.description}
-                        </div>
-                        
-                        <div 
-                          className="transaction-category"
-                          style={{ color: getCategoryColor(transaction) }}
-                        >
-                          <span
-                            className="category-indicator"
-                            style={{ backgroundColor: getCategoryColor(transaction) }}
-                          />
-                          {getCategoryName(transaction)}
-                        </div>
-                      </div>
-                      
-                      <div className={`transaction-amount ${transaction.amount < 0 ? 'negative' : 'positive'}`}>
-                        {formatCurrency(transaction.amount, currency)}
-                      </div>
+                    <div className="daily-breakdown-item expense">
+                      <span>Dépenses</span>
+                      <ArrowDownIcon width={16} height={16} />
+                      <span>{formatCurrency(dailyTotals.expense, currency)}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                  
+                  <div className="day-transactions">
+                    {group.transactions.map(transaction => (
+                      <div
+                        key={transaction.id}
+                        className="transaction-item-wrapper"
+                        onTouchStart={(e) => handleTouchStart(e, transaction.id)}
+                        onTouchMove={(e) => handleTouchMove(e, transaction.id)}
+                        onTouchEnd={(e) => handleTouchEnd(e, transaction.id)}
+                        onMouseDown={(e) => handleMouseDown(e, transaction.id)}
+                      >
+                        {/* Delete Button (revealed on swipe) */}
+                        <div
+                          className={`delete-button ${swipedTransactionId === transaction.id ? 'visible' : 'hidden'}`}
+                          onClick={() => handleDeleteTransaction(transaction.id)}
+                          role="button"
+                          aria-label="Supprimer la transaction"
+                        >
+                          {isDeleting ? 'Suppression...' : 'Supprimer'}
+                        </div>
+                        
+                        {/* Transaction Item */}
+                        <div
+                          className={`transaction-item ${swipedTransactionId === transaction.id ? 'swiped' : ''}`}
+                        >
+                          <div className="transaction-details">
+                            <div className="transaction-description">
+                              {transaction.isRecurringInstance && (
+                                <span
+                                  className="recurring-indicator"
+                                  title="Transaction récurrente"
+                                />
+                              )}
+                              {transaction.description}
+                            </div>
+                            
+                            <div 
+                              className="transaction-category"
+                              style={{ color: getCategoryColor(transaction) }}
+                            >
+                              <span
+                                className="category-indicator"
+                                style={{ backgroundColor: getCategoryColor(transaction) }}
+                              />
+                              {getCategoryName(transaction)}
+                            </div>
+                          </div>
+                          
+                          <div className={`transaction-amount ${transaction.amount < 0 ? 'negative' : 'positive'}`}>
+                            {formatCurrency(transaction.amount, currency)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         );
       })}
