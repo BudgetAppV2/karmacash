@@ -17,21 +17,21 @@ import logger from '../logger';
 // Ensure these match the structure expected by your app and rules  
 const defaultCategories = [  
   // Expenses  
-  { name: 'Épicerie', type: 'expense', color: '#A66962', order: 1, isDefault: true },  
-  { name: 'Transport', type: 'expense', color: '#7A8D99', order: 2, isDefault: true },  
-  { name: 'Resto', type: 'expense', color: '#C17C74', order: 3, isDefault: true },  
-  { name: 'Santé', type: 'expense', color: '#568E8D', order: 4, isDefault: true },  
-  { name: 'Loisirs', type: 'expense', color: '#A58D7F', order: 5, isDefault: true },  
-  { name: 'Logement', type: 'expense', color: '#919A7F', order: 6, isDefault: true }, // Added based on recurring rule example  
-  { name: 'Assurance', type: 'expense', color: '#D9D0C7', order: 7, isDefault: true }, // Added based on recurring rule example  
-  { name: 'Gardienne', type: 'expense', color: '#88837A', order: 8, isDefault: true }, // Added based on Bible examples  
-  { name: 'Cadeau', type: 'expense', color: '#7A8D99', order: 9, isDefault: true }, // Added based on Bible examples  
-  { name: 'Autres Dépenses', type: 'expense', color: '#A58D7F', order: 100, isDefault: true }, // Renamed from 'Autres' for clarity
+  { name: 'Épicerie', type: 'expense', color: '#7FB069', order: 1, isDefault: true }, // Palette v5 - Brighter Leaf Green
+  { name: 'Transport', type: 'expense', color: '#709AC7', order: 2, isDefault: true }, // Palette v5 - Stronger Slate Blue
+  { name: 'Resto', type: 'expense', color: '#E0B470', order: 3, isDefault: true },     // Palette v5 - Clear Gold/Ochre
+  { name: 'Santé', type: 'expense', color: '#4FB0A5', order: 4, isDefault: true },     // Palette v5 - Clear Aqua-Green
+  { name: 'Loisirs', type: 'expense', color: '#A08CBF', order: 5, isDefault: true },    // Palette v5 - Clearer Lavender/Violet
+  { name: 'Logement', type: 'expense', color: '#9A705A', order: 6, isDefault: true },    // Palette v5 - Mid-Tone Brown
+  { name: 'Assurance', type: 'expense', color: '#3A5A78', order: 7, isDefault: true },   // Palette v5 - Deep Navy/Indigo
+  { name: 'Gardienne', type: 'expense', color: '#E8B4BC', order: 8, isDefault: true },   // Palette v5 - Soft Pink
+  { name: 'Cadeau', type: 'expense', color: '#F4A97F', order: 9, isDefault: true },      // Palette v5 - Clear Peach/Orange
+  { name: 'Autres Dépenses', type: 'expense', color: '#C8AD9B', order: 100, isDefault: true },// Palette v5 - Neutral Tan/Beige
 
   // Income  
-  { name: 'Salaire', type: 'income', color: '#568E8D', order: 101, isDefault: true },  
-  { name: 'Remboursements', type: 'income', color: '#919A7F', order: 102, isDefault: true }, // E.g., general refunds  
-  { name: 'Autres Revenus', type: 'income', color: '#A66962', order: 103, isDefault: true },  
+  { name: 'Salaire', type: 'income', color: '#7EB5D6', order: 101, isDefault: true },       // Palette v5 - Clear Sky Blue
+  { name: 'Remboursements', type: 'income', color: '#99D4C8', order: 102, isDefault: true }, // Palette v5 - Pale Teal/Mint
+  { name: 'Autres Revenus', type: 'income', color: '#C8AD9B', order: 103, isDefault: true },   // Palette v5 - Neutral Tan/Beige
 ];
 
 /**  

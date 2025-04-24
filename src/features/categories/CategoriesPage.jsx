@@ -38,104 +38,16 @@ function CategoriesPage() {
   // Form validation
   const [formErrors, setFormErrors] = useState({});
 
-  // Color palette following Zen/Tranquility theme
-  const colorPalette = {
-    // Core colors
-    primarySage: "#919A7F",     // Primary expense
-    secondaryTaupe: "#A58D7F",  // Secondary expense
-    positiveTeal: "#568E8D",    // Primary income
-    negativeTerra: "#C17C74",   // Expense/warning
-    informationSlate: "#7A8D99", // Neutral
-    
-    // Extended palette - Expense colors
-    sageVariation1: "#7D8A6F",
-    sageVariation2: "#A5B095",
-    taupeVariation1: "#8C7369",
-    taupeVariation2: "#BDAA9C",
-    softOlive: "#A3A68C",
-    clay: "#B59A8C",
-    softMoss: "#7A8C76",
-    terracottaVariation1: "#A66962",
-    terracottaVariation2: "#D59A94",
-    mutedBrick: "#A57570",
-    
-    // Extended palette - Income colors
-    tealVariation1: "#488C8B",
-    tealVariation2: "#79A8A7",
-    softBlueGreen: "#6A9A98",
-    
-    // Neutral/shared colors
-    mutedLavender: "#9C8AA5",
-    dustyBlue: "#8C9BA9",
-    mutedOchre: "#BEA678"
-  };
-  
-  // Define color sets for expense and income categories
-  const expenseColors = [
-    { id: colorPalette.negativeTerra, name: 'Terra Cotta' },
-    { id: colorPalette.primarySage, name: 'Sage Green' },
-    { id: colorPalette.secondaryTaupe, name: 'Taupe' },
-    { id: colorPalette.sageVariation1, name: 'Dark Sage' },
-    { id: colorPalette.sageVariation2, name: 'Light Sage' },
-    { id: colorPalette.taupeVariation1, name: 'Dark Taupe' },
-    { id: colorPalette.taupeVariation2, name: 'Light Taupe' },
-    { id: colorPalette.softOlive, name: 'Soft Olive' },
-    { id: colorPalette.clay, name: 'Clay' },
-    { id: colorPalette.softMoss, name: 'Soft Moss' },
-    { id: colorPalette.terracottaVariation1, name: 'Dark Terra Cotta' },
-    { id: colorPalette.terracottaVariation2, name: 'Light Terra Cotta' },
-    { id: colorPalette.mutedBrick, name: 'Muted Brick' }
+  // Finalized Palette v5
+  const paletteV5 = [
+    '#7FB069', '#4A7856', '#99D4C8', '#B8B07F', '#709AC7',
+    '#3A5A78', '#ADD8E6', '#7EB5D6', '#4FB0A5', '#337B77',
+    '#85D4CF', '#C8AD9B', '#E0B470', '#9A705A', '#F4A97F',
+    '#EEDC82', '#CC807A', '#E8B4BC', '#A5584E', '#A08CBF'
   ];
-  
-  const incomeColors = [
-    { id: colorPalette.positiveTeal, name: 'Teal' },
-    { id: colorPalette.tealVariation1, name: 'Dark Teal' },
-    { id: colorPalette.tealVariation2, name: 'Light Teal' },
-    { id: colorPalette.softBlueGreen, name: 'Soft Blue Green' },
-    { id: colorPalette.mutedLavender, name: 'Muted Lavender' },
-    { id: colorPalette.dustyBlue, name: 'Dusty Blue' },
-    { id: colorPalette.mutedOchre, name: 'Muted Ochre' }
-  ];
-  
-  // Get active color set based on current category type
-  const activeColorSet = useMemo(() => 
-    categoryType === 'expense' ? expenseColors : incomeColors,
-  [categoryType]);
 
-  // Function to get the next available color for a new category
-  const getNextAvailableColor = useCallback((type) => {
-    const colorSet = type === 'expense' ? expenseColors : incomeColors;
-    const existingCategories = categories.filter(cat => cat.type === type);
-    
-    // Extract colors already in use
-    const usedColors = new Set(existingCategories.map(cat => cat.color));
-    
-    // Find first color not in use
-    const availableColor = colorSet.find(color => !usedColors.has(color.id));
-    
-    // If all colors are used, pick one with the least usage
-    if (!availableColor) {
-      const colorCounts = {};
-      existingCategories.forEach(cat => {
-        colorCounts[cat.color] = (colorCounts[cat.color] || 0) + 1;
-      });
-      
-      // Find color with minimum usage
-      let minUsage = Infinity;
-      let leastUsedColor = colorSet[0].id;
-      
-      Object.entries(colorCounts).forEach(([color, count]) => {
-        if (count < minUsage) {
-          minUsage = count;
-          leastUsedColor = color;
-        }
-      });
-      
-      return leastUsedColor;
-    }
-    
-    return availableColor.id;
-  }, [categories]);
+  // Default color for new categories
+  const defaultNewCategoryColor = paletteV5[11]; // Neutral Tan/Beige
 
   // Use useCallback to memoize the fetchCategories function
   const fetchCategories = useCallback(async () => {
@@ -194,14 +106,6 @@ function CategoriesPage() {
       fetchCategories();
     }
   }, [currentUser, fetchCategories, refreshKey]);
-
-  // Default color based on category type
-  useEffect(() => {
-    if (!editMode) {
-      // For new categories, automatically assign the next available color
-      setCategoryColor(getNextAvailableColor(categoryType));
-    }
-  }, [categoryType, editMode, getNextAvailableColor]);
 
   // Fix any potential text visibility issues
   useEffect(() => {
@@ -289,7 +193,7 @@ function CategoriesPage() {
     const formData = {
       name: categoryName.trim(),
       type: categoryType,
-      color: categoryColor || getNextAvailableColor(categoryType),
+      color: categoryColor || defaultNewCategoryColor,
     };
     
     // Validate form
@@ -347,7 +251,7 @@ function CategoriesPage() {
     setCategoryToEdit(category);
     setCategoryName(category.name);
     setCategoryType(category.type);
-    setCategoryColor(category.color || (category.type === 'expense' ? colorPalette.negativeTerra : colorPalette.positiveTeal));
+    setCategoryColor(category.color || defaultNewCategoryColor);
     setEditMode(true);
     setShowForm(true);
     setFormErrors({});
@@ -362,7 +266,7 @@ function CategoriesPage() {
     const formData = {
       name: categoryName.trim(),
       type: categoryType,
-      color: categoryColor || getNextAvailableColor(categoryType),
+      color: categoryColor || defaultNewCategoryColor,
     };
     
     // Validate form
@@ -588,27 +492,26 @@ function CategoriesPage() {
               {formErrors.type && <div className="error-text">{formErrors.type}</div>}
             </div>
             
-            <div className="form-group" style={{ marginTop: '20px' }}>
-              <label 
-                htmlFor="categoryColor" 
-                style={{ 
-                  color: '#2F2F2F', 
-                  display: 'block', 
-                  marginBottom: '16px', 
-                  position: 'static'
-                }}
-              >
-                Couleur <span className="required-mark">*</span>
-              </label>
-              
-              <div className="color-selection-container" style={{ marginTop: '0' }}>
-                {activeColorSet.map(color => (
+            <div className="form-group">
+              <label>Couleur</label>
+              <div className="color-selection-container">
+                {paletteV5.map(color => (
                   <div 
-                    key={color.id}
-                    className={`color-option ${categoryColor === color.id ? 'color-option-selected' : ''}`}
-                    style={{ backgroundColor: color.id }}
-                    onClick={() => setCategoryColor(color.id)}
-                    title={color.name}
+                    key={color}
+                    className={`color-option ${categoryColor === color ? 'color-option-selected' : ''}`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setCategoryColor(color)}
+                    title={color}
+                    role="button"
+                    aria-label={`Select color ${color}`}
+                    aria-pressed={categoryColor === color}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setCategoryColor(color);
+                      }
+                    }}
                   />
                 ))}
               </div>
@@ -647,8 +550,7 @@ function CategoriesPage() {
           <p className="category-count">{categories.length} catégorie(s) trouvée(s)</p>
           <ul className="category-list">
             {sortedCategories.map(category => {
-              const categoryColor = category.color || 
-                (category.type === 'expense' ? colorPalette.negativeTerra : colorPalette.positiveTeal);
+              const categoryColor = category.color || defaultNewCategoryColor;
               
               return (
                 <li 

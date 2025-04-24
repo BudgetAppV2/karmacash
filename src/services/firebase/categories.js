@@ -377,19 +377,21 @@ export const initializeDefaultCategories = async (userId) => {
     }
     
     const defaultCategories = [
-      { name: 'Alimentation', icon: 'restaurant', color: '#919A7F', order: 1, type: 'expense' }, // Sage green
-      { name: 'Transport', icon: 'directions_car', color: '#568E8D', order: 2, type: 'expense' }, // Muted teal
-      { name: 'Logement', icon: 'home', color: '#919A7F', order: 3, type: 'expense' }, // Sage green
-      { name: 'Divertissement', icon: 'movie', color: '#568E8D', order: 4, type: 'expense' }, // Muted teal
-      { name: 'Shopping', icon: 'shopping_cart', color: '#919A7F', order: 5, type: 'expense' }, // Sage green
-      { name: 'Services', icon: 'home_repair_service', color: '#568E8D', order: 6, type: 'expense' }, // Muted teal
-      { name: 'Santé', icon: 'favorite', color: '#919A7F', order: 7, type: 'expense' }, // Sage green
-      { name: 'Éducation', icon: 'school', color: '#568E8D', order: 8, type: 'expense' }, // Muted teal
-      { name: 'Autres Dépenses', icon: 'more_horiz', color: '#919A7F', order: 9, type: 'expense' }, // Sage green
-      { name: 'Salaire', icon: 'work', color: '#568E8D', order: 1, type: 'income' }, // Muted teal
-      { name: 'Investissements', icon: 'trending_up', color: '#919A7F', order: 2, type: 'income' }, // Sage green
-      { name: 'Cadeaux', icon: 'card_giftcard', color: '#568E8D', order: 3, type: 'income' }, // Muted teal
-      { name: 'Autres Revenus', icon: 'more_horiz', color: '#919A7F', order: 4, type: 'income' } // Sage green
+      // Expenses
+      { name: 'Alimentation', icon: 'restaurant', color: '#7FB069', order: 1, type: 'expense' }, // Palette v5 - Brighter Leaf Green
+      { name: 'Transport', icon: 'directions_car', color: '#709AC7', order: 2, type: 'expense' }, // Palette v5 - Stronger Slate Blue
+      { name: 'Logement', icon: 'home', color: '#9A705A', order: 3, type: 'expense' },          // Palette v5 - Mid-Tone Brown
+      { name: 'Divertissement', icon: 'movie', color: '#E0B470', order: 4, type: 'expense' },    // Palette v5 - Clear Gold/Ochre (Used for Resto/Loisirs)
+      { name: 'Shopping', icon: 'shopping_cart', color: '#E8B4BC', order: 5, type: 'expense' }, // Palette v5 - Soft Pink
+      { name: 'Services', icon: 'home_repair_service', color: '#3A5A78', order: 6, type: 'expense' }, // Palette v5 - Deep Navy/Indigo
+      { name: 'Santé', icon: 'favorite', color: '#4FB0A5', order: 7, type: 'expense' },          // Palette v5 - Clear Aqua-Green
+      { name: 'Éducation', icon: 'school', color: '#A08CBF', order: 8, type: 'expense' },        // Palette v5 - Clearer Lavender/Violet
+      { name: 'Autres Dépenses', icon: 'more_horiz', color: '#C8AD9B', order: 9, type: 'expense' }, // Palette v5 - Neutral Tan/Beige
+      // Income
+      { name: 'Salaire', icon: 'work', color: '#7EB5D6', order: 1, type: 'income' },             // Palette v5 - Clear Sky Blue
+      { name: 'Investissements', icon: 'trending_up', color: '#4A7856', order: 2, type: 'income' }, // Palette v5 - Darker Muted Green
+      { name: 'Cadeaux', icon: 'card_giftcard', color: '#F4A97F', order: 3, type: 'income' },   // Palette v5 - Clear Peach/Orange
+      { name: 'Autres Revenus', icon: 'more_horiz', color: '#C8AD9B', order: 4, type: 'income' }  // Palette v5 - Neutral Tan/Beige
     ];
     
     console.log(`🔍 CREATING ${defaultCategories.length} DEFAULT CATEGORIES at path:`, categoriesPath);
