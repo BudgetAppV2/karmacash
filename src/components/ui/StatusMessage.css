@@ -1,0 +1,130 @@
+/* StatusMessage.css */
+
+.status-message {
+  width: 100%;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.status-text {
+  flex: 1;
+}
+
+.status-title {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.status-message-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.status-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.status-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Status Type Styling */
+.status-info {
+  background-color: rgba(113, 154, 199, 0.1);
+  border: 1px solid rgba(113, 154, 199, 0.3);
+  color: #3A5A78;
+}
+
+.status-success {
+  background-color: rgba(127, 176, 105, 0.1);
+  border: 1px solid rgba(127, 176, 105, 0.3);
+  color: #4A7856;
+}
+
+.status-warning {
+  background-color: rgba(224, 180, 112, 0.1);
+  border: 1px solid rgba(224, 180, 112, 0.3);
+  color: #9A705A;
+}
+
+.status-error {
+  background-color: rgba(204, 128, 122, 0.1);
+  border: 1px solid rgba(204, 128, 122, 0.3);
+  color: #A5584E;
+}
+
+.status-empty {
+  background-color: rgba(200, 200, 200, 0.1);
+  border: 1px solid rgba(200, 200, 200, 0.3);
+  color: #666666;
+  text-align: center;
+}
+
+.status-empty .status-content {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.status-empty .status-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+
+/* Icon colors */
+.status-icon.info {
+  fill: #3A5A78;
+}
+
+.status-icon.success {
+  fill: #4A7856;
+}
+
+.status-icon.warning {
+  fill: #9A705A;
+}
+
+.status-icon.error {
+  fill: #A5584E;
+}
+
+.status-icon.empty {
+  fill: #888888;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .status-message {
+    padding: 12px;
+  }
+  
+  .status-empty .status-content {
+    padding: 16px 8px;
+  }
+}
+
+/* High Contrast Mode */
+@media (forced-colors: active) {
+  .status-message {
+    border: 2px solid currentColor;
+  }
+} 

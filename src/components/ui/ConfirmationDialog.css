@@ -1,0 +1,190 @@
+/* ConfirmationDialog.css */
+
+body [role="dialog"],
+html body .modal-container, 
+html body .confirmation-dialog, 
+html body .dialog-content {
+  background-color: #FFFFFF !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 350px !important;
+  max-width: 90% !important;
+  min-width: auto !important;
+  max-height: 85vh !important;
+  border-radius: 12px !important;
+  border: 1px solid #DDDDDD !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  z-index: 2000 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+html body .modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
+
+html body .modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
+
+html body .modal-content {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 24px 24px 16px !important;
+}
+
+html body .modal-title {
+  padding: 0 !important;
+  margin: 0 0 16px 0 !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #333333 !important;
+  line-height: 1.2 !important;
+}
+
+html body .modal-message {
+  padding: 0 !important;
+  margin: 0 0 24px 0 !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  color: #555555 !important;
+}
+
+html body .modal-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  padding: 16px 24px !important;
+  border-top: 1px solid #EEEEEE !important;
+  gap: 16px !important;
+  margin-top: 16px !important;
+  margin-left: -24px !important;
+  margin-right: -24px !important;
+}
+
+/* Button Styles */
+html body .btn-cancel {
+  padding: 12px 16px !important;
+  border: 1px solid #DDDDDD !important;
+  background: transparent !important;
+  color: #666666 !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  min-height: 48px !important;
+  min-width: 100px !important;
+  font-weight: 500 !important;
+}
+
+html body .btn-cancel:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+html body .btn-cancel:active {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html body .btn-confirm {
+  padding: 12px 16px !important;
+  border: none !important;
+  background-color: #919A7F !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  min-height: 48px !important;
+  min-width: 100px !important;
+}
+
+html body .btn-confirm:hover {
+  background-color: #838c71 !important;
+}
+
+html body .btn-confirm:active {
+  background-color: #767f64 !important;
+}
+
+/* Destructive action styling - Updated to terra cotta red */
+html body .btn-confirm.destructive {
+  background-color: #CC807A !important; /* Terra cotta red color */
+  color: white !important;
+}
+
+html body .btn-confirm.destructive:hover {
+  background-color: #B8726D !important; /* Slightly darker on hover */
+}
+
+html body .btn-confirm.destructive:active {
+  background-color: #A56660 !important; /* Even darker on active */
+}
+
+/* Focus styles for accessibility */
+html body .btn-cancel:focus-visible,
+html body .btn-confirm:focus-visible {
+  outline: 3px solid #919A7F !important;
+  outline-offset: 2px !important;
+}
+
+html body .btn-confirm.destructive:focus-visible {
+  outline-color: #CC807A !important; /* Match terra cotta red */
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html body .btn-cancel,
+  html body .btn-confirm {
+    transition: none !important;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 480px) {
+  html body .modal-container {
+    width: 320px !important;
+    max-width: 95% !important;
+  }
+  
+  html body .modal-actions {
+    flex-direction: column-reverse !important;
+    padding: 16px !important;
+  }
+  
+  html body .btn-cancel,
+  html body .btn-confirm {
+    width: 100% !important;
+    margin: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    display: flex !important;
+  }
+  
+  html body .btn-confirm {
+    margin-bottom: 8px !important;
+  }
+  
+  html body .modal-content {
+    padding: 20px 20px 12px !important;
+  }
+}
+
+/* Larger screens - enhance button layout */
+@media (min-width: 481px) {
+  html body .modal-container {
+    width: 400px !important;
+  }
+} 

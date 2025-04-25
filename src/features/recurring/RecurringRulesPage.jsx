@@ -11,9 +11,18 @@ import { formatDate, formatCurrency } from '../../utils/formatters';
 import logger from '../../services/logger';
 import './RecurringRulesPage.css';
 import RecurringRuleForm from './components/RecurringRuleForm';
+import ConfirmationDialog from '../../components/ui/ConfirmationDialog';
+import { httpsCallable } from 'firebase/functions';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { db, functions } from '../../services/firebase/firebaseInit';
 
 // Component to display a single recurring rule
 const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { showSuccess, showError } = useToast();
+  const { currentUser } = useAuth();
+
   // Map frequency types to display text
   const getFrequencyText = (frequency) => {
     const frequencyMap = {
@@ -27,59 +36,140 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
     return frequencyMap[frequency] || frequency;
   };
 
+  const handleDeleteClick = () => {
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsLoading(true);
+    setIsConfirmOpen(false);
+
+    try {
+      logger.info('RecurringRuleItem', 'handleConfirmDelete', 'Deleting recurring rule and instances', {
+        userId: currentUser.uid,
+        ruleId: rule.id
+      });
+
+      // Call function to delete future instances
+      const manageInstances = httpsCallable(functions, 'manageRecurringInstances');
+
+      // Prepare parameters with emulator workaround
+      const params = { 
+        ruleId: rule.id, 
+        action: 'delete' 
+      };
+
+      // Add emulatorUserId in development environments
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        params.emulatorUserId = currentUser.uid;
+        logger.debug('RecurringRuleItem', 'handleConfirmDelete', 'Adding emulatorUserId for development', {
+          emulatorUserId: currentUser.uid
+        });
+      }
+
+      await manageInstances(params);
+
+      // If successful, delete the rule document itself
+      const ruleRef = doc(db, 'users', currentUser.uid, 'recurringRules', rule.id);
+      await deleteDoc(ruleRef);
+
+      // Success feedback
+      showSuccess('Règle récurrente et toutes les transactions associées supprimées avec succès');
+      
+      // Notify parent component
+      if (onDelete) {
+        onDelete(rule);
+      }
+    } catch (error) {
+      logger.error('RecurringRuleItem', 'handleConfirmDelete', 'Error deleting recurring rule', {
+        error: error.message,
+        stack: error.stack,
+        userId: currentUser?.uid,
+        ruleId: rule.id
+      });
+      showError('Échec de la suppression de la règle récurrente');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsConfirmOpen(false);
+  };
+
   return (
-    <div className={`recurring-rule-item ${!rule.active ? 'inactive' : ''}`}>
-      <div className="rule-header">
-        <h3 className="rule-name">{rule.name}</h3>
-        <div className="rule-amount">{formatCurrency(rule.amount)}</div>
-      </div>
-      
-      <div className="rule-details">
-        <div className="rule-category">
-          <span 
-            className="category-dot" 
-            style={{ backgroundColor: rule.categoryColor }}
-          ></span>
-          {rule.categoryName}
+    <>
+      <div className={`recurring-rule-item ${!rule.active ? 'inactive' : ''}`}>
+        <div className="rule-header">
+          <h3 className="rule-name">{rule.name}</h3>
+          <div className="rule-amount">{formatCurrency(rule.amount)}</div>
         </div>
-        <div className="rule-frequency">{getFrequencyText(rule.frequency)}</div>
-      </div>
-      
-      <div className="rule-dates">
-        <div className="rule-date">
-          <strong>Début:</strong> {formatDate(rule.startDate)}
-        </div>
-        {rule.endDate && (
-          <div className="rule-date">
-            <strong>Fin:</strong> {formatDate(rule.endDate)}
+        
+        <div className="rule-details">
+          <div className="rule-category">
+            <span 
+              className="category-dot" 
+              style={{ backgroundColor: rule.categoryColor }}
+            ></span>
+            {rule.categoryName}
           </div>
-        )}
+          <div className="rule-frequency">{getFrequencyText(rule.frequency)}</div>
+        </div>
+        
+        <div className="rule-dates">
+          <div className="rule-date">
+            <strong>Début:</strong> {formatDate(rule.startDate)}
+          </div>
+          {rule.endDate && (
+            <div className="rule-date">
+              <strong>Fin:</strong> {formatDate(rule.endDate)}
+            </div>
+          )}
+        </div>
+        
+        <div className="rule-actions">
+          <button 
+            className="rule-action-button rule-edit-button"
+            onClick={() => onEdit(rule)}
+            title="Modifier"
+            disabled={isLoading}
+          >
+            ✎
+          </button>
+          <button 
+            className={`rule-action-button rule-toggle-button ${rule.active ? 'active' : 'inactive'}`}
+            onClick={() => onToggleActive(rule.id, !rule.active)}
+            title={rule.active ? "Désactiver" : "Activer"}
+            disabled={isLoading}
+          >
+            {rule.active ? "✓" : "○"}
+          </button>
+          <button 
+            className="rule-action-button rule-delete-button"
+            onClick={handleDeleteClick}
+            title="Supprimer"
+            disabled={isLoading}
+          >
+            {isLoading ? "..." : "×"}
+          </button>
+        </div>
       </div>
-      
-      <div className="rule-actions">
-        <button 
-          className="rule-action-button rule-edit-button"
-          onClick={() => onEdit(rule)}
-          title="Modifier"
-        >
-          ✎
-        </button>
-        <button 
-          className={`rule-action-button rule-toggle-button ${rule.active ? 'active' : 'inactive'}`}
-          onClick={() => onToggleActive(rule.id, !rule.active)}
-          title={rule.active ? "Désactiver" : "Activer"}
-        >
-          {rule.active ? "✓" : "○"}
-        </button>
-        <button 
-          className="rule-action-button rule-delete-button"
-          onClick={() => onDelete(rule)}
-          title="Supprimer"
-        >
-          ×
-        </button>
-      </div>
-    </div>
+
+      {/* Confirmation Dialog - Now outside the item container */}
+      {isConfirmOpen && (
+        <ConfirmationDialog
+          isOpen={isConfirmOpen}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+          title="Supprimer la règle récurrente"
+          message="Êtes-vous sûr de vouloir supprimer cette règle récurrente? Cela supprimera également TOUTES les transactions associées, y compris les transactions passées et futures."
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          isDestructive={true}
+          itemId={rule.id}
+        />
+      )}
+    </>
   );
 };
 
@@ -90,10 +180,6 @@ function RecurringRulesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0); // Key for forcing refresh
-  
-  // State for handling delete confirmation
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [ruleToDelete, setRuleToDelete] = useState(null);
   
   // State for showing the add/edit form
   const [showForm, setShowForm] = useState(false);
@@ -149,48 +235,10 @@ function RecurringRulesPage() {
     setShowForm(true);
   };
 
-  // Handle delete rule click
-  const handleDeleteClick = (rule) => {
-    setRuleToDelete(rule);
-    setShowDeleteConfirm(true);
-  };
-
-  // Handle delete confirmation
-  const handleDeleteConfirm = async () => {
-    if (!ruleToDelete || !currentUser) return;
-    
-    try {
-      logger.info('RecurringRulesPage', 'handleDeleteConfirm', 'Deleting recurring rule', {
-        userId: currentUser.uid,
-        ruleId: ruleToDelete.id
-      });
-      
-      await deleteRecurringRule(currentUser.uid, ruleToDelete.id);
-      
-      // Reset state
-      setShowDeleteConfirm(false);
-      setRuleToDelete(null);
-      
-      // Force a refresh of the rules
-      forceRefresh();
-      
-      // Notify user
-      showSuccess('Règle récurrente supprimée avec succès');
-    } catch (err) {
-      logger.error('RecurringRulesPage', 'handleDeleteConfirm', 'Error deleting recurring rule', {
-        error: err.message,
-        stack: err.stack,
-        userId: currentUser?.uid,
-        ruleId: ruleToDelete?.id
-      });
-      showError('Échec de la suppression de la règle récurrente');
-    }
-  };
-
-  // Handle delete cancel
-  const handleDeleteCancel = () => {
-    setShowDeleteConfirm(false);
-    setRuleToDelete(null);
+  // Handle delete rule 
+  const handleDeleteRule = (rule) => {
+    // When a rule is deleted in RecurringRuleItem, refresh the list
+    forceRefresh();
   };
 
   // Handle toggle active status
@@ -201,7 +249,7 @@ function RecurringRulesPage() {
         active
       });
       
-      await toggleRecurringRuleActive(ruleId, active);
+      await toggleRecurringRuleActive(currentUser.uid, ruleId, active);
       
       // Update the rule in the state
       setRecurringRules(prevRules => 
@@ -283,41 +331,13 @@ function RecurringRulesPage() {
                   key={rule.id}
                   rule={rule}
                   onEdit={handleEditClick}
-                  onDelete={handleDeleteClick}
+                  onDelete={handleDeleteRule}
                   onToggleActive={handleToggleActive}
                 />
               ))}
             </div>
           )}
         </>
-      )}
-      
-      {showDeleteConfirm && ruleToDelete && (
-        <div className="delete-confirm-overlay">
-          <div className="delete-confirm-modal">
-            <h3>Supprimer la règle récurrente</h3>
-            <p>
-              Êtes-vous sûr de vouloir supprimer la règle récurrente <strong>{ruleToDelete.name}</strong>?
-            </p>
-            <p className="warning">
-              Cette action est irréversible.
-            </p>
-            <div className="delete-confirm-actions">
-              <button 
-                className="btn btn-secondary"
-                onClick={handleDeleteCancel}
-              >
-                Annuler
-              </button>
-              <button 
-                className="btn btn-danger"
-                onClick={handleDeleteConfirm}
-              >
-                Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

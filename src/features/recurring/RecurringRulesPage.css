@@ -5,6 +5,14 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative; /* Establish a stacking context */
+  z-index: 1; /* Base z-index for the page content */
+}
+
+/* Ensure any dialogs can be properly positioned above the page content */
+.page-container .modal-overlay,
+.page-container .modal-backdrop {
+  z-index: 2000 !important; /* Higher than any other page elements */
 }
 
 /* Page Header */
