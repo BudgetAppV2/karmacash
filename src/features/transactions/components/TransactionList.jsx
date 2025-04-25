@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { ChevronDownIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ArrowUpIcon, ArrowDownIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatCurrency, formatRelativeDate } from '../../../utils/formatters';
 import { deleteTransaction } from '../../../services/firebase/transactions';
@@ -104,13 +104,27 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
   
   // Group transactions by day
   const groupedTransactions = transactions.reduce((groups, transaction) => {
-    const date = new Date(transaction.date);
-    date.setHours(0, 0, 0, 0);
-    const dateKey = date.toISOString();
+    // Check if date is a Firestore Timestamp and convert properly
+    const jsDate = transaction.date && typeof transaction.date.toDate === 'function' 
+      ? transaction.date.toDate() // Convert Firestore Timestamp to JS Date
+      : new Date(transaction.date); // Handle regular Date strings/objects
+    
+    // Manually extract UTC components for reliable date key
+    const year = jsDate.getUTCFullYear();
+    const month = (jsDate.getUTCMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+    const day = jsDate.getUTCDate().toString().padStart(2, '0');
+    const dateKey = `${year}-${month}-${day}`; // Create yyyy-MM-dd key directly
     
     if (!groups[dateKey]) {
+      // Parse the dateKey components for creating a UTC midnight date
+      const year = parseInt(dateKey.substring(0, 4), 10);
+      const month = parseInt(dateKey.substring(5, 7), 10) - 1; // Back to 0-indexed
+      const day = parseInt(dateKey.substring(8, 10), 10);
+      
       groups[dateKey] = {
-        date,
+        dateKey: dateKey,
+        // Store a JS Date object representing UTC midnight for this day
+        date: new Date(Date.UTC(year, month, day)), 
         transactions: []
       };
     }
@@ -364,9 +378,23 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
         const dailyTotals = calculateDailyTotals(group.transactions);
         dailyTotals.net = dailyTotals.income - dailyTotals.expense;
         
-        // Format date key for comparison
-        const dateKey = group.date.toISOString();
+        // Use the dateKey directly from the group object
+        const dateKey = group.dateKey;
         const isExpanded = expandedDay === dateKey;
+        
+        // Manual UTC date formatting using Intl.DateTimeFormat
+        const dateToDisplay = group.date;
+        let displayString = 'Invalid Date';
+        
+        if (dateToDisplay instanceof Date && !isNaN(dateToDisplay)) {
+          const year = dateToDisplay.getUTCFullYear();
+          // Use French locale for month name
+          const monthName = new Intl.DateTimeFormat('fr-CA', { month: 'long', timeZone: 'UTC' }).format(dateToDisplay);
+          const day = dateToDisplay.getUTCDate();
+          displayString = `${day} ${monthName} ${year}`; // e.g., "2 avril 2025"
+        }
+        
+        console.log(`Manual UTC Header Display: Input=${dateToDisplay?.toISOString()}, Output='${displayString}'`);
         
         return (
           <div 
@@ -381,10 +409,11 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
               role="button"
               tabIndex={0}
               aria-expanded={isExpanded}
-              aria-controls={`day-transactions-${dateKey.split('T')[0]}`}
+              aria-controls={`day-transactions-${dateKey}`}
             >
               <div className="day-date">
-                {formatRelativeDate(group.date)}
+                {/* Manual UTC-based date display */}
+                {displayString}
               </div>
               
               <div className="day-header-right">
@@ -412,7 +441,7 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
             <AnimatePresence>
               {isExpanded && (
                 <motion.div
-                  id={`day-transactions-${dateKey.split('T')[0]}`}
+                  id={`day-transactions-${dateKey}`}
                   className="day-transactions-wrapper"
                   initial="hidden"
                   animate="visible"
@@ -456,32 +485,39 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
                         {/* Transaction Item */}
                         <div
                           className={`transaction-item ${swipedTransactionId === transaction.id ? 'swiped' : ''}`}
+                          style={{ '--category-color': getCategoryColor(transaction) }}
                         >
-                          <div className="transaction-details">
-                            <div className="transaction-description">
-                              {transaction.isRecurringInstance && (
-                                <span
-                                  className="recurring-indicator"
-                                  title="Transaction récurrente"
+                          <div className="content-wrapper">
+                            <div className="transaction-details">
+                              <div className="transaction-description">
+                                {transaction.isRecurringInstance && (
+                                  <ArrowPathIcon
+                                    className="recurring-icon" 
+                                    width={16}
+                                    height={16}
+                                    aria-hidden="false"
+                                    aria-label="Recurring Transaction"
+                                    title="Recurring Transaction"
+                                  />
+                                )}
+                                {transaction.description}
+                              </div>
+                              
+                              <div 
+                                className="transaction-category"
+                                style={{ color: getCategoryColor(transaction) }}
+                              >
+                                <span 
+                                  className="category-dot"
+                                  style={{ backgroundColor: getCategoryColor(transaction) }}
                                 />
-                              )}
-                              {transaction.description}
+                                {getCategoryName(transaction)}
+                              </div>
                             </div>
                             
-                            <div 
-                              className="transaction-category"
-                              style={{ color: getCategoryColor(transaction) }}
-                            >
-                              <span
-                                className="category-indicator"
-                                style={{ backgroundColor: getCategoryColor(transaction) }}
-                              />
-                              {getCategoryName(transaction)}
+                            <div className={`transaction-amount ${transaction.amount < 0 ? 'negative' : 'positive'}`}>
+                              {formatCurrency(transaction.amount, currency)}
                             </div>
-                          </div>
-                          
-                          <div className={`transaction-amount ${transaction.amount < 0 ? 'negative' : 'positive'}`}>
-                            {formatCurrency(transaction.amount, currency)}
                           </div>
                         </div>
                       </div>
