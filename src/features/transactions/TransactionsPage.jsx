@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSettings } from '../../contexts/SettingsContext';
 import { formatYearMonth, formatDate } from '../../utils/formatters';
 import TransactionListWithFetch from './components/TransactionListWithFetch';
+import TransactionList from './components/TransactionList';
+import MonthlyCalendarView from '../../components/MonthlyCalendarView';
+import { isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { getTransactionsInRange } from '../../services/firebase/transactions';
 import logger from '../../services/logger';
 
 /**
@@ -23,6 +27,11 @@ const TransactionsPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  
+  // State for calendar selected date and monthly transactions
+  const [calendarSelectedDate, setCalendarSelectedDate] = useState(new Date());
+  const [monthlyTransactions, setMonthlyTransactions] = useState([]);
+  const [isMonthlyLoading, setIsMonthlyLoading] = useState(false);
   
   // Colors from Zen/Tranquility theme
   const primaryColor = '#919A7F'; // Sage green
@@ -46,12 +55,14 @@ const TransactionsPage = () => {
       end.setDate(start.getDate() + 6); // Go forward to Saturday
       end.setHours(23, 59, 59, 999);
     } else {
-      // Set to beginning of the month
-      start = new Date(date.getFullYear(), date.getMonth(), 1);
-      start.setHours(0, 0, 0, 0);
+      // For month view, include all days shown in the calendar grid (including adjacent months)
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+      // Use weekStartsOn: 1 to match the calendar's Monday start
+      start = startOfWeek(monthStart, { weekStartsOn: 1 });
+      end = endOfWeek(monthEnd, { weekStartsOn: 1 });
       
-      // Set to end of the month
-      end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      start.setHours(0, 0, 0, 0);
       end.setHours(23, 59, 59, 999);
     }
     
@@ -64,6 +75,79 @@ const TransactionsPage = () => {
       end
     });
   }, [currentDate, viewMode]);
+  
+  // Fetch monthly transactions data when in month view
+  useEffect(() => {
+    if (viewMode !== 'month' || !currentUser) return;
+    
+    const fetchMonthlyTransactions = async () => {
+      setIsMonthlyLoading(true);
+      setError('');
+      
+      try {
+        logger.debug('TransactionsPage', 'fetchMonthlyTransactions', 'Fetching transactions for full calendar view', {
+          start: startDate,
+          end: endDate
+        });
+        
+        const fetchedTransactions = await getTransactionsInRange(
+          currentUser.uid,
+          startDate,
+          endDate
+        );
+        
+        logger.debug('TransactionsPage', 'fetchMonthlyTransactions', `Fetched ${fetchedTransactions.length} transactions for the calendar view`);
+        setMonthlyTransactions(fetchedTransactions);
+      } catch (err) {
+        logger.error('TransactionsPage', 'fetchMonthlyTransactions', 'Error fetching transactions', {
+          error: err.message
+        });
+        setError(`Erreur: ${err.message}`);
+      } finally {
+        setIsMonthlyLoading(false);
+      }
+    };
+    
+    fetchMonthlyTransactions();
+  }, [currentUser, startDate, endDate, viewMode]);
+
+  // Filter transactions for the selected calendar day
+  const filteredTransactionsForDay = useMemo(() => {
+    console.log('[Filter] Calculating for selectedDate:', calendarSelectedDate);
+    if (!calendarSelectedDate || !monthlyTransactions.length) {
+      console.log('[Filter] No selected date or transactions, returning empty array.');
+      return [];
+    }
+    
+    // Extract UTC components from the selected date for reliable comparison
+    const selectedYear = calendarSelectedDate.getUTCFullYear();
+    const selectedMonth = calendarSelectedDate.getUTCMonth();
+    const selectedDay = calendarSelectedDate.getUTCDate();
+    
+    return monthlyTransactions.filter(transaction => {
+      // Convert transaction date to JS Date if it's a Firestore Timestamp
+      const transactionDate = transaction.date && typeof transaction.date.toDate === 'function'
+        ? transaction.date.toDate()
+        : new Date(transaction.date);
+      
+      // Compare UTC date components instead of using isSameDay
+      const txYear = transactionDate.getUTCFullYear();
+      const txMonth = transactionDate.getUTCMonth();
+      const txDay = transactionDate.getUTCDate();
+      
+      // Match exact UTC year, month, and day values
+      return txYear === selectedYear && txMonth === selectedMonth && txDay === selectedDay;
+    });
+  }, [calendarSelectedDate, monthlyTransactions]);
+  
+  // Handler for calendar day selection
+  const handleCalendarDateSelect = (date) => {
+    console.log('[State] Setting calendarSelectedDate to:', date); // Log date being set
+    setCalendarSelectedDate(date);
+    logger.debug('TransactionsPage', 'handleCalendarDateSelect', 'Calendar date selected', {
+      date
+    });
+  };
   
   // Navigate to previous period
   const handlePrevious = () => {
@@ -101,6 +185,14 @@ const TransactionsPage = () => {
     });
   };
   
+  // Handle calendar month change
+  const handleCalendarMonthChange = (newDate) => {
+    setCurrentDate(newDate);
+    logger.debug('TransactionsPage', 'handleCalendarMonthChange', 'Calendar month changed', {
+      newDate
+    });
+  };
+  
   // Format period label based on view mode
   const formatPeriodLabel = () => {
     if (viewMode === 'week') {
@@ -116,6 +208,11 @@ const TransactionsPage = () => {
     logger.error('TransactionsPage', 'handleTransactionError', 'Error from transaction list', {
       error: error.message
     });
+  };
+  
+  // Handle transaction deletion
+  const handleTransactionDeleted = (transactionId) => {
+    setMonthlyTransactions(prev => prev.filter(t => t.id !== transactionId));
   };
   
   return (
@@ -169,8 +266,9 @@ const TransactionsPage = () => {
         className="period-navigation"
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
           alignItems: 'center',
+          gap: '16px',
           backgroundColor: 'white',
           borderRadius: '12px',
           padding: '16px',
@@ -185,21 +283,25 @@ const TransactionsPage = () => {
             display: 'flex',
             borderRadius: '6px',
             overflow: 'hidden',
-            border: '1px solid #e9ecef'
+            border: '1px solid #e9ecef',
+            width: '100%',
+            maxWidth: '250px'
           }}
         >
           <button
             type="button"
             onClick={() => setViewMode('week')}
             style={{
-              padding: '8px 16px',
+              padding: '8px 12px',
+              flex: '1 1 50%',
               backgroundColor: viewMode === 'week' ? primaryColor : 'white',
               color: viewMode === 'week' ? 'white' : '#2F2F2F',
               border: 'none',
               fontSize: '0.9rem',
               fontWeight: 500,
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
             }}
           >
             Semaine
@@ -208,14 +310,16 @@ const TransactionsPage = () => {
             type="button"
             onClick={() => setViewMode('month')}
             style={{
-              padding: '8px 16px',
+              padding: '8px 12px',
+              flex: '1 1 50%',
               backgroundColor: viewMode === 'month' ? primaryColor : 'white',
               color: viewMode === 'month' ? 'white' : '#2F2F2F',
               border: 'none',
               fontSize: '0.9rem',
               fontWeight: 500,
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
             }}
           >
             Mois
@@ -228,6 +332,8 @@ const TransactionsPage = () => {
           style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
             gap: '16px'
           }}
         >
@@ -249,18 +355,15 @@ const TransactionsPage = () => {
           >
             ←
           </button>
-          
-          <span 
-            className="period-label"
+          <div
             style={{
+              fontSize: '0.9rem',
               fontWeight: 500,
-              minWidth: '180px',
-              textAlign: 'center'
+              color: '#717171'
             }}
           >
             {formatPeriodLabel()}
-          </span>
-          
+          </div>
           <button
             type="button"
             onClick={handleNext}
@@ -280,46 +383,91 @@ const TransactionsPage = () => {
             →
           </button>
         </div>
-        
-        {/* Today Button */}
-        <button
-          type="button"
-          onClick={() => setCurrentDate(new Date())}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: backgroundColor,
-            color: '#2F2F2F',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '0.9rem',
-            fontWeight: 500,
-            cursor: 'pointer'
-          }}
-        >
-          Aujourd'hui
-        </button>
       </div>
       
-      {/* Error Message */}
+      {/* Display error if there is one */}
       {error && (
-        <div style={{
-          backgroundColor: '#ffebee',
-          border: '1px solid #f44336',
-          color: '#b71c1c',
-          padding: '12px',
-          borderRadius: '8px',
-          marginBottom: '16px'
-        }}>
+        <div 
+          style={{
+            backgroundColor: '#FBE8E4',
+            border: '1px solid #F4CFCA',
+            borderRadius: '6px',
+            padding: '12px 16px',
+            marginBottom: '24px',
+            color: '#B3261E',
+            fontSize: '0.9rem'
+          }}
+        >
           {error}
         </div>
       )}
       
-      {/* Transaction List with Fetch */}
-      <TransactionListWithFetch 
-        startDate={startDate}
-        endDate={endDate}
-        onError={handleTransactionError}
-      />
+      {/* Conditional rendering based on viewMode */}
+      {viewMode === 'week' && (
+        <TransactionListWithFetch 
+          startDate={startDate} 
+          endDate={endDate}
+          onError={handleTransactionError}
+        />
+      )}
+      
+      {viewMode === 'month' && (
+        <>
+          <MonthlyCalendarView 
+            onDateSelect={handleCalendarDateSelect} 
+            onMonthChange={handleCalendarMonthChange}
+            currentDate={currentDate}
+            transactions={monthlyTransactions}
+          />
+          
+          {/* Selected day transactions section */}
+          <div 
+            style={{ 
+              marginTop: '24px',
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '16px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            }}
+          >
+            <h3 
+              style={{ 
+                fontSize: '1.1rem', 
+                margin: '0 0 16px 0',
+                color: '#2F2F2F',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              Transactions du {formatDate(calendarSelectedDate, 'd MMMM yyyy')}
+            </h3>
+            
+            {isMonthlyLoading ? (
+              <div style={{ padding: '20px 0', textAlign: 'center', color: '#717171' }}>
+                Chargement des transactions...
+              </div>
+            ) : (
+              <>
+                {filteredTransactionsForDay.length > 0 ? (
+                  <TransactionList 
+                    transactions={filteredTransactionsForDay}
+                    onTransactionDeleted={handleTransactionDeleted}
+                  />
+                ) : (
+                  <div style={{ 
+                    padding: '20px 0', 
+                    textAlign: 'center', 
+                    color: '#717171',
+                    fontStyle: 'italic'
+                  }}>
+                    Aucune transaction pour cette journée
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

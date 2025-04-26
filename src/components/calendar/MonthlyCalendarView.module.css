@@ -1,0 +1,186 @@
+/* MonthlyCalendarView.module.css - Mobile First */
+
+.calendarContainer {
+  background-color: var(--background-color, #ffffff);
+  border-radius: 10px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Header with month/year and navigation buttons */
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+}
+
+.monthYearDisplay {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color, #2F2F2F);
+}
+
+.navButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--text-color, #2F2F2F);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.navButton:hover {
+  background-color: var(--highlight-color, #E5E7E0);
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--primary-color, #919A7F);
+  outline-offset: 2px;
+}
+
+/* Weekday header - Identical grid settings as daysGrid */
+.weekdayHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  background-color: var(--background-color, #ffffff);
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.weekdayCell {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted-text-color, #6E6E73);
+  text-transform: uppercase;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Grid of days - Identical grid settings as weekdayHeader */
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  grid-auto-rows: 1fr;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Empty state / Loading */
+.emptyState,
+.loadingState {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted-text-color, #6E6E73);
+  font-size: 0.9rem;
+}
+
+.loadingState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Today marker - A subtle highlight for today's date */
+.todayMarker {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--primary-color-light, rgba(145, 154, 127, 0.2));
+  z-index: 0;
+}
+
+/* Tablet adjustments (768px and up) */
+@media (min-width: 768px) {
+  .calendarContainer {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .calendarHeader {
+    padding: 14px 20px;
+  }
+  
+  .monthYearDisplay {
+    font-size: 1.1rem;
+  }
+  
+  .weekdayCell {
+    padding: 10px 0;
+    font-size: 0.75rem;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* Desktop adjustments (1024px and up) */
+@media (min-width: 1024px) {
+  .calendarContainer {
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .calendarHeader {
+    padding: 16px 24px;
+  }
+  
+  .monthYearDisplay {
+    font-size: 1.2rem;
+  }
+  
+  .navButton {
+    padding: 8px;
+  }
+  
+  .weekdayCell {
+    padding: 12px 0;
+    font-size: 0.8rem;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .calendarContainer {
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .navButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .navButton {
+    transition: none;
+  }
+} 

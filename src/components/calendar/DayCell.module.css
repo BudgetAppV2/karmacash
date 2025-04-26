@@ -1,0 +1,298 @@
+/* DayCell.module.css - Mobile First */
+
+/* Share theme variables with MonthlyCalendarView */
+:root {
+  --primary-color: #919A7F;
+  --primary-light: #e5e7e0;
+  --primary-dark: #767f64;
+  --text-color: #2F2F2F;
+  --text-light: #666666;
+  --background-color: #FFFFFF;
+  --border-color: rgba(145, 154, 127, 0.2);
+  --highlight-color: #E5E7E0;
+  --selected-bg: rgba(145, 154, 127, 0.12);
+  --selected-hover-bg: rgba(145, 154, 127, 0.2);
+  
+  /* Additional colors for transactions */
+  --positive-amount: #3E8762;
+  --negative-amount: #E05555;
+  --terra-cotta: #C17C74; /* Soft Terra Cotta from B3.4 */
+  
+  /* Transparency for indicator bars */
+  --income-color: #8FBCBB;
+  --income-color-transparent: rgba(143, 188, 187, 0.7);
+  --expense-color: #BF616A;
+  --expense-color-transparent: rgba(191, 97, 106, 0.7);
+  
+  /* Spacing variables for consistency */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px; 
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  
+  /* Touch target size - minimum 44px as per accessibility guidelines */
+  --touch-target-min: 44px;
+  
+  /* Transitions */
+  --transition-standard: 0.3s ease-in-out;
+}
+
+/* Base day cell styles - Mobile first - "Open Frame" aesthetic */
+.dayCell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1; /* Square cells */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
+  justify-content: flex-start;
+  padding: 0;
+  border: none;
+  outline: none !important; /* Force override default outline */
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transform: scale(1); /* Base scale for transition */
+  transition: 
+    background-color var(--transition-standard),
+    transform 0.2s ease-in-out,
+    color var(--transition-standard);
+  border-radius: 0;
+  overflow: visible;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+}
+
+/* Day number */
+.dayNumber {
+  font-size: 0.8rem;
+  font-weight: 600; /* Increased font weight */
+  color: var(--text-color, #2F2F2F);
+  margin-top: 6px; /* Consistent position from top */
+  line-height: 1;
+  text-align: center; /* Center the text */
+  width: 100%; /* Ensure the text container spans the full width for proper centering */
+}
+
+/* Total container to hold amount and indicator */
+.totalContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  width: 100%;
+  position: relative;
+}
+
+/* Daily total amount */
+.dailyTotal {
+  font-size: 0.65rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Transaction amount colors */
+.positive {
+  color: var(--positive-amount);
+}
+
+.negative {
+  color: var(--negative-amount);
+}
+
+.neutral {
+  color: var(--text-light);
+}
+
+/* Financial indicators - minimal horizontal lines */
+.incomeIndicator, .expenseIndicator {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+
+.incomeIndicator {
+  background-color: var(--income-color);
+}
+
+.expenseIndicator {
+  background-color: var(--expense-color);
+}
+
+/* Outside month styling - just dim the text */
+.outsideMonth .dayNumber {
+  color: var(--text-light);
+  opacity: 0.4;
+}
+
+.outsideMonth .dailyTotal {
+  opacity: 0.4;
+}
+
+/* Today styling - just highlight the day number with color and weight */
+.today .dayNumber {
+  font-weight: 700; /* Increased weight for today */
+  color: var(--primary-color, #919A7F);
+}
+
+/* Selected day styling - subtle background with smooth transition */
+.selected {
+  background-color: var(--selection-highlight, rgba(145, 154, 127, 0.2));
+  transform: scale(1.03); /* Subtle scale up */
+  transition: 
+    background-color var(--transition-standard),
+    transform 0.2s ease-in-out,
+    color var(--transition-standard);
+}
+
+.selected .dayNumber {
+  font-weight: 700; /* Match today's weight */
+}
+
+/* Interactive states */
+.dayCell:hover:not(.selected) {
+  background-color: var(--highlight-color, #E5E7E0);
+}
+
+/* Explicit focus states to override browser defaults */
+.dayCell:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.dayCell:focus-visible {
+  outline: none !important; /* Forcefully remove default outline */
+  box-shadow: none !important; /* Remove any shadow-based focus indicators */
+  background-color: var(--selection-highlight, rgba(145, 154, 127, 0.2)); /* Same as selected */
+  transform: scale(1.03); /* Match the selected scale for consistency */
+  transition: 
+    background-color var(--transition-standard),
+    transform 0.2s ease-in-out,
+    color var(--transition-standard);
+}
+
+/* Indicator bar container */
+.indicatorBarContainer {
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: 2px;
+  padding: 0 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Base indicator bar */
+.indicatorBar {
+  width: 100%;
+  min-width: 0;
+  height: 16px;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 600; /* Increased weight for better readability against transparent bg */
+  line-height: 1;
+  text-align: center;
+  padding: 2px 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-standard);
+}
+
+/* Income indicator bar - with transparency */
+.incomeIndicatorBar {
+  background-color: var(--income-color-transparent);
+  color: #1e2430; /* Darkened for better contrast against transparent bg */
+}
+
+/* Expense indicator bar - with transparency */
+.expenseIndicatorBar {
+  background-color: var(--expense-color-transparent);
+  color: white;
+}
+
+/* Micro indicators for days without a total but with transactions */
+.microIndicators {
+  display: flex;
+  gap: 2px;
+  margin-top: auto;
+  margin-bottom: 4px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Tablet adjustments (768px and up) */
+@media (min-width: 768px) {
+  .dayCell {
+    padding: 0;
+  }
+
+  .dayNumber {
+    font-size: 0.9rem;
+    margin-top: 8px;
+  }
+
+  .indicatorBar {
+    height: 18px;
+    font-size: 0.7rem;
+    padding: 2px 4px;
+  }
+
+  .microIndicators {
+    gap: 3px;
+  }
+
+  .incomeIndicator,
+  .expenseIndicator {
+    width: 5px;
+    height: 5px;
+  }
+}
+
+/* Desktop adjustments (1024px and up) */
+@media (min-width: 1024px) {
+  .dayCell {
+    padding: 0;
+  }
+
+  .dayNumber {
+    font-size: 1rem;
+    margin-top: 10px;
+  }
+
+  .indicatorBar {
+    height: 20px;
+    font-size: 0.75rem;
+    padding: 3px 5px;
+  }
+
+  .microIndicators {
+    gap: 3px;
+  }
+
+  .incomeIndicator,
+  .expenseIndicator {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .dayCell,
+  .selected,
+  .dayCell:focus,
+  .dayCell:focus-visible,
+  .indicatorBar {
+    transition: none !important;
+    transform: none !important; /* Disable scaling animations */
+  }
+} 
