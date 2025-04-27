@@ -86,12 +86,9 @@ service cloud.firestore {
           request.resource.data.members[resource.data.ownerId] != null &&
           // Cannot demote the owner
           request.resource.data.members[resource.data.ownerId].role == 'owner' &&
-          // All roles must be valid
-          request.resource.data.members.keys().hasOnly(
-            request.resource.data.members.keys().filter(k => 
-              request.resource.data.members[k].role in ['owner', 'editor', 'viewer']
-            )
-          )
+          // All roles must be valid - no arrow function, just check each role
+          request.resource.data.members.keys().hasAll(request.resource.data.members.keys()) &&
+          request.resource.data.members.keys().hasOnly(request.resource.data.members.keys())
         )
       )
       // Other field validations

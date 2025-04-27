@@ -7,7 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:rules": "FIRESTORE_EMULATOR_HOST=localhost:8085 firebase emulators:exec --only firestore \"vitest run tests/firestore.rules.test.js\"",
+    "test:rules:win": "set FIRESTORE_EMULATOR_HOST=localhost:8085 && firebase emulators:exec --only firestore \"vitest run tests/firestore.rules.test.js\"",
+    "test:basic": "vitest run tests/basic-rules.test.js",
+    "test:validate": "vitest run tests/firestore-validation.test.js",
+    "check-ports": "node tests/check-ports.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -22,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@firebase/rules-unit-testing": "^4.0.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
@@ -31,9 +39,11 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "fs": "^0.0.1-security",
     "globals": "^15.15.0",
     "prettier": "^3.5.3",
     "vite": "^6.2.0",
-    "vite-plugin-pwa": "^1.0.0"
+    "vite-plugin-pwa": "^1.0.0",
+    "vitest": "^3.1.2"
   }
 }

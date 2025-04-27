@@ -38,10 +38,17 @@
       "port": 5001
     },
     "firestore": {
-      "port": 8080
+      "port": 8085
     },
     "ui": {
-      "enabled": true
+      "enabled": true,
+      "port": 4055
+    },
+    "hub": {
+      "port": 4455
+    },
+    "logging": {
+      "port": 4555
     }
   }
 } 
