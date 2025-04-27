@@ -10,7 +10,6 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import logger from '../services/logger';
-import { initializeDefaultCategories } from '../services/firebase/categories';
 
 // Import our initialized Firebase instances
 import { auth, db } from '../services/firebase/firebaseInit';
@@ -46,35 +45,6 @@ export function AuthProvider({ children }) {
       logger.info('AuthContext', operation, 'User document created in Firestore', {
         userId: userCredential.user.uid
       });
-      
-      // Initialize default categories as a fallback to Cloud Functions
-      try {
-        logger.debug('AuthContext', operation, 'Checking if categories need initialization');
-        
-        // Check if categories already exist for the user in the new path structure
-        const categoriesCollection = collection(db, `users/${userCredential.user.uid}/categories`);
-        const categoriesSnapshot = await getDocs(categoriesCollection);
-        
-        if (categoriesSnapshot.empty) {
-          logger.info('AuthContext', operation, 'No categories found, initializing defaults', {
-            userId: userCredential.user.uid
-          });
-          
-          // Initialize default categories
-          await initializeDefaultCategories(userCredential.user.uid);
-        } else {
-          logger.info('AuthContext', operation, 'Categories already exist for user', {
-            userId: userCredential.user.uid,
-            count: categoriesSnapshot.size
-          });
-        }
-      } catch (categoryError) {
-        // Log the error but continue with the signup process
-        logger.error('AuthContext', operation, 'Error initializing categories', { 
-          error: categoryError,
-          userId: userCredential.user.uid
-        });
-      }
       
       logger.info('AuthContext', operation, 'User signup successful', {
         userId: userCredential.user.uid
@@ -113,54 +83,6 @@ export function AuthProvider({ children }) {
             balanceDisplayMode: 'cumulative'
           }
         });
-        
-        // Initialize default categories for this new user
-        try {
-          logger.debug('AuthContext', operation, 'Checking if categories need initialization for new user document');
-          
-          // Check if categories exist in the new path structure
-          const categoriesCollection = collection(db, `users/${userCredential.user.uid}/categories`);
-          const categoriesSnapshot = await getDocs(categoriesCollection);
-          
-          if (categoriesSnapshot.empty) {
-            logger.info('AuthContext', operation, 'No categories found for new user, initializing defaults', {
-              userId: userCredential.user.uid
-            });
-            
-            // Initialize default categories
-            await initializeDefaultCategories(userCredential.user.uid);
-          }
-        } catch (categoryError) {
-          // Log the error but continue with the login process
-          logger.error('AuthContext', operation, 'Error initializing categories during login', { 
-            error: categoryError,
-            userId: userCredential.user.uid
-          });
-        }
-      } else {
-        // Even if the user document exists, check if they have categories
-        try {
-          logger.debug('AuthContext', operation, 'Checking if existing user needs categories');
-          
-          // Check if categories exist in the new path structure
-          const categoriesCollection = collection(db, `users/${userCredential.user.uid}/categories`);
-          const categoriesSnapshot = await getDocs(categoriesCollection);
-          
-          if (categoriesSnapshot.empty) {
-            logger.info('AuthContext', operation, 'Existing user has no categories, initializing defaults', {
-              userId: userCredential.user.uid
-            });
-            
-            // Initialize default categories
-            await initializeDefaultCategories(userCredential.user.uid);
-          }
-        } catch (categoryError) {
-          // Log the error but continue with the login process
-          logger.error('AuthContext', operation, 'Error checking categories for existing user', { 
-            error: categoryError,
-            userId: userCredential.user.uid
-          });
-        }
       }
       
       return userCredential.user;
