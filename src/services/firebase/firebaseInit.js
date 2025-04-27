@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 // Define the Firebase configuration object using environment variables
 const firebaseConfig = {
@@ -28,11 +29,30 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 let app;
 let auth;
 let db;
+let functions;
 
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
+  functions = getFunctions(app);
+  
+  // Connect to emulators in development mode
+  if (window.location.hostname === 'localhost') {
+    console.log('Running in development mode - connecting to Firebase emulators');
+    
+    // Connect to Auth Emulator
+    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: false });
+    
+    // Connect to Firestore Emulator
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    
+    // Connect to Functions Emulator
+    connectFunctionsEmulator(functions, 'localhost', 5001);
+    
+    console.log('Connected to all Firebase emulators (Auth, Firestore, Functions)');
+  }
+  
   console.log('Firebase initialized successfully using environment variables.');
 } catch (error) {
   console.error('Firebase initialization failed:', error);
@@ -40,4 +60,4 @@ try {
 }
 
 // Export the initialized services
-export { app, auth, db }; 
+export { app, auth, db, functions }; 

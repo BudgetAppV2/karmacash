@@ -68,12 +68,25 @@
 }
 
 .day-date {
+  display: flex;
+  flex-direction: column;
   font-family: var(--font-heading, 'Work Sans'); /* Apply the heading font */
   font-size: 20px; /* xl - 1.25rem / 20px per spec */
   font-weight: 500; /* Medium weight per spec */
   color: #2F2F2F; /* Text Primary per spec */
   letter-spacing: -0.02em; /* Per spec for heading style */
   line-height: 1.25; /* Tight line height per spec */
+}
+
+.day-date-relative {
+  font-weight: bold;
+  color: #4a5568;
+}
+
+.day-date-full {
+  font-size: 0.85em;
+  color: #718096;
+  margin-top: 2px;
 }
 
 /* Income/Expense breakdown in expanded content */
@@ -157,6 +170,12 @@
   overflow: hidden;
   touch-action: pan-y;
   will-change: transform; /* Optimize for animation performance */
+  border-radius: 6px; /* Match the item border radius */
+  margin-bottom: 8px; /* Space between transaction items */
+}
+
+.transaction-item-wrapper:last-child {
+  margin-bottom: 0;
 }
 
 /* Refined delete button styling */
@@ -179,6 +198,7 @@
   overflow: hidden;
   padding: 0 16px; /* Horizontal padding */
   box-shadow: inset 1px 0 3px rgba(0, 0, 0, 0.05); /* Subtle inner shadow for depth */
+  z-index: 1; /* Ensure button is above item */
 }
 
 .delete-button.visible {
@@ -191,14 +211,28 @@
 
 .transaction-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0; /* Increased padding to 16px (4 units) for vertical spacing */
+  align-items: stretch;
+  background-color: #FFFFFF;
   border-bottom: 1px solid rgba(136, 131, 122, 0.1);
-  background-color: transparent; /* Ensure background is transparent */
-  transition: transform 300ms cubic-bezier(0.2, 0.0, 0.0, 1), background-color 200ms ease-out; /* Improved smooth, spring-like easing */
-  margin-bottom: 0; /* No margin between items, using padding instead */
-  will-change: transform; /* Optimize for animation performance */
+  transition: transform 300ms cubic-bezier(0.2, 0.0, 0.0, 1), background-color 200ms ease-out;
+  margin-bottom: 0;
+  will-change: transform;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+/* Category color bar */
+.transaction-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px; /* Precise 4px width per spec */
+  background-color: var(--category-color, #88837A); /* Dynamic color with fallback */
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
 }
 
 .transaction-item.swiped {
@@ -211,14 +245,22 @@
 
 .transaction-item:last-child {
   border-bottom: none;
-  padding-bottom: 0; /* Remove bottom padding for the last item */
+}
+
+/* Content wrapper with precise padding */
+.content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px; /* Vertical padding 12px, right padding 16px */
+  padding-left: 16px; /* Precise 16px from the left bar */
 }
 
 .transaction-details {
   display: flex;
   flex-direction: column;
   gap: 4px; /* 1 unit spacing between description and category */
-  padding-left: 0; /* Remove left padding to align with card padding */
 }
 
 .transaction-description {
@@ -242,18 +284,21 @@
   line-height: 1.4; /* Slightly tighter line height for secondary text */
 }
 
-.category-indicator {
+/* Colored dot */
+.category-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  background-color: var(--category-color, #88837A);
+  margin-right: 4px; /* Small space between dot and text */
+  flex-shrink: 0; /* Prevent the dot from shrinking */
 }
 
 .transaction-amount {
   font-weight: 600; /* Semibold (600) per spec */
   font-size: 16px; /* base size same as primary text */
   font-variant-numeric: tabular-nums; /* Ensure proper number alignment */
-  padding-right: 0; /* Remove right padding to align with card padding */
   text-align: right;
   min-width: 90px; /* Ensure consistent width for alignment */
 }
@@ -266,13 +311,13 @@
   color: #568E8D; /* Positive Muted Teal per spec */
 }
 
-.recurring-indicator {
+.recurring-icon {
   display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--information);
-  margin-right: 0; /* Remove margin as we're using gap */
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+  color: var(--text-secondary, #88837A);
 }
 
 /* Swipe instruction hint that appears when page loads */

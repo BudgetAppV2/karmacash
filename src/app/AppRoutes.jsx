@@ -10,6 +10,7 @@ import NewLoginPage from '../features/auth/NewLoginPage';
 import SignupPage from '../features/auth/SignupPage';
 import TestPage from '../features/auth/TestPage';
 import PasswordResetPage from '../features/auth/PasswordResetPage';
+import TestAuthComponent from '../features/auth/TestAuthComponent';
 
 // Feature Pages (placeholders for now)
 import TransactionsPage from '../features/transactions/TransactionsPage';
@@ -29,6 +30,7 @@ import ActionConfirmDemo from '../components/ui/ActionConfirmDemo';
 import TestCategoryInit from '../components/TestCategoryInit';
 // Re-enable toast demo with improved implementation
 import ToastDemo from '../components/ui/ToastDemo';
+import ConfirmationDialogDemo from '../components/ui/ConfirmationDialogDemo';
 
 // Import RecurringRulesPage
 import RecurringRulesPage from '../features/recurring/RecurringRulesPage';
@@ -56,11 +58,13 @@ function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/test" element={<TestPage />} />
       <Route path="/forgot-password" element={<PasswordResetPage />} />
+      <Route path="/test-auth" element={<TestAuthComponent />} />
       
       {/* Demo routes - for development/testing purposes */}
       <Route path="/demo/infocard" element={<InfoCardDemo />} />
       <Route path="/demo/categories" element={<CategoryDisplayDemo />} />
       <Route path="/demo/action-confirm" element={<ActionConfirmDemo />} />
+      <Route path="/demo/confirmation-dialog" element={<ConfirmationDialogDemo />} />
       {/* Use ToastProvider directly to allow access without authentication */}
       <Route path="/demo/toast" element={
         <ToastProvider>

@@ -9,8 +9,13 @@ import {
 } from '../../../services/firebase/recurringRules';
 import { format, parseISO, startOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 import logger from '../../../services/logger';
 import './RecurringRuleForm.css';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../../services/firebase/firebaseInit';
+import BottomSheet from '../../../components/ui/BottomSheet';
 
 // Define styles to override any problematic global CSS
 const formStyles = {
@@ -161,6 +166,10 @@ function RecurringRuleForm({
   // Form validation
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  
+  // Bottom sheet states
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
+  const [isFrequencySheetOpen, setIsFrequencySheetOpen] = useState(false);
   
   // Get categories for the form
   const fetchCategories = useCallback(async () => {
@@ -326,6 +335,8 @@ function RecurringRuleForm({
         editMode
       });
       
+      let savedRuleId;
+      
       if (editMode && initialRule) {
         // Update existing rule
         logger.debug('RecurringRuleForm', 'handleSubmit', 'Updating rule', {
@@ -334,6 +345,7 @@ function RecurringRuleForm({
         });
         
         await updateRecurringRule(currentUser.uid, initialRule.id, ruleData);
+        savedRuleId = initialRule.id;
         
         logger.info('RecurringRuleForm', 'handleSubmit', 'Rule updated successfully', {
           userId: currentUser.uid,
@@ -342,12 +354,65 @@ function RecurringRuleForm({
         showSuccess('Règle récurrente mise à jour avec succès');
       } else {
         // Create new rule
-        await addRecurringRule(currentUser.uid, ruleData);
-        logger.info('RecurringRuleForm', 'handleSubmit', 'Rule created successfully');
+        const createdRule = await addRecurringRule(currentUser.uid, ruleData);
+        savedRuleId = createdRule.id;
+        
+        logger.info('RecurringRuleForm', 'handleSubmit', 'Rule created successfully', {
+          ruleId: savedRuleId
+        });
         showSuccess('Règle récurrente créée avec succès');
       }
       
-      // Call success callback
+      // Show a loading message for generating instances
+      setSubmitting(true); // Keep submitting state true
+      showSuccess('Génération des transactions récurrentes en cours...');
+      
+      // Get reference to the callable function
+      const manageInstances = httpsCallable(functions, 'manageRecurringInstances');
+      
+      try {
+        logger.info('RecurringRuleForm', 'handleSubmit', 'Generating instances for rule', {
+          userId: currentUser.uid,
+          ruleId: savedRuleId,
+          action: 'generate'
+        });
+        
+        // Prepare parameters with emulator workaround
+        const params = { 
+          ruleId: savedRuleId, 
+          action: 'generate' 
+        };
+        
+        // Add emulatorUserId in development environments
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          params.emulatorUserId = currentUser.uid;
+          logger.debug('RecurringRuleForm', 'handleSubmit', 'Adding emulatorUserId for development', {
+            emulatorUserId: currentUser.uid
+          });
+        }
+        
+        const result = await manageInstances(params);
+        
+        logger.info('RecurringRuleForm', 'handleSubmit', 'Successfully generated/updated instances', {
+          userId: currentUser.uid,
+          ruleId: savedRuleId,
+          result: result.data
+        });
+        
+        showSuccess('Transactions récurrentes générées avec succès');
+      } catch (error) {
+        logger.error('RecurringRuleForm', 'handleSubmit', 'Error generating instances for rule', {
+          error: error.message,
+          stack: error.stack,
+          userId: currentUser?.uid,
+          ruleId: savedRuleId
+        });
+        
+        showError('Règle sauvegardée, mais échec de la génération automatique des transactions. Elles seront mises à jour ultérieurement.');
+      }
+      
+      // Call success callback regardless of instance generation success/failure
+      // since the rule itself was successfully saved
       if (onSuccess) {
         onSuccess();
       }
@@ -366,9 +431,29 @@ function RecurringRuleForm({
     }
   };
   
-  // Get category display text
-  const getCategoryOptionText = (category) => {
-    return `${category.name} (${category.type === 'expense' ? 'Dépense' : 'Revenu'})`;
+  // Get selected category display text
+  const getSelectedCategoryText = () => {
+    const selectedCategory = categories.find(cat => cat.id === categoryId);
+    if (selectedCategory) {
+      return `${selectedCategory.name} (${selectedCategory.type === 'expense' ? 'Dépense' : 'Revenu'})`;
+    }
+    return 'Sélectionner une catégorie';
+  };
+
+  // Add frequency options for bottom sheet
+  const frequencyOptions = [
+    { id: FREQUENCY_TYPES.DAILY, name: 'Quotidien' },
+    { id: FREQUENCY_TYPES.WEEKLY, name: 'Hebdomadaire' },
+    { id: FREQUENCY_TYPES.BIWEEKLY, name: 'Bi-hebdomadaire' },
+    { id: FREQUENCY_TYPES.MONTHLY, name: 'Mensuel' },
+    { id: FREQUENCY_TYPES.QUARTERLY, name: 'Trimestriel' },
+    { id: FREQUENCY_TYPES.YEARLY, name: 'Annuel' }
+  ];
+
+  // Get display text for selected frequency
+  const getSelectedFrequencyText = () => {
+    const selectedFreq = frequencyOptions.find(f => f.id === frequency);
+    return selectedFreq ? selectedFreq.name : 'Sélectionner une fréquence';
   };
 
   return (
@@ -409,35 +494,60 @@ function RecurringRuleForm({
           {formErrors.name && <div style={formStyles.errorText}>{formErrors.name}</div>}
         </div>
         
-        {/* Category Selection */}
+        {/* Category Selection - Replaced with custom component */}
         <div style={formStyles.formGroup}>
           <label 
-            htmlFor="categoryId"
+            htmlFor="categorySelector"
             style={formStyles.label}
           >
             Catégorie <span style={formStyles.requiredMark}>*</span>
           </label>
-          <select
-            id="categoryId"
-            style={{
-              ...formStyles.select,
-              ...(formErrors.categoryId ? { borderColor: '#C17C74', backgroundColor: 'rgba(193, 124, 116, 0.05)' } : {})
+          <div
+            id="categorySelector"
+            role="button"
+            tabIndex={0}
+            aria-haspopup="listbox"
+            aria-expanded={isCategorySheetOpen}
+            aria-label="Sélectionner une catégorie"
+            onClick={() => !submitting && !categoriesLoading && setIsCategorySheetOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                !submitting && !categoriesLoading && setIsCategorySheetOpen(true);
+              }
             }}
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            disabled={submitting || categoriesLoading}
+            style={{
+              ...formStyles.input,
+              cursor: submitting || categoriesLoading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              ...(formErrors.categoryId ? { borderColor: '#C17C74', backgroundColor: 'rgba(193, 124, 116, 0.05)' } : {}),
+              opacity: submitting || categoriesLoading ? 0.7 : 1
+            }}
           >
-            <option value="" disabled>Sélectionnez une catégorie</option>
-            {categories.map(category => (
-              <option 
-                key={category.id} 
-                value={category.id}
-              >
-                {getCategoryOptionText(category)}
-              </option>
-            ))}
-          </select>
+            <div style={{ 
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              {categoriesLoading ? 'Chargement des catégories...' : getSelectedCategoryText()}
+            </div>
+            <ChevronDownIcon width={20} height={20} style={{ color: '#88837A' }} />
+          </div>
           {formErrors.categoryId && <div style={formStyles.errorText}>{formErrors.categoryId}</div>}
+          
+          <BottomSheet
+            isOpen={isCategorySheetOpen}
+            onClose={() => setIsCategorySheetOpen(false)}
+            title="Choisir une catégorie"
+            options={categories}
+            selectedValue={categoryId}
+            onSelect={(id) => setCategoryId(id)}
+            getOptionLabel={(category) => `${category.name} (${category.type === 'expense' ? 'Dépense' : 'Revenu'})`}
+            getOptionValue={(category) => category.id}
+            getOptionColor={(category) => category.color}
+          />
         </div>
         
         {/* Amount */}
@@ -477,24 +587,39 @@ function RecurringRuleForm({
           >
             Fréquence <span style={formStyles.requiredMark}>*</span>
           </label>
-          <select
-            id="frequency"
+          <div
+            onClick={() => !submitting && setIsFrequencySheetOpen(true)}
             style={{
               ...formStyles.select,
-              ...(formErrors.frequency ? { borderColor: '#C17C74', backgroundColor: 'rgba(193, 124, 116, 0.05)' } : {})
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              ...(formErrors.frequency ? { borderColor: '#C17C74', backgroundColor: 'rgba(193, 124, 116, 0.05)' } : {}),
+              opacity: submitting ? 0.7 : 1
             }}
-            value={frequency}
-            onChange={(e) => setFrequency(e.target.value)}
-            disabled={submitting}
           >
-            <option value={FREQUENCY_TYPES.DAILY}>Quotidien</option>
-            <option value={FREQUENCY_TYPES.WEEKLY}>Hebdomadaire</option>
-            <option value={FREQUENCY_TYPES.BIWEEKLY}>Bi-hebdomadaire</option>
-            <option value={FREQUENCY_TYPES.MONTHLY}>Mensuel</option>
-            <option value={FREQUENCY_TYPES.QUARTERLY}>Trimestriel</option>
-            <option value={FREQUENCY_TYPES.YEARLY}>Annuel</option>
-          </select>
+            <div style={{ 
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              {getSelectedFrequencyText()}
+            </div>
+            <ChevronDownIcon width={20} height={20} style={{ color: '#88837A' }} />
+          </div>
           {formErrors.frequency && <div style={formStyles.errorText}>{formErrors.frequency}</div>}
+          
+          <BottomSheet
+            isOpen={isFrequencySheetOpen}
+            onClose={() => setIsFrequencySheetOpen(false)}
+            title="Choisir une fréquence"
+            options={frequencyOptions}
+            selectedValue={frequency}
+            onSelect={(value) => setFrequency(value)}
+            getOptionLabel={(option) => option.name}
+            getOptionValue={(option) => option.id}
+          />
         </div>
         
         {/* Start Date */}

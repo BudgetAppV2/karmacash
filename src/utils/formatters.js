@@ -1,5 +1,6 @@
 // src/utils/formatters.js
-import { format, formatRelative, differenceInDays, startOfDay, setMonth, isToday, isYesterday } from 'date-fns';
+import { format, formatRelative, differenceInDays, startOfDay, setMonth, isToday, isYesterday, isSameWeek, isSameMonth } from 'date-fns';
+import { format as formatTz } from 'date-fns-tz';
 import { fr } from 'date-fns/locale';
 
 /**
@@ -35,28 +36,58 @@ export const formatCurrency = (amount, currencyCode = 'CAD') => {
   };
   
   /**
-   * Format a date as a relative time (today, yesterday, etc.)
+   * Format a date to display as a relative date (Today, Yesterday, etc.)
+   * Using UTC to ensure consistent display across timezones
+   * 
    * @param {Date} date - The date to format
-   * @returns {string} - Relative date string
+   * @returns {string} The formatted relative date
    */
   export const formatRelativeDate = (date) => {
     if (!date) return '';
     
-    // Handle Firestore Timestamp objects
-    const dateObj = date.toDate ? date.toDate() : date;
+    const jsDate = date instanceof Date ? date : new Date(date);
     
-    if (isToday(dateObj)) {
+    // Create reference dates in UTC
+    const now = new Date();
+    const todayInUTC = new Date(formatTz(now, 'yyyy-MM-dd', { timeZone: 'Etc/UTC' }));
+    const dateInUTC = new Date(formatTz(jsDate, 'yyyy-MM-dd', { timeZone: 'Etc/UTC' }));
+    
+    // Compare the UTC dates for relative descriptions
+    if (formatTz(dateInUTC, 'yyyy-MM-dd', { timeZone: 'Etc/UTC' }) === 
+        formatTz(todayInUTC, 'yyyy-MM-dd', { timeZone: 'Etc/UTC' })) {
       return "Aujourd'hui";
-    } else if (isYesterday(dateObj)) {
-      return "Hier";
-    } else {
-      const days = differenceInDays(new Date(), dateObj);
-      if (days > 1 && days < 7) {
-        return `Il y a ${days} jours`;
-      } else {
-        return formatDate(dateObj);
-      }
     }
+    
+    // Calculate yesterday in UTC
+    const yesterdayInUTC = new Date(todayInUTC);
+    yesterdayInUTC.setDate(yesterdayInUTC.getDate() - 1);
+    
+    if (formatTz(dateInUTC, 'yyyy-MM-dd', { timeZone: 'Etc/UTC' }) === 
+        formatTz(yesterdayInUTC, 'yyyy-MM-dd', { timeZone: 'Etc/UTC' })) {
+      return 'Hier';
+    }
+    
+    // For dates in this week, show day name in French
+    const dayOfWeek = formatTz(dateInUTC, 'EEEE', { timeZone: 'Etc/UTC', locale: fr });
+    const dayMonth = formatTz(dateInUTC, 'd MMMM', { timeZone: 'Etc/UTC', locale: fr });
+    
+    // Check if date is within 6 days (this week)
+    const sixDaysAgoInUTC = new Date(todayInUTC);
+    sixDaysAgoInUTC.setDate(sixDaysAgoInUTC.getDate() - 6);
+    
+    if (dateInUTC >= sixDaysAgoInUTC) {
+      // Capitalize first letter of day name in French
+      return dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+    }
+    
+    // For dates in this year, show day and month in French
+    if (formatTz(dateInUTC, 'yyyy', { timeZone: 'Etc/UTC' }) === 
+        formatTz(todayInUTC, 'yyyy', { timeZone: 'Etc/UTC' })) {
+      return dayMonth;
+    }
+    
+    // For older dates, show day, month and year in French
+    return formatTz(dateInUTC, 'd MMMM yyyy', { timeZone: 'Etc/UTC', locale: fr });
   };
   
   /**

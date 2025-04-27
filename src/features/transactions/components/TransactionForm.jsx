@@ -5,7 +5,10 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import { getCategories, initializeDefaultCategories } from '../../../services/firebase/categories';
 import { addTransaction } from '../../../services/firebase/transactions';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 import logger from '../../../services/logger';
+import BottomSheet from '../../../components/ui/BottomSheet';
 
 /**
  * TransactionForm component for adding or editing a transaction
@@ -31,6 +34,9 @@ const TransactionForm = ({ onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showInitializeButton, setShowInitializeButton] = useState(false);
+  
+  // Bottom sheet state
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   
   // Fetch categories on component mount
   useEffect(() => {
@@ -140,6 +146,15 @@ const TransactionForm = ({ onSuccess }) => {
   const filteredCategories = categories
     .filter(category => category.type === type)
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+  
+  // Get selected category text
+  const getSelectedCategoryText = () => {
+    const selectedCategory = filteredCategories.find(cat => cat.id === categoryId);
+    if (selectedCategory) {
+      return selectedCategory.name;
+    }
+    return 'Sélectionner une catégorie';
+  };
   
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -369,27 +384,55 @@ const TransactionForm = ({ onSuccess }) => {
             >
               Catégorie
             </label>
-            <select
+            <div
               id="transaction-category"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+              role="button"
+              tabIndex={0}
+              aria-haspopup="listbox"
+              aria-expanded={isCategorySheetOpen}
+              aria-label="Sélectionner une catégorie"
+              onClick={() => !isLoading && setIsCategorySheetOpen(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  !isLoading && setIsCategorySheetOpen(true);
+                }
+              }}
               style={{
                 width: '100%',
                 padding: '12px',
                 border: '1px solid rgba(136, 131, 122, 0.4)',
                 borderRadius: '6px',
                 backgroundColor: 'white',
-                fontSize: '1rem'
+                fontSize: '1rem',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                opacity: isLoading ? 0.7 : 1
               }}
-              required
             >
-              <option value="">Sélectionner une catégorie</option>
-              {filteredCategories.map(category => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+              <div style={{ 
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {isLoading ? 'Chargement des catégories...' : getSelectedCategoryText()}
+              </div>
+              <ChevronDownIcon width={20} height={20} style={{ color: '#88837A' }} />
+            </div>
+            
+            <BottomSheet
+              isOpen={isCategorySheetOpen}
+              onClose={() => setIsCategorySheetOpen(false)}
+              title="Choisir une catégorie"
+              options={filteredCategories}
+              selectedValue={categoryId}
+              onSelect={(id) => setCategoryId(id)}
+              getOptionLabel={(category) => category.name}
+              getOptionValue={(category) => category.id}
+              getOptionColor={(category) => category.color}
+            />
           </div>
           
           <div style={{ marginBottom: '20px' }}>

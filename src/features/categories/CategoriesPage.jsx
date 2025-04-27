@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import './CategoriesPage.css';
+import CategoryForm from './CategoryForm';
+import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from '../../contexts/ToastContext';
 import { 
   getCategories, 
@@ -7,8 +10,11 @@ import {
   updateCategory, 
   deleteCategory 
 } from '../../services/firebase/categories';
+import { formatCurrency } from '../../utils/formatters';
+import Loader from '../../components/ui/Loader';
+import StatusMessage from '../../components/ui/StatusMessage';
+import ConfirmationDialog from '../../components/ui/ConfirmationDialog';
 import logger from '../../services/logger';
-import './CategoriesPage.css';
 
 function CategoriesPage() {
   const { currentUser } = useAuth();
@@ -336,30 +342,32 @@ function CategoriesPage() {
     
     try {
       logger.info('CategoriesPage', 'handleDeleteConfirm', 'Deleting category', {
-        categoryId: categoryToDelete.id
+        categoryId: categoryToDelete.id,
+        name: categoryToDelete.name
       });
       
-      await deleteCategory(categoryToDelete.id);
+      await deleteCategory(currentUser.uid, categoryToDelete.id);
       
-      // Reset state
+      logger.info('CategoriesPage', 'handleDeleteConfirm', 'Category deleted successfully');
+      
+      // Close confirmation dialog
       setShowDeleteConfirm(false);
       setCategoryToDelete(null);
       
-      // Force a refresh of the categories
-      forceRefresh();
-      
-      // Fallback: Manually remove the category from state
-      setCategories(prev => prev.filter(cat => cat.id !== categoryToDelete.id));
-      
       // Notify user
       showSuccess('Catégorie supprimée avec succès');
+      
+      // Refresh categories
+      forceRefresh();
+      
     } catch (err) {
       logger.error('CategoriesPage', 'handleDeleteConfirm', 'Error deleting category', {
         error: err.message,
-        stack: err.stack,
-        categoryId: categoryToDelete?.id
+        stack: err.stack
       });
       showError('Échec de la suppression de la catégorie');
+      setShowDeleteConfirm(false);
+      setCategoryToDelete(null);
     }
   };
 
@@ -593,32 +601,18 @@ function CategoriesPage() {
         </div>
       )}
       
+      {/* Delete confirmation dialog */}
       {showDeleteConfirm && categoryToDelete && (
-        <div className="delete-confirm-overlay">
-          <div className="delete-confirm-modal">
-            <h3>Supprimer la catégorie</h3>
-            <p>
-              Êtes-vous sûr de vouloir supprimer la catégorie <strong>{categoryToDelete.name}</strong>?
-            </p>
-            <p className="warning">
-              Cette action est irréversible et pourrait affecter les transactions associées à cette catégorie.
-            </p>
-            <div className="delete-confirm-actions">
-              <button 
-                className="btn btn-secondary"
-                onClick={handleDeleteCancel}
-              >
-                Annuler
-              </button>
-              <button 
-                className="btn btn-danger"
-                onClick={handleDeleteConfirm}
-              >
-                Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationDialog
+          isOpen={showDeleteConfirm}
+          title="Supprimer la catégorie"
+          message={`Êtes-vous sûr de vouloir supprimer la catégorie "${categoryToDelete.name}" ? Cette action est irréversible.`}
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+          isDestructive={true}
+        />
       )}
     </div>
   );
