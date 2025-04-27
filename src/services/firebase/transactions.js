@@ -20,13 +20,20 @@ import logger from '../logger';
 
 /**
  * Add a new transaction
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
+ * @param {string} userId - User ID of the creator
  * @param {Object} transactionData - Transaction data
  * @returns {Promise<string>} - Transaction ID
  */
-export const addTransaction = async (userId, transactionData) => {
+export const addTransaction = async (budgetId, userId, transactionData) => {
   try {
-    // Validate userId is provided
+    // Validate budgetId and userId are provided
+    if (!budgetId) {
+      const error = new Error('Budget ID is required');
+      error.code = 'invalid-argument';
+      throw error;
+    }
+
     if (!userId) {
       const error = new Error('User ID is required');
       error.code = 'invalid-argument';
@@ -34,12 +41,13 @@ export const addTransaction = async (userId, transactionData) => {
     }
 
     logger.debug('TransactionService', 'addTransaction', 'Adding new transaction', { 
+      budgetId,
       userId,
       transactionType: transactionData.type
     });
     
-    // Create a new document reference with auto-generated ID in the user's subcollection
-    const path = `users/${userId}/transactions`;
+    // Create a new document reference with auto-generated ID in the budget's transactions subcollection
+    const path = `budgets/${budgetId}/transactions`;
     console.log('🔍 CREATING TRANSACTION AT PATH:', path);
     const transactionRef = doc(collection(db, path));
     
@@ -50,8 +58,10 @@ export const addTransaction = async (userId, transactionData) => {
     
     // Prepare the transaction data with all necessary fields
     const finalData = {
-      // Include userId in the document even though it's in the path (for security rules)
-      userId: userId,
+      // Include budgetId and userId in the document for denormalization and attribution
+      budgetId: budgetId,
+      createdByUserId: userId,
+      lastEditedByUserId: null, // Initially null since it's a new transaction
       ...transactionData,
       date: formattedDate,
       createdAt: serverTimestamp(),
@@ -65,7 +75,8 @@ export const addTransaction = async (userId, transactionData) => {
     
     // Log data types before saving
     logger.debug('TransactionService', 'addTransaction', 'Data types before setDoc', {
-      userIdType: typeof finalData.userId,
+      budgetIdType: typeof finalData.budgetId,
+      userIdType: typeof finalData.createdByUserId,
       amountType: typeof finalData.amount,
       dateType: finalData.date?.constructor?.name || typeof finalData.date, // Check if it's a Timestamp
       categoryIdType: typeof finalData.categoryId,
@@ -83,6 +94,7 @@ export const addTransaction = async (userId, transactionData) => {
     if (verifyDocSnap.exists()) {
       console.log('✅ TRANSACTION VERIFIED:', transactionRef.id, 'exists in Firestore');
       logger.info('TransactionService', 'addTransaction', 'Transaction verified to exist', {
+        budgetId,
         userId,
         transactionId: transactionRef.id,
         data: JSON.parse(JSON.stringify(verifyDocSnap.data()))
@@ -90,12 +102,14 @@ export const addTransaction = async (userId, transactionData) => {
     } else {
       console.log('❌ TRANSACTION VERIFICATION FAILED:', transactionRef.id, 'does not exist in Firestore');
       logger.warn('TransactionService', 'addTransaction', 'Transaction document not found after creation', {
+        budgetId,
         userId,
         transactionId: transactionRef.id
       });
     }
     
     logger.info('TransactionService', 'addTransaction', 'Transaction added successfully', { 
+      budgetId,
       userId,
       transactionId: transactionRef.id
     });
@@ -113,6 +127,7 @@ export const addTransaction = async (userId, transactionData) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
+      budgetId,
       userId
     });
     throw error;
@@ -121,30 +136,30 @@ export const addTransaction = async (userId, transactionData) => {
 
 /**
  * Get a transaction by ID
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} transactionId - Transaction ID
  * @returns {Promise<Object>} - Transaction data
  */
-export const getTransaction = async (userId, transactionId) => {
+export const getTransaction = async (budgetId, transactionId) => {
   try {
     logger.debug('TransactionService', 'getTransaction', 'Fetching transaction', { 
-      userId,
+      budgetId,
       transactionId 
     });
     
-    const docRef = doc(db, `users/${userId}/transactions`, transactionId);
+    const docRef = doc(db, `budgets/${budgetId}/transactions`, transactionId);
     const docSnap = await getDoc(docRef);
     
     if (!docSnap.exists()) {
       logger.warn('TransactionService', 'getTransaction', 'Transaction not found', { 
-        userId,
+        budgetId,
         transactionId 
       });
       return null;
     }
     
     logger.info('TransactionService', 'getTransaction', 'Transaction retrieved successfully', {
-      userId,
+      budgetId,
       transactionId
     });
     
@@ -163,7 +178,7 @@ export const getTransaction = async (userId, transactionId) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       transactionId
     });
     throw error;
@@ -172,25 +187,27 @@ export const getTransaction = async (userId, transactionId) => {
 
 /**
  * Update a transaction
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} transactionId - Transaction ID
+ * @param {string} userId - User ID of the editor
  * @param {Object} transactionData - Updated transaction data
  * @returns {Promise<void>}
  */
-export const updateTransaction = async (userId, transactionId, transactionData) => {
+export const updateTransaction = async (budgetId, transactionId, userId, transactionData) => {
   try {
     logger.debug('TransactionService', 'updateTransaction', 'Updating transaction', { 
-      userId,
-      transactionId 
+      budgetId,
+      transactionId,
+      userId
     });
     
     // Check if transaction exists
-    const transactionRef = doc(db, `users/${userId}/transactions`, transactionId);
+    const transactionRef = doc(db, `budgets/${budgetId}/transactions`, transactionId);
     const docSnap = await getDoc(transactionRef);
     
     if (!docSnap.exists()) {
       logger.warn('TransactionService', 'updateTransaction', 'Transaction not found', {
-        userId,
+        budgetId,
         transactionId
       });
       
@@ -203,23 +220,28 @@ export const updateTransaction = async (userId, transactionId, transactionData) 
       updatedData.date = Timestamp.fromDate(updatedData.date);
     }
     
-    // Add updated timestamp
+    // Add updated timestamp and last editor
     updatedData.updatedAt = serverTimestamp();
+    updatedData.lastEditedByUserId = userId;
+    
+    // TODO: M4a - Implement full validation to ensure createdByUserId and createdAt are not modified
     
     // Update the transaction
     await updateDoc(transactionRef, updatedData);
     
     logger.info('TransactionService', 'updateTransaction', 'Transaction updated successfully', { 
-      userId,
-      transactionId 
+      budgetId,
+      transactionId,
+      userId
     });
   } catch (error) {
     logger.error('TransactionService', 'updateTransaction', 'Failed to update transaction', {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
-      transactionId
+      budgetId,
+      transactionId,
+      userId
     });
     throw error;
   }
@@ -227,35 +249,37 @@ export const updateTransaction = async (userId, transactionId, transactionData) 
 
 /**
  * Delete a transaction
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} transactionId - Transaction ID
  * @returns {Promise<void>}
  */
-export const deleteTransaction = async (userId, transactionId) => {
+export const deleteTransaction = async (budgetId, transactionId) => {
   try {
     logger.debug('TransactionService', 'deleteTransaction', 'Deleting transaction', { 
-      userId,
+      budgetId,
       transactionId 
     });
     
-    const transactionRef = doc(db, `users/${userId}/transactions`, transactionId);
+    const transactionRef = doc(db, `budgets/${budgetId}/transactions`, transactionId);
     
     // First check if the transaction exists
     const docSnap = await getDoc(transactionRef);
     
     if (!docSnap.exists()) {
       logger.warn('TransactionService', 'deleteTransaction', 'Transaction not found', {
-        userId,
+        budgetId,
         transactionId
       });
       throw new Error(`Transaction ${transactionId} not found`);
     }
     
+    // TODO: M4a - Implement additional permission validation or soft deletion if needed
+    
     // Delete the transaction
     await deleteDoc(transactionRef);
     
     logger.info('TransactionService', 'deleteTransaction', 'Transaction deleted successfully', { 
-      userId,
+      budgetId,
       transactionId 
     });
   } catch (error) {
@@ -263,7 +287,7 @@ export const deleteTransaction = async (userId, transactionId) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       transactionId
     });
     throw error;
@@ -271,17 +295,17 @@ export const deleteTransaction = async (userId, transactionId) => {
 };
 
 /**
- * Get transactions for a user within a date range
- * @param {string} userId - User ID
+ * Get transactions for a budget within a date range
+ * @param {string} budgetId - Budget ID
  * @param {Date|Timestamp} startDate - Start date
  * @param {Date|Timestamp} endDate - End date
  * @param {Object} options - Query options (limit, orderDirection)
  * @returns {Promise<Array>} - Array of transactions
  */
-export const getTransactionsInRange = async (userId, startDate, endDate, options = {}) => {
+export const getTransactionsInRange = async (budgetId, startDate, endDate, options = {}) => {
   try {
     logger.debug('TransactionService', 'getTransactionsInRange', 'Fetching transactions in range', { 
-      userId,
+      budgetId,
       startDate,
       endDate
     });
@@ -300,8 +324,8 @@ export const getTransactionsInRange = async (userId, startDate, endDate, options
       ? endDate 
       : Timestamp.fromDate(new Date(endDate));
     
-    // Get transactions from the user's transactions subcollection
-    const transactionsPath = `users/${userId}/transactions`;
+    // Get transactions from the budget's transactions subcollection
+    const transactionsPath = `budgets/${budgetId}/transactions`;
     logger.debug('TransactionService', 'getTransactionsInRange', 'Accessing transactions path', { path: transactionsPath });
     const transactionsCollection = collection(db, transactionsPath);
     
@@ -313,6 +337,8 @@ export const getTransactionsInRange = async (userId, startDate, endDate, options
       orderBy('date', orderDirection),
       limit(queryLimit)
     );
+    
+    // TODO: M4a - Implement additional filtering options (by category, creator, etc.)
     
     const querySnapshot = await getDocs(q);
     
@@ -331,7 +357,7 @@ export const getTransactionsInRange = async (userId, startDate, endDate, options
     });
     
     logger.info('TransactionService', 'getTransactionsInRange', 'Transactions fetched successfully', {
-      userId,
+      budgetId,
       count: transactions.length,
       startDate: startDate instanceof Date ? startDate.toISOString() : startDate,
       endDate: endDate instanceof Date ? endDate.toISOString() : endDate,
@@ -343,7 +369,7 @@ export const getTransactionsInRange = async (userId, startDate, endDate, options
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       startDate: startDate instanceof Date ? startDate.toISOString() : startDate,
       endDate: endDate instanceof Date ? endDate.toISOString() : endDate,
     });
