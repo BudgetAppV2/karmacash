@@ -695,10 +695,11 @@ exports.logSink = functions.https.onRequest((request, response) => {
 
 /**
  * Callable function to manage recurring transaction instances (generation and deletion)
- * This replaces the previous Cloud Scheduler approach with a UI-triggered system
+ * Updated for M4a budget-centric schema
  * 
  * @param {Object} data - Function input data
  * @param {string} data.ruleId - ID of the recurring rule to manage
+ * @param {string} data.budgetId - Budget ID containing the rule (required for budget-centric schema)
  * @param {string} data.action - Action to perform ('generate' or 'delete')
  * @param {Object} context - Function execution context containing authentication info
  * @returns {Object} Result object with status and counts
@@ -714,10 +715,19 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
     // Get parameters
     const params = data.data || {};
     const ruleId = params.ruleId;
+    const budgetId = params.budgetId; // Now required
     const action = params.action;
     const emulatorUserId = params.emulatorUserId;
     
-    console.log("Received parameters:", { ruleId, action, emulatorUserId });
+    console.log("Received parameters:", { ruleId, budgetId, action, emulatorUserId });
+    
+    // Input validation
+    if (!ruleId || !budgetId) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'Both ruleId and budgetId are required'
+      );
+    }
     
     // Auth check (keep this)
     let userId;
@@ -734,41 +744,52 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
       userId = context.auth.uid;
     }
     
-    console.log(`Processing ${action} action for rule ${ruleId} by user ${userId}`);
+    console.log(`Processing ${action} action for rule ${ruleId} in budget ${budgetId} by user ${userId}`);
     
-    // STEP 1: Add back rule document retrieval
+    // STEP 1: Retrieve rule document from Firestore
     console.log("Retrieving rule document from Firestore...");
     const db = admin.firestore();
     
     try {
-      const ruleRef = db.collection(`users/${userId}/recurringRules`).doc(ruleId);
+      // Updated path for budget-centric schema
+      const ruleRef = db.collection(`budgets/${budgetId}/recurringRules`).doc(ruleId);
       const ruleSnap = await ruleRef.get();
       
       if (!ruleSnap.exists) {
-        console.log(`Rule ${ruleId} not found in Firestore`);
+        console.log(`Rule ${ruleId} not found in budget ${budgetId}`);
         throw new functions.https.HttpsError(
           'not-found',
-          `Rule with ID ${ruleId} not found`
+          `Rule with ID ${ruleId} not found in budget ${budgetId}`
         );
       }
       
       const rule = ruleSnap.data();
       console.log("Retrieved rule document with fields:", Object.keys(rule).join(", "));
-      console.log("Rule name:", rule.name);
-      console.log("Rule amount:", rule.amount);
+      console.log("Rule details:", {
+        name: rule.name || rule.description,
+        amount: rule.amount,
+        frequency: rule.frequency,
+        category: rule.categoryId
+      });
+      
+      // Verify the denormalized budgetId matches the path budgetId
+      if (rule.budgetId !== budgetId) {
+        console.log(`Warning: Rule budgetId field (${rule.budgetId}) does not match path budgetId (${budgetId})`);
+        // Continue anyway, using the path budgetId
+      }
       
       // Process based on action
       switch(action) {
         case 'generate': {
-          // STEP 2: Add deletion of future instances
+          // STEP 2: Delete future instances for this rule
           const today = startOfDay(new Date());
-          console.log("Deleting future instances from date:", today.toISOString());
+          console.log(`Deleting future instances for rule ${ruleId} in budget ${budgetId} from date:`, today.toISOString());
           
           // Use the direct FirestoreTimestamp reference instead
           console.log("Using direct FirestoreTimestamp class:", typeof FirestoreTimestamp);
           
-          // Query for future transactions with this recurring rule ID
-          const futureTransactionsQuery = db.collection(`users/${userId}/transactions`)
+          // Updated query path for budget-centric schema
+          const futureTransactionsQuery = db.collection(`budgets/${budgetId}/transactions`)
             .where('recurringRuleId', '==', ruleId)
             .where('date', '>=', FirestoreTimestamp.fromDate(today));
           
@@ -785,7 +806,9 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             let operationCount = 0;
             
             futureTransactionsSnapshot.forEach(doc => {
-              currentBatch.delete(doc.ref);
+              // Updated delete reference for budget-centric schema
+              const transRef = db.collection(`budgets/${budgetId}/transactions`).doc(doc.id);
+              currentBatch.delete(transRef);
               operationCount++;
               deleteCount++;
               
@@ -809,7 +832,7 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             console.log(`Successfully deleted ${deleteCount} future instances`);
           }
           
-          // STEP 3: Add instance generation logic
+          // STEP 3: Generate new instances
           console.log("Starting instance generation calculation...");
           
           // Calculate date boundaries
@@ -850,6 +873,9 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
           ) {
             // Determine if we should generate an instance for this date based on frequency
             let shouldGenerate = false;
+            
+            // Get interval (default to 1 if not specified)
+            const interval = rule.interval || 1;
             
             switch (rule.frequency) {
               case 'daily':
@@ -939,24 +965,28 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             if (shouldGenerate) {
               console.log(`✅ Rule matches date (UTC): ${currentDate.toISOString()}`);
               
-              // Create a transaction instance object
+              // Create a transaction instance object following the budget-centric schema
               const instance = {
-                userId: userId,
+                budgetId: budgetId, // Denormalized budgetId for collection group queries
+                createdByUserId: rule.createdByUserId || 'system', // Use rule creator's ID
                 categoryId: rule.categoryId,
                 date: FirestoreTimestamp.fromDate(currentDate),
-                description: rule.name || 'Recurring Transaction',
-                // Fix amount sign for expenses
-                amount: (rule.categoryType === 'expense' || rule.type === 'expense') ? -Math.abs(rule.amount) : Math.abs(rule.amount),
+                description: rule.name || rule.description || 'Recurring Transaction',
+                type: rule.type || rule.categoryType || 'expense', // Ensure we get the type
+                // Fix amount sign for expenses consistently with existing logic
+                amount: (rule.categoryType === 'expense' || rule.type === 'expense') 
+                  ? -Math.abs(rule.amount) 
+                  : Math.abs(rule.amount),
                 isRecurringInstance: true,
                 recurringRuleId: ruleId,
                 createdAt: FirestoreFieldValue.serverTimestamp(),
-                updatedAt: FirestoreFieldValue.serverTimestamp()
+                updatedAt: FirestoreFieldValue.serverTimestamp(),
+                lastEditedByUserId: null
               };
               
               // Add optional fields if they exist in the rule
               if (rule.categoryName) instance.categoryName = rule.categoryName;
               if (rule.categoryColor) instance.categoryColor = rule.categoryColor;
-              if (rule.categoryType) instance.categoryType = rule.categoryType;
               if (rule.notes) instance.notes = rule.notes;
               
               // Add to instances array
@@ -967,17 +997,18 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             currentDate = addDays(currentDate, 1);
           }
           
-          console.log(`Prepared ${instances.length} instances for generation`);
+          console.log(`Prepared ${instances.length} instances for generation in budget ${budgetId}`);
           
           if (instances.length > 0) {
             console.log('First prepared instance:', {
               date: instances[0].date.toDate().toISOString(),
               amount: instances[0].amount,
-              description: instances[0].description
+              description: instances[0].description,
+              budgetId: instances[0].budgetId
             });
           }
           
-          // STEP 4: Add batch write logic to save instances to Firestore
+          // STEP 4: Batch write instances to Firestore
           if (instances.length > 0) {
             console.log("Starting batch writes to save instances to Firestore...");
             
@@ -992,8 +1023,8 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             
             // Process each instance
             for (const instance of instances) {
-              // Create a new document reference
-              const newRef = db.collection(`users/${userId}/transactions`).doc();
+              // Create a new document reference with updated path for budget-centric schema
+              const newRef = db.collection(`budgets/${budgetId}/transactions`).doc();
               
               // Add to current batch
               currentBatch.set(newRef, instance);
@@ -1014,7 +1045,7 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             }
             
             // Commit all batches sequentially
-            console.log(`Committing ${batches.length} batches for ${generatedCount} instances...`);
+            console.log(`Committing ${batches.length} batches for ${generatedCount} instances in budget ${budgetId}...`);
             for (const batch of batches) {
               await batch.commit();
             }
@@ -1024,45 +1055,49 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             console.log(`Updating rule's nextDate field to: ${currentDate.toISOString()}`);
             await ruleRef.update({
               nextDate: FirestoreTimestamp.fromDate(currentDate),
-              updatedAt: FirestoreFieldValue.serverTimestamp()
+              updatedAt: FirestoreFieldValue.serverTimestamp(),
+              lastEditedByUserId: 'system'
             });
             
             // Return success with counts and timestamps
             return {
               success: true,
-              message: `Successfully deleted ${deleteCount} future instances and generated ${generatedCount} new instances`,
+              message: `Successfully deleted ${deleteCount} future instances and generated ${generatedCount} new instances for budget ${budgetId}`,
               deleted: deleteCount,
               generated: generatedCount,
+              budgetId: budgetId,
               nextCalculationDate: currentDate.toISOString()
             };
           } else {
             // No instances were generated
-            console.log("No instances were generated for the given time period and rule parameters");
+            console.log(`No instances were generated for rule ${ruleId} in budget ${budgetId}`);
             
             // Update the rule's nextDate field to the day after the last calculated date
             console.log(`Updating rule's nextDate field to: ${currentDate.toISOString()}`);
             await ruleRef.update({
               nextDate: FirestoreTimestamp.fromDate(currentDate),
-              updatedAt: FirestoreFieldValue.serverTimestamp()
+              updatedAt: FirestoreFieldValue.serverTimestamp(),
+              lastEditedByUserId: 'system'
             });
             
             // Return success with counts
             return {
               success: true,
-              message: `Successfully deleted ${deleteCount} future instances but no new instances were generated`,
+              message: `Successfully deleted ${deleteCount} future instances but no new instances were generated for budget ${budgetId}`,
               deleted: deleteCount,
               generated: 0,
+              budgetId: budgetId,
               nextCalculationDate: currentDate.toISOString()
             };
           }
         }
         
         case 'delete': {
-          // Modified to delete ALL transactions (not just future ones)
-          console.log(`Deleting ALL transactions for rule ID: ${ruleId}`);
+          // Modified to delete ALL transactions for this rule in the specified budget
+          console.log(`Deleting ALL transactions for rule ID: ${ruleId} in budget ${budgetId}`);
           
-          // Query for ALL transactions with this rule ID (removed date filter)
-          const allTransactionsQuery = db.collection(`users/${userId}/transactions`)
+          // Updated query path for budget-centric schema
+          const allTransactionsQuery = db.collection(`budgets/${budgetId}/transactions`)
             .where('recurringRuleId', '==', ruleId);
           
           const allTransactionsSnapshot = await allTransactionsQuery.get();
@@ -1078,7 +1113,9 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             let operationCount = 0;
             
             allTransactionsSnapshot.forEach(doc => {
-              currentBatch.delete(doc.ref);
+              // Updated delete reference for budget-centric schema
+              const transRef = db.collection(`budgets/${budgetId}/transactions`).doc(doc.id);
+              currentBatch.delete(transRef);
               operationCount++;
               deleteCount++;
               
@@ -1105,8 +1142,9 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
           // For delete action, we're done after deletion
           return {
             success: true,
-            message: `Successfully deleted all ${deleteCount} transactions for rule ${rule.name}`,
+            message: `Successfully deleted all ${deleteCount} transactions for rule ${rule.name || 'Recurring Rule'} in budget ${budgetId}`,
             ruleId,
+            budgetId,
             deleted: deleteCount
           };
         }
@@ -1129,7 +1167,10 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
     console.error("Error Stack:", error.stack);
     console.error("Full Error Object:", error);
     
-    throw error;
+    throw new functions.https.HttpsError(
+      'internal',
+      `Error processing recurring instances: ${error.message}`
+    );
   }
 });
 
