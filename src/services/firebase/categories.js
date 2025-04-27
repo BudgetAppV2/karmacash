@@ -19,24 +19,25 @@ import { db } from './firebaseInit';
 import logger from '../logger';
 
 /**
- * Get all categories for a user
- * @param {string} userId - User ID
+ * Get all categories for a budget
+ * @param {string} budgetId - Budget ID
  * @returns {Promise<Array>} - Array of categories
  */
-export const getCategories = async (userId) => {
+export const getCategories = async (budgetId) => {
   try {
-    console.log('🔍 getCategories: Starting fetch for userId:', userId);
+    console.log('🔍 getCategories: Starting fetch for budgetId:', budgetId);
     
     logger.debug('CategoryService', 'getCategories', 'Fetching categories', { 
-      userId,
+      budgetId,
       timestamp: new Date().toISOString()
     });
     
-    // Query all categories for the user from the subcollection
-    const path = `users/${userId}/categories`;
+    // Query all categories for the budget from the subcollection
+    const path = `budgets/${budgetId}/categories`;
     console.log('🔍 ACCESSING CATEGORIES PATH:', path);
     const categoriesCollection = collection(db, path);
-    const querySnapshot = await getDocs(categoriesCollection);
+    const q = query(categoriesCollection, orderBy('order', 'asc'));
+    const querySnapshot = await getDocs(q);
     
     logger.debug('CategoryService', 'getCategories', 'Query result', {
       count: querySnapshot.size,
@@ -45,8 +46,8 @@ export const getCategories = async (userId) => {
     
     // If collection is empty, return empty array early
     if (querySnapshot.empty) {
-      logger.info('CategoryService', 'getCategories', 'No categories found for user', { userId });
-      console.log('⚠️ NO CATEGORIES FOUND for user:', userId);
+      logger.info('CategoryService', 'getCategories', 'No categories found for budget', { budgetId });
+      console.log('⚠️ NO CATEGORIES FOUND for budget:', budgetId);
       return [];
     }
     
@@ -68,8 +69,9 @@ export const getCategories = async (userId) => {
         
         // Schedule an update to add the order field to the category in Firestore
         // This is done asynchronously and doesn't block the current operation
-        updateCategoryOrderField(userId, category.id, category.order)
+        updateCategoryOrderField(budgetId, category.id, category.order)
           .catch(err => logger.error('CategoryService', 'getCategories', 'Failed to update missing order field', {
+            budgetId,
             categoryId: category.id,
             error: err.message
           }));
@@ -88,11 +90,8 @@ export const getCategories = async (userId) => {
       }
     });
     
-    // Sort by order
-    categories.sort((a, b) => (a.order || 9999) - (b.order || 9999));
-    
     logger.info('CategoryService', 'getCategories', 'Categories retrieved successfully', { 
-      userId,
+      budgetId,
       count: categories.length,
       categoryNames: categories.map(c => c.name).join(', ')
     });
@@ -104,7 +103,7 @@ export const getCategories = async (userId) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId
+      budgetId
     });
     
     console.log('❌ ERROR in getCategories:', error.message);
@@ -114,28 +113,28 @@ export const getCategories = async (userId) => {
 
 /**
  * Helper function to update the order field of a category
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} categoryId - Category ID
  * @param {number} orderValue - Order value to set
  * @returns {Promise<void>}
  */
-const updateCategoryOrderField = async (userId, categoryId, orderValue) => {
+const updateCategoryOrderField = async (budgetId, categoryId, orderValue) => {
   try {
-    const categoryRef = doc(db, `users/${userId}/categories`, categoryId);
+    const categoryRef = doc(db, `budgets/${budgetId}/categories`, categoryId);
     await updateDoc(categoryRef, { 
       order: orderValue,
       updatedAt: serverTimestamp()
     });
     
     logger.info('CategoryService', 'updateCategoryOrderField', 'Order field updated successfully', {
-      userId,
+      budgetId,
       categoryId,
       orderValue
     });
   } catch (error) {
     logger.error('CategoryService', 'updateCategoryOrderField', 'Failed to update order field', {
       error: error.message,
-      userId,
+      budgetId,
       categoryId
     });
     throw error;
@@ -144,27 +143,27 @@ const updateCategoryOrderField = async (userId, categoryId, orderValue) => {
 
 /**
  * Get a category by ID
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} categoryId - Category ID
  * @returns {Promise<Object>} - Category data
  */
-export const getCategory = async (userId, categoryId) => {
+export const getCategory = async (budgetId, categoryId) => {
   try {
-    logger.debug('CategoryService', 'getCategory', 'Fetching category', { userId, categoryId });
+    logger.debug('CategoryService', 'getCategory', 'Fetching category', { budgetId, categoryId });
     
-    const docRef = doc(db, `users/${userId}/categories`, categoryId);
+    const docRef = doc(db, `budgets/${budgetId}/categories`, categoryId);
     const docSnap = await getDoc(docRef);
     
     if (!docSnap.exists()) {
       logger.warn('CategoryService', 'getCategory', 'Category not found', { 
-        userId, 
+        budgetId, 
         categoryId 
       });
       return null;
     }
     
     logger.info('CategoryService', 'getCategory', 'Category retrieved successfully', { 
-      userId, 
+      budgetId, 
       categoryId 
     });
     
@@ -177,7 +176,7 @@ export const getCategory = async (userId, categoryId) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       categoryId
     });
     throw error;
@@ -186,13 +185,15 @@ export const getCategory = async (userId, categoryId) => {
 
 /**
  * Create a new category
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
+ * @param {string} userId - User ID of the creator
  * @param {Object} categoryData - Category data
  * @returns {Promise<Object>} - Created category with ID
  */
-export const createCategory = async (userId, categoryData) => {
+export const createCategory = async (budgetId, userId, categoryData) => {
   try {
     logger.debug('CategoryService', 'createCategory', 'Creating new category', { 
+      budgetId,
       userId,
       categoryName: categoryData.name,
       categoryData: JSON.stringify(categoryData)
@@ -206,13 +207,15 @@ export const createCategory = async (userId, categoryData) => {
     }
     
     // Create a new document reference with auto-generated ID
-    const path = `users/${userId}/categories`;
+    const path = `budgets/${budgetId}/categories`;
     console.log('🔍 CREATING CATEGORY AT PATH:', path);
     const categoryRef = doc(collection(db, path));
     
     // Create category document with all required fields
     const fullCategoryData = {
-      userId,
+      budgetId, // Denormalized for queries
+      createdByUserId: userId,
+      lastEditedByUserId: null, // Initially null since it's a new category
       ...categoryData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
@@ -225,6 +228,7 @@ export const createCategory = async (userId, categoryData) => {
     await setDoc(categoryRef, fullCategoryData);
     
     logger.info('CategoryService', 'createCategory', 'Category created successfully', { 
+      budgetId,
       userId,
       categoryId: categoryRef.id,
       categoryName: categoryData.name
@@ -236,7 +240,9 @@ export const createCategory = async (userId, categoryData) => {
     return {
       id: categoryRef.id,
       ...categoryData,
-      userId,
+      budgetId,
+      createdByUserId: userId,
+      lastEditedByUserId: null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -244,6 +250,7 @@ export const createCategory = async (userId, categoryData) => {
     logger.error('CategoryService', 'createCategory', 'Failed to create category', {
       error: error.message,
       stack: error.stack,
+      budgetId,
       userId
     });
     throw error;
@@ -252,39 +259,48 @@ export const createCategory = async (userId, categoryData) => {
 
 /**
  * Update a category
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} categoryId - Category ID
+ * @param {string} userId - User ID of the editor
  * @param {Object} categoryData - Category data to update
  * @returns {Promise<Object>} - Updated category
  */
-export const updateCategory = async (userId, categoryId, categoryData) => {
+export const updateCategory = async (budgetId, categoryId, userId, categoryData) => {
   try {
     logger.debug('CategoryService', 'updateCategory', 'Updating category', { 
+      budgetId,
       userId,
       categoryId,
       categoryData 
     });
     
-    const categoryRef = doc(db, `users/${userId}/categories`, categoryId);
+    const categoryRef = doc(db, `budgets/${budgetId}/categories`, categoryId);
     const docSnap = await getDoc(categoryRef);
     
     // Check if category exists
     if (!docSnap.exists()) {
       const error = new Error(`Category ${categoryId} not found`);
       logger.error('CategoryService', 'updateCategory', 'Category not found', { 
-        userId,
+        budgetId,
         categoryId 
       });
       throw error;
     }
     
-    // Update in the user's subcollection
-    await updateDoc(categoryRef, {
+    // TODO: M4a - Implement full validation to ensure createdByUserId and createdAt are not modified
+    
+    // Prepare update data with user attribution
+    const updateData = {
       ...categoryData,
+      lastEditedByUserId: userId,
       updatedAt: serverTimestamp()
-    });
+    };
+    
+    // Update in the budget's subcollection
+    await updateDoc(categoryRef, updateData);
     
     logger.info('CategoryService', 'updateCategory', 'Category updated successfully', { 
+      budgetId,
       userId,
       categoryId 
     });
@@ -292,13 +308,15 @@ export const updateCategory = async (userId, categoryId, categoryData) => {
     return {
       id: categoryId,
       ...docSnap.data(),
-      ...categoryData
+      ...categoryData,
+      lastEditedByUserId: userId
     };
   } catch (error) {
     logger.error('CategoryService', 'updateCategory', 'Failed to update category', {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
+      budgetId,
       userId,
       categoryId
     });
@@ -308,33 +326,46 @@ export const updateCategory = async (userId, categoryId, categoryData) => {
 
 /**
  * Delete a category
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} categoryId - Category ID
  * @returns {Promise<void>}
  */
-export const deleteCategory = async (userId, categoryId) => {
+export const deleteCategory = async (budgetId, categoryId) => {
   try {
     logger.debug('CategoryService', 'deleteCategory', 'Deleting category', { 
-      userId,
+      budgetId,
       categoryId 
     });
     
     // Check if category exists
-    const categoryRef = doc(db, `users/${userId}/categories`, categoryId);
+    const categoryRef = doc(db, `budgets/${budgetId}/categories`, categoryId);
     const docSnap = await getDoc(categoryRef);
     
     if (!docSnap.exists()) {
       logger.warn('CategoryService', 'deleteCategory', 'Category not found', { 
-        userId,
+        budgetId,
         categoryId 
       });
       return; // Nothing to delete
     }
     
+    // TODO: M4a - Add prevention for deleting default categories (isDefault: true)
+    // Uncomment this code when ready to implement this check
+    /*
+    const categoryData = docSnap.data();
+    if (categoryData.isDefault === true) {
+      logger.warn('CategoryService', 'deleteCategory', 'Cannot delete default category', { 
+        budgetId,
+        categoryId 
+      });
+      throw new Error('Default categories cannot be deleted');
+    }
+    */
+    
     // Delete the category
     await deleteDoc(categoryRef);
     logger.info('CategoryService', 'deleteCategory', 'Category deleted successfully', { 
-      userId,
+      budgetId,
       categoryId 
     });
     
@@ -343,7 +374,7 @@ export const deleteCategory = async (userId, categoryId) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       categoryId
     });
     throw error;
@@ -351,47 +382,49 @@ export const deleteCategory = async (userId, categoryId) => {
 };
 
 /**
- * Initialize default categories for a new user
- * @param {string} userId - User ID
+ * Initialize default categories for a new budget
+ * @param {string} budgetId - Budget ID
+ * @param {string} userId - User ID of the creator
  * @returns {Promise<boolean>} - Success indicator
  */
-export const initializeDefaultCategories = async (userId) => {
+export const initializeDefaultCategories = async (budgetId, userId) => {
   try {
     logger.debug('CategoryService', 'initializeDefaultCategories', 'Initializing default categories', { 
-      userId 
+      budgetId,
+      userId
     });
     
-    // Check if user already has categories
-    const categoriesPath = `users/${userId}/categories`;
+    // Check if budget already has categories
+    const categoriesPath = `budgets/${budgetId}/categories`;
     console.log('🔍 CHECKING FOR EXISTING CATEGORIES at path:', categoriesPath);
     const categoriesCollection = collection(db, categoriesPath);
     const existingSnapshot = await getDocs(categoriesCollection);
     
     if (!existingSnapshot.empty) {
-      logger.info('CategoryService', 'initializeDefaultCategories', 'User already has categories', {
-        userId,
+      logger.info('CategoryService', 'initializeDefaultCategories', 'Budget already has categories', {
+        budgetId,
         count: existingSnapshot.size
       });
-      console.log(`✅ User already has ${existingSnapshot.size} categories`);
+      console.log(`✅ Budget already has ${existingSnapshot.size} categories`);
       return true;
     }
     
     const defaultCategories = [
       // Expenses
-      { name: 'Alimentation', icon: 'restaurant', color: '#7FB069', order: 1, type: 'expense' }, // Palette v5 - Brighter Leaf Green
-      { name: 'Transport', icon: 'directions_car', color: '#709AC7', order: 2, type: 'expense' }, // Palette v5 - Stronger Slate Blue
-      { name: 'Logement', icon: 'home', color: '#9A705A', order: 3, type: 'expense' },          // Palette v5 - Mid-Tone Brown
-      { name: 'Divertissement', icon: 'movie', color: '#E0B470', order: 4, type: 'expense' },    // Palette v5 - Clear Gold/Ochre (Used for Resto/Loisirs)
-      { name: 'Shopping', icon: 'shopping_cart', color: '#E8B4BC', order: 5, type: 'expense' }, // Palette v5 - Soft Pink
-      { name: 'Services', icon: 'home_repair_service', color: '#3A5A78', order: 6, type: 'expense' }, // Palette v5 - Deep Navy/Indigo
-      { name: 'Santé', icon: 'favorite', color: '#4FB0A5', order: 7, type: 'expense' },          // Palette v5 - Clear Aqua-Green
-      { name: 'Éducation', icon: 'school', color: '#A08CBF', order: 8, type: 'expense' },        // Palette v5 - Clearer Lavender/Violet
-      { name: 'Autres Dépenses', icon: 'more_horiz', color: '#C8AD9B', order: 9, type: 'expense' }, // Palette v5 - Neutral Tan/Beige
+      { name: 'Alimentation', icon: 'restaurant', color: '#7FB069', order: 1, type: 'expense', isDefault: true }, // Palette v5 - Brighter Leaf Green
+      { name: 'Transport', icon: 'directions_car', color: '#709AC7', order: 2, type: 'expense', isDefault: true }, // Palette v5 - Stronger Slate Blue
+      { name: 'Logement', icon: 'home', color: '#9A705A', order: 3, type: 'expense', isDefault: true },          // Palette v5 - Mid-Tone Brown
+      { name: 'Divertissement', icon: 'movie', color: '#E0B470', order: 4, type: 'expense', isDefault: true },    // Palette v5 - Clear Gold/Ochre (Used for Resto/Loisirs)
+      { name: 'Shopping', icon: 'shopping_cart', color: '#E8B4BC', order: 5, type: 'expense', isDefault: true }, // Palette v5 - Soft Pink
+      { name: 'Services', icon: 'home_repair_service', color: '#3A5A78', order: 6, type: 'expense', isDefault: true }, // Palette v5 - Deep Navy/Indigo
+      { name: 'Santé', icon: 'favorite', color: '#4FB0A5', order: 7, type: 'expense', isDefault: true },          // Palette v5 - Clear Aqua-Green
+      { name: 'Éducation', icon: 'school', color: '#A08CBF', order: 8, type: 'expense', isDefault: true },        // Palette v5 - Clearer Lavender/Violet
+      { name: 'Autres Dépenses', icon: 'more_horiz', color: '#C8AD9B', order: 9, type: 'expense', isDefault: true }, // Palette v5 - Neutral Tan/Beige
       // Income
-      { name: 'Salaire', icon: 'work', color: '#7EB5D6', order: 1, type: 'income' },             // Palette v5 - Clear Sky Blue
-      { name: 'Investissements', icon: 'trending_up', color: '#4A7856', order: 2, type: 'income' }, // Palette v5 - Darker Muted Green
-      { name: 'Cadeaux', icon: 'card_giftcard', color: '#F4A97F', order: 3, type: 'income' },   // Palette v5 - Clear Peach/Orange
-      { name: 'Autres Revenus', icon: 'more_horiz', color: '#C8AD9B', order: 4, type: 'income' }  // Palette v5 - Neutral Tan/Beige
+      { name: 'Salaire', icon: 'work', color: '#7EB5D6', order: 1, type: 'income', isDefault: true },             // Palette v5 - Clear Sky Blue
+      { name: 'Investissements', icon: 'trending_up', color: '#4A7856', order: 2, type: 'income', isDefault: true }, // Palette v5 - Darker Muted Green
+      { name: 'Cadeaux', icon: 'card_giftcard', color: '#F4A97F', order: 3, type: 'income', isDefault: true },   // Palette v5 - Clear Peach/Orange
+      { name: 'Autres Revenus', icon: 'more_horiz', color: '#C8AD9B', order: 4, type: 'income', isDefault: true }  // Palette v5 - Neutral Tan/Beige
     ];
     
     console.log(`🔍 CREATING ${defaultCategories.length} DEFAULT CATEGORIES at path:`, categoriesPath);
@@ -406,7 +439,9 @@ export const initializeDefaultCategories = async (userId) => {
       // Add necessary fields to each category
       batch.set(categoryDocRef, {
         ...category,
-        userId: userId, // Include userId for security rules
+        budgetId, // Include budgetId for denormalization
+        createdByUserId: userId,
+        lastEditedByUserId: null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
@@ -416,14 +451,16 @@ export const initializeDefaultCategories = async (userId) => {
     await batch.commit();
     
     logger.info('CategoryService', 'initializeDefaultCategories', 'Default categories created successfully', {
+      budgetId,
       userId,
       count: defaultCategories.length
     });
     
-    console.log(`✅ CREATED ${defaultCategories.length} DEFAULT CATEGORIES for user`);
+    console.log(`✅ CREATED ${defaultCategories.length} DEFAULT CATEGORIES for budget`);
     return true;
   } catch (error) {
     logger.error('CategoryService', 'initializeDefaultCategories', 'Failed to initialize default categories', {
+      budgetId,
       userId,
       error: error.message
     });
@@ -455,11 +492,15 @@ export const handleMissingIndex = (error) => {
 };
 
 /**
- * Migrate categories to ensure all have an order field
+ * Migrate categories to ensure all have an order field - LEGACY FUNCTION
  * @param {string} userId - User ID
  * @returns {Promise<Object>} - Migration results with counts
+ * @deprecated This was used for the old user-centric model migration
  */
 export const migrateCategories = async (userId) => {
+  // TODO: M4a - Replace with new budget-centric version if needed
+  logger.warn('CategoryService', 'migrateCategories', 'Using deprecated user-centric function', { userId });
+  
   try {
     logger.info('CategoryService', 'migrateCategories', 'Starting categories migration', { userId });
     
