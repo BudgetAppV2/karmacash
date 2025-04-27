@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AuthProvider } from '../contexts/AuthContext';
 import { SettingsProvider } from '../contexts/SettingsContext';
+import BudgetProvider from '../contexts/BudgetContext';
 
 function AppProviders({ children }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -25,9 +26,11 @@ function AppProviders({ children }) {
 
   return (
     <AuthProvider>
-      <SettingsProvider>
-        {children}
-      </SettingsProvider>
+      <BudgetProvider>
+        <SettingsProvider>
+          {children}
+        </SettingsProvider>
+      </BudgetProvider>
     </AuthProvider>
   );
 }
