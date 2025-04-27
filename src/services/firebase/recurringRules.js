@@ -1,4 +1,5 @@
 // src/services/firebase/recurringRules.js
+// NOTE: Changes here impact 'manageRecurringInstances' Cloud Function (Task 11 in M4a plan).
 
 import { 
   collection,
@@ -33,19 +34,19 @@ export const FREQUENCY_TYPES = {
 };
 
 /**
- * Get all recurring rules for a user
- * @param {string} userId - User ID
+ * Get all recurring rules for a budget
+ * @param {string} budgetId - Budget ID
  * @returns {Promise<Array>} - Array of recurring rules
  */
-export const getRecurringRules = async (userId) => {
+export const getRecurringRules = async (budgetId) => {
   try {
     logger.debug('RecurringRuleService', 'getRecurringRules', 'Fetching recurring rules', {
-      userId
+      budgetId
     });
     
     // Get all documents from the subcollection
-    const rulesCollectionRef = collection(db, `users/${userId}/recurringRules`);
-    const q = query(rulesCollectionRef);
+    const rulesCollectionRef = collection(db, `budgets/${budgetId}/recurringRules`);
+    const q = query(rulesCollectionRef, orderBy('name', 'asc'));
     const querySnapshot = await getDocs(q);
     
     const rules = [];
@@ -57,7 +58,7 @@ export const getRecurringRules = async (userId) => {
     });
     
     logger.info('RecurringRuleService', 'getRecurringRules', 'Recurring rules fetched successfully', {
-      userId,
+      budgetId,
       count: rules.length
     });
     
@@ -67,7 +68,7 @@ export const getRecurringRules = async (userId) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId
+      budgetId
     });
     
     throw error;
@@ -76,23 +77,23 @@ export const getRecurringRules = async (userId) => {
 
 /**
  * Get a specific recurring rule by ID
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} ruleId - Rule ID to fetch
  * @returns {Promise<Object|null>} - The recurring rule object or null if not found
  */
-export const getRecurringRule = async (userId, ruleId) => {
+export const getRecurringRule = async (budgetId, ruleId) => {
   try {
     logger.debug('RecurringRuleService', 'getRecurringRule', 'Fetching recurring rule', {
-      userId,
+      budgetId,
       ruleId
     });
     
-    const ruleRef = doc(db, `users/${userId}/recurringRules`, ruleId);
+    const ruleRef = doc(db, `budgets/${budgetId}/recurringRules`, ruleId);
     const docSnap = await getDoc(ruleRef);
     
     if (!docSnap.exists()) {
       logger.warn('RecurringRuleService', 'getRecurringRule', 'Recurring rule not found', {
-        userId,
+        budgetId,
         ruleId
       });
       return null;
@@ -104,7 +105,7 @@ export const getRecurringRule = async (userId, ruleId) => {
     };
     
     logger.info('RecurringRuleService', 'getRecurringRule', 'Recurring rule fetched successfully', {
-      userId,
+      budgetId,
       ruleId
     });
     
@@ -114,7 +115,7 @@ export const getRecurringRule = async (userId, ruleId) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       ruleId
     });
     
@@ -123,14 +124,16 @@ export const getRecurringRule = async (userId, ruleId) => {
 };
 
 /**
- * Create a new recurring rule for a user
- * @param {string} userId - User ID
+ * Create a new recurring rule for a budget
+ * @param {string} budgetId - Budget ID
+ * @param {string} userId - User ID of the creator
  * @param {Object} ruleData - The rule data to save
  * @returns {Promise<Object>} - The created rule with ID
  */
-export const createRecurringRule = async (userId, ruleData) => {
+export const createRecurringRule = async (budgetId, userId, ruleData) => {
   try {
     logger.debug('RecurringRuleService', 'createRecurringRule', 'Creating new recurring rule', {
+      budgetId,
       userId,
       ruleData: JSON.stringify(ruleData, (key, value) => 
         value instanceof Date ? value.toISOString() : value
@@ -144,6 +147,7 @@ export const createRecurringRule = async (userId, ruleData) => {
     if (missingFields.length > 0) {
       const error = new Error(`Missing required fields: ${missingFields.join(', ')}`);
       logger.error('RecurringRuleService', 'createRecurringRule', 'Missing required fields', {
+        budgetId,
         userId,
         missingFields,
         error: error.message
@@ -153,13 +157,17 @@ export const createRecurringRule = async (userId, ruleData) => {
     
     logger.debug('RecurringRuleService', 'createRecurringRule', 'Passed required fields check');
     
-    // Reference to the user's recurring rules subcollection
-    const rulesCollectionRef = collection(db, `users/${userId}/recurringRules`);
+    // TODO: M4a - Add validation to ensure categoryId exists in this budget
     
-    // Add creation timestamp, default fields, and explicitly include userId
+    // Reference to the budget's recurring rules subcollection
+    const rulesCollectionRef = collection(db, `budgets/${budgetId}/recurringRules`);
+    
+    // Add creation timestamp, default fields, and explicitly include budgetId and creator
     const ruleWithTimestamp = {
       ...ruleData,
-      userId, // Explicitly include userId for security rules
+      budgetId, // Denormalized for queries
+      createdByUserId: userId,
+      lastEditedByUserId: null, // Initially null since it's a new rule
       interval: ruleData.interval || 1, // Default to 1 if not provided
       // Calculate dayOfMonth and dayOfWeek from the startDate
       dayOfMonth: ruleData.frequency === FREQUENCY_TYPES.MONTHLY 
@@ -207,7 +215,7 @@ export const createRecurringRule = async (userId, ruleData) => {
         }
         return value;
       }),
-      path: `users/${userId}/recurringRules`
+      path: `budgets/${budgetId}/recurringRules`
     });
     
     // Add the document to Firestore
@@ -222,6 +230,7 @@ export const createRecurringRule = async (userId, ruleData) => {
     };
     
     logger.info('RecurringRuleService', 'createRecurringRule', 'Recurring rule created successfully', {
+      budgetId,
       userId,
       ruleId: docSnap.id
     });
@@ -232,6 +241,7 @@ export const createRecurringRule = async (userId, ruleData) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
+      budgetId,
       userId,
       ruleData: JSON.stringify(ruleData, (key, value) => 
         value instanceof Date ? value.toISOString() : value
@@ -247,36 +257,43 @@ export const addRecurringRule = createRecurringRule;
 
 /**
  * Update an existing recurring rule
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} ruleId - Rule ID to update
+ * @param {string} userId - User ID of the editor
  * @param {Object} ruleData - Updated rule data
  * @returns {Promise<Object>} - The updated rule
  */
-export const updateRecurringRule = async (userId, ruleId, ruleData) => {
+export const updateRecurringRule = async (budgetId, ruleId, userId, ruleData) => {
   try {
     logger.debug('RecurringRuleService', 'updateRecurringRule', 'Updating recurring rule', {
-      userId,
+      budgetId,
       ruleId,
+      userId,
       ruleData
     });
     
     // Check if rule exists
-    const ruleRef = doc(db, `users/${userId}/recurringRules`, ruleId);
+    const ruleRef = doc(db, `budgets/${budgetId}/recurringRules`, ruleId);
     const docSnap = await getDoc(ruleRef);
     
     if (!docSnap.exists()) {
       const error = new Error('Rule not found');
       logger.error('RecurringRuleService', 'updateRecurringRule', 'Rule not found', {
-        userId,
+        budgetId,
         ruleId,
         error: error.message
       });
       throw error;
     }
     
-    // Add updatedAt timestamp
+    // TODO: M4a - Add validation to ensure categoryId exists in this budget if being changed
+    
+    // TODO: M4a - Implement full validation to ensure createdByUserId and createdAt are not modified
+    
+    // Add updatedAt timestamp and user attribution
     const updatedRuleData = {
       ...ruleData,
+      lastEditedByUserId: userId,
       updatedAt: serverTimestamp()
     };
     
@@ -292,8 +309,9 @@ export const updateRecurringRule = async (userId, ruleId, ruleData) => {
     };
     
     logger.info('RecurringRuleService', 'updateRecurringRule', 'Recurring rule updated successfully', {
-      userId,
-      ruleId
+      budgetId,
+      ruleId,
+      userId
     });
     
     return updatedRule;
@@ -302,8 +320,9 @@ export const updateRecurringRule = async (userId, ruleId, ruleData) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       ruleId,
+      userId,
       ruleData
     });
     
@@ -313,34 +332,36 @@ export const updateRecurringRule = async (userId, ruleId, ruleData) => {
 
 /**
  * Delete a recurring rule
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} ruleId - Rule ID to delete
  * @returns {Promise<boolean>} - True if successful
  */
-export const deleteRecurringRule = async (userId, ruleId) => {
+export const deleteRecurringRule = async (budgetId, ruleId) => {
   try {
     logger.debug('RecurringRuleService', 'deleteRecurringRule', 'Deleting recurring rule', {
-      userId,
+      budgetId,
       ruleId
     });
     
     // Check if rule exists first
-    const ruleRef = doc(db, `users/${userId}/recurringRules`, ruleId);
+    const ruleRef = doc(db, `budgets/${budgetId}/recurringRules`, ruleId);
     const docSnap = await getDoc(ruleRef);
     
     if (!docSnap.exists()) {
       logger.warn('RecurringRuleService', 'deleteRecurringRule', 'Rule not found, nothing to delete', {
-        userId,
+        budgetId,
         ruleId
       });
       return false;
     }
     
+    // TODO: M4a - Consider implications for future generated transaction instances (Cloud Function cleanup?)
+    
     // Delete the document
     await deleteDoc(ruleRef);
     
     logger.info('RecurringRuleService', 'deleteRecurringRule', 'Recurring rule deleted successfully', {
-      userId,
+      budgetId,
       ruleId
     });
     
@@ -350,7 +371,7 @@ export const deleteRecurringRule = async (userId, ruleId) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       ruleId
     });
     
@@ -360,20 +381,22 @@ export const deleteRecurringRule = async (userId, ruleId) => {
 
 /**
  * Update the next occurrence date for a recurring rule
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} ruleId - Recurring rule ID
+ * @param {string} userId - User ID of the editor
  * @param {Date} nextDate - Next occurrence date
  * @returns {Promise<void>}
  */
-export const updateNextOccurrence = async (userId, ruleId, nextDate) => {
+export const updateNextOccurrence = async (budgetId, ruleId, userId, nextDate) => {
   try {
     logger.debug('RecurringRuleService', 'updateNextOccurrence', 'Updating next occurrence date', { 
-      userId,
+      budgetId,
       ruleId,
+      userId,
       nextDate: nextDate instanceof Date ? nextDate.toISOString() : String(nextDate)
     });
     
-    const ruleRef = doc(db, `users/${userId}/recurringRules`, ruleId);
+    const ruleRef = doc(db, `budgets/${budgetId}/recurringRules`, ruleId);
     
     // Ensure the nextDate is properly formatted as a Firestore Timestamp
     const processedNextDate = nextDate instanceof Date 
@@ -382,12 +405,14 @@ export const updateNextOccurrence = async (userId, ruleId, nextDate) => {
       
     await updateDoc(ruleRef, {
       nextDate: processedNextDate,
+      lastEditedByUserId: userId,
       updatedAt: serverTimestamp()
     });
     
     logger.info('RecurringRuleService', 'updateNextOccurrence', 'Next occurrence date updated successfully', {
-      userId,
+      budgetId,
       ruleId,
+      userId,
       nextDate: nextDate instanceof Date ? nextDate.toISOString() : String(nextDate)
     });
   } catch (error) {
@@ -395,8 +420,9 @@ export const updateNextOccurrence = async (userId, ruleId, nextDate) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       ruleId,
+      userId,
       nextDate: nextDate instanceof Date ? nextDate?.toISOString() : String(nextDate)
     });
     throw error;
@@ -405,13 +431,15 @@ export const updateNextOccurrence = async (userId, ruleId, nextDate) => {
 
 /**
  * Batch update multiple recurring rules
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
+ * @param {string} userId - User ID of the editor
  * @param {Array} ruleUpdates - Array of rule update objects { id, data }
  * @returns {Promise<void>}
  */
-export const batchUpdateRules = async (userId, ruleUpdates) => {
+export const batchUpdateRules = async (budgetId, userId, ruleUpdates) => {
   try {
     logger.debug('RecurringRuleService', 'batchUpdateRules', 'Batch updating recurring rules', { 
+      budgetId,
       userId,
       count: ruleUpdates.length,
       ruleIds: ruleUpdates.map(u => u.id).join(', ')
@@ -420,9 +448,10 @@ export const batchUpdateRules = async (userId, ruleUpdates) => {
     const batch = writeBatch(db);
     
     ruleUpdates.forEach(update => {
-      const ruleRef = doc(db, `users/${userId}/recurringRules`, update.id);
+      const ruleRef = doc(db, `budgets/${budgetId}/recurringRules`, update.id);
       batch.update(ruleRef, {
         ...update.data,
+        lastEditedByUserId: userId,
         updatedAt: serverTimestamp()
       });
     });
@@ -430,6 +459,7 @@ export const batchUpdateRules = async (userId, ruleUpdates) => {
     await batch.commit();
     
     logger.info('RecurringRuleService', 'batchUpdateRules', 'Rules batch updated successfully', {
+      budgetId,
       userId,
       count: ruleUpdates.length
     });
@@ -438,6 +468,7 @@ export const batchUpdateRules = async (userId, ruleUpdates) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
+      budgetId,
       userId,
       ruleUpdates: JSON.stringify(ruleUpdates.map(u => ({ id: u.id })))
     });
@@ -447,29 +478,33 @@ export const batchUpdateRules = async (userId, ruleUpdates) => {
 
 /**
  * Toggle the active state of a recurring rule
- * @param {string} userId - User ID
+ * @param {string} budgetId - Budget ID
  * @param {string} ruleId - Recurring rule ID
+ * @param {string} userId - User ID of the editor
  * @param {boolean} active - Active state
  * @returns {Promise<void>}
  */
-export const toggleRecurringRuleActive = async (userId, ruleId, active) => {
+export const toggleRecurringRuleActive = async (budgetId, ruleId, userId, active) => {
   try {
     logger.debug('RecurringRuleService', 'toggleRecurringRuleActive', 'Toggling recurring rule active state', { 
-      userId,
+      budgetId,
       ruleId,
+      userId,
       active
     });
     
-    const ruleRef = doc(db, `users/${userId}/recurringRules`, ruleId);
+    const ruleRef = doc(db, `budgets/${budgetId}/recurringRules`, ruleId);
     
     await updateDoc(ruleRef, {
       isActive: active,
+      lastEditedByUserId: userId,
       updatedAt: serverTimestamp()
     });
     
     logger.info('RecurringRuleService', 'toggleRecurringRuleActive', 'Recurring rule active state updated', { 
-      userId,
+      budgetId,
       ruleId,
+      userId,
       active
     });
   } catch (error) {
@@ -477,8 +512,9 @@ export const toggleRecurringRuleActive = async (userId, ruleId, active) => {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
-      userId,
+      budgetId,
       ruleId,
+      userId,
       active
     });
     throw error;
@@ -487,11 +523,11 @@ export const toggleRecurringRuleActive = async (userId, ruleId, active) => {
 
 /**
  * @deprecated Use getRecurringRules instead
- * List all recurring rules for a user
- * @param {string} userId - User ID
+ * List all recurring rules for a budget
+ * @param {string} budgetId - Budget ID
  * @returns {Promise<Array>} - Array of recurring rules
  */
-export const listRecurringRules = async (userId) => {
+export const listRecurringRules = async (budgetId) => {
   console.warn('listRecurringRules is deprecated. Use getRecurringRules instead.');
-  return getRecurringRules(userId);
+  return getRecurringRules(budgetId);
 }; 
