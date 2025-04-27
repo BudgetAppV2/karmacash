@@ -14,7 +14,6 @@ import { doc, setDoc, serverTimestamp, collection, getDocs } from 'firebase/fire
 import logger from '../logger';
 import { auth } from './firebaseInit';
 import { db } from './firebaseInit';
-import { initializeDefaultCategories } from './categories';
   
 /**
  * Register a new user with email and password
@@ -56,27 +55,6 @@ export const registerUser = async (email, password, displayName = '') => {
     logger.info('AuthService', 'registerUser', 'User document created in Firestore', { 
       userId: userId
     });
-    
-    // Initialize default categories for the new user
-    try {
-      logger.info('AuthService', 'registerUser', 'Attempting to initialize default categories', { 
-        userId: userCredential.user.uid 
-      });
-      
-      // Initialize default categories
-      await initializeDefaultCategories(userCredential.user.uid);
-      
-      logger.info('AuthService', 'registerUser', 'Default categories initialization successful', { 
-        userId: userCredential.user.uid 
-      });
-    } catch (categoryError) {
-      logger.error('AuthService', 'registerUser', 'Failed to initialize default categories', {
-        userId: userCredential.user.uid,
-        error: categoryError.message,
-        code: categoryError.code
-      });
-      // Continue with registration process despite category initialization failure
-    }
     
     // Send email verification
     await sendEmailVerification(userCredential.user);
