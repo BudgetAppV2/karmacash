@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    function isMember(budgetId) {
+      return isAuth() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
+    }
+    
+    function getRole(budgetId) {
+      return isMember(budgetId) ? 
+        get(/databases/$(database)/documents/budgets/$(budgetId)).data.members[request.auth.uid].role : null;
+    }
+    
+    function isOwner(budgetId) {
+      return getRole(budgetId) == 'owner';
+    }
+    
+    function isEditorOrOwner(budgetId) {
+      let role = getRole(budgetId);
+      return role == 'editor' || role == 'owner';
+    }
+
+    // Budget rules
+    match /budgets/{budgetId} {
+      allow read: if isAuth() && request.auth.uid in resource.data.members;
+      allow create: if isAuth() 
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.resource.data.members[request.auth.uid].role == 'owner'
+                    && request.resource.data.keys().hasAll(['name', 'ownerId', 'members', 'currency', 'version']);
+      allow update: if isAuth() && (
+                      isOwner(budgetId) || 
+                      (isEditorOrOwner(budgetId) && 
+                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['members', 'ownerId']))
+                    );
+      allow delete: if isAuth() && isOwner(budgetId);
+      
+      // Categories subcollection
+      match /categories/{categoryId} {
+        allow read: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
+        allow create: if isAuth() && isEditorOrOwner(budgetId) && request.resource.data.createdByUserId == request.auth.uid;
+        allow update: if isAuth() && isEditorOrOwner(budgetId) && request.resource.data.lastEditedByUserId == request.auth.uid;
+        allow delete: if isAuth() && isEditorOrOwner(budgetId);
+      }
+    }
+    
+    // User rules
+    match /users/{userId} {
+      allow read, write: if isAuth() && request.auth.uid == userId;
+      
+      match /budgetMemberships/{budgetId} {
+        allow read: if isAuth() && request.auth.uid == userId;
+        allow create, update: if false;
+        allow delete: if isAuth() && request.auth.uid == userId;
+      }
+    }
+  }
+} 
