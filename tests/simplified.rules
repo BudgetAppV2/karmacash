@@ -42,9 +42,39 @@ service cloud.firestore {
       // Categories subcollection
       match /categories/{categoryId} {
         allow read: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
-        allow create: if isAuth() && isEditorOrOwner(budgetId) && request.resource.data.createdByUserId == request.auth.uid;
-        allow update: if isAuth() && isEditorOrOwner(budgetId) && request.resource.data.lastEditedByUserId == request.auth.uid;
-        allow delete: if isAuth() && isEditorOrOwner(budgetId);
+        
+        allow create: if isAuth() && isEditorOrOwner(budgetId) 
+                     && request.resource.data.createdByUserId == request.auth.uid
+                     // Required fields validation
+                     && request.resource.data.keys().hasAll(['budgetId', 'name', 'type', 'createdByUserId', 'createdAt', 'updatedAt'])
+                     // Data type validation
+                     && request.resource.data.budgetId == budgetId
+                     && request.resource.data.name is string
+                     && request.resource.data.name.size() > 0
+                     && request.resource.data.type in ['expense', 'income']
+                     // If isDefault is present, it must be boolean
+                     && (!request.resource.data.keys().hasAny(['isDefault']) || request.resource.data.isDefault is bool);
+        
+        allow update: if isAuth() && isEditorOrOwner(budgetId) 
+                     && request.resource.data.lastEditedByUserId == request.auth.uid
+                     // Cannot modify immutable fields
+                     && request.resource.data.createdByUserId == resource.data.createdByUserId
+                     && request.resource.data.createdAt == resource.data.createdAt
+                     && request.resource.data.budgetId == resource.data.budgetId
+                     // If isDefault exists, it cannot be changed unless by owner
+                     && (!resource.data.keys().hasAny(['isDefault']) 
+                         || request.resource.data.isDefault == resource.data.isDefault 
+                         || isOwner(budgetId))
+                     // Data type validation for modified fields
+                     && request.resource.data.name is string
+                     && request.resource.data.name.size() > 0
+                     && request.resource.data.type in ['expense', 'income'];
+        
+        allow delete: if isAuth() && isEditorOrOwner(budgetId)
+                     // Default categories can only be deleted by owner
+                     && (!resource.data.keys().hasAny(['isDefault']) 
+                         || !resource.data.isDefault 
+                         || isOwner(budgetId));
       }
     }
     
