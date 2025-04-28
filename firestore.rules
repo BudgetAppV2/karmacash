@@ -17,8 +17,9 @@ service cloud.firestore {
     
     // Check if current user is a member of the budget
     function isBudgetMember(budgetId) {
-      return isAuth() && exists(getBudget(budgetId)) && 
-        request.auth.uid in getBudget(budgetId).data.members;
+      return isAuth() && 
+        exists(/databases/$(database)/documents/budgets/$(budgetId)) && 
+        request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
     }
     
     // Get the user's role in the budget
@@ -52,7 +53,9 @@ service cloud.firestore {
       // - They set themselves as owner
       // - They include themselves in the members map with owner role
       // - The budget has all required fields with valid types
-      allow create: if isAuth() 
+      allow create: if 
+        isAuth() 
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid)) // Force resolution of request.auth.uid
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.members[request.auth.uid].role == 'owner'
         // Required fields validation
@@ -64,8 +67,18 @@ service cloud.firestore {
         && request.resource.data.ownerId is string
         && request.resource.data.members is map
         && request.resource.data.currency is string
-        && request.resource.data.currency.size() == 3
-        && request.resource.data.version is number;
+        // Removed exact currency size requirement as it was too restrictive
+        // && request.resource.data.currency.size() == 3
+        && request.resource.data.version is number
+        // Timestamp validations
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp
+        // Members map validation - specific validation for the owner entry
+        && request.resource.data.members[request.auth.uid] is map
+        && request.resource.data.members[request.auth.uid].keys().hasAll(['role', 'displayName', 'email', 'joinedAt'])
+        && request.resource.data.members[request.auth.uid].displayName is string
+        && request.resource.data.members[request.auth.uid].email is string
+        && request.resource.data.members[request.auth.uid].joinedAt is timestamp;
       
       // Update: Based on role and fields being modified
       allow update: if isAuth() && (
