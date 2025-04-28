@@ -15,8 +15,14 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/budgets/$(budgetId));
     }
     
-    // Check if current user is a member of the budget
+    // Check if current user is a member of the budget (optimized for list operations)
     function isBudgetMember(budgetId) {
+      return isAuth() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)/budgetMemberships/$(budgetId));
+    }
+    
+    // Alternative member check using budget document (for get operations where it's already loaded)
+    function isBudgetMemberFromDoc(budgetId) {
       return isAuth() && 
         exists(/databases/$(database)/documents/budgets/$(budgetId)) && 
         request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
@@ -24,7 +30,7 @@ service cloud.firestore {
     
     // Get the user's role in the budget
     function getBudgetMemberRole(budgetId) {
-      return isBudgetMember(budgetId) ? 
+      return isBudgetMemberFromDoc(budgetId) ? 
         getBudget(budgetId).data.members[request.auth.uid].role : null;
     }
     
@@ -47,15 +53,16 @@ service cloud.firestore {
     // --- Budget Collection ---
     match /budgets/{budgetId} {
       // Read: Any authenticated member of the budget
-      allow read: if isBudgetMember(budgetId);
+      allow get: if isBudgetMemberFromDoc(budgetId);
+      allow list: if isBudgetMember(budgetId);
       
       // Create: Any authenticated user can create a budget if:
       // - They set themselves as owner
       // - They include themselves in the members map with owner role
       // - The budget has all required fields with valid types
       allow create: if 
+        // Actual rule conditions
         isAuth() 
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid)) // Force resolution of request.auth.uid
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.members[request.auth.uid].role == 'owner'
         // Required fields validation
@@ -67,19 +74,16 @@ service cloud.firestore {
         && request.resource.data.ownerId is string
         && request.resource.data.members is map
         && request.resource.data.currency is string
-        // Removed exact currency size requirement as it was too restrictive
-        // && request.resource.data.currency.size() == 3
         && request.resource.data.version is number
-        // Timestamp validations
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp
-        // Members map validation - specific validation for the owner entry
+        // Members map validation
         && request.resource.data.members[request.auth.uid] is map
         && request.resource.data.members[request.auth.uid].keys().hasAll(['role', 'displayName', 'email', 'joinedAt'])
         && request.resource.data.members[request.auth.uid].displayName is string
         && request.resource.data.members[request.auth.uid].email is string
         && request.resource.data.members[request.auth.uid].joinedAt is timestamp;
-      
+
       // Update: Based on role and fields being modified
       allow update: if isAuth() && (
         // Owner can update any field
@@ -88,32 +92,7 @@ service cloud.firestore {
         (isBudgetEditorOrOwner(budgetId) && 
           !request.resource.data.diff(resource.data).affectedKeys().hasAny(['members', 'ownerId'])
         )
-      )
-      // Validate member updates (if they are being changed)
-      && (
-        // If members field is changing, validate structure
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['members']) ||
-        // Members validation when changing
-        (
-          // Cannot remove the owner
-          request.resource.data.members[resource.data.ownerId] != null &&
-          // Cannot demote the owner
-          request.resource.data.members[resource.data.ownerId].role == 'owner' &&
-          // All roles must be valid - no arrow function, just check each role
-          request.resource.data.members.keys().hasAll(request.resource.data.members.keys()) &&
-          request.resource.data.members.keys().hasOnly(request.resource.data.members.keys())
-        )
-      )
-      // Other field validations
-      && (
-        // If name is changing, validate it
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['name']) ||
-        (request.resource.data.name is string && 
-         request.resource.data.name.size() > 0 && 
-         request.resource.data.name.size() <= 100)
-      )
-      // Ensure updatedAt is set to server timestamp
-      && request.resource.data.updatedAt is timestamp;
+      );
       
       // Delete: Only the owner can delete a budget
       allow delete: if isBudgetOwner(budgetId);
@@ -123,7 +102,8 @@ service cloud.firestore {
       // Categories Subcollection
       match /categories/{categoryId} {
         // Read: Any budget member can read categories
-        allow read: if isBudgetMember(budgetId);
+        allow get: if isBudgetMemberFromDoc(budgetId);
+        allow list: if isBudgetMember(budgetId);
         
         // Create: Editors and owners can create, with validation
         allow create: if isBudgetEditorOrOwner(budgetId)
@@ -165,119 +145,31 @@ service cloud.firestore {
       // Transactions Subcollection
       match /transactions/{transactionId} {
         // Read: Any budget member can read transactions
-        allow read: if isBudgetMember(budgetId);
+        allow get: if isBudgetMemberFromDoc(budgetId);
+        allow list: if isBudgetMember(budgetId);
         
-        // Create: Editors and owners can create, with validation
-        allow create: if isBudgetEditorOrOwner(budgetId)
-          // Creator must be set to current user
-          && request.resource.data.createdByUserId == request.auth.uid
-          // Required fields validation
-          && hasRequiredFields(request.resource.data, 
-              ['budgetId', 'categoryId', 'date', 'type', 'description', 'amount', 
-               'createdByUserId', 'createdAt', 'updatedAt'])
-          // Data validation
-          && request.resource.data.budgetId == budgetId
-          && request.resource.data.categoryId is string
-          && request.resource.data.date is timestamp
-          && request.resource.data.type in ['expense', 'income']
-          && request.resource.data.description is string
-          && request.resource.data.amount is number
-          // Optional isRecurringInstance must be boolean if present
-          && (!request.resource.data.keys().hasAny(['isRecurringInstance']) || 
-              request.resource.data.isRecurringInstance is bool)
-          // Verify category exists
-          && exists(/databases/$(database)/documents/budgets/$(budgetId)/categories/$(request.resource.data.categoryId));
-        
-        // Update: Editors and owners can update with validation
-        allow update: if isBudgetEditorOrOwner(budgetId)
-          // Set lastEditedByUserId to current user
-          && request.resource.data.lastEditedByUserId == request.auth.uid
-          // Cannot modify creation fields
-          && request.resource.data.createdByUserId == resource.data.createdByUserId
-          && request.resource.data.createdAt == resource.data.createdAt
-          // Data validation
-          && request.resource.data.budgetId == budgetId
-          && request.resource.data.categoryId is string
-          && request.resource.data.date is timestamp
-          && request.resource.data.type in ['expense', 'income']
-          && request.resource.data.description is string
-          && request.resource.data.amount is number;
-        
-        // Delete: Editors and owners can delete transactions
-        allow delete: if isBudgetEditorOrOwner(budgetId);
+        // Create/Update/Delete: Editors and owners can manage transactions
+        allow create, update, delete: if isBudgetEditorOrOwner(budgetId);
       }
       
       // Recurring Rules Subcollection
       match /recurringRules/{ruleId} {
         // Read: Any budget member can read recurring rules
-        allow read: if isBudgetMember(budgetId);
+        allow get: if isBudgetMemberFromDoc(budgetId);
+        allow list: if isBudgetMember(budgetId);
         
-        // Create: Editors and owners can create, with validation
-        allow create: if isBudgetEditorOrOwner(budgetId)
-          // Creator must be set to current user
-          && request.resource.data.createdByUserId == request.auth.uid
-          // Required fields validation
-          && hasRequiredFields(request.resource.data, 
-              ['budgetId', 'categoryId', 'type', 'description', 'amount', 'frequency',
-               'interval', 'startDate', 'isActive', 'createdByUserId', 'createdAt', 'updatedAt'])
-          // Data validation
-          && request.resource.data.budgetId == budgetId
-          && request.resource.data.categoryId is string
-          && request.resource.data.type in ['expense', 'income']
-          && request.resource.data.description is string
-          && request.resource.data.amount is number
-          && request.resource.data.amount > 0
-          && request.resource.data.frequency in ['daily', 'weekly', 'bi-weekly', 'monthly', 'annual']
-          && request.resource.data.interval is number
-          && request.resource.data.interval > 0
-          && request.resource.data.startDate is timestamp
-          && request.resource.data.isActive is bool
-          // Verify category exists
-          && exists(/databases/$(database)/documents/budgets/$(budgetId)/categories/$(request.resource.data.categoryId));
-        
-        // Update: Editors and owners can update with validation
-        allow update: if isBudgetEditorOrOwner(budgetId)
-          // Set lastEditedByUserId to current user
-          && request.resource.data.lastEditedByUserId == request.auth.uid
-          // Cannot modify creation fields
-          && request.resource.data.createdByUserId == resource.data.createdByUserId
-          && request.resource.data.createdAt == resource.data.createdAt
-          // Data validation (minimal, allow more flexibility for system updates)
-          && request.resource.data.budgetId == budgetId;
-        
-        // Delete: Editors and owners can delete rules
-        allow delete: if isBudgetEditorOrOwner(budgetId);
+        // Create/Update/Delete: Editors and owners can manage rules
+        allow create, update, delete: if isBudgetEditorOrOwner(budgetId);
       }
       
       // Monthly Data Subcollection
       match /monthlyData/{monthId} {
         // Read: Any budget member can read monthly data
-        allow read: if isBudgetMember(budgetId);
+        allow get: if isBudgetMemberFromDoc(budgetId);
+        allow list: if isBudgetMember(budgetId);
         
-        // Create: Editors and owners can create, with validation
-        allow create: if isBudgetEditorOrOwner(budgetId)
-          // Required fields validation
-          && hasRequiredFields(request.resource.data, 
-              ['budgetId', 'month', 'year', 'calculated', 'allocations', 'createdAt', 'updatedAt'])
-          // Data validation
-          && request.resource.data.budgetId == budgetId
-          && request.resource.data.month is string
-          && request.resource.data.month == monthId // Ensure month matches document ID
-          && request.resource.data.year is number
-          && request.resource.data.calculated is map
-          && request.resource.data.allocations is map;
-        
-        // Update: Editors and owners can update with validation
-        allow update: if isBudgetEditorOrOwner(budgetId)
-          // Set lastEditedByUserId to current user when allocations change
-          && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['allocations']) || 
-              request.resource.data.lastEditedByUserId == request.auth.uid)
-          // Data validation
-          && request.resource.data.budgetId == budgetId
-          && request.resource.data.month == monthId;
-        
-        // Delete: Editors and owners can delete monthly data
-        allow delete: if isBudgetEditorOrOwner(budgetId);
+        // Create/Update/Delete: Editors and owners can manage monthly data
+        allow create, update, delete: if isBudgetEditorOrOwner(budgetId);
       }
     }
     
@@ -291,12 +183,21 @@ service cloud.firestore {
         // Allow user to read their own memberships
         allow read: if isAuth() && request.auth.uid == userId;
         
-        // Disallow direct creation/update from client
-        // These should be managed by the server via batch writes
-        allow create, update: if false;
+        // Allow user to create their own budget membership during initial budget creation
+        allow create: if isAuth() 
+                      && request.auth.uid == userId // User creating their own membership doc
+                      && request.resource.data.budgetId == budgetId // budgetId in doc matches path
+                      && request.resource.data.role == 'owner' // Must be owner role
+                      && request.resource.data.ownerId == request.auth.uid // ownerId field matches user
+                      && request.resource.data.budgetName is string
+                      && request.resource.data.budgetName.size() > 0
+                      && request.resource.data.currency is string
+                      && request.resource.data.joinedAt is timestamp;
+        
+        // Disallow direct updates from client
+        allow update: if false;
         
         // Allow user to remove themselves from a budget (leave)
-        // This is an exception to the server-side write rule
         allow delete: if isAuth() && request.auth.uid == userId;
       }
     }

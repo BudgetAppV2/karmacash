@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useBudgets } from '../../../contexts/BudgetContext';
 import { getTransactionsInRange } from '../../../services/firebase/transactions';
 import { Timestamp } from 'firebase/firestore';
 import logger from '../../../services/logger';
@@ -12,12 +13,17 @@ const TransactionListWithFetch = ({ startDate, endDate, onError }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const { currentUser } = useAuth();
+  const { selectedBudgetId } = useBudgets();
   const navigate = useNavigate();
   
   // Fetch transactions when date range changes
   useEffect(() => {
     const fetchTransactions = async () => {
-      if (!currentUser) return;
+      if (!currentUser || !selectedBudgetId) {
+        setTransactions([]);
+        setIsLoading(false);
+        return;
+      }
       
       setIsLoading(true);
       setError('');
@@ -26,6 +32,7 @@ const TransactionListWithFetch = ({ startDate, endDate, onError }) => {
         logger.debug('Fetching transactions for date range', {
           component: 'TransactionListWithFetch',
           operation: 'fetchTransactions',
+          budgetId: selectedBudgetId,
           startDate,
           endDate
         });
@@ -40,7 +47,7 @@ const TransactionListWithFetch = ({ startDate, endDate, onError }) => {
         }
         
         const fetchedTransactions = await getTransactionsInRange(
-          currentUser.uid,
+          selectedBudgetId,
           start,
           end
         );
@@ -49,6 +56,7 @@ const TransactionListWithFetch = ({ startDate, endDate, onError }) => {
         logger.debug('Transactions fetched', {
           component: 'TransactionListWithFetch',
           operation: 'fetchTransactions',
+          budgetId: selectedBudgetId,
           count: fetchedTransactions.length,
           sampleTransaction: fetchedTransactions.length > 0 
             ? JSON.stringify(fetchedTransactions[0]) 
@@ -61,6 +69,7 @@ const TransactionListWithFetch = ({ startDate, endDate, onError }) => {
         logger.error('Error fetching transactions', {
           component: 'TransactionListWithFetch',
           operation: 'fetchTransactions',
+          budgetId: selectedBudgetId,
           error: err.message
         });
         setError('Erreur lors du chargement des transactions');
@@ -71,7 +80,7 @@ const TransactionListWithFetch = ({ startDate, endDate, onError }) => {
     };
     
     fetchTransactions();
-  }, [currentUser, startDate, endDate, onError]);
+  }, [currentUser, selectedBudgetId, startDate, endDate, onError]);
   
   // Helper to format currency
   const formatCurrency = (amount) => {

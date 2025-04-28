@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useBudgets } from '../contexts/BudgetContext';
 import { getTransactionsInRange } from '../services/firebase/transactions';
+import { getAuth } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../services/firebase/firebaseInit';
 import logger from '../services/logger';
 
 /**
@@ -31,11 +34,25 @@ export const useTransactions = (startDate, endDate, options = {}) => {
       setError(null);
       
       try {
-        logger.debug('useTransactions', 'fetchTransactions', 'Fetching transactions for date range', { 
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        
+        // DEBUG: Log access details
+        console.log('🔍 Transaction Access Debug:', {
+          path: `/budgets/${selectedBudgetId}/transactions`,
+          userId: currentUser?.uid,
+          budgetId: selectedBudgetId
+        });
+        
+        // DEBUG: Verify membership document exists
+        const membershipRef = doc(db, 'users', currentUser.uid, 'budgetMemberships', selectedBudgetId);
+        const membershipSnap = await getDoc(membershipRef);
+        
+        console.log('🔍 Membership Document Check:', {
+          exists: membershipSnap.exists(),
+          userId: currentUser.uid,
           budgetId: selectedBudgetId,
-          startDate,
-          endDate,
-          options
+          data: membershipSnap.exists() ? membershipSnap.data() : null
         });
         
         // Convert string dates to Date objects if needed
@@ -62,6 +79,12 @@ export const useTransactions = (startDate, endDate, options = {}) => {
         
         setTransactions(fetchedTransactions);
       } catch (err) {
+        console.error('🔥 Transaction Access Error:', {
+          error: err.message,
+          code: err.code,
+          budgetId: selectedBudgetId
+        });
+        
         logger.error('useTransactions', 'fetchTransactions', 'Failed to fetch transactions', {
           error: err.message,
           stack: err.stack,

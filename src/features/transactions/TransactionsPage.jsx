@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useBudgets } from '../../contexts/BudgetContext';
 import { useSettings } from '../../contexts/SettingsContext';
 import { formatYearMonth, formatDate } from '../../utils/formatters';
 import TransactionListWithFetch from './components/TransactionListWithFetch';
@@ -17,6 +18,7 @@ import logger from '../../services/logger';
  */
 const TransactionsPage = () => {
   const { currentUser } = useAuth();
+  const { selectedBudgetId } = useBudgets();
   const { settings } = useSettings();
   
   // State for error handling
@@ -78,7 +80,7 @@ const TransactionsPage = () => {
   
   // Fetch monthly transactions data when in month view
   useEffect(() => {
-    if (viewMode !== 'month' || !currentUser) return;
+    if (viewMode !== 'month' || !currentUser || !selectedBudgetId) return;
     
     const fetchMonthlyTransactions = async () => {
       setIsMonthlyLoading(true);
@@ -86,21 +88,25 @@ const TransactionsPage = () => {
       
       try {
         logger.debug('TransactionsPage', 'fetchMonthlyTransactions', 'Fetching transactions for full calendar view', {
+          budgetId: selectedBudgetId,
           start: startDate,
           end: endDate
         });
         
         const fetchedTransactions = await getTransactionsInRange(
-          currentUser.uid,
+          selectedBudgetId,
           startDate,
           endDate
         );
         
-        logger.debug('TransactionsPage', 'fetchMonthlyTransactions', `Fetched ${fetchedTransactions.length} transactions for the calendar view`);
+        logger.debug('TransactionsPage', 'fetchMonthlyTransactions', `Fetched ${fetchedTransactions.length} transactions for the calendar view`, {
+          budgetId: selectedBudgetId
+        });
         setMonthlyTransactions(fetchedTransactions);
       } catch (err) {
         logger.error('TransactionsPage', 'fetchMonthlyTransactions', 'Error fetching transactions', {
-          error: err.message
+          error: err.message,
+          budgetId: selectedBudgetId
         });
         setError(`Erreur: ${err.message}`);
       } finally {
@@ -109,7 +115,7 @@ const TransactionsPage = () => {
     };
     
     fetchMonthlyTransactions();
-  }, [currentUser, startDate, endDate, viewMode]);
+  }, [currentUser, selectedBudgetId, startDate, endDate, viewMode]);
 
   // Filter transactions for the selected calendar day
   const filteredTransactionsForDay = useMemo(() => {
