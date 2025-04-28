@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "karmacash-6e8f5"
-  }
+    "default": "karmacash-6e8f5",
+    "dev": "karmacash-6e8f5"
+  },
+  "targets": {},
+  "etags": {}
 }

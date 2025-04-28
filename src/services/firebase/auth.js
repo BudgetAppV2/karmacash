@@ -24,40 +24,110 @@ import { db } from './firebaseInit';
  */
 export const registerUser = async (email, password, displayName = '') => {
   try {
+    // Enhanced debugging
+    console.log('AUTH EMULATOR DEBUG - registerUser called with:', { 
+      email, 
+      passwordLength: password.length, 
+      displayName,
+      authInstance: !!auth
+    });
+    
     logger.debug('AuthService', 'registerUser', 'Starting user registration', { email });
+    
+    // Add detailed context before calling the Firebase function
+    console.log('AUTH EMULATOR DEBUG - About to call createUserWithEmailAndPassword with:',
+      { email, passwordLength: password.length, authConfig: auth?.app?.options });
     
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     
+    console.log('AUTH EMULATOR DEBUG - createUserWithEmailAndPassword succeeded:', {
+      uid: userCredential.user.uid,
+      emailVerified: userCredential.user.emailVerified
+    });
+    
     // Update profile with display name if provided
     if (displayName) {
-      await updateProfile(userCredential.user, { displayName });
+      try {
+        await updateProfile(userCredential.user, { displayName });
+        console.log('AUTH EMULATOR DEBUG - updateProfile succeeded for user:', userCredential.user.uid);
+      } catch (profileError) {
+        // Log the error but continue with registration process
+        logger.warn('AuthService', 'registerUser', 'Failed to set display name', { 
+          userId: userCredential.user.uid,
+          error: profileError.message
+        });
+        console.warn('AUTH EMULATOR DEBUG - updateProfile failed:', profileError.message);
+        // We continue since this is not critical for account creation
+      }
     }
     
-    // Create user document in Firestore
-    const userId = userCredential.user.uid;
-    const userDocRef = doc(db, 'users', userId);
+    // Create user document in Firestore - wrap in separate try-catch
+    try {
+      const userId = userCredential.user.uid;
+      const userDocRef = doc(db, 'users', userId);
+      
+      logger.debug('AuthService', 'registerUser', 'Creating user document in Firestore', { 
+        userId: userId
+      });
+      
+      // Prepare user document data following B5.2 schema
+      const userData = {
+        email: email,
+        displayName: displayName || '',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        settings: {
+          currency: 'CAD' // Default currency as per requirements
+        }
+      };
+      
+      console.log('AUTH EMULATOR DEBUG - Creating Firestore document for user:', {
+        userId,
+        documentPath: `users/${userId}`,
+        dataFields: Object.keys(userData)
+      });
+      
+      // Create the document
+      await setDoc(userDocRef, userData);
+      
+      logger.info('AuthService', 'registerUser', 'User document created in Firestore', { 
+        userId: userId
+      });
+    } catch (firestoreError) {
+      // Critical error - log detailed information
+      logger.error('AuthService', 'registerUser', 'Failed to create user document in Firestore', {
+        userId: userCredential.user.uid,
+        error: firestoreError.message,
+        code: firestoreError.code,
+        stack: firestoreError.stack
+      });
+      
+      console.error('AUTH EMULATOR DEBUG - Firestore document creation failed:', {
+        userId: userCredential.user.uid,
+        error: firestoreError.message,
+        code: firestoreError.code
+      });
+      
+      // This is a critical error as it will prevent proper app functioning
+      // The user was created in Auth but not in Firestore which will cause issues later
+      throw new Error(`User account created but profile setup failed: ${firestoreError.message}`);
+    }
     
-    await setDoc(userDocRef, {
-      email: email,
-      displayName: displayName || '',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      emailVerified: false,
-      prefersDarkMode: false,
-      currency: 'USD',
-      language: 'en',
-      settings: {
-        currency: 'CAD',
-        balanceDisplayMode: 'cumulative'
-      }
-    });
-    
-    logger.info('AuthService', 'registerUser', 'User document created in Firestore', { 
-      userId: userId
-    });
-    
-    // Send email verification
-    await sendEmailVerification(userCredential.user);
+    // Send email verification - also wrap in try-catch to ensure it doesn't block completion
+    try {
+      await sendEmailVerification(userCredential.user);
+      logger.info('AuthService', 'registerUser', 'Verification email sent', {
+        userId: userCredential.user.uid
+      });
+    } catch (emailError) {
+      // Non-critical error - log but continue
+      logger.warn('AuthService', 'registerUser', 'Failed to send verification email', {
+        userId: userCredential.user.uid,
+        error: emailError.message
+      });
+      console.warn('AUTH EMULATOR DEBUG - Email verification sending failed:', emailError.message);
+      // We continue since this is not critical for account creation
+    }
     
     logger.info('AuthService', 'registerUser', 'User registered successfully', { 
       userId: userCredential.user.uid
@@ -65,6 +135,15 @@ export const registerUser = async (email, password, displayName = '') => {
     
     return userCredential;
   } catch (error) {
+    // Enhanced error logging
+    console.error('AUTH EMULATOR DEBUG - Registration failed with details:', {
+      code: error.code,
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      fullError: JSON.stringify(error)
+    });
+    
     logger.error('AuthService', 'registerUser', 'Registration failed', { 
       error: error.message, 
       code: error.code
@@ -81,9 +160,26 @@ export const registerUser = async (email, password, displayName = '') => {
  */
 export const loginUser = async (email, password) => {
   try {
+    // Enhanced debugging
+    console.log('AUTH EMULATOR DEBUG - loginUser called with:', { 
+      email, 
+      passwordLength: password.length,
+      authInstance: !!auth
+    });
+    
     logger.debug('AuthService', 'loginUser', 'Attempting user login', { email });
     
+    // Add detailed context before calling the Firebase function
+    console.log('AUTH EMULATOR DEBUG - About to call signInWithEmailAndPassword with:',
+      { email, passwordLength: password.length, authConfig: auth?.app?.options });
+    
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    
+    console.log('AUTH EMULATOR DEBUG - signInWithEmailAndPassword succeeded:', {
+      uid: userCredential.user.uid,
+      emailVerified: userCredential.user.emailVerified,
+      tokenResult: userCredential?.user?.getIdToken ? 'available' : 'unavailable'
+    });
     
     logger.info('AuthService', 'loginUser', 'User logged in successfully', { 
       userId: userCredential.user.uid,
@@ -92,6 +188,15 @@ export const loginUser = async (email, password) => {
     
     return userCredential;
   } catch (error) {
+    // Enhanced error logging
+    console.error('AUTH EMULATOR DEBUG - Login failed with details:', {
+      code: error.code,
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      fullError: JSON.stringify(error)
+    });
+    
     logger.error('AuthService', 'loginUser', 'Login failed', { 
       error: error.message, 
       code: error.code

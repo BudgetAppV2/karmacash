@@ -32,30 +32,29 @@ let db;
 let functions;
 
 try {
+  console.log('FIREBASE INIT: Starting Firebase initialization');
   app = initializeApp(firebaseConfig);
+  console.log('FIREBASE INIT: App initialized successfully');
+  
   auth = getAuth(app);
+  console.log('FIREBASE INIT: Auth service initialized');
+  
   db = getFirestore(app);
+  console.log('FIREBASE INIT: Firestore service initialized');
+  
   functions = getFunctions(app);
+  console.log('FIREBASE INIT: Functions service initialized');
   
   // Connect to emulators in development mode
-  if (window.location.hostname === 'localhost') {
-    console.log('Running in development mode - connecting to Firebase emulators');
-    
-    // Connect to Auth Emulator
-    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: false });
-    
-    // Connect to Firestore Emulator
-    connectFirestoreEmulator(db, 'localhost', 8080);
-    
-    // Connect to Functions Emulator
+  if (import.meta.env.DEV) {
+    connectAuthEmulator(auth, 'http://localhost:9099');
     connectFunctionsEmulator(functions, 'localhost', 5001);
-    
-    console.log('Connected to all Firebase emulators (Auth, Firestore, Functions)');
+    connectFirestoreEmulator(db, 'localhost', 8085);
   }
   
-  console.log('Firebase initialized successfully using environment variables.');
+  console.log('FIREBASE INIT: Firebase initialized successfully using environment variables.');
 } catch (error) {
-  console.error('Firebase initialization failed:', error);
+  console.error('FIREBASE INIT: Firebase initialization failed:', error);
   // Handle initialization error appropriately, maybe show an error message to the user
 }
 
