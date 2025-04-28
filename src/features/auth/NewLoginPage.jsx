@@ -18,7 +18,14 @@ const NewLoginPage = () => {
     setLoading(true);
     
     try {
+      console.log('Attempting login with:', { email });
+      console.log('Auth Emulator Debug - loginUser called with:', { 
+        email, 
+        passwordLength: password.length 
+      });
+      
       await loginUser(email, password);
+      console.log('Login successful, navigating to home');
       navigate('/');
     } catch (err) {
       let errorMessage = 'Échec de la connexion. Veuillez vérifier vos informations.';
@@ -32,7 +39,11 @@ const NewLoginPage = () => {
       }
       
       setError(errorMessage);
-      console.error('Login error:', err);
+      console.error('Login error details:', { 
+        code: err.code, 
+        message: err.message, 
+        fullError: err 
+      });
     } finally {
       setLoading(false);
     }

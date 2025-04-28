@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
@@ -14,7 +14,9 @@
     "test:rules:win": "set FIRESTORE_EMULATOR_HOST=localhost:8085 && firebase emulators:exec --only firestore \"vitest run tests/firestore.rules.test.js\"",
     "test:basic": "vitest run tests/basic-rules.test.js",
     "test:validate": "vitest run tests/firestore-validation.test.js",
-    "check-ports": "node tests/check-ports.js"
+    "check-ports": "node tests/check-ports.js",
+    "emulators": "firebase emulators:start",
+    "dev:emulators": "firebase emulators:start & vite"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

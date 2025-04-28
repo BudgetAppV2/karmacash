@@ -19,6 +19,7 @@ function MainLayout() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newBudgetName, setNewBudgetName] = useState('');
   const [newBudgetCurrency, setNewBudgetCurrency] = useState('CAD');
+  const [isCreating, setIsCreating] = useState(false);
 
   if (!currentUser) {
     return null; // This should be handled by ProtectedRoute, but just in case
@@ -29,14 +30,24 @@ function MainLayout() {
     if (!newBudgetName.trim()) return; // Basic validation
     
     try {
+      setIsCreating(true); // Show loading state
       await createBudgetAndUpdateContext({ 
         name: newBudgetName, 
         currency: newBudgetCurrency 
       });
-      setShowCreateForm(false); // Close form on success
-      setNewBudgetName(''); // Reset form
+      
+      // Reset all form state
+      setNewBudgetName('');
+      setNewBudgetCurrency('CAD');
+      setShowCreateForm(false);
+      
+      // Force a small delay to ensure state updates propagate
+      setTimeout(() => {
+        setIsCreating(false);
+      }, 500);
     } catch (error) {
       console.error("Failed to create budget:", error);
+      setIsCreating(false);
       // TODO: Add error feedback to user
     }
   };
@@ -82,14 +93,34 @@ function MainLayout() {
             {showCreateForm ? (
               <form onSubmit={handleCreateBudget} className="budget-form">
                 <div className="form-group">
-                  <label htmlFor="budgetName">Nom du budget</label>
+                  <label 
+                    htmlFor="budgetName"
+                    style={{
+                      display: 'block',
+                      marginBottom: '8px',
+                      fontWeight: 'var(--font-medium)',
+                      color: 'var(--text-primary)'
+                    }}
+                  >
+                    Nom du budget
+                  </label>
                   <input
                     id="budgetName"
                     type="text"
-                    placeholder="Ex: Budget Personnel"
+                    placeholder="Ex: Budget familial, Budget personnel, etc."
                     value={newBudgetName}
                     onChange={(e) => setNewBudgetName(e.target.value)}
                     required
+                    disabled={isCreating}
+                    style={{ 
+                      color: 'var(--text-primary)', 
+                      backgroundColor: 'var(--surface)',
+                      border: '1px solid rgba(136, 131, 122, 0.6)',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      width: '100%',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    }}
                   />
                 </div>
                 
@@ -99,6 +130,16 @@ function MainLayout() {
                     id="budgetCurrency"
                     value={newBudgetCurrency} 
                     onChange={(e) => setNewBudgetCurrency(e.target.value)}
+                    disabled={isCreating}
+                    style={{ 
+                      color: 'var(--text-primary)', 
+                      backgroundColor: 'var(--surface)',
+                      border: '1px solid rgba(136, 131, 122, 0.6)',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      width: '100%',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    }}
                   >
                     <option value="CAD">CAD</option>
                     <option value="USD">USD</option>
@@ -107,11 +148,19 @@ function MainLayout() {
                 </div>
                 
                 <div className="form-actions">
-                  <button type="button" onClick={() => setShowCreateForm(false)}>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowCreateForm(false)}
+                    disabled={isCreating}
+                  >
                     Annuler
                   </button>
-                  <button type="submit" className="btn-primary">
-                    Créer Budget
+                  <button 
+                    type="submit" 
+                    className="btn-primary"
+                    disabled={isCreating}
+                  >
+                    {isCreating ? 'Création en cours...' : 'Créer Budget'}
                   </button>
                 </div>
               </form>

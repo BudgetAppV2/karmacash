@@ -2,6 +2,19 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const firestore = require('@google-cloud/firestore');
 const logger = require('./utils/logger');
+
+/**
+ * KarmaCash Firebase Cloud Functions
+ * 
+ * This file contains all Firebase Cloud Functions used in the KarmaCash application.
+ * 
+ * Available functions:
+ * - manageRecurringInstances: Manages recurring transaction instances (generate/delete)
+ * - createBudgetCallable: Creates a budget with membership doc (bypassing security rules)
+ * - testAuth: Diagnostic function for auth testing
+ * - echoTest: Diagnostic function that returns received data
+ */
+
 const { 
   addDays, 
   addWeeks, 
@@ -1261,4 +1274,233 @@ exports.echoTest = functions.https.onCall(async (data, context) => {
     contextAuthExists: !!context.auth,
     emulator: process.env.FUNCTIONS_EMULATOR === 'true'
   };
+});
+
+/**
+ * Creates a new budget and corresponding user membership document using server-side batch operations
+ * This bypasses client-side security rules restrictions on budgetMemberships creation
+ * @param {Object} data - Budget data for creation
+ * @param {string} data.name - Name of the budget
+ * @param {string} [data.currency='CAD'] - Currency code for the budget (3-letter ISO format)
+ * @param {boolean} [data.initializeDefaultCategories=true] - Whether to initialize default categories
+ * @param {Object} context - Function execution context containing authentication info
+ * @returns {Object} Result object with new budget ID
+ */
+exports.createBudgetCallable = functions.https.onCall(async (data, context) => {
+  // Detailed auth debugging
+  functions.logger.info('createBudgetCallable', 'Auth context inspection', {
+    hasContextAuth: !!context.auth,
+    contextAuth: context.auth,
+    contextAuthUid: context.auth ? context.auth.uid : 'No context.auth.uid',
+    contextAuthToken: context.auth ? context.auth.token : 'No context.auth.token',
+    contextInstanceIdToken: context.instanceIdToken || 'No instanceIdToken',
+    contextRawRequest: context.rawRequest ? 'Has rawRequest' : 'No rawRequest',
+    timestamp: new Date().toISOString()
+  });
+
+  // Enhanced authentication check - verify both context.auth AND context.auth.uid
+  if (!context.auth || !context.auth.uid) {
+    functions.logger.error('createBudgetCallable', 'Authentication check failed', {
+      hasContextAuth: !!context.auth,
+      contextAuthUid: context.auth ? context.auth.uid : 'No context.auth.uid',
+      data: data
+    });
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'User authentication context is invalid. Please sign out and sign in again.'
+    );
+  }
+
+  try {
+    // Extract user ID from auth context
+    const uid = context.auth.uid;
+    
+    functions.logger.info('createBudgetCallable', 'Budget creation request', {
+      uid,
+      budgetName: data.name,
+      currency: data.currency
+    });
+    
+    // Input validation
+    const name = data.name;
+    if (!name || typeof name !== 'string' || name.trim() === '' || name.length > 100) {
+      functions.logger.error('createBudgetCallable', 'Invalid budget name', {
+        uid,
+        name
+      });
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'Budget name must be a non-empty string with maximum 100 characters.'
+      );
+    }
+    
+    // Validate or default currency
+    let currency = data.currency || 'CAD';
+    if (typeof currency !== 'string') {
+      functions.logger.warn('createBudgetCallable', 'Invalid currency format, using default', {
+        uid,
+        providedCurrency: currency
+      });
+      currency = 'CAD';
+    }
+    
+    // Check if default categories should be initialized (default to true)
+    const shouldInitCategories = data.initializeDefaultCategories !== false;
+    
+    // Fetch user data for member details
+    const db = admin.firestore();
+    const userRef = db.doc(`users/${uid}`);
+    const userSnap = await userRef.get();
+    
+    if (!userSnap.exists) {
+      functions.logger.error('createBudgetCallable', 'User profile not found', {
+        uid
+      });
+      throw new functions.https.HttpsError(
+        'not-found',
+        'User profile not found. Please complete profile setup first.'
+      );
+    }
+    
+    const userData = userSnap.data();
+    const userDisplayName = userData.displayName || userData.email || 'Unknown User';
+    const userEmail = userData.email || 'unknown@example.com';
+    
+    functions.logger.debug('createBudgetCallable', 'User data retrieved', {
+      uid,
+      displayName: userDisplayName,
+      email: userEmail
+    });
+    
+    // Generate a new budget ID
+    const budgetId = db.collection('budgets').doc().id;
+    
+    // Get server timestamp
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    
+    // Prepare budget document data according to B5.2 schema
+    const budgetData = {
+      name: name.trim(),
+      ownerId: uid,
+      members: {
+        [uid]: {
+          role: 'owner',
+          displayName: userDisplayName,
+          email: userEmail,
+          joinedAt: now
+        }
+      },
+      currency,
+      settings: {
+        isArchived: false
+      },
+      version: 1,
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    // Prepare membership document data according to B5.2 schema
+    const membershipData = {
+      budgetId,
+      budgetName: name.trim(),
+      role: 'owner',
+      ownerId: uid,
+      currency,
+      joinedAt: now
+    };
+    
+    functions.logger.debug('createBudgetCallable', 'Prepared document data', {
+      budgetId,
+      uid
+    });
+    
+    // Create batch for atomic operations
+    const batch = db.batch();
+    
+    // Define document references
+    const budgetRef = db.doc(`budgets/${budgetId}`);
+    const membershipRef = db.doc(`users/${uid}/budgetMemberships/${budgetId}`);
+    
+    // Add operations to batch
+    batch.set(budgetRef, budgetData);
+    batch.set(membershipRef, membershipData);
+    
+    // Add default categories if requested
+    if (shouldInitCategories) {
+      const defaultCategories = [
+        // Expenses
+        { name: 'Alimentation', icon: 'restaurant', color: '#7FB069', order: 1, type: 'expense', isDefault: true },
+        { name: 'Transport', icon: 'directions_car', color: '#709AC7', order: 2, type: 'expense', isDefault: true },
+        { name: 'Logement', icon: 'home', color: '#9A705A', order: 3, type: 'expense', isDefault: true },
+        { name: 'Divertissement', icon: 'movie', color: '#E0B470', order: 4, type: 'expense', isDefault: true },
+        { name: 'Shopping', icon: 'shopping_cart', color: '#E8B4BC', order: 5, type: 'expense', isDefault: true },
+        { name: 'Services', icon: 'home_repair_service', color: '#3A5A78', order: 6, type: 'expense', isDefault: true },
+        { name: 'Santé', icon: 'favorite', color: '#4FB0A5', order: 7, type: 'expense', isDefault: true },
+        { name: 'Éducation', icon: 'school', color: '#A08CBF', order: 8, type: 'expense', isDefault: true },
+        { name: 'Autres Dépenses', icon: 'more_horiz', color: '#C8AD9B', order: 9, type: 'expense', isDefault: true },
+        // Income
+        { name: 'Salaire', icon: 'work', color: '#7EB5D6', order: 1, type: 'income', isDefault: true },
+        { name: 'Investissements', icon: 'trending_up', color: '#4A7856', order: 2, type: 'income', isDefault: true },
+        { name: 'Cadeaux', icon: 'card_giftcard', color: '#F4A97F', order: 3, type: 'income', isDefault: true },
+        { name: 'Autres Revenus', icon: 'more_horiz', color: '#C8AD9B', order: 4, type: 'income', isDefault: true }
+      ];
+      
+      functions.logger.info('createBudgetCallable', 'Adding default categories', {
+        budgetId,
+        uid,
+        categoryCount: defaultCategories.length
+      });
+      
+      // Add each default category to the batch
+      defaultCategories.forEach(category => {
+        const categoryId = db.collection(`budgets/${budgetId}/categories`).doc().id;
+        const categoryRef = db.doc(`budgets/${budgetId}/categories/${categoryId}`);
+        
+        batch.set(categoryRef, {
+          ...category,
+          budgetId, // Include budgetId for denormalization
+          createdByUserId: uid,
+          lastEditedByUserId: null,
+          createdAt: now,
+          updatedAt: now
+        });
+      });
+    }
+    
+    functions.logger.debug('createBudgetCallable', 'Committing batch write', {
+      budgetId,
+      uid,
+      operationCount: shouldInitCategories ? 2 + 13 : 2 // Budget + Membership + Categories if enabled
+    });
+    
+    // Commit the batch
+    await batch.commit();
+    
+    functions.logger.info('createBudgetCallable', 'Budget created successfully', {
+      budgetId,
+      uid,
+      budgetName: name,
+      includesCategories: shouldInitCategories
+    });
+    
+    // Return the new budget ID
+    return { 
+      budgetId, 
+      success: true,
+      message: `Budget "${name}" created successfully.`,
+      categoriesInitialized: shouldInitCategories
+    };
+    
+  } catch (error) {
+    functions.logger.error('createBudgetCallable', 'Failed to create budget', {
+      error: error.message,
+      stack: error.stack,
+      uid: context.auth?.uid
+    });
+    
+    throw new functions.https.HttpsError(
+      'internal',
+      `Error creating budget: ${error.message}`
+    );
+  }
 });
