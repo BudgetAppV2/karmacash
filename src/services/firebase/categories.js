@@ -216,10 +216,28 @@ export const createCategory = async (budgetId, userId, categoryData) => {
       budgetId, // Denormalized for queries
       createdByUserId: userId,
       lastEditedByUserId: null, // Initially null since it's a new category
+      isDefault: false, // Required by security rules, user-created categories are not default
       ...categoryData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
+    
+    // Ensure all required fields are present
+    const requiredFields = ['name', 'type', 'color', 'order', 'isDefault'];
+    const missingFields = requiredFields.filter(field => 
+      fullCategoryData[field] === undefined || fullCategoryData[field] === null
+    );
+    
+    if (missingFields.length > 0) {
+      const errorMsg = `Missing required category fields: ${missingFields.join(', ')}`;
+      console.error('❌ CATEGORY CREATION ERROR:', errorMsg);
+      logger.error('CategoryService', 'createCategory', errorMsg, {
+        budgetId,
+        userId,
+        missingFields
+      });
+      throw new Error(errorMsg);
+    }
     
     logger.debug('CategoryService', 'createCategory', 'Full category data', { 
       data: JSON.stringify(fullCategoryData)
@@ -243,15 +261,24 @@ export const createCategory = async (budgetId, userId, categoryData) => {
       budgetId,
       createdByUserId: userId,
       lastEditedByUserId: null,
+      isDefault: fullCategoryData.isDefault, // Include isDefault in the return value
       createdAt: new Date(),
       updatedAt: new Date()
     };
   } catch (error) {
+    console.error('❌ CATEGORY CREATION FAILED:', error.message, error.code || '', {
+      budgetId,
+      userId,
+      categoryData: JSON.stringify(categoryData)
+    });
+    
     logger.error('CategoryService', 'createCategory', 'Failed to create category', {
       error: error.message,
+      errorCode: error.code,
       stack: error.stack,
       budgetId,
-      userId
+      userId,
+      categoryData: JSON.stringify(categoryData)
     });
     throw error;
   }

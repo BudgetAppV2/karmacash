@@ -4,6 +4,7 @@ import './CategoriesPage.css';
 import CategoryForm from './CategoryForm';
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from '../../contexts/ToastContext';
+import { useBudgets } from '../../contexts/BudgetContext';
 import { 
   getCategories, 
   createCategory, 
@@ -19,6 +20,7 @@ import logger from '../../services/logger';
 function CategoriesPage() {
   const { currentUser } = useAuth();
   const { showSuccess, showError } = useToast();
+  const { selectedBudgetId, selectedBudget, userBudgets } = useBudgets();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,6 +46,42 @@ function CategoriesPage() {
   // Form validation
   const [formErrors, setFormErrors] = useState({});
 
+  // Debug logging - output details about selected budget and current user
+  useEffect(() => {
+    console.log(">>> CLIENT DEBUG: Budget Context Information:", {
+      selectedBudgetId,
+      currentUserId: currentUser?.uid,
+      isSameAsUserId: selectedBudgetId === currentUser?.uid,
+      selectedBudgetName: selectedBudget?.name,
+      availableBudgets: userBudgets.map(b => ({ id: b.id, name: b.budgetName }))
+    });
+  }, [selectedBudgetId, currentUser, selectedBudget, userBudgets]);
+
+  // TEMP - Fix for potentially incorrect selectedBudgetId
+  // This is a workaround for the case where selectedBudgetId is incorrectly set to userId
+  // instead of a proper budget document ID
+  const effectiveBudgetId = useMemo(() => {
+    if (!selectedBudgetId) return null;
+    
+    // Check if selectedBudgetId is the same as currentUser.uid
+    if (currentUser && selectedBudgetId === currentUser.uid) {
+      console.error(">>> CLIENT DEBUG: WORKAROUND - selectedBudgetId is same as userId! Attempting to find a valid budget ID...");
+      
+      // Try to find any budget from userBudgets
+      if (userBudgets && userBudgets.length > 0) {
+        const firstValidBudget = userBudgets[0];
+        console.log(">>> CLIENT DEBUG: WORKAROUND - Using first available budget instead:", {
+          id: firstValidBudget.id,
+          name: firstValidBudget.budgetName
+        });
+        return firstValidBudget.id;
+      }
+    }
+    
+    // If no issue, or no workaround possible, return the original selectedBudgetId
+    return selectedBudgetId;
+  }, [selectedBudgetId, currentUser, userBudgets]);
+
   // Finalized Palette v5
   const paletteV5 = [
     '#7FB069', '#4A7856', '#99D4C8', '#B8B07F', '#709AC7',
@@ -57,18 +95,31 @@ function CategoriesPage() {
 
   // Use useCallback to memoize the fetchCategories function
   const fetchCategories = useCallback(async () => {
-    if (!currentUser) return;
+    if (!effectiveBudgetId) {
+      setLoading(false);
+      setCategories([]);
+      return;
+    }
+    
+    // Additional debug logging to verify the ID being used
+    console.log(">>> CLIENT DEBUG: Attempting getCategories with budgetId:", effectiveBudgetId);
+    console.log(">>> CLIENT DEBUG: Current user ID for comparison:", currentUser?.uid);
+    
+    if (effectiveBudgetId === currentUser?.uid) {
+      console.warn(">>> CLIENT DEBUG: WARNING - budgetId is the same as currentUser.uid!");
+      // Don't set error here - let the operation proceed to see the actual Firestore error
+    }
     
     setLoading(true);
     setError(null);
     
     try {
       logger.info('CategoriesPage', 'fetchCategories', 'Fetching categories', {
-        userId: currentUser.uid,
-        timestamp: new Date().toISOString() // Add timestamp for debugging
+        budgetId: effectiveBudgetId,
+        timestamp: new Date().toISOString()
       });
       
-      const result = await getCategories(currentUser.uid);
+      const result = await getCategories(effectiveBudgetId);
       
       // Check if the result is an error object (returned by handleMissingIndex)
       if (result && result.error === true) {
@@ -87,6 +138,9 @@ function CategoriesPage() {
         categories: JSON.stringify(result.map(c => ({ id: c.id, name: c.name, type: c.type })))
       });
       
+      // Log success for debugging
+      console.log(">>> CLIENT DEBUG: Successfully fetched", result.length, "categories for budget:", effectiveBudgetId);
+      
       // Sort categories by order if available
       const sortedCategories = [...result].sort((a, b) => {
         if (a.order && b.order) return a.order - b.order;
@@ -95,23 +149,26 @@ function CategoriesPage() {
       
       setCategories(sortedCategories);
     } catch (err) {
+      console.error(">>> CLIENT DEBUG: Error fetching categories:", err.message, "for budgetId:", effectiveBudgetId);
+      
       logger.error('CategoriesPage', 'fetchCategories', 'Error fetching categories', { 
         error: err.message,
-        stack: err.stack
+        stack: err.stack,
+        budgetId: effectiveBudgetId
       });
       setError('Failed to load categories. Please try again later.');
       showError('Échec du chargement des catégories');
     } finally {
       setLoading(false);
     }
-  }, [currentUser, showError]);
+  }, [effectiveBudgetId, currentUser, showError]);
 
-  // Refresh categories when component mounts, currentUser changes, or refreshKey changes
+  // Refresh categories when component mounts, effectiveBudgetId changes, or refreshKey changes
   useEffect(() => {
-    if (currentUser) {
+    if (effectiveBudgetId) {
       fetchCategories();
     }
-  }, [currentUser, fetchCategories, refreshKey]);
+  }, [effectiveBudgetId, fetchCategories, refreshKey]);
 
   // Fix any potential text visibility issues
   useEffect(() => {
@@ -195,6 +252,11 @@ function CategoriesPage() {
   const handleAddCategory = async (e) => {
     e.preventDefault();
     
+    if (!effectiveBudgetId || !currentUser) {
+      showError('Aucun budget sélectionné ou utilisateur non connecté');
+      return;
+    }
+    
     // Get form data
     const formData = {
       name: categoryName.trim(),
@@ -213,6 +275,7 @@ function CategoriesPage() {
     
     try {
       logger.info('CategoriesPage', 'handleAddCategory', 'Creating new category', {
+        budgetId: effectiveBudgetId,
         name: formData.name,
         type: formData.type
       });
@@ -223,9 +286,10 @@ function CategoriesPage() {
         order: Date.now() // Use timestamp as a simple ordering mechanism
       };
       
-      const newCategory = await createCategory(currentUser.uid, categoryData);
+      const newCategory = await createCategory(effectiveBudgetId, currentUser.uid, categoryData);
       
       logger.info('CategoriesPage', 'handleAddCategory', 'Category created successfully', {
+        budgetId: effectiveBudgetId,
         categoryId: newCategory.id
       });
       
@@ -247,7 +311,8 @@ function CategoriesPage() {
     } catch (err) {
       logger.error('CategoriesPage', 'handleAddCategory', 'Error creating category', { 
         error: err.message,
-        stack: err.stack
+        stack: err.stack,
+        budgetId: effectiveBudgetId
       });
       showError('Échec de la création de la catégorie');
     }
@@ -266,7 +331,10 @@ function CategoriesPage() {
   const handleUpdateCategory = async (e) => {
     e.preventDefault();
     
-    if (!categoryToEdit) return;
+    if (!effectiveBudgetId || !currentUser || !categoryToEdit) {
+      showError('Aucun budget sélectionné, utilisateur non connecté, ou catégorie manquante');
+      return;
+    }
     
     // Get form data
     const formData = {
@@ -286,6 +354,7 @@ function CategoriesPage() {
     
     try {
       logger.info('CategoriesPage', 'handleUpdateCategory', 'Updating category', {
+        budgetId: effectiveBudgetId,
         categoryId: categoryToEdit.id,
         name: formData.name,
         type: formData.type
@@ -297,9 +366,10 @@ function CategoriesPage() {
         order: categoryToEdit.order || Date.now()
       };
       
-      await updateCategory(categoryToEdit.id, categoryData);
+      await updateCategory(effectiveBudgetId, categoryToEdit.id, currentUser.uid, categoryData);
       
       logger.info('CategoriesPage', 'handleUpdateCategory', 'Category updated successfully', {
+        budgetId: effectiveBudgetId,
         categoryId: categoryToEdit.id
       });
       
@@ -326,6 +396,7 @@ function CategoriesPage() {
       logger.error('CategoriesPage', 'handleUpdateCategory', 'Error updating category', { 
         error: err.message,
         stack: err.stack,
+        budgetId: effectiveBudgetId,
         categoryId: categoryToEdit?.id
       });
       showError('Échec de la mise à jour de la catégorie');
@@ -338,17 +409,23 @@ function CategoriesPage() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!categoryToDelete) return;
+    if (!effectiveBudgetId || !categoryToDelete) {
+      showError('Aucun budget sélectionné ou catégorie manquante');
+      return;
+    }
     
     try {
       logger.info('CategoriesPage', 'handleDeleteConfirm', 'Deleting category', {
+        budgetId: effectiveBudgetId,
         categoryId: categoryToDelete.id,
         name: categoryToDelete.name
       });
       
-      await deleteCategory(currentUser.uid, categoryToDelete.id);
+      await deleteCategory(effectiveBudgetId, categoryToDelete.id);
       
-      logger.info('CategoriesPage', 'handleDeleteConfirm', 'Category deleted successfully');
+      logger.info('CategoriesPage', 'handleDeleteConfirm', 'Category deleted successfully', {
+        budgetId: effectiveBudgetId
+      });
       
       // Close confirmation dialog
       setShowDeleteConfirm(false);
@@ -363,7 +440,8 @@ function CategoriesPage() {
     } catch (err) {
       logger.error('CategoriesPage', 'handleDeleteConfirm', 'Error deleting category', {
         error: err.message,
-        stack: err.stack
+        stack: err.stack,
+        budgetId: effectiveBudgetId
       });
       showError('Échec de la suppression de la catégorie');
       setShowDeleteConfirm(false);
@@ -400,6 +478,20 @@ function CategoriesPage() {
       });
     }
   }, [categories, sortAlphabetically]);
+
+  // If no budget is selected, show a message
+  if (!effectiveBudgetId) {
+    return (
+      <div className="page-container">
+        <div className="category-page-header">
+          <h1>Catégories</h1>
+        </div>
+        <div className="empty-state">
+          <p>Veuillez sélectionner un budget pour afficher ses catégories.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
@@ -556,6 +648,9 @@ function CategoriesPage() {
       ) : (
         <div>
           <p className="category-count">{categories.length} catégorie(s) trouvée(s)</p>
+          {selectedBudget && (
+            <p className="selected-budget">Budget: {selectedBudget.name}</p>
+          )}
           <ul className="category-list">
             {sortedCategories.map(category => {
               const categoryColor = category.color || defaultNewCategoryColor;

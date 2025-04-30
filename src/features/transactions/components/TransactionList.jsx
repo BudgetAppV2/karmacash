@@ -7,6 +7,7 @@ import { formatCurrency, formatRelativeDate } from '../../../utils/formatters';
 import { deleteTransaction } from '../../../services/firebase/transactions';
 import { getCategory } from '../../../services/firebase/categories';
 import { useToast } from '../../../contexts/ToastContext';
+import { useBudgets } from '../../../contexts/BudgetContext';
 import logger from '../../../services/logger';
 import './TransactionList.css';
 
@@ -21,6 +22,7 @@ import './TransactionList.css';
  */
 const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' }) => {
   const { showSuccess, showError } = useToast();
+  const { selectedBudgetId } = useBudgets();
   const [categoryMap, setCategoryMap] = useState({});
   const [expandedDay, setExpandedDay] = useState(null);
   const [swipedTransactionId, setSwipedTransactionId] = useState(null);
@@ -46,13 +48,20 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
   // Fetch category details for all transactions
   useEffect(() => {
     const fetchCategoryDetails = async () => {
-      // Make sure we have transactions and we can get the userId
-      if (!transactions.length || !transactions[0].userId) {
-        logger.warn('TransactionList', 'fetchCategoryDetails', 'No transactions or missing userId');
+      // Make sure we have transactions and a selected budget
+      if (!transactions.length || !selectedBudgetId) {
+        logger.warn('TransactionList', 'fetchCategoryDetails', 'No transactions or missing budgetId', {
+          transactionCount: transactions.length,
+          selectedBudgetId
+        });
         return;
       }
       
-      const userId = transactions[0].userId;
+      console.log(">>> TRANSACTION LIST DEBUG: Fetching categories for transactions", {
+        transactionCount: transactions.length,
+        budgetId: selectedBudgetId,
+        sampleTransaction: transactions[0]
+      });
       
       const uniqueCategoryIds = [...new Set(
         transactions
@@ -60,32 +69,65 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
           .map(t => t.categoryId)
       )];
       
+      console.log(">>> TRANSACTION LIST DEBUG: Unique category IDs to fetch:", uniqueCategoryIds);
+      
       const categoryDetailsMap = {};
       
       await Promise.all(
         uniqueCategoryIds.map(async (categoryId) => {
           try {
-            const category = await getCategory(userId, categoryId);
+            console.log(">>> TRANSACTION LIST DEBUG: Fetching category details", {
+              budgetId: selectedBudgetId,
+              categoryId
+            });
+            
+            const category = await getCategory(selectedBudgetId, categoryId);
+            
+            console.log(">>> TRANSACTION LIST DEBUG: Category fetch result", {
+              categoryId,
+              category: category ? { 
+                id: category.id, 
+                name: category.name 
+              } : 'not found'
+            });
+            
             if (category) {
               categoryDetailsMap[categoryId] = {
                 name: category.name,
                 color: category.color || '#919A7F'
               };
+            } else {
+              logger.warn('TransactionList', 'fetchCategoryDetails', 'Category not found', {
+                budgetId: selectedBudgetId,
+                categoryId
+              });
+              // Set a placeholder for missing categories
+              categoryDetailsMap[categoryId] = {
+                name: 'Catégorie supprimée',
+                color: '#919A7F'
+              };
             }
           } catch (error) {
             logger.error('TransactionList', 'fetchCategoryDetails', 'Error fetching category', {
-              userId,
+              budgetId: selectedBudgetId,
               categoryId,
               error: error.message
             });
+            // Set an error state for this category
+            categoryDetailsMap[categoryId] = {
+              name: 'Erreur de chargement',
+              color: '#919A7F'
+            };
           }
         })
       );
       
+      console.log(">>> TRANSACTION LIST DEBUG: Final category map:", categoryDetailsMap);
+      
       setCategoryMap(categoryDetailsMap);
     };
     
-    if (transactions.length > 0) {
+    if (transactions.length > 0 && selectedBudgetId) {
       fetchCategoryDetails();
       
       // Auto-expand the first day if there are transactions
@@ -100,7 +142,7 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
       
       return () => clearTimeout(timer);
     }
-  }, [transactions]);
+  }, [transactions, selectedBudgetId]);
   
   // Group transactions by day
   const groupedTransactions = transactions.reduce((groups, transaction) => {
@@ -229,23 +271,37 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
   const handleDeleteTransaction = async (transactionId) => {
     if (isDeleting) return;
     
+    if (!selectedBudgetId) {
+      showError('Aucun budget sélectionné');
+      return;
+    }
+    
     try {
       setIsDeleting(true);
       
-      // Get the transaction to find the userId
+      // Get the transaction for logging purposes
       const transaction = transactions.find(t => t.id === transactionId);
       if (!transaction) {
         throw new Error('Transaction not found');
       }
       
-      const userId = transaction.userId;
+      console.log(">>> TRANSACTION LIST DEBUG: Attempting to delete transaction:", {
+        transactionId,
+        budgetId: selectedBudgetId,
+        transaction: {
+          id: transaction.id,
+          description: transaction.description,
+          amount: transaction.amount,
+          categoryId: transaction.categoryId
+        }
+      });
       
       logger.info('TransactionList', 'handleDeleteTransaction', 'Deleting transaction', {
-        userId,
+        budgetId: selectedBudgetId,
         transactionId
       });
       
-      await deleteTransaction(userId, transactionId);
+      await deleteTransaction(selectedBudgetId, transactionId);
       
       logger.info('TransactionList', 'handleDeleteTransaction', 'Transaction deleted successfully');
       
@@ -257,8 +313,15 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
       
       showSuccess('Transaction supprimée avec succès');
     } catch (error) {
+      console.error(">>> TRANSACTION LIST ERROR: Failed to delete transaction:", {
+        error: error.message,
+        transactionId,
+        budgetId: selectedBudgetId
+      });
+      
       logger.error('TransactionList', 'handleDeleteTransaction', 'Error deleting transaction', {
         transactionId,
+        budgetId: selectedBudgetId,
         error: error.message
       });
       showError('Échec de la suppression de la transaction');
@@ -283,6 +346,13 @@ const TransactionList = ({ transactions, onTransactionDeleted, currency = 'CAD' 
   
   // Get category name for a transaction
   const getCategoryName = (transaction) => {
+    console.log(">>> TRANSACTION LIST DEBUG: Getting category name", {
+      transactionId: transaction.id,
+      categoryId: transaction.categoryId,
+      availableCategories: Object.keys(categoryMap),
+      foundCategory: transaction.categoryId ? categoryMap[transaction.categoryId] : undefined
+    });
+    
     if (transaction.categoryId && categoryMap[transaction.categoryId]) {
       return categoryMap[transaction.categoryId].name;
     }

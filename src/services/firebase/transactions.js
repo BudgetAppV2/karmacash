@@ -27,6 +27,13 @@ import logger from '../logger';
  */
 export const addTransaction = async (budgetId, userId, transactionData) => {
   try {
+    // Debug log the incoming parameters
+    console.log(">>> TRANSACTION SERVICE DEBUG: addTransaction called with:", {
+      budgetId,
+      userId,
+      transactionData: { ...transactionData, date: transactionData.date?.toISOString() }
+    });
+
     // Validate budgetId and userId are provided
     if (!budgetId) {
       const error = new Error('Budget ID is required');
@@ -36,6 +43,24 @@ export const addTransaction = async (budgetId, userId, transactionData) => {
 
     if (!userId) {
       const error = new Error('User ID is required');
+      error.code = 'invalid-argument';
+      throw error;
+    }
+
+    // Validate required transaction data
+    if (!transactionData || typeof transactionData !== 'object') {
+      console.error(">>> TRANSACTION SERVICE ERROR: Invalid transaction data:", transactionData);
+      const error = new Error('Transaction data is required and must be an object');
+      error.code = 'invalid-argument';
+      throw error;
+    }
+
+    // Validate required transaction fields
+    const requiredFields = ['type', 'categoryId', 'amount', 'description', 'date'];
+    const missingFields = requiredFields.filter(field => !transactionData[field]);
+    if (missingFields.length > 0) {
+      console.error(">>> TRANSACTION SERVICE ERROR: Missing required fields:", missingFields);
+      const error = new Error(`Missing required transaction fields: ${missingFields.join(', ')}`);
       error.code = 'invalid-argument';
       throw error;
     }
@@ -62,11 +87,21 @@ export const addTransaction = async (budgetId, userId, transactionData) => {
       budgetId: budgetId,
       createdByUserId: userId,
       lastEditedByUserId: null, // Initially null since it's a new transaction
+      // Add required fields for security rules compliance
+      isRecurringInstance: false, // Standard transactions are not recurring instances
+      recurringRuleId: null,      // Standard transactions have no recurring rule
       ...transactionData,
       date: formattedDate,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
+
+    console.log(">>> TRANSACTION SERVICE DEBUG: Final data to be written:", {
+      ...finalData,
+      date: finalData.date instanceof Timestamp ? finalData.date.toDate().toISOString() : finalData.date,
+      createdAt: 'serverTimestamp()',
+      updatedAt: 'serverTimestamp()'
+    });
     
     // Log the complete data object being sent to Firestore
     logger.debug('TransactionService', 'addTransaction', 'Final data object being sent', { 
@@ -122,6 +157,16 @@ export const addTransaction = async (budgetId, userId, transactionData) => {
       // Convert Firebase error code format (auth/invalid-email) to our format (invalid-email)
       error.code = error.code.split('/')[1] || error.code;
     }
+    
+    console.error(">>> TRANSACTION SERVICE ERROR:", error.message, {
+      code: error.code,
+      budgetId,
+      userId,
+      transactionData: transactionData ? { 
+        ...transactionData, 
+        date: transactionData.date?.toISOString() 
+      } : undefined
+    });
     
     logger.error('TransactionService', 'addTransaction', 'Failed to add transaction', {
       error: error.message,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { useBudgets } from '../../contexts/BudgetContext';
 import { 
   getRecurringRules, 
   deleteRecurringRule, 
@@ -22,6 +23,7 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { showSuccess, showError } = useToast();
   const { currentUser } = useAuth();
+  const { selectedBudgetId } = useBudgets();
 
   // Map frequency types to display text
   const getFrequencyText = (frequency) => {
@@ -41,12 +43,17 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
   };
 
   const handleConfirmDelete = async () => {
+    if (!selectedBudgetId) {
+      showError('Aucun budget sélectionné');
+      return;
+    }
+
     setIsLoading(true);
     setIsConfirmOpen(false);
 
     try {
       logger.info('RecurringRuleItem', 'handleConfirmDelete', 'Deleting recurring rule and instances', {
-        userId: currentUser.uid,
+        budgetId: selectedBudgetId,
         ruleId: rule.id
       });
 
@@ -55,7 +62,8 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
 
       // Prepare parameters with emulator workaround
       const params = { 
-        ruleId: rule.id, 
+        ruleId: rule.id,
+        budgetId: selectedBudgetId,
         action: 'delete' 
       };
 
@@ -63,14 +71,20 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         params.emulatorUserId = currentUser.uid;
         logger.debug('RecurringRuleItem', 'handleConfirmDelete', 'Adding emulatorUserId for development', {
-          emulatorUserId: currentUser.uid
+          emulatorUserId: currentUser.uid,
+          budgetId: selectedBudgetId
         });
       }
+
+      console.log(">>> RECURRING RULE DEBUG: Calling manageRecurringInstances for delete with params:", {
+        ...params,
+        emulatorUserId: undefined  // Don't log actual emulatorUserId
+      });
 
       await manageInstances(params);
 
       // If successful, delete the rule document itself
-      const ruleRef = doc(db, 'users', currentUser.uid, 'recurringRules', rule.id);
+      const ruleRef = doc(db, `budgets/${selectedBudgetId}/recurringRules`, rule.id);
       await deleteDoc(ruleRef);
 
       // Success feedback
@@ -84,7 +98,7 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
       logger.error('RecurringRuleItem', 'handleConfirmDelete', 'Error deleting recurring rule', {
         error: error.message,
         stack: error.stack,
-        userId: currentUser?.uid,
+        budgetId: selectedBudgetId,
         ruleId: rule.id
       });
       showError('Échec de la suppression de la règle récurrente');
@@ -175,6 +189,7 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
 
 function RecurringRulesPage() {
   const { currentUser } = useAuth();
+  const { selectedBudgetId } = useBudgets();
   const { showSuccess, showError } = useToast();
   const [recurringRules, setRecurringRules] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -188,40 +203,54 @@ function RecurringRulesPage() {
 
   // Fetch recurring rules
   const fetchRecurringRules = useCallback(async () => {
-    if (!currentUser) return;
+    if (!currentUser || !selectedBudgetId) {
+      setLoading(false);
+      setRecurringRules([]);
+      if (!selectedBudgetId) {
+        setError('Veuillez sélectionner un budget');
+      }
+      return;
+    }
     
     setLoading(true);
     setError(null);
     
     try {
+      console.log(">>> RECURRING RULES DEBUG: Fetching rules with budgetId:", selectedBudgetId);
+      
       logger.info('RecurringRulesPage', 'fetchRecurringRules', 'Fetching recurring rules', {
-        userId: currentUser.uid
+        budgetId: selectedBudgetId
       });
       
-      const rules = await getRecurringRules(currentUser.uid);
+      const rules = await getRecurringRules(selectedBudgetId);
       setRecurringRules(rules);
       
       logger.debug('RecurringRulesPage', 'fetchRecurringRules', 'Rules fetched successfully', {
-        count: rules.length
+        count: rules.length,
+        budgetId: selectedBudgetId
       });
     } catch (err) {
+      console.error(">>> RECURRING RULES ERROR: Failed to fetch rules:", {
+        error: err.message,
+        budgetId: selectedBudgetId
+      });
+      
       logger.error('RecurringRulesPage', 'fetchRecurringRules', 'Error fetching recurring rules', {
         error: err.message,
-        stack: err.stack
+        stack: err.stack,
+        budgetId: selectedBudgetId
       });
       setError('Failed to load recurring rules. Please try again later.');
       showError('Échec du chargement des règles récurrentes');
     } finally {
       setLoading(false);
     }
-  }, [currentUser, showError]);
+  }, [currentUser, selectedBudgetId, showError]);
 
   // Fetch rules when component mounts, user changes, or refreshKey changes
   useEffect(() => {
-    if (currentUser) {
-      fetchRecurringRules();
-    }
-  }, [currentUser, fetchRecurringRules, refreshKey]);
+    fetchRecurringRules();
+  }, [fetchRecurringRules, refreshKey]);
 
   // Force refresh function
   const forceRefresh = () => {
@@ -243,13 +272,19 @@ function RecurringRulesPage() {
 
   // Handle toggle active status
   const handleToggleActive = async (ruleId, active) => {
+    if (!selectedBudgetId) {
+      showError('Aucun budget sélectionné');
+      return;
+    }
+    
     try {
       logger.info('RecurringRulesPage', 'handleToggleActive', 'Toggling recurring rule active state', {
+        budgetId: selectedBudgetId,
         ruleId,
         active
       });
       
-      await toggleRecurringRuleActive(currentUser.uid, ruleId, active);
+      await toggleRecurringRuleActive(selectedBudgetId, ruleId, currentUser.uid, active);
       
       // Update the rule in the state
       setRecurringRules(prevRules => 
@@ -266,6 +301,7 @@ function RecurringRulesPage() {
       logger.error('RecurringRulesPage', 'handleToggleActive', 'Error toggling recurring rule active state', {
         error: err.message,
         stack: err.stack,
+        budgetId: selectedBudgetId,
         ruleId
       });
       showError(`Échec de la ${active ? 'activation' : 'désactivation'} de la règle récurrente`);
@@ -286,6 +322,20 @@ function RecurringRulesPage() {
     setRuleToEdit(null);
     forceRefresh();
   };
+
+  // If no budget is selected, show a message
+  if (!selectedBudgetId) {
+    return (
+      <div className="page-container">
+        <div className="recurring-page-header">
+          <h1>Règles de récurrence</h1>
+        </div>
+        <div className="empty-state">
+          <p>Veuillez sélectionner un budget pour afficher les règles récurrentes.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Render the component
   return (

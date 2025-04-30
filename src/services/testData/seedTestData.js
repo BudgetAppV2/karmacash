@@ -8,13 +8,46 @@ import {
   serverTimestamp,  
   getDocs,  
   query,  
-  limit  
+  limit,
+  setDoc,
+  getDoc
 } from 'firebase/firestore';  
 import { db } from '../firebase/firebaseInit';
 import logger from '../logger';
 
-// --- Default Categories (Based on Bible [B3.1], [B3.6]) ---  
-// Ensure these match the structure expected by your app and rules  
+// Enhanced logging wrapper for better debugging
+const debugLog = {
+  info: (operation, message, data = {}) => {
+    console.log(`[${operation}] ${message}`, data);
+    logger.info('SeedScript', operation, message, data);
+  },
+  error: (operation, message, error) => {
+    console.error(`[${operation}] ERROR: ${message}`, {
+      error: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    logger.error('SeedScript', operation, message, {
+      error: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+  },
+  debug: (operation, message, data = {}) => {
+    console.debug(`[${operation}] DEBUG: ${message}`, data);
+    logger.debug('SeedScript', operation, message, data);
+  }
+};
+
+// Default budget template
+const defaultBudget = {
+  name: 'Personal Budget',
+  currency: 'CAD',
+  description: 'My personal budget for tracking expenses and income',
+  version: 1  // Required by rules
+};
+
+// Default categories (Based on Bible [B3.1], [B3.6])
 const defaultCategories = [  
   // Expenses  
   { name: 'Épicerie', type: 'expense', color: '#7FB069', order: 1, isDefault: true }, // Palette v5 - Brighter Leaf Green
@@ -34,178 +67,382 @@ const defaultCategories = [
   { name: 'Autres Revenus', type: 'income', color: '#C8AD9B', order: 103, isDefault: true },   // Palette v5 - Neutral Tan/Beige
 ];
 
-/**  
- * Initializes default categories for a specific user if they don't exist.  
- * Uses a batch write for efficiency.  
- * (This is similar to the function likely in categories.js, but adapted for seeding)  
- * @param {string} userId - The ID of the user to initialize categories for.  
- * @returns {Promise<boolean>} - True if categories were initialized, false otherwise.  
- */  
-export const seedDefaultCategoriesForUser = async (userId) => {  
-  const operation = 'seedDefaultCategoriesForUser';  
-  logger.info('SeedScript', operation, 'Starting default category seeding check', { userId });
+// Sample recurring rule template
+const sampleRecurringRule = {
+  name: 'Monthly Rent',
+  type: 'expense',
+  amount: 1200,
+  frequency: 'monthly',
+  startDate: new Date(),
+  description: 'Regular monthly rent payment',
+  categoryId: '', // Will be set during seeding
+  isActive: true
+};
 
-  if (!userId) {  
-    logger.error('SeedScript', operation, 'User ID is required for seeding categories.');  
-    return false;  
+/**
+ * Creates a new budget and establishes user membership
+ * @param {string} userId - The ID of the user who will own the budget
+ * @returns {Promise<string>} - The ID of the created budget
+ */
+export const createBudgetWithOwner = async (userId) => {
+  const operation = 'createBudgetWithOwner';
+  debugLog.info(operation, 'Starting budget creation process', { userId });
+
+  try {
+    debugLog.debug(operation, 'Creating batch write');
+    const batch = writeBatch(db);
+    
+    // Create the budget document
+    const budgetDocRef = doc(collection(db, 'budgets'));
+    const budgetId = budgetDocRef.id;
+
+    // Get user info for membership data
+    const userDocRef = doc(db, `users/${userId}`);
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      throw new Error('User document not found');
+    }
+    const userData = userDoc.data();
+    
+    // Prepare budget document data
+    const budgetData = {
+      ...defaultBudget,
+      name: defaultBudget.name,  // Explicit string
+      currency: defaultBudget.currency,  // Explicit string
+      version: 1,  // Explicit number
+      ownerId: userId,  // Required string
+      members: {  // Required map
+        [userId]: {  // Member entry with required fields
+          role: 'owner',
+          displayName: userData.displayName || 'User',
+          email: userData.email || 'user@example.com',
+          joinedAt: serverTimestamp()
+        }
+      },
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    
+    // Log complete budget data for rule validation
+    debugLog.debug(operation, 'Budget document data (for rule L70)', { 
+      budgetId, 
+      budgetData: JSON.parse(JSON.stringify({
+        ...budgetData,
+        createdAt: 'serverTimestamp()',
+        updatedAt: 'serverTimestamp()',
+        'members[userId].joinedAt': 'serverTimestamp()'
+      })),
+      ruleChecks: {
+        hasName: typeof budgetData.name === 'string' && budgetData.name.length > 0,
+        nameLength: budgetData.name.length <= 100,
+        hasOwnerId: typeof budgetData.ownerId === 'string',
+        hasMembers: budgetData.members instanceof Object,
+        hasCurrency: typeof budgetData.currency === 'string',
+        hasVersion: typeof budgetData.version === 'number',
+        memberHasRole: budgetData.members[userId]?.role === 'owner',
+        memberHasDisplayName: typeof budgetData.members[userId]?.displayName === 'string',
+        memberHasEmail: typeof budgetData.members[userId]?.email === 'string',
+        memberHasJoinedAt: budgetData.members[userId]?.joinedAt !== undefined
+      }
+    });
+    
+    batch.set(budgetDocRef, budgetData);
+    
+    // Create the user's budget membership link
+    const membershipDocRef = doc(db, `users/${userId}/budgetMemberships/${budgetId}`);
+    const membershipData = {
+      role: 'owner',  // Required string
+      budgetId,  // Required string matching path
+      ownerId: userId,  // Required string matching auth
+      budgetName: budgetData.name,  // Required string
+      currency: budgetData.currency,  // Required string
+      joinedAt: serverTimestamp(),  // Required timestamp
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    
+    // Log complete membership data for rule validation
+    debugLog.debug(operation, 'Membership document data (for rule L199)', { 
+      userId, 
+      budgetId, 
+      membershipData: JSON.parse(JSON.stringify({
+        ...membershipData,
+        joinedAt: 'serverTimestamp()',
+        createdAt: 'serverTimestamp()',
+        updatedAt: 'serverTimestamp()'
+      })),
+      ruleChecks: {
+        hasRole: membershipData.role === 'owner',
+        budgetIdMatches: membershipData.budgetId === budgetId,
+        ownerIdMatches: membershipData.ownerId === userId,
+        hasBudgetName: typeof membershipData.budgetName === 'string' && membershipData.budgetName.length > 0,
+        hasCurrency: typeof membershipData.currency === 'string',
+        hasJoinedAt: membershipData.joinedAt !== undefined
+      }
+    });
+    
+    batch.set(membershipDocRef, membershipData);
+    
+    debugLog.info(operation, 'Attempting to commit batch');
+    await batch.commit();
+    debugLog.info(operation, 'Batch committed successfully', { budgetId, userId });
+    
+    return budgetId;
+  } catch (error) {
+    debugLog.error(operation, 'Failed to create budget', error);
+    throw error;
   }
+};
 
-  const categoriesPath = `users/${userId}/categories`;  
-  const categoriesCollectionRef = collection(db, categoriesPath);
+/**
+ * Seeds default categories for a budget
+ * @param {string} budgetId - The ID of the budget to seed categories for
+ * @param {string} userId - The ID of the user who created the categories
+ * @returns {Promise<Array>} - Array of created category IDs
+ */
+export const seedDefaultCategoriesForBudget = async (budgetId, userId) => {
+  const operation = 'seedDefaultCategoriesForBudget';
+  debugLog.info(operation, 'Starting category seeding process', { budgetId, userId });
 
-  try {  
-    // Check if categories already exist for this user  
-    const q = query(categoriesCollectionRef, limit(1));  
-    const existingCategoriesSnapshot = await getDocs(q);
+  try {
+    // Check if categories already exist
+    const categoriesPath = `budgets/${budgetId}/categories`;
+    debugLog.debug(operation, 'Checking for existing categories', { categoriesPath });
+    
+    const categoriesCollectionRef = collection(db, categoriesPath);
+    const q = query(categoriesCollectionRef, limit(1));
+    const existingSnapshot = await getDocs(q);
 
-    if (!existingCategoriesSnapshot.empty) {  
-      logger.info('SeedScript', operation, 'Categories already exist for user, skipping seeding.', { userId });  
-      return false; // Categories already seeded  
+    if (!existingSnapshot.empty) {
+      debugLog.info(operation, 'Categories already exist, fetching all', { budgetId });
+      const fullSnapshot = await getDocs(categoriesCollectionRef);
+      const categoryIds = fullSnapshot.docs.map(doc => doc.id);
+      debugLog.info(operation, 'Found existing categories', { 
+        budgetId, 
+        count: categoryIds.length 
+      });
+      return categoryIds;
     }
 
-    logger.info('SeedScript', operation, 'No categories found, proceeding with seeding.', { userId });
-
-    // Create a new batch  
+    debugLog.info(operation, 'No existing categories found, creating new ones', { budgetId });
     const batch = writeBatch(db);
+    const categoryIds = [];
 
-    // Add each default category to the batch  
-    defaultCategories.forEach((category) => {  
-      const categoryDocRef = doc(categoriesCollectionRef); // Auto-generate ID  
-      batch.set(categoryDocRef, {  
-        ...category,  
-        userId: userId, // IMPORTANT: Include userId in the document data  
-        createdAt: serverTimestamp(),  
-        updatedAt: serverTimestamp(),  
-      });  
+    debugLog.debug(operation, 'Preparing categories batch', { 
+      categoryCount: defaultCategories.length 
+    });
+    
+    for (const category of defaultCategories) {
+      const categoryDocRef = doc(categoriesCollectionRef);
+      categoryIds.push(categoryDocRef.id);
+      
+      const categoryData = {
+        ...category,
+        budgetId,
+        createdByUserId: userId,
+        lastEditedByUserId: userId,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      
+      // Log the first category data for debugging
+      if (categoryIds.length === 1) {
+        debugLog.debug(operation, 'First category data payload', { 
+          categoryId: categoryDocRef.id,
+          categoryData: JSON.parse(JSON.stringify({
+            ...categoryData,
+            createdAt: 'serverTimestamp()',
+            updatedAt: 'serverTimestamp()'
+          })),
+          ruleChecks: {
+            hasCreatedByUserId: !!categoryData.createdByUserId,
+            hasBudgetId: categoryData.budgetId === budgetId,
+            hasName: typeof categoryData.name === 'string',
+            nameLength: categoryData.name.length > 0 && categoryData.name.length <= 50,
+            hasType: categoryData.type in ['expense', 'income'],
+            hasTimestamps: categoryData.createdAt !== undefined && categoryData.updatedAt !== undefined
+          }
+        });
+      }
+      
+      batch.set(categoryDocRef, categoryData);
+    }
+
+    debugLog.info(operation, 'Attempting to commit categories batch');
+    await batch.commit();
+    debugLog.info(operation, 'Categories batch committed successfully', { 
+      budgetId, 
+      count: categoryIds.length 
     });
 
-    // Commit the batch  
-    await batch.commit();  
-    logger.info('SeedScript', operation, 'Default categories batch committed successfully.', { userId, count: defaultCategories.length });  
-    return true;
-
-  } catch (error) {  
-    logger.error('SeedScript', operation, 'Failed to seed default categories', {  
-      userId,  
-      error: error.message,  
-      errorCode: error.code,  
-      stack: error.stack,  
-    });  
-    throw error; // Re-throw the error after logging  
-  }  
+    return categoryIds;
+  } catch (error) {
+    debugLog.error(operation, 'Failed to seed categories', error);
+    throw error;
+  }
 };
 
-/**  
- * Seeds sample transactions for a specific user.  
- * Assumes default categories have been seeded first to get valid category IDs.  
- * @param {string} userId - The ID of the user to seed transactions for.  
- * @param {number} count - Number of sample transactions to create.  
- * @returns {Promise<void>}  
- */  
-export const seedSampleTransactionsForUser = async (userId, count = 10) => {  
-  const operation = 'seedSampleTransactionsForUser';  
-  logger.info('SeedScript', operation, `Starting sample transaction seeding for ${count} items`, { userId });
+/**
+ * Seeds sample transactions for a budget
+ * @param {string} budgetId - The budget ID to create transactions for
+ * @param {Array} categoryIds - Array of category IDs to use
+ * @param {number} count - Number of transactions to create
+ * @returns {Promise<Array>} - Array of created transaction IDs
+ */
+export const seedSampleTransactionsForBudget = async (budgetId, categoryIds, count = 15) => {
+  const operation = 'seedSampleTransactionsForBudget';
+  debugLog.info(operation, 'Starting transaction seeding process', { 
+    budgetId, 
+    count 
+  });
 
-  if (!userId) {  
-    logger.error('SeedScript', operation, 'User ID is required for seeding transactions.');  
-    return;  
-  }
-
-  try {  
-    // Fetch the user's actual categories to get valid IDs  
-    const categoriesPath = `users/${userId}/categories`;  
-    const categoriesCollectionRef = collection(db, categoriesPath);  
-    const categoriesSnapshot = await getDocs(categoriesCollectionRef);
-
-    if (categoriesSnapshot.empty) {  
-      logger.warn('SeedScript', operation, 'Cannot seed transactions: No categories found for user. Run seedDefaultCategoriesForUser first.', { userId });  
-      return;  
+  try {
+    if (!categoryIds?.length) {
+      const error = new Error('No category IDs provided for transaction seeding');
+      debugLog.error(operation, 'Validation failed', error);
+      throw error;
     }
 
-    const userCategories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));  
-    const expenseCategories = userCategories.filter(c => c.type === 'expense');  
-    const incomeCategories = userCategories.filter(c => c.type === 'income');
+    const batch = writeBatch(db);
+    const transactionIds = [];
+    const transactionsPath = `budgets/${budgetId}/transactions`;
 
-    if (expenseCategories.length === 0 || incomeCategories.length === 0) {  
-       logger.warn('SeedScript', operation, 'Cannot seed transactions: Missing expense or income categories.', { userId });  
-       return;  
-    }
+    debugLog.debug(operation, 'Preparing transactions batch', { 
+      count,
+      transactionsPath 
+    });
 
-    const batch = writeBatch(db);  
-    const transactionsPath = `users/${userId}/transactions`;  
-    const transactionsCollectionRef = collection(db, transactionsPath);
+    for (let i = 0; i < count; i++) {
+      const isExpense = Math.random() > 0.2;
+      const categoryId = categoryIds[Math.floor(Math.random() * categoryIds.length)];
+      const amount = isExpense
+        ? -(Math.floor(Math.random() * 15000 + 500) / 100)
+        : (Math.floor(Math.random() * 150000 + 20000) / 100);
 
-    for (let i = 0; i < count; i++) {  
-      const isExpense = Math.random() > 0.2; // 80% chance of expense  
-      const category = isExpense  
-        ? expenseCategories[Math.floor(Math.random() * expenseCategories.length)]  
-        : incomeCategories[Math.floor(Math.random() * incomeCategories.length)];
+      const date = new Date();
+      date.setDate(date.getDate() - Math.floor(Math.random() * 30));
 
-      const amount = isExpense  
-        ? -(Math.random() * 100 + 5).toFixed(2) // Expense between -5 and -105  
-        : (Math.random() * 500 + 50).toFixed(2); // Income between 50 and 550
+      const transactionDocRef = doc(collection(db, transactionsPath));
+      transactionIds.push(transactionDocRef.id);
 
-      // Generate a date within the last 30 days  
-      const dateOffset = Math.floor(Math.random() * 30);  
-      const transactionDate = new Date();  
-      transactionDate.setDate(transactionDate.getDate() - dateOffset);
-
-      const transactionData = {  
-        userId: userId, // IMPORTANT: Include userId  
-        categoryId: category.id,  
-        type: category.type,  
-        amount: parseFloat(amount),  
-        description: `Sample ${category.type} ${i + 1} (${category.name})`,  
-        date: Timestamp.fromDate(transactionDate), // Use Firestore Timestamp  
-        isRecurringInstance: false,  
-        recurringRuleId: null,  
-        createdAt: serverTimestamp(),  
-        updatedAt: serverTimestamp(),  
+      const transactionData = {
+        budgetId,
+        categoryId,
+        amount,
+        description: `Sample ${amount < 0 ? 'expense' : 'income'} ${i + 1}`,
+        date: Timestamp.fromDate(date),
+        isRecurringInstance: false,
+        recurringRuleId: null,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       };
 
-      // Add debug logging for each transaction being prepared
-      logger.debug('SeedScript', operation, `Preparing transaction ${i + 1} for batch`, {
-        index: i,
-        transactionData: JSON.parse(JSON.stringify(transactionData)) // Log the specific object
+      debugLog.debug(operation, `Preparing transaction ${i + 1}`, {
+        transactionId: transactionDocRef.id,
+        transactionData
       });
 
-      const transactionDocRef = doc(transactionsCollectionRef); // Auto-generate ID  
-      batch.set(transactionDocRef, transactionData);  
+      batch.set(transactionDocRef, transactionData);
     }
 
-    await batch.commit();  
-    logger.info('SeedScript', operation, `Sample transactions batch committed successfully.`, { userId, count });
+    debugLog.info(operation, 'Attempting to commit transactions batch');
+    await batch.commit();
+    debugLog.info(operation, 'Transactions batch committed successfully', {
+      budgetId,
+      count: transactionIds.length
+    });
 
-  } catch (error) {  
-    logger.error('SeedScript', operation, 'Failed to seed sample transactions', {  
-      userId,  
-      error: error.message,  
-      errorCode: error.code,  
-      stack: error.stack,  
-    });  
-    throw error;  
-  }  
+    return transactionIds;
+  } catch (error) {
+    debugLog.error(operation, 'Failed to seed transactions', error);
+    throw error;
+  }
 };
 
-/**  
- * Main seeding function - Call this to seed data for a user  
- * @param {string} userId - The user ID to seed data for  
- */  
-export const runSeedForUser = async (userId) => {  
-  const operation = 'runSeedForUser';  
-  logger.info('SeedScript', operation, 'Starting full seed process for user.', { userId });  
-  try {  
-    const categoriesSeeded = await seedDefaultCategoriesForUser(userId);  
-    if (categoriesSeeded || !categoriesSeeded) { // Proceed even if categories existed  
-      await seedSampleTransactionsForUser(userId, 15); // Seed 15 sample transactions  
-    }  
-    logger.info('SeedScript', operation, 'Full seed process completed for user.', { userId });  
-  } catch (error) {  
-    logger.error('SeedScript', operation, 'Full seed process failed for user.', { userId, error: error.message });  
-  }  
+/**
+ * Seeds a sample recurring rule for a budget
+ * @param {string} budgetId - The budget ID to create the rule for
+ * @param {string} categoryId - Category ID to use for the rule
+ * @returns {Promise<string>} - ID of the created rule
+ */
+export const seedSampleRecurringRule = async (budgetId, categoryId) => {
+  const operation = 'seedSampleRecurringRule';
+  debugLog.info(operation, 'Starting recurring rule creation', { budgetId });
+
+  try {
+    const ruleDocRef = doc(collection(db, `budgets/${budgetId}/recurringRules`));
+    
+    const ruleData = {
+      ...sampleRecurringRule,
+      budgetId,
+      categoryId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+
+    debugLog.debug(operation, 'Preparing recurring rule document', {
+      ruleId: ruleDocRef.id,
+      ruleData
+    });
+
+    debugLog.info(operation, 'Attempting to create recurring rule');
+    await setDoc(ruleDocRef, ruleData);
+    
+    debugLog.info(operation, 'Recurring rule created successfully', {
+      budgetId,
+      ruleId: ruleDocRef.id
+    });
+
+    return ruleDocRef.id;
+  } catch (error) {
+    debugLog.error(operation, 'Failed to create recurring rule', error);
+    throw error;
+  }
 };
 
-// Example of how you might call this (e.g., from a test script or a temporary button in dev)  
-// import { runSeedForUser } from './services/testData/seedTestData';  
-// const userIdToSeed = 'some_user_id';  
+/**
+ * Main seeding function - Creates a complete budget setup for a user
+ * @param {string} userId - The user ID to seed data for
+ */
+export const runSeedForUser = async (userId) => {
+  const operation = 'runSeedForUser';
+  debugLog.info(operation, 'Starting full seeding process', { userId });
+
+  try {
+    // Step 1: Create a new budget and establish ownership
+    debugLog.info(operation, 'Step 1: Creating budget and establishing ownership');
+    const budgetId = await createBudgetWithOwner(userId);
+
+    // Step 2: Seed default categories
+    debugLog.info(operation, 'Step 2: Seeding default categories', { budgetId });
+    const categoryIds = await seedDefaultCategoriesForBudget(budgetId, userId);
+
+    // Step 3: Seed sample transactions
+    debugLog.info(operation, 'Step 3: Seeding sample transactions', { 
+      budgetId,
+      categoryCount: categoryIds.length 
+    });
+    await seedSampleTransactionsForBudget(budgetId, categoryIds, 15);
+
+    // Step 4: Create a sample recurring rule
+    debugLog.info(operation, 'Step 4: Creating sample recurring rule');
+    const expenseCategory = categoryIds[0];
+    await seedSampleRecurringRule(budgetId, expenseCategory);
+
+    debugLog.info(operation, 'Full seeding process completed successfully', {
+      userId,
+      budgetId,
+      categoryCount: categoryIds.length
+    });
+
+    return { budgetId, categoryIds };
+  } catch (error) {
+    debugLog.error(operation, 'Full seeding process failed', error);
+    throw error;
+  }
+};
+
+// Example usage:
+// import { runSeedForUser } from './services/testData/seedTestData';
+// const userIdToSeed = 'some_user_id';
 // runSeedForUser(userIdToSeed); 

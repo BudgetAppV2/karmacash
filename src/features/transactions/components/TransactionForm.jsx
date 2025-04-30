@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
+import { useBudgets } from '../../../contexts/BudgetContext';
 import { getCategories, initializeDefaultCategories } from '../../../services/firebase/categories';
 import { addTransaction } from '../../../services/firebase/transactions';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +21,7 @@ import BottomSheet from '../../../components/ui/BottomSheet';
 const TransactionForm = ({ onSuccess }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { selectedBudgetId } = useBudgets();
   const { showSuccess, showError } = useToast();
   
   // Form state
@@ -41,7 +43,11 @@ const TransactionForm = ({ onSuccess }) => {
   // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
-      if (!currentUser) return;
+      if (!currentUser || !selectedBudgetId) {
+        setCategories([]);
+        setIsLoading(false);
+        return;
+      }
       
       setIsLoading(true);
       setError('');
@@ -51,17 +57,18 @@ const TransactionForm = ({ onSuccess }) => {
         logger.debug('Fetching categories', { 
           component: 'TransactionForm', 
           operation: 'fetchCategories',
-          userId: currentUser.uid 
+          budgetId: selectedBudgetId 
         });
         
-        const fetchedCategories = await getCategories(currentUser.uid);
+        console.log(">>> CLIENT DEBUG: Attempting getCategories with selectedBudgetId:", selectedBudgetId);
+        const fetchedCategories = await getCategories(selectedBudgetId);
         
         // Check if categories exist
         if (!fetchedCategories || fetchedCategories.length === 0) {
-          logger.warn('No categories found for user', { 
+          logger.warn('No categories found for budget', { 
             component: 'TransactionForm', 
             operation: 'fetchCategories',
-            userId: currentUser.uid 
+            budgetId: selectedBudgetId 
           });
           
           setError('Erreur lors du chargement des catégories');
@@ -91,7 +98,7 @@ const TransactionForm = ({ onSuccess }) => {
         logger.error('Error fetching categories', { 
           component: 'TransactionForm', 
           operation: 'fetchCategories',
-          userId: currentUser.uid,
+          budgetId: selectedBudgetId,
           error: error.message
         });
         setError('Erreur lors du chargement des catégories');
@@ -103,22 +110,29 @@ const TransactionForm = ({ onSuccess }) => {
       }
     };
     
-    if (currentUser) {
-      fetchCategories();
-    }
-  }, [currentUser, showError]);
+    fetchCategories();
+  }, [currentUser, selectedBudgetId, showError]);
   
   // Handle initialization of default categories
   const handleInitializeCategories = async () => {
+    if (!selectedBudgetId) {
+      showError('Aucun budget sélectionné');
+      return;
+    }
+    
     try {
       setIsLoading(true);
       setError('');
       
-      logger.info('TransactionForm', 'handleInitializeCategories', 'Initializing default categories');
-      await initializeDefaultCategories(currentUser.uid);
+      logger.info('TransactionForm', 'handleInitializeCategories', 'Initializing default categories', {
+        budgetId: selectedBudgetId
+      });
+      
+      await initializeDefaultCategories(selectedBudgetId);
       
       // After initialization, fetch categories again
-      const fetchedCategories = await getCategories(currentUser.uid);
+      console.log(">>> CLIENT DEBUG: Attempting getCategories after initialization with selectedBudgetId:", selectedBudgetId);
+      const fetchedCategories = await getCategories(selectedBudgetId);
       setCategories(fetchedCategories);
       
       // Set default category if available
@@ -167,10 +181,10 @@ const TransactionForm = ({ onSuccess }) => {
       return;
     }
     
-    // Check if user is authenticated
-    if (!currentUser || !currentUser.uid) {
-      setError('Vous devez être connecté pour ajouter une transaction');
-      showError('Veuillez vous connecter à nouveau');
+    // Check if user is authenticated and budget is selected
+    if (!currentUser || !selectedBudgetId) {
+      setError('Vous devez être connecté et avoir un budget sélectionné pour ajouter une transaction');
+      showError('Veuillez vous connecter à nouveau ou sélectionner un budget');
       return;
     }
     
@@ -179,7 +193,7 @@ const TransactionForm = ({ onSuccess }) => {
     
     try {
       logger.debug('TransactionForm', 'handleSubmit', 'Adding transaction', { 
-        type, categoryId, amount, date, userId: currentUser.uid 
+        type, categoryId, amount, date, budgetId: selectedBudgetId, userId: currentUser.uid 
       });
       
       // Format data
@@ -194,8 +208,8 @@ const TransactionForm = ({ onSuccess }) => {
         date: new Date(date)
       };
       
-      // Save transaction
-      await addTransaction(currentUser.uid, transactionData);
+      // Save transaction - Note the correct parameter order: budgetId, userId, transactionData
+      await addTransaction(selectedBudgetId, currentUser.uid, transactionData);
       
       logger.info('TransactionForm', 'handleSubmit', 'Transaction added successfully');
       showSuccess('Transaction ajoutée avec succès');
@@ -214,7 +228,8 @@ const TransactionForm = ({ onSuccess }) => {
       logger.error('TransactionForm', 'handleSubmit', 'Error adding transaction', { 
         error: error.message,
         code: error.code,
-        userId: currentUser?.uid 
+        userId: currentUser?.uid,
+        budgetId: selectedBudgetId
       });
       
       // Handle specific error cases

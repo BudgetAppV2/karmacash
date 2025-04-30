@@ -19,6 +19,26 @@ import {
 import { db } from '../services/firebase/firebaseInit';
 import logger from '../services/logger';
 
+// Debug logging wrapper
+const debugLog = {
+  info: (operation, message, data = {}) => {
+    console.log(`[SeedTestData:${operation}] ${message}`, data);
+    logger.info('SeedTestData', operation, message, data);
+  },
+  error: (operation, message, error) => {
+    console.error(`[SeedTestData:${operation}] ERROR: ${message}`, {
+      error: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    logger.error('SeedTestData', operation, message, {
+      error: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+  }
+};
+
 // Default categories for testing
 const defaultCategories = [
   // Expenses  
@@ -44,22 +64,34 @@ const defaultCategories = [
  */
 export const seedTestCategories = async (userId) => {
   try {
-    logger.info('SeedTestData', 'seedTestCategories', 'Seeding test categories', { userId });
+    debugLog.info('seedTestCategories', 'Starting category seeding', { userId });
+    
+    // Debug: Log the path we're about to query
+    const categoriesPath = `users/${userId}/categories`;
+    debugLog.info('seedTestCategories', 'About to query categories at path', { 
+      categoriesPath,
+      collectionRef: collection(db, categoriesPath).path
+    });
     
     // Check for existing categories in user's subcollection
-    const categoriesPath = `users/${userId}/categories`;
     const categoriesCollectionRef = collection(db, categoriesPath);
     const q = query(categoriesCollectionRef, limit(1));
+    
+    debugLog.info('seedTestCategories', 'Executing categories query', { 
+      query: q,
+      queryPath: q.path
+    });
+    
     const existingSnapshot = await getDocs(q);
     
     // If categories exist, return their IDs
     if (!existingSnapshot.empty) {
-      logger.info('SeedTestData', 'seedTestCategories', 'User already has categories, fetching all', { userId });
+      debugLog.info('seedTestCategories', 'User already has categories, fetching all', { userId });
       
       const fullSnapshot = await getDocs(categoriesCollectionRef);
       const categoryIds = fullSnapshot.docs.map(doc => doc.id);
       
-      logger.info('SeedTestData', 'seedTestCategories', 'Found existing categories', { 
+      debugLog.info('seedTestCategories', 'Found existing categories', { 
         userId, count: categoryIds.length 
       });
       
@@ -67,7 +99,7 @@ export const seedTestCategories = async (userId) => {
     }
     
     // Create categories using batch write
-    logger.info('SeedTestData', 'seedTestCategories', 'Creating new test categories', { userId });
+    debugLog.info('seedTestCategories', 'Creating new test categories', { userId });
     
     const batch = writeBatch(db);
     const categoryIds = [];
@@ -88,13 +120,13 @@ export const seedTestCategories = async (userId) => {
     // Commit the batch
     await batch.commit();
     
-    logger.info('SeedTestData', 'seedTestCategories', 'Categories created successfully', { 
+    debugLog.info('seedTestCategories', 'Categories created successfully', { 
       userId, count: categoryIds.length 
     });
     
     return categoryIds;
   } catch (error) {
-    logger.error('SeedTestData', 'seedTestCategories', 'Failed to seed categories', {
+    debugLog.error('seedTestCategories', 'Failed to seed categories', {
       userId,
       error: error.message,
       stack: error.stack
@@ -112,7 +144,7 @@ export const seedTestCategories = async (userId) => {
  */
 export const seedTestTransactions = async (userId, categoryIds, count = 30) => {
   try {
-    logger.info('SeedTestData', 'seedTestTransactions', 'Seeding test transactions', { 
+    debugLog.info('seedTestTransactions', 'Seeding test transactions', { 
       userId, count 
     });
     
@@ -159,7 +191,7 @@ export const seedTestTransactions = async (userId, categoryIds, count = 30) => {
       };
       
       // Log detailed debugging information for each transaction
-      logger.debug('SeedTestData', 'seedTestTransactions', `Preparing transaction ${i + 1} for batch`, {
+      debugLog.info('seedTestTransactions', `Preparing transaction ${i + 1} for batch`, {
         index: i,
         transactionData: JSON.parse(JSON.stringify(transactionData)) // Log the complete object
       });
@@ -168,19 +200,19 @@ export const seedTestTransactions = async (userId, categoryIds, count = 30) => {
     }
     
     // Commit the batch
-    logger.info('SeedTestData', 'seedTestTransactions', 'Committing transaction batch', { 
+    debugLog.info('seedTestTransactions', 'Committing transaction batch', { 
       userId, count: transactionIds.length 
     });
     
     await batch.commit();
     
-    logger.info('SeedTestData', 'seedTestTransactions', 'Transactions created successfully', { 
+    debugLog.info('seedTestTransactions', 'Transactions created successfully', { 
       userId, count: transactionIds.length 
     });
     
     return transactionIds;
   } catch (error) {
-    logger.error('SeedTestData', 'seedTestTransactions', 'Failed to seed transactions', {
+    debugLog.error('seedTestTransactions', 'Failed to seed transactions', {
       userId,
       count,
       error: error.message,
@@ -198,7 +230,7 @@ export const seedTestTransactions = async (userId, categoryIds, count = 30) => {
  */
 const seedTestData = async (userId, transactionCount = 30) => {
   try {
-    logger.info('SeedTestData', 'seedTestData', 'Starting full test data seeding', { 
+    debugLog.info('seedTestData', 'Starting full test data seeding', { 
       userId, transactionCount 
     });
     
@@ -208,13 +240,13 @@ const seedTestData = async (userId, transactionCount = 30) => {
     // Step 2: Seed transactions
     const transactionIds = await seedTestTransactions(userId, categoryIds, transactionCount);
     
-    logger.info('SeedTestData', 'seedTestData', 'Test data seeding completed', { 
+    debugLog.info('seedTestData', 'Test data seeding completed', { 
       userId, categoryCount: categoryIds.length, transactionCount: transactionIds.length 
     });
     
     return { categoryIds, transactionIds };
   } catch (error) {
-    logger.error('SeedTestData', 'seedTestData', 'Failed to seed test data', {
+    debugLog.error('seedTestData', 'Failed to seed test data', {
       userId,
       error: error.message,
       stack: error.stack

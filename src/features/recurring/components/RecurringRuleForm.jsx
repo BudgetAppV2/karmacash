@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
+import { useBudgets } from '../../../contexts/BudgetContext';
 import { getCategories } from '../../../services/firebase/categories';
 import { 
   addRecurringRule, 
@@ -147,6 +148,7 @@ function RecurringRuleForm({
   onSuccess 
 }) {
   const { currentUser } = useAuth();
+  const { selectedBudgetId } = useBudgets();
   const { showSuccess, showError } = useToast();
   
   // Form state
@@ -173,12 +175,16 @@ function RecurringRuleForm({
   
   // Get categories for the form
   const fetchCategories = useCallback(async () => {
-    if (!currentUser) return;
+    if (!currentUser || !selectedBudgetId) {
+      setCategoriesLoading(false);
+      return;
+    }
     
     setCategoriesLoading(true);
     
     try {
-      const fetchedCategories = await getCategories(currentUser.uid);
+      console.log(">>> RECURRING RULE FORM DEBUG: Fetching categories with budgetId:", selectedBudgetId);
+      const fetchedCategories = await getCategories(selectedBudgetId);
       setCategories(fetchedCategories);
       
       // If we're not in edit mode and there are categories, select the first one
@@ -188,13 +194,14 @@ function RecurringRuleForm({
     } catch (err) {
       logger.error('RecurringRuleForm', 'fetchCategories', 'Error fetching categories', {
         error: err.message,
-        stack: err.stack
+        stack: err.stack,
+        budgetId: selectedBudgetId
       });
       showError('Échec du chargement des catégories');
     } finally {
       setCategoriesLoading(false);
     }
-  }, [currentUser, showError, categoryId, editMode]);
+  }, [currentUser, selectedBudgetId, showError, categoryId, editMode]);
   
   // Initialize form with rule data if in edit mode
   useEffect(() => {
@@ -277,9 +284,27 @@ function RecurringRuleForm({
     return errors;
   };
   
+  // Helper to convert FREQUENCY_TYPES to security rule allowed values
+  const mapFrequencyToRuleFormat = (freqType) => {
+    const mappings = {
+      [FREQUENCY_TYPES.DAILY]: 'daily',
+      [FREQUENCY_TYPES.WEEKLY]: 'weekly',
+      [FREQUENCY_TYPES.BIWEEKLY]: 'bi-weekly',
+      [FREQUENCY_TYPES.MONTHLY]: 'monthly',
+      [FREQUENCY_TYPES.YEARLY]: 'annual', // Note: YEARLY maps to 'annual' in the security rules
+      [FREQUENCY_TYPES.QUARTERLY]: 'monthly' // Map quarterly to monthly with appropriate interval for now
+    };
+    return mappings[freqType] || 'monthly'; // Default to monthly if no mapping found
+  };
+  
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!selectedBudgetId) {
+      showError('Aucun budget sélectionné');
+      return;
+    }
     
     // Validate form
     const errors = validateForm();
@@ -318,15 +343,19 @@ function RecurringRuleForm({
         categoryName,
         categoryColor,
         categoryType,
+        // Add required fields for security rules compliance
+        type: categoryType, // Set type based on the category's type
+        description: ruleName.trim(), // Use the name field as the description
         amount: parseFloat(amount),
-        frequency,
+        frequency: mapFrequencyToRuleFormat(frequency), // Map to format expected by security rules
+        interval: frequency === FREQUENCY_TYPES.QUARTERLY ? 3 : 1, // Special case for quarterly
         // Use Date objects for dates - service will convert to Firestore Timestamps
         startDate: parsedStartDate,
         // Set nextDate to be the same as startDate for new rules
         nextDate: parsedStartDate,
         endDate: parsedEndDate,
         notes: notes.trim(),
-        active: true, // Default to active
+        isActive: true, // Required field in security rules
       };
       
       // Log the rule data before sending it to the service for debugging
@@ -340,24 +369,25 @@ function RecurringRuleForm({
       if (editMode && initialRule) {
         // Update existing rule
         logger.debug('RecurringRuleForm', 'handleSubmit', 'Updating rule', {
-          userId: currentUser.uid,
+          budgetId: selectedBudgetId,
           ruleId: initialRule.id
         });
         
-        await updateRecurringRule(currentUser.uid, initialRule.id, ruleData);
+        await updateRecurringRule(selectedBudgetId, initialRule.id, currentUser.uid, ruleData);
         savedRuleId = initialRule.id;
         
         logger.info('RecurringRuleForm', 'handleSubmit', 'Rule updated successfully', {
-          userId: currentUser.uid,
+          budgetId: selectedBudgetId,
           ruleId: initialRule.id
         });
         showSuccess('Règle récurrente mise à jour avec succès');
       } else {
         // Create new rule
-        const createdRule = await addRecurringRule(currentUser.uid, ruleData);
+        const createdRule = await addRecurringRule(selectedBudgetId, currentUser.uid, ruleData);
         savedRuleId = createdRule.id;
         
         logger.info('RecurringRuleForm', 'handleSubmit', 'Rule created successfully', {
+          budgetId: selectedBudgetId,
           ruleId: savedRuleId
         });
         showSuccess('Règle récurrente créée avec succès');
@@ -374,12 +404,14 @@ function RecurringRuleForm({
         logger.info('RecurringRuleForm', 'handleSubmit', 'Generating instances for rule', {
           userId: currentUser.uid,
           ruleId: savedRuleId,
+          budgetId: selectedBudgetId,
           action: 'generate'
         });
         
         // Prepare parameters with emulator workaround
         const params = { 
-          ruleId: savedRuleId, 
+          ruleId: savedRuleId,
+          budgetId: selectedBudgetId,  // Add budgetId to params
           action: 'generate' 
         };
         
@@ -387,15 +419,22 @@ function RecurringRuleForm({
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
           params.emulatorUserId = currentUser.uid;
           logger.debug('RecurringRuleForm', 'handleSubmit', 'Adding emulatorUserId for development', {
-            emulatorUserId: currentUser.uid
+            emulatorUserId: currentUser.uid,
+            budgetId: selectedBudgetId  // Log budgetId for debugging
           });
         }
+
+        console.log(">>> RECURRING RULE DEBUG: Calling manageRecurringInstances with params:", {
+          ...params,
+          emulatorUserId: undefined  // Don't log actual emulatorUserId
+        });
         
         const result = await manageInstances(params);
         
         logger.info('RecurringRuleForm', 'handleSubmit', 'Successfully generated/updated instances', {
           userId: currentUser.uid,
           ruleId: savedRuleId,
+          budgetId: selectedBudgetId,  // Add budgetId to success log
           result: result.data
         });
         
@@ -405,6 +444,7 @@ function RecurringRuleForm({
           error: error.message,
           stack: error.stack,
           userId: currentUser?.uid,
+          budgetId: selectedBudgetId,  // Add budgetId to error log
           ruleId: savedRuleId
         });
         
@@ -419,7 +459,8 @@ function RecurringRuleForm({
     } catch (err) {
       logger.error('RecurringRuleForm', 'handleSubmit', 'Error saving recurring rule', {
         error: err.message,
-        stack: err.stack
+        stack: err.stack,
+        budgetId: selectedBudgetId
       });
       
       showError(editMode 

@@ -8,7 +8,7 @@ import {
   sendEmailVerification as sendEmailVerificationToUser,
   updateProfile
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import logger from '../services/logger';
 
 // Import our initialized Firebase instances
@@ -32,19 +32,44 @@ export function AuthProvider({ children }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
       // Create user document in Firestore with the correct structure
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
+      const userDocRef = doc(db, 'users', userCredential.user.uid);
+      const userData = {
         email: userCredential.user.email,
         displayName: userCredential.user.displayName || '',
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
         settings: {
           currency: 'CAD',
           balanceDisplayMode: 'cumulative'
         }
+      };
+      
+      console.log('AUTH CONTEXT DEBUG - Creating user document:', {
+        userId: userCredential.user.uid,
+        documentPath: `users/${userCredential.user.uid}`,
+        dataFields: Object.keys(userData)
       });
       
-      logger.info('AuthContext', operation, 'User document created in Firestore', {
-        userId: userCredential.user.uid
-      });
+      try {
+        await setDoc(userDocRef, userData);
+        logger.info('AuthContext', operation, 'User document created in Firestore', {
+          userId: userCredential.user.uid
+        });
+      } catch (firestoreError) {
+        console.error('AUTH CONTEXT ERROR - Failed to create user document:', {
+          userId: userCredential.user.uid,
+          error: firestoreError.message,
+          code: firestoreError.code,
+          stack: firestoreError.stack
+        });
+        logger.error('AuthContext', operation, 'Failed to create user document', {
+          userId: userCredential.user.uid,
+          error: firestoreError.message,
+          code: firestoreError.code,
+          stack: firestoreError.stack
+        });
+        throw new Error(`User account created but profile setup failed: ${firestoreError.message}`);
+      }
       
       logger.info('AuthContext', operation, 'User signup successful', {
         userId: userCredential.user.uid

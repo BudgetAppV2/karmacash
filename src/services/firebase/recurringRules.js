@@ -140,8 +140,8 @@ export const createRecurringRule = async (budgetId, userId, ruleData) => {
       )
     });
     
-    // Ensure all required fields are present
-    const requiredFields = ['name', 'amount', 'categoryId', 'frequency', 'startDate'];
+    // List of fields required by security rules
+    const requiredFields = ['name', 'categoryId', 'type', 'amount', 'description', 'frequency', 'startDate'];
     const missingFields = requiredFields.filter(field => !ruleData[field]);
     
     if (missingFields.length > 0) {
@@ -176,10 +176,82 @@ export const createRecurringRule = async (budgetId, userId, ruleData) => {
       dayOfWeek: (ruleData.frequency === FREQUENCY_TYPES.WEEKLY || ruleData.frequency === FREQUENCY_TYPES.BIWEEKLY) 
         ? (ruleData.startDate instanceof Date ? getDay(ruleData.startDate) : null) 
         : null,
+      lastGenerated: null, // Initialize as null for new rules
       createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      isActive: ruleData.isActive !== undefined ? ruleData.isActive : true
+      updatedAt: serverTimestamp()
     };
+    
+    // Check both isActive and active fields from input data
+    // Log both potential sources for debugging
+    logger.debug('RecurringRuleService', 'createRecurringRule', 'Checking isActive/active fields', {
+      'ruleData.isActive': ruleData.isActive,
+      'ruleData.active': ruleData.active,
+      'type-isActive': typeof ruleData.isActive,
+      'type-active': typeof ruleData.active
+    });
+    
+    // Ensure isActive is set properly, checking both possible input field names
+    if (ruleData.isActive !== undefined) {
+      ruleWithTimestamp.isActive = Boolean(ruleData.isActive);
+    } else if (ruleData.active !== undefined) {
+      ruleWithTimestamp.isActive = Boolean(ruleData.active);
+    } else {
+      ruleWithTimestamp.isActive = true; // Default to true if neither is provided
+    }
+    
+    logger.debug('RecurringRuleService', 'createRecurringRule', 'isActive set to', {
+      isActive: ruleWithTimestamp.isActive,
+      type: typeof ruleWithTimestamp.isActive
+    });
+    
+    // Ensure type is one of 'expense' or 'income'
+    if (!['expense', 'income'].includes(ruleWithTimestamp.type)) {
+      const error = new Error(`Invalid type value: ${ruleWithTimestamp.type}. Must be 'expense' or 'income'.`);
+      logger.error('RecurringRuleService', 'createRecurringRule', 'Invalid type value', {
+        budgetId,
+        userId,
+        type: ruleWithTimestamp.type,
+        error: error.message
+      });
+      throw error;
+    }
+    
+    // Ensure description meets length requirements
+    if (!ruleWithTimestamp.description || 
+        ruleWithTimestamp.description.length < 1 || 
+        ruleWithTimestamp.description.length > 200) {
+      const error = new Error('Description is required and must be between 1 and 200 characters');
+      logger.error('RecurringRuleService', 'createRecurringRule', 'Invalid description', {
+        budgetId,
+        userId,
+        descriptionLength: ruleWithTimestamp.description ? ruleWithTimestamp.description.length : 0,
+        error: error.message
+      });
+      throw error;
+    }
+    
+    // Ensure frequency is valid
+    const validFrequencies = ['daily', 'weekly', 'bi-weekly', 'monthly', 'annual'];
+    if (!validFrequencies.includes(ruleWithTimestamp.frequency)) {
+      const error = new Error(`Invalid frequency: ${ruleWithTimestamp.frequency}. Must be one of: ${validFrequencies.join(', ')}`);
+      logger.error('RecurringRuleService', 'createRecurringRule', 'Invalid frequency', {
+        budgetId,
+        userId,
+        frequency: ruleWithTimestamp.frequency,
+        error: error.message
+      });
+      throw error;
+    }
+    
+    // Ensure interval is positive
+    if (!ruleWithTimestamp.interval || ruleWithTimestamp.interval <= 0) {
+      ruleWithTimestamp.interval = 1; // Default to 1 if invalid
+      logger.warn('RecurringRuleService', 'createRecurringRule', 'Invalid interval corrected to 1', {
+        budgetId,
+        userId,
+        originalInterval: ruleData.interval
+      });
+    }
     
     logger.debug('RecurringRuleService', 'createRecurringRule', 'Starting Timestamp conversions');
     
@@ -218,11 +290,70 @@ export const createRecurringRule = async (budgetId, userId, ruleData) => {
       path: `budgets/${budgetId}/recurringRules`
     });
     
+    // Final check for all required fields before sending to Firestore
+    const securityRulesRequiredFields = [
+      'budgetId', 'categoryId', 'type', 'amount', 'description', 
+      'frequency', 'interval', 'startDate', 'isActive',
+      'createdByUserId', 'createdAt', 'updatedAt'
+    ];
+    
+    const missingRequiredFields = securityRulesRequiredFields.filter(field => 
+      ruleWithTimestamp[field] === undefined || 
+      ruleWithTimestamp[field] === null ||
+      (field === 'createdAt' || field === 'updatedAt') // Skip server timestamps as they're added on write
+    );
+    
+    if (missingRequiredFields.length > 0 && 
+        !missingRequiredFields.every(field => field === 'createdAt' || field === 'updatedAt')) {
+      const error = new Error(`Missing security rule required fields: ${missingRequiredFields.join(', ')}`);
+      logger.error('RecurringRuleService', 'createRecurringRule', 'Missing security rule required fields', {
+        budgetId,
+        userId,
+        missingRequiredFields,
+        error: error.message
+      });
+      throw error;
+    }
+
+    // Log isActive value specifically, just before addDoc
+    logger.debug('RecurringRuleService', 'createRecurringRule', 'Value of isActive JUST before addDoc', {
+      isActive: ruleWithTimestamp.isActive,
+      isActiveType: typeof ruleWithTimestamp.isActive,
+      ruleDataIsActive: ruleData.isActive,
+      ruleDataIsActiveType: typeof ruleData.isActive
+    });
+    
+    // Convert isActive explicitly to a boolean if it's not already
+    if (typeof ruleWithTimestamp.isActive !== 'boolean') {
+      logger.warn('RecurringRuleService', 'createRecurringRule', 'Converting isActive to boolean', {
+        originalValue: ruleWithTimestamp.isActive,
+        originalType: typeof ruleWithTimestamp.isActive
+      });
+      
+      // Ensure it's a boolean true (not a string 'true' or other truthy value)
+      ruleWithTimestamp.isActive = Boolean(ruleWithTimestamp.isActive);
+      
+      logger.debug('RecurringRuleService', 'createRecurringRule', 'After conversion:', {
+        isActive: ruleWithTimestamp.isActive,
+        isActiveType: typeof ruleWithTimestamp.isActive
+      });
+    }
+    
     // Add the document to Firestore
     const docRef = await addDoc(rulesCollectionRef, ruleWithTimestamp);
     
     // Get the created document to return with server timestamps
     const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      const error = new Error('Rule was created but could not be retrieved');
+      logger.error('RecurringRuleService', 'createRecurringRule', 'Rule not found after creation', {
+        budgetId,
+        userId,
+        ruleId: docRef.id
+      });
+      throw error;
+    }
     
     const createdRule = {
       id: docSnap.id,
@@ -237,6 +368,13 @@ export const createRecurringRule = async (budgetId, userId, ruleData) => {
     
     return createdRule;
   } catch (error) {
+    console.error('❌ RECURRING RULE CREATION FAILED:', error.message, error.code || '', {
+      budgetId,
+      userId,
+      rule: ruleData ? JSON.stringify(ruleData, (key, value) => 
+        value instanceof Date ? value.toISOString() : value) : 'undefined'
+    });
+    
     logger.error('RecurringRuleService', 'createRecurringRule', 'Failed to create recurring rule', {
       error: error.message,
       errorCode: error.code,
