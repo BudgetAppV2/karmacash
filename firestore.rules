@@ -60,20 +60,18 @@ service cloud.firestore {
 
     // Validate transaction amount based on type
     function isValidTransactionAmount(data) {
-      // TEMP M4.11: Bypass transaction amount sign check. Restore strict validation later.
-      return true;
-      // Original implementation:
-      // return (data.type == 'expense' && data.amount < 0) || 
-      //        (data.type == 'income' && data.amount > 0);
+      // Enforce correct amount sign based on transaction type
+      return (data.type == 'expense' && data.amount < 0) || 
+             (data.type == 'income' && data.amount > 0);
     }
 
     // Validate category type matches transaction type
     function categoryTypeMatchesTransaction(budgetId, categoryId, transactionType) {
-      // TEMP M4.11: Bypass category/transaction type consistency check. Restore strict validation later.
-      return true;
-      // Original implementation:
-      // let categoryDoc = get(/databases/$(database)/documents/budgets/$(budgetId)/categories/$(categoryId));
-      // return categoryDoc.data.type == transactionType;
+      // Skip validation if category is not specified (null/empty)
+      return categoryId == null || categoryId == '' || 
+             // Otherwise, verify the category exists and has matching type
+             (exists(/databases/$(database)/documents/budgets/$(budgetId)/categories/$(categoryId)) && 
+              get(/databases/$(database)/documents/budgets/$(budgetId)/categories/$(categoryId)).data.type == transactionType);
     }
     
     // --- Budget Collection ---

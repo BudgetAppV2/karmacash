@@ -25,6 +25,20 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
   const { currentUser } = useAuth();
   const { selectedBudgetId } = useBudgets();
 
+  // Determine if the rule is active - check both isActive and active fields for compatibility
+  const isRuleActive = () => {
+    // First check isActive (new field name that matches security rules)
+    if (typeof rule.isActive === 'boolean') {
+      return rule.isActive;
+    }
+    // Fallback to active (old field name that might exist in some records)
+    if (typeof rule.active === 'boolean') {
+      return rule.active;
+    }
+    // Default to true if neither field exists
+    return true;
+  };
+
   // Map frequency types to display text
   const getFrequencyText = (frequency) => {
     const frequencyMap = {
@@ -113,7 +127,7 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
 
   return (
     <>
-      <div className={`recurring-rule-item ${!rule.active ? 'inactive' : ''}`}>
+      <div className={`recurring-rule-item ${!isRuleActive() ? 'inactive' : ''}`}>
         <div className="rule-header">
           <h3 className="rule-name">{rule.name}</h3>
           <div className="rule-amount">{formatCurrency(rule.amount)}</div>
@@ -151,12 +165,12 @@ const RecurringRuleItem = ({ rule, onEdit, onDelete, onToggleActive }) => {
             ✎
           </button>
           <button 
-            className={`rule-action-button rule-toggle-button ${rule.active ? 'active' : 'inactive'}`}
-            onClick={() => onToggleActive(rule.id, !rule.active)}
-            title={rule.active ? "Désactiver" : "Activer"}
+            className={`rule-action-button rule-toggle-button ${isRuleActive() ? 'active' : 'inactive'}`}
+            onClick={() => onToggleActive(rule.id, !isRuleActive())}
+            title={isRuleActive() ? "Désactiver" : "Activer"}
             disabled={isLoading}
           >
-            {rule.active ? "✓" : "○"}
+            {isRuleActive() ? "✓" : "○"}
           </button>
           <button 
             className="rule-action-button rule-delete-button"
@@ -290,7 +304,7 @@ function RecurringRulesPage() {
       setRecurringRules(prevRules => 
         prevRules.map(rule => 
           rule.id === ruleId 
-            ? { ...rule, active }
+            ? { ...rule, isActive: active, active: active } // Update both fields for UI consistency
             : rule
         )
       );

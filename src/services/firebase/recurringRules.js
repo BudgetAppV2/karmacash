@@ -199,6 +199,9 @@ export const createRecurringRule = async (budgetId, userId, ruleData) => {
       ruleWithTimestamp.isActive = true; // Default to true if neither is provided
     }
     
+    // Also set the active field for UI consistency
+    ruleWithTimestamp.active = ruleWithTimestamp.isActive;
+    
     logger.debug('RecurringRuleService', 'createRecurringRule', 'isActive set to', {
       isActive: ruleWithTimestamp.isActive,
       type: typeof ruleWithTimestamp.isActive
@@ -435,6 +438,13 @@ export const updateRecurringRule = async (budgetId, ruleId, userId, ruleData) =>
       updatedAt: serverTimestamp()
     };
     
+    // Ensure isActive and active fields are consistent
+    if (ruleData.isActive !== undefined && ruleData.active === undefined) {
+      updatedRuleData.active = Boolean(ruleData.isActive);
+    } else if (ruleData.active !== undefined && ruleData.isActive === undefined) {
+      updatedRuleData.isActive = Boolean(ruleData.active);
+    }
+    
     // Update the document
     await updateDoc(ruleRef, updatedRuleData);
     
@@ -634,7 +644,8 @@ export const toggleRecurringRuleActive = async (budgetId, ruleId, userId, active
     const ruleRef = doc(db, `budgets/${budgetId}/recurringRules`, ruleId);
     
     await updateDoc(ruleRef, {
-      isActive: active,
+      isActive: active, // Primary field expected by security rules
+      active: active,   // Compatibility field for UI
       lastEditedByUserId: userId,
       updatedAt: serverTimestamp()
     });

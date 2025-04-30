@@ -19,6 +19,120 @@ import { db } from './firebaseInit';
 import logger from '../logger';
 
 /**
+ * Validates transaction amount based on transaction type
+ * @param {string} type - Transaction type ('expense' or 'income')
+ * @param {number} amount - Transaction amount
+ * @returns {boolean} - True if valid, throws error if invalid
+ */
+const validateTransactionAmount = (type, amount) => {
+  // Check if amount is a number
+  if (typeof amount !== 'number' || isNaN(amount)) {
+    const error = new Error('Transaction amount must be a valid number');
+    error.code = 'validation-error';
+    throw error;
+  }
+
+  // Validate amount sign based on transaction type
+  if (type === 'expense' && amount >= 0) {
+    const error = new Error('Expense transactions must have a negative amount');
+    error.code = 'validation-error';
+    throw error;
+  }
+  
+  if (type === 'income' && amount <= 0) {
+    const error = new Error('Income transactions must have a positive amount');
+    error.code = 'validation-error';
+    throw error;
+  }
+  
+  return true;
+};
+
+/**
+ * Validates that the transaction type matches the category type
+ * @param {string} budgetId - Budget ID
+ * @param {string} categoryId - Category ID
+ * @param {string} transactionType - Transaction type ('expense' or 'income')
+ * @returns {Promise<boolean>} - True if valid, throws error if invalid
+ */
+const validateCategoryTypeMatch = async (budgetId, categoryId, transactionType) => {
+  try {
+    // Skip validation if no category is selected
+    if (!categoryId) {
+      logger.debug('TransactionService', 'validateCategoryTypeMatch', 'No category selected, skipping validation');
+      return true;
+    }
+
+    // Fetch the category document
+    const categoryRef = doc(db, `budgets/${budgetId}/categories`, categoryId);
+    const categorySnap = await getDoc(categoryRef);
+
+    // Check if the category exists
+    if (!categorySnap.exists()) {
+      logger.warn('TransactionService', 'validateCategoryTypeMatch', 'Category not found', {
+        budgetId,
+        categoryId,
+        transactionType
+      });
+      const error = new Error(`La catégorie sélectionnée n'existe pas`);
+      error.code = 'validation-error-category';
+      throw error;
+    }
+
+    // Get category data and check type
+    const categoryData = categorySnap.data();
+    const categoryType = categoryData.type;
+
+    // Validate the category type matches the transaction type
+    if (categoryType !== transactionType) {
+      logger.warn('TransactionService', 'validateCategoryTypeMatch', 'Category type mismatch', {
+        budgetId,
+        categoryId,
+        categoryType,
+        transactionType
+      });
+      
+      const categoryTypeDisplay = categoryType === 'expense' ? 'dépense' : 'revenu';
+      const transactionTypeDisplay = transactionType === 'expense' ? 'dépense' : 'revenu';
+      
+      const error = new Error(
+        `Incompatibilité de type: Impossible d'assigner une transaction de type ${transactionTypeDisplay} à une catégorie de type ${categoryTypeDisplay}`
+      );
+      error.code = 'validation-error-category';
+      throw error;
+    }
+
+    logger.debug('TransactionService', 'validateCategoryTypeMatch', 'Category type validated successfully', {
+      budgetId,
+      categoryId,
+      categoryType,
+      transactionType
+    });
+    
+    return true;
+  } catch (error) {
+    // Pass through validation errors
+    if (error.code === 'validation-error-category') {
+      throw error;
+    }
+    
+    // Handle other errors (network issues, etc.)
+    logger.error('TransactionService', 'validateCategoryTypeMatch', 'Error validating category type', {
+      error: error.message,
+      stack: error.stack,
+      budgetId,
+      categoryId,
+      transactionType
+    });
+    
+    const wrappedError = new Error('Erreur lors de la validation de la catégorie');
+    wrappedError.code = 'validation-error-category';
+    wrappedError.originalError = error;
+    throw wrappedError;
+  }
+};
+
+/**
  * Add a new transaction
  * @param {string} budgetId - Budget ID
  * @param {string} userId - User ID of the creator
@@ -63,6 +177,34 @@ export const addTransaction = async (budgetId, userId, transactionData) => {
       const error = new Error(`Missing required transaction fields: ${missingFields.join(', ')}`);
       error.code = 'invalid-argument';
       throw error;
+    }
+
+    // Validate amount sign based on transaction type
+    try {
+      validateTransactionAmount(transactionData.type, transactionData.amount);
+    } catch (validationError) {
+      logger.warn('TransactionService', 'addTransaction', 'Validation error', { 
+        error: validationError.message,
+        type: transactionData.type,
+        amount: transactionData.amount,
+        budgetId,
+        userId
+      });
+      throw validationError;
+    }
+
+    // Validate category type matches transaction type
+    try {
+      await validateCategoryTypeMatch(budgetId, transactionData.categoryId, transactionData.type);
+    } catch (validationError) {
+      logger.warn('TransactionService', 'addTransaction', 'Category validation error', {
+        error: validationError.message,
+        type: transactionData.type,
+        categoryId: transactionData.categoryId,
+        budgetId,
+        userId
+      });
+      throw validationError;
     }
 
     logger.debug('TransactionService', 'addTransaction', 'Adding new transaction', { 
@@ -259,10 +401,119 @@ export const updateTransaction = async (budgetId, transactionId, userId, transac
       throw new Error(`Transaction not found: ${transactionId}`);
     }
     
+    // Get existing transaction data
+    const existingData = docSnap.data();
+    
     // Format date as Timestamp if it's a Date object
     let updatedData = { ...transactionData };
     if (updatedData.date instanceof Date) {
       updatedData.date = Timestamp.fromDate(updatedData.date);
+    }
+    
+    // Validate amount sign based on transaction type if both fields are present in the update
+    if (updatedData.type && 'amount' in updatedData) {
+      try {
+        validateTransactionAmount(updatedData.type, updatedData.amount);
+      } catch (validationError) {
+        logger.warn('TransactionService', 'updateTransaction', 'Validation error', { 
+          error: validationError.message,
+          type: updatedData.type,
+          amount: updatedData.amount,
+          budgetId,
+          transactionId,
+          userId
+        });
+        throw validationError;
+      }
+    } 
+    // If only amount is being updated, check against the existing transaction type
+    else if ('amount' in updatedData && !updatedData.type) {
+      const existingType = existingData.type;
+      try {
+        validateTransactionAmount(existingType, updatedData.amount);
+      } catch (validationError) {
+        logger.warn('TransactionService', 'updateTransaction', 'Validation error with existing type', { 
+          error: validationError.message,
+          existingType,
+          amount: updatedData.amount,
+          budgetId,
+          transactionId,
+          userId
+        });
+        throw validationError;
+      }
+    }
+    // If only type is being updated, check against the existing amount
+    else if (updatedData.type && !('amount' in updatedData)) {
+      const existingAmount = existingData.amount;
+      try {
+        validateTransactionAmount(updatedData.type, existingAmount);
+      } catch (validationError) {
+        logger.warn('TransactionService', 'updateTransaction', 'Validation error with existing amount', { 
+          error: validationError.message,
+          type: updatedData.type,
+          existingAmount,
+          budgetId,
+          transactionId,
+          userId
+        });
+        throw validationError;
+      }
+    }
+    
+    // Validate category type matches transaction type
+    
+    // Case 1: Both transaction type and categoryId are being updated
+    if (updatedData.type && updatedData.categoryId) {
+      try {
+        await validateCategoryTypeMatch(budgetId, updatedData.categoryId, updatedData.type);
+      } catch (validationError) {
+        logger.warn('TransactionService', 'updateTransaction', 'Category validation error - both fields updated', {
+          error: validationError.message,
+          newType: updatedData.type,
+          newCategoryId: updatedData.categoryId,
+          budgetId,
+          transactionId,
+          userId
+        });
+        throw validationError;
+      }
+    }
+    // Case 2: Only categoryId is being updated, use existing transaction type
+    else if (updatedData.categoryId && !updatedData.type) {
+      const existingType = existingData.type;
+      try {
+        await validateCategoryTypeMatch(budgetId, updatedData.categoryId, existingType);
+      } catch (validationError) {
+        logger.warn('TransactionService', 'updateTransaction', 'Category validation error - categoryId updated', {
+          error: validationError.message,
+          existingType,
+          newCategoryId: updatedData.categoryId,
+          budgetId,
+          transactionId,
+          userId
+        });
+        throw validationError;
+      }
+    }
+    // Case 3: Only transaction type is being updated, use existing categoryId
+    else if (updatedData.type && !updatedData.categoryId) {
+      const existingCategoryId = existingData.categoryId;
+      if (existingCategoryId) { // Skip if no category is set
+        try {
+          await validateCategoryTypeMatch(budgetId, existingCategoryId, updatedData.type);
+        } catch (validationError) {
+          logger.warn('TransactionService', 'updateTransaction', 'Category validation error - type updated', {
+            error: validationError.message,
+            newType: updatedData.type,
+            existingCategoryId,
+            budgetId,
+            transactionId,
+            userId
+          });
+          throw validationError;
+        }
+      }
     }
     
     // Add updated timestamp and last editor

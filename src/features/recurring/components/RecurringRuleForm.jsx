@@ -326,6 +326,18 @@ function RecurringRuleForm({
       const categoryColor = selectedCategory?.color || '';
       const categoryType = selectedCategory?.type || 'expense';
       
+      // Parse and validate amount
+      const parsedAmount = parseFloat(amount);
+      if (isNaN(parsedAmount)) {
+        logger.error('RecurringRuleForm', 'handleSubmit', 'Invalid amount entered', { 
+          amount, 
+          budgetId: selectedBudgetId 
+        });
+        showError('Le montant entré n\'est pas un nombre valide');
+        setSubmitting(false);
+        return;
+      }
+      
       // Parse dates following Section 5.4.2 - set to start of day in local timezone
       // Using parseISO to convert the ISO string from the date input to a Date object
       const parsedStartDate = startOfDay(parseISO(startDate));
@@ -346,7 +358,10 @@ function RecurringRuleForm({
         // Add required fields for security rules compliance
         type: categoryType, // Set type based on the category's type
         description: ruleName.trim(), // Use the name field as the description
-        amount: parseFloat(amount),
+        // Apply correct sign to amount based on transaction type
+        amount: categoryType === 'expense' 
+          ? -Math.abs(parsedAmount) // Ensure negative for expenses
+          : Math.abs(parsedAmount),  // Ensure positive for incomes
         frequency: mapFrequencyToRuleFormat(frequency), // Map to format expected by security rules
         interval: frequency === FREQUENCY_TYPES.QUARTERLY ? 3 : 1, // Special case for quarterly
         // Use Date objects for dates - service will convert to Firestore Timestamps
@@ -356,12 +371,18 @@ function RecurringRuleForm({
         endDate: parsedEndDate,
         notes: notes.trim(),
         isActive: true, // Required field in security rules
+        active: true,   // Also set active field for UI compatibility
       };
       
       // Log the rule data before sending it to the service for debugging
       logger.debug('RecurringRuleForm', 'handleSubmit', 'Rule data being sent to service', {
         ruleData: JSON.parse(JSON.stringify(ruleData)),
-        editMode
+        editMode,
+        originalAmount: amount,
+        parsedAmount: parsedAmount,
+        finalAmount: ruleData.amount,
+        categoryType,
+        amountSign: Math.sign(ruleData.amount)
       });
       
       let savedRuleId;

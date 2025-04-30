@@ -235,6 +235,21 @@ const TransactionForm = ({ onSuccess }) => {
       // Handle specific error cases
       if (error.code === 'permission-denied') {
         setError('Erreur d\'autorisation. Veuillez vous reconnecter et réessayer.');
+      } else if (error.code === 'validation-error-category') {
+        // Handle category type mismatch errors with user-friendly messages
+        setError(`Erreur de validation: ${error.message}`);
+        // If there was a category type mismatch, help the user by switching to the correct type
+        if (error.message.includes('Incompatibilité de type')) {
+          // Reset the category selection
+          setCategoryId('');
+        }
+      } else if (error.code === 'validation-error') {
+        // Handle amount validation errors with user-friendly messages
+        if (error.message.includes('Expense transactions') || error.message.includes('Income transactions')) {
+          setError(`Erreur de validation: ${error.message}`);
+        } else {
+          setError(`Erreur de validation: ${error.message}`);
+        }
       } else {
         setError(`Erreur lors de l'ajout de la transaction: ${error.message}`);
       }
