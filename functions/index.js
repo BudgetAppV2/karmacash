@@ -353,8 +353,13 @@ function calculateNextDate(rule, currentDate) {
       nextDate = addWeeks(nextDate, interval);
       break;
       
-    case 'biweekly':
-      nextDate = addWeeks(nextDate, 2 * interval);
+    case 'bi-weekly':
+      // Correct logic: Add 2 weeks multiplied by the interval.
+      // console.log(`calculateNextDate (bi-weekly): Advancing by ${2 * interval} weeks from ${nextDate.toISOString()}`); // Moved inside
+      // ADD LOGGING IMMEDIATELY BEFORE ADVANCEMENT
+      console.log(`Executing bi-weekly advancement. Interval: ${interval}. Date before: ${nextDate.toISOString()}`);
+      nextDate = addWeeks(nextDate, 2 * interval); 
+      // Ensure no other logic interferes within this case
       break;
       
     case 'monthly':
@@ -573,7 +578,7 @@ async function generateInstancesForRule(ruleId, rule, startDate, endDate) {
       queryStartDate.setDate(queryStartDate.getDate() + 1);
     } else if (rule.frequency === 'weekly') {
       queryStartDate.setDate(queryStartDate.getDate() + 7);
-    } else if (rule.frequency === 'biweekly') {
+    } else if (rule.frequency === 'bi-weekly') {
       queryStartDate.setDate(queryStartDate.getDate() + 14);
     } else if (rule.frequency === 'monthly') {
       queryStartDate.setMonth(queryStartDate.getMonth() + 1);
@@ -626,7 +631,7 @@ async function generateInstancesForRule(ruleId, rule, startDate, endDate) {
       currentDate.setDate(currentDate.getDate() + 1);
     } else if (rule.frequency === 'weekly') {
       currentDate.setDate(currentDate.getDate() + 7);
-    } else if (rule.frequency === 'biweekly') {
+    } else if (rule.frequency === 'bi-weekly') {
       currentDate.setDate(currentDate.getDate() + 14);
     } else if (rule.frequency === 'monthly') {
       currentDate.setMonth(currentDate.getMonth() + 1);
@@ -782,7 +787,10 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
         name: rule.name || rule.description,
         amount: rule.amount,
         frequency: rule.frequency,
-        category: rule.categoryId
+        category: rule.categoryId,
+        // Explicitly log type and categoryType
+        type: rule.type, 
+        categoryType: rule.categoryType 
       });
       
       // Verify the denormalized budgetId matches the path budgetId
@@ -869,10 +877,23 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
           // Determine the current date to start generating from
           // Correctly determine the loop's starting point
           let effectiveStartDate = new Date(Math.max(ruleStartDate.getTime(), threeMonthsAgo.getTime()));
-          let currentDate = startOfDay(effectiveStartDate); // Ensure we start at the beginning of the day
+          // let currentDate = startOfDay(effectiveStartDate); // Ensure we start at the beginning of the day - OLD
+
+          // New initialization logic: Find the first occurrence >= effectiveStartDate
+          let firstOccurrenceDate = ruleStartDate;
+          // Keep advancing using the helper function until the occurrence date is on or after the effective start date
+          while (isBefore(startOfDay(firstOccurrenceDate), startOfDay(effectiveStartDate))) {
+            firstOccurrenceDate = calculateNextDate(rule, firstOccurrenceDate);
+          }
+          // Now initialize the loop's currentDate
+          let currentDate = startOfDay(firstOccurrenceDate); // Ensure start of day
+
+          console.log(`Calculated first occurrence >= effectiveStartDate: ${currentDate.toISOString()}`);
           
           // Initialize array for instances
           const instances = [];
+          // Add loop counter
+          let loopIterationCount = 0; 
           
           // Log the initial currentDate value before starting the loop
           console.log(`Starting generation loop. Initial currentDate (UTC): ${currentDate.toISOString()}`);
@@ -884,131 +905,64 @@ exports.manageRecurringInstances = functions.https.onCall(async (data, context) 
             // And stop if we hit the rule's end date (if it has one)
             (!ruleEndDate || isBefore(currentDate, ruleEndDate) || isSameDay(currentDate, ruleEndDate))
           ) {
-            // Determine if we should generate an instance for this date based on frequency
-            let shouldGenerate = false;
+            loopIterationCount++; // Increment counter
+            console.log(`--- Loop Iteration ${loopIterationCount} ---`);
+            console.log(`Current Date (Start of Iteration): ${currentDate.toISOString()}`);
             
-            // Get interval (default to 1 if not specified)
-            const interval = rule.interval || 1;
+            // Log condition checks
+            const check_isBeforeOneYear = isBefore(currentDate, oneYearFromNow);
+            const check_withinEndDate = (!ruleEndDate || isBefore(currentDate, ruleEndDate) || isSameDay(currentDate, ruleEndDate));
+            console.log(`Condition Check: isBeforeOneYear=${check_isBeforeOneYear}, withinEndDate=${check_withinEndDate}`);
+
+            // Log decision point (now always true if loop conditions met)
+            console.log(`Instance Decision: Generating for ${currentDate.toISOString()}`);
             
-            switch (rule.frequency) {
-              case 'daily':
-                // Check if currentDate is a multiple of the interval from the start date
-                const daysSinceStart = differenceInDays(currentDate, ruleStartDate);
-                console.log(`Daily Check: Date=${currentDate.toISOString()}, DaysSinceStart=${daysSinceStart}, Interval=${interval}`);
-                shouldGenerate = daysSinceStart % interval === 0;
-                break;
-                
-              case 'weekly':
-                // For weekly, check if the day of the week matches
-                console.log(`Weekly Check: Date=${currentDate.toISOString()}, Day=${getDay(currentDate)}, RuleDay=${rule.dayOfWeek}`);
-                shouldGenerate = getDay(currentDate) === rule.dayOfWeek;
-                break;
-                
-              case 'biweekly':
-                // For biweekly, check if it's the right day of the week and the right week
-                const weeksSinceStart = differenceInWeeks(currentDate, ruleStartDate);
-                console.log(`Biweekly Check: Date=${currentDate.toISOString()}, Day=${getDay(currentDate)}, RuleDay=${rule.dayOfWeek}, WeeksSinceStart=${weeksSinceStart}`);
-                shouldGenerate = getDay(currentDate) === rule.dayOfWeek && weeksSinceStart % 2 === 0;
-                break;
-                
-              case 'monthly':
-                // For monthly, check if it's the right day of month
-                console.log(`Monthly Check: Date=${currentDate.toISOString()}, DateOfMonth=${getDate(currentDate)}, RuleDate=${rule.dayOfMonth}`);
-                shouldGenerate = getDate(currentDate) === rule.dayOfMonth;
-                // Check for end of month rule
-                if (!shouldGenerate && rule.dayOfMonth > 28) {
-                  // If rule day is > 28 and this is the last day of the month, generate
-                  const daysInCurrentMonth = getDaysInMonth(currentDate);
-                  const isLastDayOfMonth = getDate(currentDate) === daysInCurrentMonth;
-                  console.log(`  Monthly End-of-Month Check: IsLastDay=${isLastDayOfMonth}, DaysInMonth=${daysInCurrentMonth}, CurrentDay=${getDate(currentDate)}`);
-                  shouldGenerate = isLastDayOfMonth && rule.dayOfMonth >= daysInCurrentMonth;
-                }
-                break;
-                
-              case 'quarterly':
-                // For quarterly, check if the month is a multiple of 3 months from start month
-                // and it's the correct day of month
-                const monthsSinceStart = differenceInMonths(currentDate, ruleStartDate);
-                console.log(`Quarterly Check: Date=${currentDate.toISOString()}, Month=${getMonth(currentDate)}, StartMonth=${getMonth(ruleStartDate)}, MonthsSinceStart=${monthsSinceStart}, DateOfMonth=${getDate(currentDate)}, RuleDate=${rule.dayOfMonth}`);
-                shouldGenerate = monthsSinceStart % 3 === 0 && getDate(currentDate) === rule.dayOfMonth;
-                break;
-                
-              case 'yearly':
-                // For yearly, check if it's the anniversary of the start date (same month and day)
-                const yearsSinceStart = differenceInYears(currentDate, ruleStartDate);
-                console.log(`Yearly Check: Date=${currentDate.toISOString()}, Month=${getMonth(currentDate)}, StartMonth=${getMonth(ruleStartDate)}, Day=${getDate(currentDate)}, StartDay=${getDate(ruleStartDate)}, YearsSinceStart=${yearsSinceStart}`);
-                shouldGenerate = getMonth(currentDate) === getMonth(ruleStartDate) && 
-                                getDate(currentDate) === getDate(ruleStartDate);
-                break;
-                
-              default:
-                // Default to no generation for unknown frequencies
-                shouldGenerate = false;
-            }
+            // If we should generate an instance for this date (Now always true within the loop)
+            // if (shouldGenerate) { 
+            console.log(`✅ Instance date is valid (UTC): ${currentDate.toISOString()}`);
             
-            // If interval is specified (e.g., every 2 months), adjust shouldGenerate
-            if (shouldGenerate && rule.interval && rule.interval > 1) {
-              let unitsSinceStart;
-              
-              switch (rule.frequency) {
-                case 'daily':
-                  unitsSinceStart = differenceInDays(currentDate, ruleStartDate);
-                  break;
-                case 'weekly':
-                  unitsSinceStart = differenceInWeeks(currentDate, ruleStartDate);
-                  break;
-                case 'monthly':
-                  unitsSinceStart = differenceInMonths(currentDate, ruleStartDate);
-                  break;
-                case 'quarterly':
-                  unitsSinceStart = Math.floor(differenceInMonths(currentDate, ruleStartDate) / 3);
-                  break;
-                case 'yearly':
-                  unitsSinceStart = differenceInYears(currentDate, ruleStartDate);
-                  break;
-                default:
-                  unitsSinceStart = 0;
-              }
-              
-              // Only generate on the interval
-              shouldGenerate = unitsSinceStart % rule.interval === 0;
-            }
+            // Create a transaction instance object following the budget-centric schema
+            const instance = {
+              budgetId: budgetId, // Denormalized budgetId for collection group queries
+              createdByUserId: rule.createdByUserId || 'system', // Use rule creator's ID
+              categoryId: rule.categoryId,
+              date: FirestoreTimestamp.fromDate(currentDate),
+              description: rule.name || rule.description || 'Recurring Transaction',
+              type: rule.type || rule.categoryType || 'expense', // Ensure we get the type
+              // Fix amount sign for expenses consistently with existing logic
+              amount: (rule.categoryType === 'expense' || rule.type === 'expense') 
+                ? -Math.abs(rule.amount) 
+                : Math.abs(rule.amount),
+              isRecurringInstance: true,
+              recurringRuleId: ruleId,
+              createdAt: FirestoreFieldValue.serverTimestamp(),
+              updatedAt: FirestoreFieldValue.serverTimestamp(),
+              lastEditedByUserId: null
+            };
             
-            // If we should generate an instance for this date
-            if (shouldGenerate) {
-              console.log(`✅ Rule matches date (UTC): ${currentDate.toISOString()}`);
-              
-              // Create a transaction instance object following the budget-centric schema
-              const instance = {
-                budgetId: budgetId, // Denormalized budgetId for collection group queries
-                createdByUserId: rule.createdByUserId || 'system', // Use rule creator's ID
-                categoryId: rule.categoryId,
-                date: FirestoreTimestamp.fromDate(currentDate),
-                description: rule.name || rule.description || 'Recurring Transaction',
-                type: rule.type || rule.categoryType || 'expense', // Ensure we get the type
-                // Fix amount sign for expenses consistently with existing logic
-                amount: (rule.categoryType === 'expense' || rule.type === 'expense') 
-                  ? -Math.abs(rule.amount) 
-                  : Math.abs(rule.amount),
-                isRecurringInstance: true,
-                recurringRuleId: ruleId,
-                createdAt: FirestoreFieldValue.serverTimestamp(),
-                updatedAt: FirestoreFieldValue.serverTimestamp(),
-                lastEditedByUserId: null
-              };
-              
-              // Add optional fields if they exist in the rule
-              if (rule.categoryName) instance.categoryName = rule.categoryName;
-              if (rule.categoryColor) instance.categoryColor = rule.categoryColor;
-              if (rule.notes) instance.notes = rule.notes;
-              
-              // Add to instances array
-              instances.push(instance);
-            }
+            // Add optional fields if they exist in the rule
+            if (rule.categoryName) instance.categoryName = rule.categoryName;
+            if (rule.categoryColor) instance.categoryColor = rule.categoryColor;
+            if (rule.notes) instance.notes = rule.notes;
             
-            // Move to next day
-            currentDate = addDays(currentDate, 1);
+            // Log instance data before adding
+            console.log("Prepared Instance Data:", JSON.stringify(instance, (key, value) => 
+              value && value.toDate ? value.toDate().toISOString() : value // Serialize Timestamps
+            )); 
+            
+            // Add to instances array
+            instances.push(instance);
+            
+            // Move to the NEXT occurrence date using the helper function
+            const prevDate = new Date(currentDate); // Keep previous date for logging
+            // currentDate = addDays(currentDate, 1); // OLD - incorrect advancement
+            currentDate = calculateNextDate(rule, currentDate); // Use helper to get next valid date
+            console.log(`Date Advanced using calculateNextDate: From ${prevDate.toISOString()} -> To ${currentDate.toISOString()}`);
           }
+          
+          // Log total iterations
+          console.log(`Finished generation loop after ${loopIterationCount} iterations.`);
+          console.log(`Final calculated date after loop (UTC): ${currentDate.toISOString()}`);
           
           console.log(`Prepared ${instances.length} instances for generation in budget ${budgetId}`);
           
