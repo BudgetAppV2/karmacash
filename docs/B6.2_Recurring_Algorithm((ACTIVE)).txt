@@ -1,0 +1,102 @@
+# B6.2 Recurring Transaction Algorithm
+
+This document details the algorithm for generating recurring transaction instances from user-defined rules within the budget-centric architecture ([B5.1]), a critical feature of KarmaCash.
+
+## 1. Overview
+
+The recurring transaction system involves:
+
+1.  **Recurring Rules**: User-defined patterns stored in `/budgets/{budgetId}/recurringRules/{ruleId}` ([B5.2]), containing frequency, interval, date info, and importantly, the **signed amount**.
+2.  **Transaction Instances**: Individual transactions generated from rules, stored in `/budgets/{budgetId}/transactions/{transactionId}` ([B5.2]) with `isRecurringInstance: true` and `recurringRuleId` set. The **signed amount** is derived from the rule.
+3.  **Management Function**: A single Cloud Function (`manageRecurringInstances`) handles instance generation and deletion.
+
+The algorithm ensures future transaction instances reflect the current state of rules and operates within the defined budget context.
+
+## 2. Core Management Function (`manageRecurringInstances`)
+
+### 2.1 Function Definition & Trigger
+
+The system relies on a **Firebase Cloud Callable Function** named `manageRecurringInstances`, detailed in [B4.3].
+
+-   **Trigger**: HTTPS call initiated by the frontend UI when a recurring rule is created, updated, toggled (on/off), or deleted.
+-   **Parameters**: Requires `budgetId`, `ruleId`, and `action` ('generate' or 'delete').
+-   **Authentication/Authorization**: Requires an authenticated user (`context.auth`) who must have appropriate permissions (editor/owner) for the specified `budgetId`, enforced by Firestore rules or function logic.
+
+### 2.2 Algorithm Workflow: `action: 'generate'`
+
+This action is triggered on rule creation, update, or activation.
+
+1.  **Fetch Rule**: Retrieve the specific `recurringRule` document from `/budgets/{budgetId}/recurringRules/{ruleId}`. Validate its existence.
+2.  **Delete Existing Future Instances**:
+    *   Determine `today` (start of the current day UTC).
+    *   Query `/budgets/{budgetId}/transactions` for instances where `recurringRuleId == ruleId` and `date >= today`.
+    *   Perform a batch delete of all found documents.
+3.  **Calculate Generation Window**:
+    *   `generationLimitDate`: Typically 1 year from `today`.
+    *   `lookbackDate`: Typically 3 months prior to `today`.
+    *   `effectiveStartDate`: The later of the `rule.startDate` or the `lookbackDate`. This defines the earliest date for which an instance might be generated in this run.
+4.  **Determine Loop Start Date (`currentDate`)**:
+    *   Start with `rule.startDate`.
+    *   Repeatedly call the `calculateNextDate(rule, date)` helper function (see Section 3) until the result is on or after `effectiveStartDate`.
+    *   Set the loop's initial `currentDate` to the start of this first valid occurrence day (using `startOfDay`).
+5.  **Execute Generation Loop**:
+    *   Initialize an empty array `preparedInstances`.
+    *   Iterate using a `while` loop as long as `currentDate` is before `generationLimitDate` AND (`rule.endDate` is null OR `currentDate` is on or before `rule.endDate`).
+    *   **Inside the loop (for each valid `currentDate`):**
+        *   **Prepare Instance Data**: Create a transaction data object including:
+            *   `budgetId`, `categoryId`, `description`, `type` (from rule).
+            *   `date`: `Timestamp.fromDate(currentDate)`.
+            *   `amount`: **SIGNED value** based on `rule.type` (e.g., `rule.type === 'expense' ? -Math.abs(rule.amount) : Math.abs(rule.amount)`).
+            *   `isRecurringInstance: true`, `recurringRuleId: rule.id`.
+            *   Metadata: `createdByUserId` (from rule or 'system'), `createdAt`, `updatedAt`.
+            *   Optional denormalized fields: `categoryName`, `categoryColor`.
+        *   Add the prepared data object to the `preparedInstances` array.
+        *   **Advance Date**: Update `currentDate = calculateNextDate(rule, currentDate)` to jump to the next valid occurrence.
+6.  **Batch Write New Instances**:
+    *   If `preparedInstances` array is not empty, iterate through it.
+    *   Create Firestore write batches (limiting each batch to ~400 operations for safety).
+    *   Add `set` operations to each batch to write the new transaction documents to `/budgets/{budgetId}/transactions`.
+    *   Commit all batches.
+7.  **Update Rule Document**:
+    *   Update the original `/budgets/{budgetId}/recurringRules/{ruleId}` document.
+    *   Set `nextDate` to the final `currentDate` value calculated *after* the loop finished (representing the next potential occurrence beyond the window).
+    *   Set `updatedAt` to `serverTimestamp()`.
+    *   Set `lastEditedByUserId` potentially to 'system'.
+    *   *(Note: `lastGenerated` field update might be implicitly handled by `nextDate` or could be added if needed).*
+8.  **Response**: Return success status and the count of generated instances.
+
+### 2.3 Algorithm Workflow: `action: 'delete'`
+
+This action is triggered before rule deletion or when a rule is deactivated.
+
+1.  **Query Instances**: Query `/budgets/{budgetId}/transactions` for instances where `recurringRuleId == ruleId`. *(Note: Current analysis suggests this might query ALL instances, not just future ones. Confirm if only future deletion is intended).*
+2.  **Batch Delete**: Perform a batch delete of all found documents.
+3.  **Response**: Return success status and the count of deleted instances.
+
+## 3. Date Calculation Helper (`calculateNextDate`)
+
+This crucial helper function determines the next valid occurrence date based on a rule and a current date.
+
+-   **Inputs**: `rule` (the recurring rule object), `currentDate` (a JS Date object representing the last known occurrence).
+-   **Logic**:
+    *   Uses a `switch` statement based on `rule.frequency`.
+    *   Calls the appropriate `date-fns` function (`addDays`, `addWeeks`, `addMonths`, `addYears`) using the `rule.interval`.
+    *   **'bi-weekly'**: Correctly handled via `addWeeks(currentDate, 2 * rule.interval)`.
+    *   **'monthly'/'quarterly'/'yearly'**: Includes logic to handle month-end variations and leap years correctly when necessary (e.g., preserving day-of-month where possible, adjusting to last day of month if target day doesn't exist).
+-   **Output**: Returns a new JS Date object representing the start of the next valid occurrence day (UTC).
+
+## 4. Key Implementation Details & Considerations
+
+-   **Budget-Centric Paths**: All Firestore operations use paths relative to `/budgets/{budgetId}`.
+-   **Signed Amounts**: The algorithm relies on the `recurringRule.amount` being stored with the correct sign (+income/-expense) as defined in [B5.2]. It then propagates this signed amount to generated `transaction.amount` fields.
+-   **Dual Active Fields**: The `manageRecurringInstances` function should respect the `rule.isActive` status (skipping generation if false), aligning with the fields defined in [B5.2]. The service layer handles updates to both `active` and `isActive`.
+-   **`date-fns` & UTC**: All date calculations MUST use `date-fns` and adhere strictly to UTC standards ([B2.3]) to avoid timezone issues.
+-   **Batch Writes**: Essential for atomicity and performance when creating/deleting multiple instances.
+-   **Error Handling & Logging**: Robust error handling and detailed logging ([B4.4]) are implemented within the function.
+-   **Performance**: The "occurrence hopping" logic using `calculateNextDate` is significantly more performant than daily checks. Indexing on `recurringRuleId` and `date` for transactions ([B5.2]) is crucial.
+
+## 5. Testing
+
+Refer to [B7.2] for test scenarios covering various frequencies, intervals, edge cases (start/end dates, month boundaries, leap years), and rule updates/deletions. Use the Firebase Emulator Suite extensively.
+
+This updated algorithm description accurately reflects the implementation verified in M4.13, providing a foundation for managing recurring transactions within the budget-centric architecture.
