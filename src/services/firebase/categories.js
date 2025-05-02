@@ -13,7 +13,8 @@ import {
   orderBy,
   serverTimestamp,
   addDoc,
-  writeBatch
+  writeBatch,
+  onSnapshot
 } from 'firebase/firestore';
 import { db } from './firebaseInit';
 import logger from '../logger';
@@ -608,5 +609,73 @@ export const migrateCategories = async (userId) => {
       error: error.message,
       message: 'Failed to migrate categories'
     };
+  }
+};
+
+/**
+ * Sets up a listener for categories within a specific budget.
+ * @param {string} budgetId - The ID of the budget.
+ * @param {function} callback - The function to call with the updated categories array.
+ * @returns {function} - The unsubscribe function for the listener.
+ */
+export const getCategoriesListener = (budgetId, callback) => {
+  try {
+    logger.debug('CategoryService', 'getCategoriesListener', 'Setting up listener', { budgetId });
+    const categoriesCollection = collection(db, `budgets/${budgetId}/categories`);
+    // Order categories by the 'order' field
+    const q = query(categoriesCollection, orderBy('order', 'asc'));
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const categories = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        const category = {
+          id: doc.id,
+          ...data,
+        };
+        // Ensure createdAt and updatedAt are Date objects if they exist
+        if (category.createdAt && typeof category.createdAt.toDate === 'function') {
+          category.createdAt = category.createdAt.toDate();
+        }
+        if (category.updatedAt && typeof category.updatedAt.toDate === 'function') {
+          category.updatedAt = category.updatedAt.toDate();
+        }
+        // Handle missing order field defensively, although ideally updated by getCategories
+        if (category.order === undefined || category.order === null) {
+          logger.warn('CategoryService', 'getCategoriesListener', 'Category without order field detected in listener', {
+            budgetId,
+            categoryId: category.id,
+            categoryName: category.name
+          });
+          // Assign a temporary high order value for sorting consistency in this snapshot
+          category.order = Infinity; 
+        }
+        return category;
+      });
+
+      logger.debug('CategoryService', 'getCategoriesListener', 'Snapshot received', { budgetId, count: categories.length });
+      callback(categories); // Pass the updated categories array to the callback
+    }, (error) => {
+      logger.error('CategoryService', 'getCategoriesListener', 'Listener error', {
+        error: error.message,
+        errorCode: error.code,
+        stack: error.stack,
+        budgetId
+      });
+      console.error("❌ ERROR in getCategoriesListener:", error);
+      // Optionally, call the callback with an empty array or signal an error
+      callback([]); // Or handle error state appropriately in the hook
+    });
+
+    return unsubscribe; // Return the unsubscribe function
+  } catch (error) {
+    logger.error('CategoryService', 'getCategoriesListener', 'Failed to set up listener', {
+      error: error.message,
+      errorCode: error.code,
+      stack: error.stack,
+      budgetId
+    });
+    console.error("❌ ERROR setting up getCategoriesListener:", error);
+    // Return a no-op unsubscribe function in case of setup error
+    return () => {};
   }
 }; 

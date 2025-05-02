@@ -542,4 +542,53 @@ export const getBudgetMembers = async (budgetId) => {
     });
     throw error;
   }
+};
+
+/**
+ * Fetches the specific monthly data document for a budget.
+ * @param {string} budgetId - The ID of the budget.
+ * @param {string} monthString - The month in "YYYY-MM" format.
+ * @returns {Promise<Object|null>} - The monthly data document data, or null if not found or error.
+ */
+export const getMonthlyBudgetData = async (budgetId, monthString) => {
+  if (!budgetId || !monthString) {
+    logger.warn('BudgetService', 'getMonthlyBudgetData', 'Missing budgetId or monthString', { budgetId, monthString });
+    return null;
+  }
+  // Validate monthString format (simple check)
+  if (!/^\d{4}-\d{2}$/.test(monthString)) {
+    logger.error('BudgetService', 'getMonthlyBudgetData', 'Invalid monthString format', { budgetId, monthString });
+    return null;
+  }
+
+  const docPath = `budgets/${budgetId}/monthlyData/${monthString}`;
+  const docRef = doc(db, docPath);
+
+  try {
+    logger.debug('BudgetService', 'getMonthlyBudgetData', 'Fetching monthly data', { budgetId, monthString, path: docPath });
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      logger.debug('BudgetService', 'getMonthlyBudgetData', 'Monthly data found', { budgetId, monthString });
+      return {
+        id: docSnap.id,
+        ...docSnap.data()
+      };
+    } else {
+      // It's valid for monthly data not to exist yet, return null instead of throwing an error
+      logger.info('BudgetService', 'getMonthlyBudgetData', 'Monthly data document does not exist yet', { budgetId, monthString, path: docPath });
+      return null; 
+    }
+  } catch (error) {
+    logger.error('BudgetService', 'getMonthlyBudgetData', 'Failed to fetch monthly data', {
+      error: error.message,
+      errorCode: error.code,
+      stack: error.stack,
+      budgetId,
+      monthString,
+      path: docPath
+    });
+    console.error("❌ ERROR fetching monthly data:", error);
+    return null; // Return null on error to be handled by the hook
+  }
 }; 

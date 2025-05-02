@@ -1,0 +1,5 @@
+/* src/features/budget/BudgetPage.module.css */
+.pageContainer {
+    padding: var(--spacing-4); /* Add some basic padding */
+  }
+  

@@ -1,0 +1,23 @@
+/* src/features/budget/components/BudgetHeader.module.css */
+
+.headerContainer {
+    margin-bottom: var(--spacing-6, 1.5rem); /* Use theme variable or fallback */
+    padding-bottom: var(--spacing-3, 0.75rem);
+    border-bottom: 1px solid var(--color-border-subtle, #e0e0e0); /* Use theme variable or fallback */
+  }
+  
+  .budgetName {
+    font-size: var(--font-size-2xl, 1.875rem); /* Use theme variable or fallback */
+    font-weight: var(--font-weight-semibold, 600); /* Use theme variable or fallback */
+    color: var(--color-text-primary, #1a1a1a); /* Use theme variable or fallback */
+    margin-bottom: var(--spacing-1, 0.25rem); /* Use theme variable or fallback */
+    line-height: 1.2;
+  }
+  
+  .currentMonth {
+    font-size: var(--font-size-lg, 1.125rem); /* Use theme variable or fallback */
+    color: var(--color-text-secondary, #555); /* Use theme variable or fallback */
+    font-weight: var(--font-weight-normal, 400);
+    margin: 0;
+  }
+  
