@@ -8,7 +8,8 @@ import {
   deleteDoc,
   writeBatch,
   serverTimestamp,
-  deleteField
+  deleteField,
+  onSnapshot
 } from 'firebase/firestore';
 import { db } from './firebaseInit';
 import logger from '../logger';
@@ -545,50 +546,198 @@ export const getBudgetMembers = async (budgetId) => {
 };
 
 /**
- * Fetches the specific monthly data document for a budget.
+ * Sets up a real-time listener for the monthly budget data document.
  * @param {string} budgetId - The ID of the budget.
  * @param {string} monthString - The month in "YYYY-MM" format.
- * @returns {Promise<Object|null>} - The monthly data document data, or null if not found or error.
+ * @param {Function} onDataChange - Callback when data changes, receives document data.
+ * @param {Function} onError - Optional callback for errors.
+ * @returns {Function} - Unsubscribe function to cancel the listener.
  */
-export const getMonthlyBudgetData = async (budgetId, monthString) => {
-  if (!budgetId || !monthString) {
-    logger.warn('BudgetService', 'getMonthlyBudgetData', 'Missing budgetId or monthString', { budgetId, monthString });
-    return null;
-  }
-  // Validate monthString format (simple check)
-  if (!/^\d{4}-\d{2}$/.test(monthString)) {
-    logger.error('BudgetService', 'getMonthlyBudgetData', 'Invalid monthString format', { budgetId, monthString });
-    return null;
-  }
-
-  const docPath = `budgets/${budgetId}/monthlyData/${monthString}`;
-  const docRef = doc(db, docPath);
-
+export const getMonthlyBudgetData = (budgetId, monthString, onDataChange, onError) => {
   try {
-    logger.debug('BudgetService', 'getMonthlyBudgetData', 'Fetching monthly data', { budgetId, monthString, path: docPath });
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      logger.debug('BudgetService', 'getMonthlyBudgetData', 'Monthly data found', { budgetId, monthString });
-      return {
-        id: docSnap.id,
-        ...docSnap.data()
-      };
-    } else {
-      // It's valid for monthly data not to exist yet, return null instead of throwing an error
-      logger.info('BudgetService', 'getMonthlyBudgetData', 'Monthly data document does not exist yet', { budgetId, monthString, path: docPath });
-      return null; 
+    if (!budgetId || !monthString) {
+      logger.warn('BudgetService', 'getMonthlyBudgetData', 'Missing budgetId or monthString', { budgetId, monthString });
+      if (onError) onError(new Error('Budget ID and Month String are required.'));
+      return () => {}; // Return a no-op unsubscribe function
     }
+    
+    // Validate monthString format (simple check)
+    if (!/^\d{4}-\d{2}$/.test(monthString)) {
+      logger.error('BudgetService', 'getMonthlyBudgetData', 'Invalid monthString format', { budgetId, monthString });
+      if (onError) onError(new Error('Invalid month format. Use YYYY-MM.'));
+      return () => {}; // Return a no-op unsubscribe function
+    }
+
+    const docPath = `budgets/${budgetId}/monthlyData/${monthString}`;
+    const docRef = doc(db, docPath);
+
+    logger.debug('BudgetService', 'getMonthlyBudgetData', 'Setting up real-time listener', { 
+      budgetId, 
+      monthString, 
+      path: docPath 
+    });
+
+    // Set up the real-time listener
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        logger.debug('BudgetService', 'getMonthlyBudgetData', 'Monthly data updated', { 
+          budgetId, 
+          monthString 
+        });
+        
+        // Call the success callback with the document data
+        onDataChange({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
+      } else {
+        // Document doesn't exist yet
+        logger.info('BudgetService', 'getMonthlyBudgetData', 'Monthly data document does not exist yet', { 
+          budgetId, 
+          monthString, 
+          path: docPath 
+        });
+        
+        // Pass null to indicate no document exists yet
+        onDataChange(null);
+      }
+    }, (error) => {
+      // Error during snapshot listening
+      logger.error('BudgetService', 'getMonthlyBudgetData', 'Error in snapshot listener', {
+        error: error.message,
+        errorCode: error.code,
+        stack: error.stack,
+        budgetId,
+        monthString,
+        path: docPath
+      });
+      
+      if (onError) onError(error);
+    });
+
+    // Return the unsubscribe function
+    return unsubscribe;
   } catch (error) {
-    logger.error('BudgetService', 'getMonthlyBudgetData', 'Failed to fetch monthly data', {
+    // Error during initial setup
+    logger.error('BudgetService', 'getMonthlyBudgetData', 'Failed to set up monthly data listener', {
+      error: error.message,
+      errorCode: error.code,
+      stack: error.stack,
+      budgetId,
+      monthString
+    });
+    
+    if (onError) onError(error);
+    return () => {}; // Return a no-op unsubscribe function
+  }
+};
+
+/**
+ * Updates the allocation amount for a specific category in a monthly budget document.
+ * Creates the document if it doesn't exist yet.
+ * @param {string} budgetId - The ID of the budget.
+ * @param {string} monthString - The month in "YYYY-MM" format.
+ * @param {string} categoryId - The ID of the category to update allocation for.
+ * @param {number} newAmount - The new allocation amount (must be >= 0).
+ * @param {string} [userId] - Optional. User ID making the change for audit purposes.
+ * @returns {Promise<boolean>} - True if successful.
+ */
+export const updateAllocation = async (budgetId, monthString, categoryId, newAmount, userId = null) => {
+  try {
+    // Validate inputs
+    if (!budgetId || !monthString || !categoryId) {
+      throw new Error('Budget ID, month string, and category ID are required');
+    }
+    
+    // Validate monthString format (simple check)
+    if (!/^\d{4}-\d{2}$/.test(monthString)) {
+      throw new Error('Invalid month format. Use YYYY-MM.');
+    }
+    
+    // Validate amount (must be a non-negative number)
+    const amount = parseFloat(newAmount);
+    if (isNaN(amount) || amount < 0) {
+      throw new Error('Allocation amount must be a non-negative number');
+    }
+    
+    logger.debug('BudgetService', 'updateAllocation', 'Updating category allocation', { 
+      budgetId, 
+      monthString, 
+      categoryId, 
+      newAmount: amount 
+    });
+    
+    const docPath = `budgets/${budgetId}/monthlyData/${monthString}`;
+    const docRef = doc(db, docPath);
+    
+    // Check if the document exists
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      // Update existing document with dot notation for the specific allocation
+      await updateDoc(docRef, {
+        [`allocations.${categoryId}`]: amount,
+        updatedAt: serverTimestamp(),
+        lastEditedByUserId: userId || null
+      });
+      
+      logger.info('BudgetService', 'updateAllocation', 'Allocation updated successfully', { 
+        budgetId, 
+        monthString, 
+        categoryId, 
+        newAmount: amount 
+      });
+    } else {
+      // Document doesn't exist yet, create it with initial data
+      // Parse the year and month from the monthString
+      const [year, month] = monthString.split('-').map(part => parseInt(part, 10));
+      
+      // Initial document data
+      const initialData = {
+        budgetId,
+        month: monthString,
+        year,
+        allocations: {
+          [categoryId]: amount
+        },
+        calculated: {
+          // Initial calculated values
+          revenue: 0,
+          recurringExpenses: 0,
+          rolloverFromPrevious: 0,
+          availableToAllocate: 0,
+          totalAllocated: amount, // Start with this allocation
+          remainingToAllocate: 0,
+          totalSpent: 0,
+          monthlySavings: 0
+        },
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        lastEditedByUserId: userId || null
+      };
+      
+      await setDoc(docRef, initialData);
+      
+      logger.info('BudgetService', 'updateAllocation', 'New monthly data document created with allocation', { 
+        budgetId, 
+        monthString, 
+        categoryId, 
+        newAmount: amount 
+      });
+    }
+    
+    return true;
+  } catch (error) {
+    logger.error('BudgetService', 'updateAllocation', 'Failed to update allocation', {
       error: error.message,
       errorCode: error.code,
       stack: error.stack,
       budgetId,
       monthString,
-      path: docPath
+      categoryId,
+      newAmount
     });
-    console.error("❌ ERROR fetching monthly data:", error);
-    return null; // Return null on error to be handled by the hook
+    
+    throw new Error(`Failed to update allocation: ${error.message}`);
   }
 }; 
