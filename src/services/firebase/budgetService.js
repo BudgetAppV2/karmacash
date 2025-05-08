@@ -11,6 +11,7 @@ import {
   deleteField,
   onSnapshot
 } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from './firebaseInit';
 import logger from '../logger';
 import { initializeDefaultCategories } from './categories';
@@ -739,5 +740,43 @@ export const updateAllocation = async (budgetId, monthString, categoryId, newAmo
     });
     
     throw new Error(`Failed to update allocation: ${error.message}`);
+  }
+};
+
+/**
+ * Calls the recalculateBudget Cloud Function.
+ * @param {string} budgetId - The ID of the budget.
+ * @param {string} monthString - The month in "YYYY-MM" format.
+ * @returns {Promise<object>} - An object indicating success or failure, and data/error.
+ */
+export const callRecalculateBudget = async (budgetId, monthString) => {
+  if (!budgetId || typeof budgetId !== 'string' || budgetId.trim() === '') {
+    logger.error('BudgetService', 'callRecalculateBudget', 'Invalid or missing budgetId', { budgetId });
+    throw new Error('Budget ID is required to recalculate budget.');
+  }
+  if (!monthString || typeof monthString !== 'string' || !/^\d{4}-\d{2}$/.test(monthString)) {
+    logger.error('BudgetService', 'callRecalculateBudget', 'Invalid or missing monthString', { monthString });
+    throw new Error('Month string in YYYY-MM format is required to recalculate budget.');
+  }
+
+  const functionsInstance = getFunctions();
+  const recalculateBudgetFn = httpsCallable(functionsInstance, 'recalculateBudget');
+
+  try {
+    logger.info('BudgetService', 'callRecalculateBudget', 'Calling recalculateBudget function', { budgetId, monthString });
+    const result = await recalculateBudgetFn({ budgetId, monthString });
+    logger.info('BudgetService', 'callRecalculateBudget', 'recalculateBudget function successful', { budgetId, monthString, resultData: result.data });
+    return { success: true, data: result.data };
+  } catch (error) {
+    logger.error('BudgetService', 'callRecalculateBudget', 'Error calling recalculateBudget function', {
+      budgetId,
+      monthString,
+      errorCode: error.code,
+      errorMessage: error.message,
+      errorDetails: error.details,
+      stack: error.stack
+    });
+    // Rethrow a more generic error for the UI to handle, or a specific one if preferred.
+    throw new Error(`Failed to recalculate budget: ${error.message || 'Unknown error occurred.'}`);
   }
 }; 

@@ -39,6 +39,9 @@ const {
 } = require('date-fns');
 const { OAuth2Client } = require('google-auth-library');
 
+// Import for the new recalculateBudget function
+const budgetFunctions = require('./src/budgets/recalculateBudget');
+
 // This creates direct references to the Firestore classes
 const FirestoreTimestamp = firestore.Timestamp;
 const FirestoreFieldValue = firestore.FieldValue;
@@ -1458,3 +1461,6 @@ exports.createBudgetCallable = functions.https.onCall(async (data, context) => {
     );
   }
 });
+
+// Export the new recalculateBudget function
+exports.recalculateBudget = budgetFunctions.recalculateBudget;

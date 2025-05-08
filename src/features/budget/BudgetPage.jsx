@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { format, parseISO, parse, subMonths, addMonths } from 'date-fns';
 import { frCA } from 'date-fns/locale';
-// import { useAuth } from '../../contexts/AuthContext'; // Keep if currentUser needed for other things, remove otherwise
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 import { useBudgets } from '../../contexts/BudgetContext'; // Import useBudgets
 import useBudgetData from '../../hooks/useBudgetData';
-import { updateAllocation } from '../../services/firebase/budgetService'; // Import the new function
+import { updateAllocation, callRecalculateBudget } from '../../services/firebase/budgetService'; // Import the new function
 import BudgetHeader from './components/BudgetHeader';
 import CategoryRow from './components/CategoryRow';
 import styles from './BudgetPage.module.css';
@@ -12,7 +12,7 @@ import styles from './BudgetPage.module.css';
 function BudgetPage() {
   // Get selected budget ID and loading state from BudgetContext
   const { selectedBudgetId, isLoadingBudgets, selectedBudget } = useBudgets();
-  // const { currentUser, isLoading: authLoading } = useAuth(); // Remove or keep based on need
+  const { currentUser, isLoading: isAuthLoading } = useAuth(); // Get user and auth loading state
 
   // Use the selectedBudgetId from the context
   const budgetId = selectedBudgetId;
@@ -20,6 +20,8 @@ function BudgetPage() {
   // State to manage the currently displayed month (YYYY-MM format)
   const [currentMonthString, setCurrentMonthString] = useState(format(new Date(), 'yyyy-MM'));
   const [updateError, setUpdateError] = useState(null);
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [recalculationError, setRecalculationError] = useState(null);
 
   // Pass the correct budgetId and monthString to the hook and get data
   const { 
@@ -32,6 +34,35 @@ function BudgetPage() {
     loading: dataLoading, 
     error 
   } = useBudgetData(budgetId, currentMonthString);
+
+  const triggerRecalculation = useCallback(async () => {
+    if (!currentUser || !selectedBudgetId || !currentMonthString) {
+      console.log("Skipping recalculation: Missing user, budgetId, or monthString.");
+      return; 
+    }
+
+    setIsRecalculating(true);
+    setRecalculationError(null);
+    console.log(`Triggering server-side recalculation for ${selectedBudgetId} / ${currentMonthString}`);
+
+    try {
+      await callRecalculateBudget(selectedBudgetId, currentMonthString);
+      console.log("Server-side recalculation call successful.");
+    } catch (error) {
+      console.error("Server-side recalculation call failed:", error);
+      setRecalculationError(error.message || "Failed to recalculate budget.");
+    } finally {
+      setIsRecalculating(false);
+    }
+  }, [currentUser, selectedBudgetId, currentMonthString]);
+
+  useEffect(() => {
+    if (!isAuthLoading && currentUser && selectedBudgetId && currentMonthString) {
+      triggerRecalculation();
+    } else {
+      console.log("Conditions not met for triggering recalculation (isAuthLoading: " + isAuthLoading + ", currentUser: " + !!currentUser + ", budgetId: " + selectedBudgetId + ", month: " + currentMonthString + ")."); 
+    }
+  }, [isAuthLoading, currentUser, selectedBudgetId, currentMonthString, triggerRecalculation]);
 
   /**
    * Handle allocation change for a category
@@ -180,11 +211,17 @@ function BudgetPage() {
         availableFunds={availableFunds}
         totalAllocated={totalAllocated}
         remainingToAllocate={remainingToAllocate}
+        isRecalculating={isRecalculating} // Pass loading state
       />
 
       {updateError && (
         <div className={styles.error}>
           Erreur lors de la mise à jour: {updateError}
+        </div>
+      )}
+      {recalculationError && (
+        <div className={`${styles.error} ${styles.recalcError}`}> {/* Optional: different styling */}
+          Erreur de recalcul: {recalculationError}
         </div>
       )}
 
