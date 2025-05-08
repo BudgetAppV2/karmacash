@@ -8,7 +8,7 @@ import logger from '../services/logger'; // Assuming logger is available
  * Custom hook to fetch budget data including monthly details, categories, transactions, and category activity.
  * @param {string} budgetId - The ID of the budget to fetch data for.
  * @param {string} monthString - The month string in "YYYY-MM" format.
- * @returns {object} - { monthlyData, categories, transactions, categoryActivityMap, loading, error }
+ * @returns {object} - { monthlyData, categories, transactions, categoryActivityMap, monthlyRevenue, monthlyRecurringSpending, availableFunds, totalAllocated, remainingToAllocate, loading, error }
  */
 function useBudgetData(budgetId, monthString) {
   const [monthlyData, setMonthlyData] = useState(null);
@@ -56,6 +56,65 @@ function useBudgetData(budgetId, monthString) {
     
     return activityMap;
   }, [transactions]);
+
+  // Calculate ZBB figures based on B6.1
+  // A. Calculate monthlyRevenue (B6.1 - 3.1)
+  const monthlyRevenue = useMemo(() => {
+    if (!transactions || transactions.length === 0) {
+      return 0;
+    }
+    const incomeTransactions = transactions.filter(tx => tx.type === 'income');
+    const totalIncome = incomeTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+    logger.debug('useBudgetData', 'Monthly Revenue calculated', { totalIncome });
+    return totalIncome;
+  }, [transactions]);
+
+  // B. Calculate monthlyRecurringExpenses_absolute_sum (B6.1 - 3.2)
+  // Assuming isRecurringInstance flag is present on transactions as per M3.
+  const monthlyRecurringSpending = useMemo(() => {
+    if (!transactions || transactions.length === 0) {
+      return 0;
+    }
+    const recurringExpenseTransactions = transactions.filter(
+      tx => tx.type === 'expense' && tx.isRecurringInstance === true
+    );
+    // Sum the absolute values as per B6.1 formula interpretation
+    const totalRecurringExpense = recurringExpenseTransactions.reduce(
+      (sum, tx) => sum + Math.abs(tx.amount),
+      0
+    );
+    logger.debug('useBudgetData', 'Monthly Recurring Spending calculated (absolute sum)', { totalRecurringExpense });
+    return totalRecurringExpense;
+  }, [transactions]);
+
+  // C. Define rolloverAmount_placeholder (B6.1 - 3.3 simplified)
+  const rolloverAmount_placeholder = 0; // Full rollover logic deferred
+
+  // D. Calculate availableFunds (B6.1 - 3.4)
+  // Formula: MonthlyRevenue - MonthlyRecurringExpenses + RolloverAmount
+  const availableFunds = useMemo(() => {
+    const funds = monthlyRevenue - monthlyRecurringSpending + rolloverAmount_placeholder;
+     logger.debug('useBudgetData', 'Available Funds calculated', { funds, monthlyRevenue, monthlyRecurringSpending, rolloverAmount_placeholder });
+    return funds;
+  }, [monthlyRevenue, monthlyRecurringSpending, rolloverAmount_placeholder]);
+
+  // E. Calculate totalAllocated (B6.1 - 3.5)
+  const totalAllocated = useMemo(() => {
+    if (!monthlyData || !monthlyData.allocations) {
+      return 0;
+    }
+    const allocations = monthlyData.allocations;
+    const total = Object.values(allocations).reduce((sum, allocation) => sum + allocation, 0);
+    logger.debug('useBudgetData', 'Total Allocated calculated', { total });
+    return total;
+  }, [monthlyData]); // Dependency on monthlyData to react to allocation changes
+
+  // F. Calculate remainingToAllocate (B6.1 - 3.6)
+  const remainingToAllocate = useMemo(() => {
+    const remaining = availableFunds - totalAllocated;
+    logger.debug('useBudgetData', 'Remaining to Allocate calculated', { remaining, availableFunds, totalAllocated });
+    return remaining;
+  }, [availableFunds, totalAllocated]);
 
   useEffect(() => {
     // Ensure budgetId and monthString are provided before fetching
@@ -172,7 +231,19 @@ function useBudgetData(budgetId, monthString) {
     };
   }, [budgetId, monthString]); // Re-run effect if budgetId or monthString changes
 
-  return { monthlyData, categories, transactions, categoryActivityMap, loading, error };
+  return { 
+    monthlyData, 
+    categories, 
+    transactions, 
+    categoryActivityMap, 
+    monthlyRevenue, 
+    monthlyRecurringSpending, 
+    availableFunds, 
+    totalAllocated, 
+    remainingToAllocate, 
+    loading, 
+    error 
+  };
 }
 
 export default useBudgetData; 

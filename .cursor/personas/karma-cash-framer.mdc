@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Animation Standards for KarmaCash
+globs:
+  - src/**/*.tsx # Applies to TSX files in src
+  - src/**/*.ts # Applies to TS files in src
+  - src/components/ui/**/* # Especially applies to UI components
+type: Auto Attached
+---
+# KarmaCash Animation Guidelines
+
+- **Animation Philosophy:** Subtle, purposeful animations that enhance UX without distracting users. Support calm, zen-focused experience. [B3.4]
+- **Performance First:** Always optimize animations for performance:
+  - Use hardware-accelerated properties (transform, opacity) when possible
+  - Keep animations under 500ms for responsiveness
+  - Test on mobile devices for performance
+  - Use will-change property sparingly
+- **Framer Motion Standards:**
+  - Use motion components for animations (motion.div, etc.)
+  - Prefer spring physics for natural movement: `type: "spring", stiffness: 300, damping: 40`
+  - Use AnimatePresence for elements entering/exiting the DOM
+  - Implement proper exit animations for components
+- **Flip Card Implementation:**
+  - Use 3D perspective (perspective: 1000px) for realistic card flipping
+  - Implement backfaceVisibility: "hidden" for clean transitions
+  - Set proper transform-origin for flip animations
+  - Ensure keyboard accessibility during animations
+- **Mobile Considerations:**
+  - Reduce animation complexity on mobile if performance suffers
+  - Ensure touch interactions trigger animations appropriately
+  - Test on different screen sizes and devices

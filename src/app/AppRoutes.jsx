@@ -6,8 +6,7 @@ import { ToastProvider } from '../contexts/ToastContext';
 import MainLayout from '../components/navigation/MainLayout';
 
 // Authentication Pages
-import NewLoginPage from '../features/auth/NewLoginPage';
-import SignupPage from '../features/auth/SignupPage';
+import AuthContainer from '../pages/auth/AuthContainer';
 import TestPage from '../features/auth/TestPage';
 import PasswordResetPage from '../features/auth/PasswordResetPage';
 import TestAuthComponent from '../features/auth/TestAuthComponent';
@@ -54,8 +53,8 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/login" element={<NewLoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/login" element={<AuthContainer initialView="login" />} />
+      <Route path="/signup" element={<AuthContainer initialView="signup" />} />
       <Route path="/test" element={<TestPage />} />
       <Route path="/forgot-password" element={<PasswordResetPage />} />
       <Route path="/test-auth" element={<TestAuthComponent />} />

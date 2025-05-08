@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, parse, subMonths, addMonths } from 'date-fns';
 import { frCA } from 'date-fns/locale';
 // import { useAuth } from '../../contexts/AuthContext'; // Keep if currentUser needed for other things, remove otherwise
 import { useBudgets } from '../../contexts/BudgetContext'; // Import useBudgets
@@ -17,18 +17,21 @@ function BudgetPage() {
   // Use the selectedBudgetId from the context
   const budgetId = selectedBudgetId;
   
-  // TODO: Add UI controls to change the month
-  const [monthString, setMonthString] = useState(format(new Date(), 'yyyy-MM'));
+  // State to manage the currently displayed month (YYYY-MM format)
+  const [currentMonthString, setCurrentMonthString] = useState(format(new Date(), 'yyyy-MM'));
   const [updateError, setUpdateError] = useState(null);
 
-  // Pass the correct budgetId to the hook and get data including categoryActivityMap
+  // Pass the correct budgetId and monthString to the hook and get data
   const { 
     monthlyData, 
     categories, 
     categoryActivityMap, 
+    availableFunds,
+    totalAllocated,
+    remainingToAllocate,
     loading: dataLoading, 
     error 
-  } = useBudgetData(budgetId, monthString);
+  } = useBudgetData(budgetId, currentMonthString);
 
   /**
    * Handle allocation change for a category
@@ -52,7 +55,7 @@ function BudgetPage() {
       console.log(`Updating allocation for category ${categoryId} to ${newAmount}`);
       
       // Call the service function to update the allocation in Firestore
-      await updateAllocation(budgetId, monthString, categoryId, newAmount);
+      await updateAllocation(budgetId, currentMonthString, categoryId, newAmount);
       
       // No need to update local state as real-time listener will handle the update
       console.log(`Successfully updated allocation for ${categoryId}`);
@@ -64,15 +67,55 @@ function BudgetPage() {
     }
   };
 
-  // Format month string for display
-  let displayMonth = 'Mois actuel';
-  if (monthString) {
+  /**
+   * Handles navigating to the previous month.
+   */
+  const handlePreviousMonth = () => {
     try {
-        displayMonth = format(parseISO(monthString + '-01'), 'MMMM yyyy', { locale: frCA });
+      // Parse the current month string into a Date object
+      const currentDateObj = parse(currentMonthString, 'yyyy-MM', new Date());
+      // Calculate the previous month
+      const previousMonthDate = subMonths(currentDateObj, 1);
+      // Format the new date back to YYYY-MM string
+      const previousMonthString = format(previousMonthDate, 'yyyy-MM');
+      
+      console.log('Navigating to previous month:', previousMonthString);
+      setCurrentMonthString(previousMonthString);
     } catch (e) {
-        console.error("Error formatting month string:", e); 
+      console.error('Error navigating to previous month:', e);
+      // Handle error (e.g., show a message)
     }
-  }
+  };
+
+  /**
+   * Handles navigating to the next month.
+   */
+  const handleNextMonth = () => {
+    try {
+      // Parse the current month string into a Date object
+      const currentDateObj = parse(currentMonthString, 'yyyy-MM', new Date());
+      // Calculate the next month
+      const nextMonthDate = addMonths(currentDateObj, 1);
+      // Format the new date back to YYYY-MM string
+      const nextMonthString = format(nextMonthDate, 'yyyy-MM');
+      
+      console.log('Navigating to next month:', nextMonthString);
+      setCurrentMonthString(nextMonthString);
+    } catch (e) {
+      console.error('Error navigating to next month:', e);
+      // Handle error (e.g., show a message)
+    }
+  };
+
+  // Format month string for display (This is now done in BudgetHeader)
+  // let displayMonth = 'Mois actuel';
+  // if (monthString) {
+  //   try {
+  //       displayMonth = format(parseISO(monthString + '-01'), 'MMMM yyyy', { locale: frCA });
+  //   } catch (e) {
+  //       console.error("Error formatting month string:", e); 
+  //   }
+  // }
   
   // Get budget name from the selectedBudget object provided by BudgetContext
   const budgetName = selectedBudget?.budgetName || "Mon Budget"; // Use selectedBudget from context
@@ -93,9 +136,15 @@ function BudgetPage() {
   if (dataLoading) {
     return (
         <div className={styles.pageContainer}>
+          {/* Display header even while loading details for context */}
           <BudgetHeader 
-            budgetName={budgetName} // Display name even while loading details
-            currentMonthString={displayMonth}
+            budgetName={budgetName} 
+            currentMonthString={currentMonthString} // Pass month string to header
+            onPreviousMonth={handlePreviousMonth}
+            onNextMonth={handleNextMonth}
+            availableFunds={availableFunds}
+            totalAllocated={totalAllocated}
+            remainingToAllocate={remainingToAllocate}
           />
           <p>Chargement des données du budget...</p>
         </div>
@@ -108,7 +157,12 @@ function BudgetPage() {
         <div className={styles.pageContainer}>
           <BudgetHeader 
             budgetName={budgetName} 
-            currentMonthString={displayMonth}
+            currentMonthString={currentMonthString} // Pass month string to header
+            onPreviousMonth={handlePreviousMonth}
+            onNextMonth={handleNextMonth}
+            availableFunds={availableFunds}
+            totalAllocated={totalAllocated}
+            remainingToAllocate={remainingToAllocate}
           />
          <div className={styles.error}>Erreur lors du chargement des données: {error.message}</div>
         </div>
@@ -120,7 +174,12 @@ function BudgetPage() {
     <div className={styles.pageContainer}>
       <BudgetHeader 
         budgetName={budgetName} 
-        currentMonthString={displayMonth}
+        currentMonthString={currentMonthString} // Pass the current month string
+        onPreviousMonth={handlePreviousMonth} // Pass the handler
+        onNextMonth={handleNextMonth} // Pass the handler
+        availableFunds={availableFunds}
+        totalAllocated={totalAllocated}
+        remainingToAllocate={remainingToAllocate}
       />
 
       {updateError && (

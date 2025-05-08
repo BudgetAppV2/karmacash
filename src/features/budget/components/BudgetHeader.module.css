@@ -14,10 +14,71 @@
     line-height: 1.2;
   }
   
+  .monthNavigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--spacing-3, 0.75rem);
+  }
+
   .currentMonth {
     font-size: var(--font-size-lg, 1.125rem); /* Use theme variable or fallback */
     color: var(--color-text-secondary, #555); /* Use theme variable or fallback */
     font-weight: var(--font-weight-normal, 400);
     margin: 0;
+  }
+
+  .navButton {
+    background: none;
+    border: none;
+    font-size: var(--font-size-xl, 1.25rem);
+    color: var(--color-primary, #919A7F); /* Use primary color for buttons */
+    cursor: pointer;
+    padding: var(--spacing-1, 0.25rem);
+    transition: color var(--transition-fast, 0.15s);
+  }
+
+  .navButton:hover {
+    color: var(--color-secondary, #A58D7F); /* Subtle hover effect */
+  }
+
+  .navButton:active {
+    color: color-mix(in srgb, var(--color-primary, #919A7F) 80%, black); /* Darken slightly when active */
+  }
+
+  .navButton:focus {
+    outline: 2px solid var(--color-primary, #919A7F);
+    outline-offset: 2px;
+  }
+  
+  .zbbSummary {
+    margin-top: var(--spacing-3, 0.75rem);
+    padding-top: var(--spacing-3, 0.75rem);
+    border-top: 1px solid var(--color-border-subtle, #e0e0e0); /* Use theme variable or fallback */
+    font-size: var(--font-size-sm, 0.875rem); /* Smaller font for summary */
+    color: var(--color-text-secondary, #555); /* Secondary text color for labels */
+  }
+
+  .zbbSummary p {
+    margin: var(--spacing-1, 0.25rem) 0;
+    /* Keep default text color unless overridden by conditional styles */
+  }
+
+  .zbbSummary p span {
+    font-weight: var(--font-weight-semibold, 600); /* Make the amount bold */
+    /* Initial text color is inherited from parent p */
+  }
+
+  .remainingPositive {
+    color: var(--color-positive, #568E8D); /* Green for positive */
+  }
+
+  .remainingNegative {
+    color: var(--color-negative, #C17C74); /* Red for negative */
+  }
+
+  .remainingZero {
+    /* Use default text color or a specific neutral color */
+    color: inherit; /* Inherit from parent p */
   }
   

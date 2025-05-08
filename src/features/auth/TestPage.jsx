@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { signIn, signUp, resetPassword, auth } from '../../services/authService';
+import { signIn, signUp, sendPasswordReset, auth } from '../../services/authService';
 
 function TestPage() {
   const [result, setResult] = useState(null);

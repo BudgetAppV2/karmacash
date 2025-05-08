@@ -17,7 +17,8 @@
  *   --list-budgets       List user's existing budgets and exit
  *   --skip-categories    Skip category creation
  *   --skip-transactions  Skip transaction creation
- *   --skip-rules        Skip recurring rule creation
+ *   --skip-rules         Skip recurring rule creation
+ *   --target-month=<YYYY-MM> Generate transactions for a specific month (e.g., 2025-05)
  *   --debug             Enable verbose debug logging
  *   --help              Show this help message
  * 
@@ -30,6 +31,9 @@
  * 
  *   # List user's budgets
  *   node scripts/seedAdmin.js --userId=abc123 --list-budgets
+ *
+ *   # Generate transactions for May 2025
+ *   node scripts/seedAdmin.js --userId=abc123 --budgetId=xyz789 --target-month=2025-05 --skip-categories --skip-rules
  * 
  * Environment Variables:
  *   FIRESTORE_EMULATOR_HOST - Firestore emulator host (default: localhost:8085)
@@ -634,6 +638,57 @@ function generateDate(daysBack, rangeDays) {
 }
 
 /**
+ * Generate a random date within a specific month (YYYY-MM)
+ * @param {string} yearMonthString - Month in YYYY-MM format (e.g., "2025-05")
+ * @returns {Date} - The generated date as a UTC Date object
+ */
+function generateDateInMonth(yearMonthString) {
+  const operation = 'generateDateInMonth';
+  
+  try {
+    // Parse the YYYY-MM string
+    const [year, month] = yearMonthString.split('-').map(Number);
+    
+    // Validate input
+    if (isNaN(year) || isNaN(month) || year < 2000 || year > 2100 || month < 1 || month > 12) {
+      throw new Error(`Invalid month format: ${yearMonthString}. Expected YYYY-MM (e.g., 2025-05)`);
+    }
+    
+    // Calculate days in month (accounting for leap years)
+    // Month parameter for Date constructor is 0-based, so month-1 gives last day of month
+    const daysInMonth = new Date(Date.UTC(year, month, 0)).getDate();
+    
+    // Generate random day in month (1 to daysInMonth)
+    const day = Math.floor(Math.random() * daysInMonth) + 1;
+    
+    // Generate random time
+    const hour = Math.floor(Math.random() * 24);
+    const minute = Math.floor(Math.random() * 60);
+    const second = Math.floor(Math.random() * 60);
+    
+    // Create date in UTC as per KarmaCash standards [B2.3]
+    const date = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+    
+    debugLog.debug(operation, 'Generated date in month', {
+      yearMonthString,
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      daysInMonth,
+      dateUTC: date.toISOString()
+    });
+    
+    return date;
+  } catch (error) {
+    debugLog.error(operation, 'Error generating date in month', error);
+    throw error;
+  }
+}
+
+/**
  * Seeds sample transactions for a budget
  * @param {string} budgetId - The budget ID
  * @param {string} userId - The user ID creating the transactions
@@ -648,7 +703,8 @@ async function seedSampleTransactions(budgetId, userId, categories, count = 15) 
       budgetId, 
       userId,
       categoryCount: categories.length,
-      targetCount: count
+      targetCount: count,
+      targetMonth: args['target-month'] || 'default (last 60 days)'
     });
 
     if (!categories?.length) {
@@ -676,8 +732,11 @@ async function seedSampleTransactions(budgetId, userId, categories, count = 15) 
       const categoryPool = isExpense ? expenseCategories : incomeCategories;
       const category = categoryPool[Math.floor(Math.random() * categoryPool.length)];
 
-      // Generate transaction data
-      const date = generateDate(0, 60); // Spread across last 60 days
+      // Generate transaction date based on command-line argument
+      const date = args['target-month']
+        ? generateDateInMonth(args['target-month']) // Generate date in specific month
+        : generateDate(0, 60);                      // Spread across last 60 days (default)
+        
       const descriptions = sampleTransactions[category.type][category.name] || ['Transaction'];
       const description = descriptions[Math.floor(Math.random() * descriptions.length)];
       const amount = generateAmount(category.name, category.type);
@@ -738,7 +797,8 @@ async function seedSampleTransactions(budgetId, userId, categories, count = 15) 
       budgetId,
       totalCount: transactionIds.length,
       expenseCount: Math.round(expenseCount),
-      incomeCount: Math.round(incomeCount)
+      incomeCount: Math.round(incomeCount),
+      targetMonth: args['target-month'] || 'default (last 60 days)'
     });
 
     return transactionIds;
@@ -1052,7 +1112,7 @@ async function main() {
     } else {
       // If skipping category creation but need IDs for transactions, fetch existing ones
       const categoriesRef = db.collection(`budgets/${budgetId}/categories`);
-      const categoriesSnapshot = await getDocs(categoriesRef);
+      const categoriesSnapshot = await categoriesRef.get();
       categoryIds = categoriesSnapshot.docs.map(doc => doc.id);
       debugLog.info('main', 'Using existing categories', { count: categoryIds.length });
     }
@@ -1122,4 +1182,42 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     debugLog.error('fatal', 'A fatal error occurred', error);
     process.exit(1);
   });
+}
+
+/**
+ * Displays help information about this script
+ */
+function showHelp() {
+  console.log(`
+Firebase Admin SDK Seeding Script for KarmaCash
+===============================================
+
+Usage:
+  node scripts/seedAdmin.js --userId=<uid> [options]
+
+Required:
+  --userId=<uid>          Firebase Auth User ID
+
+Options:
+  --budgetId=<id>         Target an existing budget (creates new if not provided)
+  --displayName=<name>    User's display name (optional)
+  --email=<email>         User's email address (optional)
+  --list-budgets          List user's existing budgets and exit
+  --skip-categories       Skip category creation
+  --skip-transactions     Skip transaction creation
+  --skip-rules            Skip recurring rule creation
+  --target-month=<YYYY-MM> Generate transactions for a specific month (e.g., 2025-05)
+  --debug                 Enable verbose debug logging
+  --help                  Show this help message
+
+Examples:
+  # Create new budget with all data
+  node scripts/seedAdmin.js --userId=abc123 --displayName="John Doe"
+
+  # Add transactions to existing budget
+  node scripts/seedAdmin.js --userId=abc123 --budgetId=xyz789 --skip-categories --skip-rules
+
+  # Generate transactions for May 2025
+  node scripts/seedAdmin.js --userId=abc123 --budgetId=xyz789 --target-month=2025-05 --skip-categories --skip-rules
+  `);
 } 

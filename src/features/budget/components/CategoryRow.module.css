@@ -1,53 +1,107 @@
 /* src/features/budget/components/CategoryRow.module.css */
 
-.rowContainer {
-    display: flex;
-    align-items: center;
-    padding: var(--spacing-3, 0.75rem) var(--spacing-2, 0.5rem); /* Vertical padding, less horizontal */
-    border-bottom: 1px solid var(--color-border-subtle, #eee); /* Subtle border */
-    font-size: var(--font-size-base, 1rem);
-    transition: background-color var(--transition-fast, 0.15s) ease-out;
-  }
+/* 
+   CategoryRow styles
+   Following KarmaCash [B3.8 v2] UI/UX Style Guide 
+*/
 
-/* Optional: Add subtle hover for interactivity later */
-/* .rowContainer:hover {
-    background-color: var(--color-highlight, #f9f9f9); 
-}*/
-  
+.rowContainer {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
 .categoryName {
-    flex: 1; /* Takes up remaining space */
-    padding-right: var(--spacing-4, 1rem);
-    color: var(--color-text-primary, #2F2F2F);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
+  font-weight: 500;
+  padding-left: 8px;
+}
+
 .amountCell {
-    min-width: 100px; /* Adjust width as needed for your layout */
-    text-align: right;
-    padding: 0 var(--spacing-2, 0.5rem); /* Horizontal padding within cell */
-    font-variant-numeric: tabular-nums; /* Align numbers */
-    font-weight: var(--font-weight-medium, 500); /* Slightly bolder for amounts */
-    color: var(--color-text-secondary, #555);
-  }
+  text-align: right;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+}
 
 .allocated {
-    /* Specific styles for allocated if needed, e.g., primary text color? */
-    color: var(--color-text-primary, #2F2F2F);
+  position: relative;
+}
+
+.allocated input.allocationInput {
+  width: 100% !important;
+  height: 28px !important;
+  box-sizing: border-box !important;
+  padding: 4px 8px !important;
+  font-size: 1rem !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(200, 200, 200, 0.5) !important;
+  border-radius: 4px !important;
+  text-align: right !important;
+  font-variant-numeric: tabular-nums !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  font-family: var(--font-body, inherit) !important;
+  color: var(--text-primary, rgb(47, 47, 47)) !important;
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+  line-height: normal !important;
+}
+
+.allocated input.allocationInput:focus {
+  outline: none !important;
+  border-color: var(--primary-sage, rgb(145, 154, 127)) !important;
+  background-color: rgba(245, 245, 245, 0.9) !important;
+  box-shadow: 0 0 0 1px rgba(145, 154, 127, 0.3) !important;
+}
+
+.allocated input.allocationInput:hover:not(:focus) {
+  background-color: rgba(245, 245, 245, 0.5) !important;
+  border-color: rgba(145, 154, 127, 0.2) !important;
+}
+
+.allocated input.allocationInput::-webkit-outer-spin-button,
+.allocated input.allocationInput::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+  display: none !important;
+}
+
+.allocated input.allocationInput[type=number] {
+  -moz-appearance: textfield;
 }
 
 .activity {
-    /* Style for activity placeholder/value */
-    /* Example: color: var(--color-information, #7A8D99); */
+  color: var(--text-primary);
 }
 
 .available {
-    /* Style for available placeholder/value */
-    /* Example: font-weight: var(--font-weight-semibold, 600); */
-    /* Example positive/negative colors based on value */
-    /* color: var(--color-positive, #568E8D); */
-    /* color: var(--color-negative, #C17C74); */
+  font-weight: 500;
+}
+
+/* Color styling for positive/negative values */
+.positive {
+  color: var(--positive, #568E8D) !important;
+}
+
+.negative {
+  color: var(--negative, #C17C74) !important;
+}
+
+/* Make sure these more specific selectors override any other styles */
+.amountCell.activity.positive,
+.amountCell.available.positive {
+  color: var(--positive, #568E8D) !important;
+}
+
+.amountCell.activity.negative,
+.amountCell.available.negative {
+  color: var(--negative, #C17C74) !important;
 }
 
 /* Responsive Adjustments (Example) */
@@ -61,4 +115,32 @@
     padding-left: var(--spacing-3, 0.75rem);
     padding-right: var(--spacing-3, 0.75rem);
   }
+}
+
+/* Styling for formatted amount display when not editing */
+.editableAmount {
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  padding: 4px 8px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+}
+
+.editableAmount:hover {
+  background-color: rgba(245, 245, 245, 0.5);
+  border-color: rgba(145, 154, 127, 0.2);
+}
+
+/* Additional class for edit mode - helps with specificity */
+.editModeInput {
+  /* Ensure these will override any global styles */
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
 } 

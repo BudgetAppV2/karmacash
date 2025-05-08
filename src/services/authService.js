@@ -17,7 +17,7 @@ import {
 export const signUp = registerUser;
 export const signIn = loginUser;
 export const signOut = logoutUser;
-export const resetPassword = firebaseResetPassword;
+export const sendPasswordReset = firebaseResetPassword;
 export const sendVerificationEmail = firebaseSendVerificationEmail;
 export const updateProfile = updateUserProfile;
 export const updateEmail = updateUserEmail;
@@ -31,7 +31,7 @@ export default {
   signUp,
   signIn,
   signOut,
-  resetPassword,
+  sendPasswordReset,
   sendVerificationEmail,
   updateProfile,
   updateEmail,

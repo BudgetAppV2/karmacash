@@ -13,7 +13,8 @@ import {
   orderBy,
   limit,
   serverTimestamp,
-  Timestamp
+  Timestamp,
+  onSnapshot
 } from 'firebase/firestore';
 import { db } from './firebaseInit';
 import logger from '../logger';
@@ -670,5 +671,112 @@ export const getTransactionsInRange = async (budgetId, startDate, endDate, optio
       endDate: endDate instanceof Date ? endDate.toISOString() : endDate,
     });
     throw error;
+  }
+};
+
+/**
+ * Get real-time updates for transactions in a specific month
+ * @param {string} budgetId - Budget ID
+ * @param {string} monthString - Month in YYYY-MM format
+ * @param {Function} onDataChange - Callback function to handle transaction data updates
+ * @param {Function} onError - Callback function to handle errors (optional)
+ * @returns {Function} - Unsubscribe function to stop listening
+ */
+export const getTransactionsForMonth = (budgetId, monthString, onDataChange, onError) => {
+  try {
+    logger.debug('TransactionService', 'getTransactionsForMonth', 'Setting up listener', { 
+      budgetId, 
+      monthString 
+    });
+
+    // Input validation
+    if (!budgetId || !monthString || typeof monthString !== 'string' || !monthString.match(/^\d{4}-\d{2}$/)) {
+      const error = new Error('Invalid budgetId or monthString format (required: YYYY-MM)');
+      logger.error('TransactionService', 'getTransactionsForMonth', 'Invalid input', {
+        error: error.message,
+        budgetId,
+        monthString
+      });
+      if (onError) onError(error);
+      return () => {}; // Return a no-op unsubscribe function
+    }
+
+    // Parse the month string into year and month components (as numbers)
+    const [year, month] = monthString.split('-').map(Number);
+    
+    // Create UTC start date (first day of month at 00:00:00.000)
+    const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
+    
+    // Create UTC end date (last day of month at 23:59:59.999)
+    // Using day 0 of next month gives the last day of current month
+    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+    
+    // Convert to Firestore Timestamps for query
+    const startTimestamp = Timestamp.fromDate(startDate);
+    const endTimestamp = Timestamp.fromDate(endDate);
+    
+    logger.debug('TransactionService', 'getTransactionsForMonth', 'Date range calculated', {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      monthString
+    });
+
+    // Build reference to the transactions collection for this budget
+    const transactionsPath = `budgets/${budgetId}/transactions`;
+    const transactionsCollection = collection(db, transactionsPath);
+    
+    // Create query for transactions within the date range
+    const q = query(
+      transactionsCollection,
+      where('date', '>=', startTimestamp),
+      where('date', '<=', endTimestamp),
+      orderBy('date', 'desc')
+    );
+    
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const transactions = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        
+        // Convert Firestore Timestamp to JS Date for easier client-side handling
+        if (data.date && data.date instanceof Timestamp) {
+          data.date = data.date.toDate();
+        }
+        
+        return {
+          id: doc.id,
+          ...data
+        };
+      });
+      
+      logger.debug('TransactionService', 'getTransactionsForMonth', 'Transactions updated', {
+        budgetId,
+        monthString,
+        count: transactions.length
+      });
+      
+      // Pass the transactions to the callback
+      onDataChange(transactions);
+    }, (error) => {
+      logger.error('TransactionService', 'getTransactionsForMonth', 'Error in snapshot listener', {
+        error: error.message,
+        stack: error.stack,
+        budgetId,
+        monthString
+      });
+      if (onError) onError(error);
+    });
+    
+    // Return the unsubscribe function
+    return unsubscribe;
+  } catch (error) {
+    logger.error('TransactionService', 'getTransactionsForMonth', 'Error setting up listener', {
+      error: error.message,
+      stack: error.stack,
+      budgetId,
+      monthString
+    });
+    if (onError) onError(error);
+    return () => {}; // Return a no-op unsubscribe function
   }
 }; 
