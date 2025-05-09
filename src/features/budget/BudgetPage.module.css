@@ -20,12 +20,12 @@
 
 /* Match column styles with CategoryRow for alignment */
 .categoryHeaderRow .categoryName {
-  padding-left: 8px; /* Match CategoryRow padding exactly */
+  padding-left: var(--spacing-2); /* Match CategoryRow padding exactly */
 }
 
 .categoryHeaderRow .amountCell {
   text-align: right;
-  padding: 0 12px;
+  padding: 0 var(--spacing-3);
 }
 
 @media (min-width: 640px) {
@@ -45,5 +45,403 @@
   margin: var(--spacing-4) 0;
   border-radius: var(--border-radius-sm);
   background-color: color-mix(in srgb, var(--color-negative) 10%, var(--color-background));
+}
+  
+.budgetPage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--color-background-alt); /* Subtle background for depth */
+  min-height: 100vh;
+}
+
+/* Header Styles */
+.header {
+  background-color: var(--color-surface);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-level-1);
+  text-align: center;
+}
+
+.budgetName {
+  font-size: var(--font-size-xl);
+  color: var(--color-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.monthNavigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.navButton {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+  padding: var(--spacing-xs); /* Increased padding for touch */
+  border-radius: var(--border-radius-round); /* Circle buttons */
+  cursor: pointer;
+  display: flex; /* For icon centering */
+  align-items: center;
+  justify-content: center;
+  width: 40px; /* Ensure touch target */
+  height: 40px; /* Ensure touch target */
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.navButton:hover, .navButton:focus-visible {
+  background-color: var(--color-primary-x-light);
+  box-shadow: var(--shadow-level-1);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.navButton svg {
+  width: 20px; /* Icon size */
+  height: 20px;
+}
+
+.currentMonthDisplay {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  min-width: 150px; /* Prevent layout shifts */
+  text-align: center;
+}
+
+/* Summary Metrics Section */
+.summaryMetrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two columns on mobile */
+  gap: var(--spacing-md);
+}
+
+.statCard {
+  background-color: var(--color-surface);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-level-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content */
+  text-align: center;
+}
+
+.statLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.statValue {
+  font-size: var(--font-size-lg); /* Make numbers prominent */
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.statSubValue {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--spacing-xxs);
+}
+
+.remainingPositive { color: var(--color-success); }
+.remainingNegative { color: var(--color-error); }
+.remainingZero { color: var(--color-text-primary); }
+
+
+/* Indicators & Error Messages */
+.recalculatingIndicator,
+.recalculatingIndicatorComplete {
+  text-align: center;
+  padding: var(--spacing-sm);
+  margin: var(--spacing-xs) 0;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+}
+.recalculatingIndicator {
+  background-color: var(--color-info-x-light);
+  color: var(--color-info);
+}
+.recalculatingIndicatorComplete {
+  background-color: var(--color-success-x-light);
+  color: var(--color-success);
+}
+
+.errorDisplay {
+  background-color: var(--color-error-x-light);
+  color: var(--color-error);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-sm) 0;
+  text-align: center;
+}
+.errorDisplay h3 {
+  margin-top: 0;
+  color: var(--color-error-dark); /* Darker for title within light error box */
+}
+
+.dataSourceIndicator {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  margin-top: calc(-1 * var(--spacing-sm)); /* Pull up slightly */
+  margin-bottom: var(--spacing-sm);
+}
+
+
+/* Category Section */
+.categorySection {
+  background-color: var(--color-surface);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-level-1);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.categoryCardList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.categoryCard {
+  background-color: var(--color-background-alt); /* Slightly different from page bg */
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius-lg); /* Softer, larger radius */
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-level-0);
+  transition: box-shadow var(--transition-fast);
+}
+.categoryCard:hover {
+  box-shadow: var(--shadow-level-2);
+}
+
+.categoryCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+  gap: var(--spacing-sm);
+}
+
+.categoryName {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold); /* Make category name stand out */
+  color: var(--color-primary-dark);
+  flex-grow: 1;
+}
+
+.categoryAllocationInput {
+  font-size: var(--font-size-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  width: 100px; /* Fixed width for consistency */
+  text-align: right;
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+}
+.categoryAllocationInput:focus {
+  outline: 2px solid var(--color-focus);
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+}
+
+.categoryCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.categoryProgressBarContainer {
+  width: 100%;
+  height: 12px; /* Thicker progress bar */
+  background-color: var(--color-border-x-light);
+  border-radius: var(--border-radius-pill); /* Pill shape */
+  overflow: hidden;
+}
+
+.categoryProgressBarFilled {
+  height: 100%;
+  background-color: var(--color-secondary); /* Use secondary for progress */
+  border-radius: var(--border-radius-pill);
+  transition: width var(--transition-medium) var(--ease-standard);
+}
+.categoryCard:has(.figureValueNegative) .categoryProgressBarFilled { /* If available is negative, bar could be red */
+  background-color: var(--color-warning); /* Or error, if it means overspent */
+}
+
+
+.categoryFigures {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-sm); /* Add gap for spacing */
+  flex-wrap: wrap; /* Allow wrapping on very small screens if needed */
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align text to start for each figure */
+  min-width: 80px; /* Ensure some minimum width */
+  text-align: left;
+}
+.figure:last-child { /* Make last item (Available) more prominent or align right */
+  align-items: flex-end;
+  text-align: right;
+}
+
+
+.figureLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: 2px;
+}
+
+.figureValue {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+.figureValueNegative {
+  color: var(--color-error) !important; /* Ensure it's visible */
+}
+
+
+/* Empty States & Loading */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-md);
+}
+.emptyState svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-primary-light);
+}
+.emptyStateTitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+.emptyStateText {
+  font-size: var(--font-size-md);
+  margin-bottom: var(--spacing-md);
+}
+.emptyStateButton { /* Basic styling if you add a button */
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+.emptyStateButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px; /* Ensure it takes some space */
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xl);
+}
+
+
+/* Tablet and Up */
+@media (min-width: 768px) {
+  .budgetPage {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-xl);
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+  .budgetName {
+    margin-bottom: 0;
+  }
+
+  .summaryMetrics {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive grid */
+    gap: var(--spacing-lg);
+  }
+  .statCard {
+     align-items: flex-start; /* Align left on larger screens */
+     text-align: left;
+  }
+  .statValue {
+    font-size: var(--font-size-xl); /* Even more prominent */
+  }
+
+  .categorySection {
+    padding: var(--spacing-lg);
+  }
+  .sectionTitle {
+    text-align: left; /* Align with content */
+  }
+  .categoryCardList {
+    display: grid;
+    /* Create 2 columns on tablet, but allow them to grow */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: var(--spacing-lg);
+  }
+   .categoryCardHeader {
+    margin-bottom: var(--spacing-md);
+  }
+  .categoryAllocationInput {
+    width: 120px; /* A bit wider on larger screens */
+  }
+  .categoryCardBody {
+    gap: var(--spacing-md);
+  }
+   .categoryFigures {
+    gap: var(--spacing-md); /* More gap for figures */
+  }
+  .figure {
+    min-width: 90px;
+  }
+}
+
+/* Desktop specific refinements (optional) */
+@media (min-width: 1024px) {
+  .summaryMetrics {
+    /* Could have 3 or more columns if many stats */
+    /* grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));  */
+  }
+   .categoryCardList {
+    /* Could go to 3 columns if cards are not too wide */
+    /* grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); */
+  }
 }
   

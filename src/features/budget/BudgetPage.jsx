@@ -1,57 +1,36 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { format, parseISO, parse, subMonths, addMonths } from 'date-fns';
+import { format, parse, parseISO, subMonths, addMonths } from 'date-fns';
 import { frCA } from 'date-fns/locale';
-import { getAuth } from 'firebase/auth'; // Import getAuth
-import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
-import { useBudgets } from '../../contexts/BudgetContext'; // Import useBudgets
+import { getAuth } from 'firebase/auth';
+import { useAuth } from '../../contexts/AuthContext';
+import { useBudgets } from '../../contexts/BudgetContext';
 import useBudgetData from '../../hooks/useBudgetData';
-import { updateAllocation, callRecalculateBudget } from '../../services/firebase/budgetService'; // Import the new function
-import BudgetHeader from './components/BudgetHeader';
-import CategoryRow from './components/CategoryRow';
-import styles from './BudgetPage.module.css';
-import { debounce } from 'lodash'; // Or implement your own debounce function
+import { updateAllocation, callRecalculateBudget } from '../../services/firebase/budgetService';
+import { debounce } from 'lodash';
+import styles from './BudgetPage.module.css'; // Styles will be completely revamped
+import { formatCurrency } from '../../utils/formatters'; 
+
+// Icons (assuming you have an icon library or SVGs)
+const ChevronLeftIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="24" height="24"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>;
+const ChevronRightIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="24" height="24"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>;
+const InfoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>;
+const PlusCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+
 
 function BudgetPage() {
-  // Add this near the top of the component, outside other hooks
-  useEffect(() => {
-    const checkAuth = async () => {
-      const auth = getAuth();
-      if (auth.currentUser) {
-        try {
-          console.log("DIRECT TEST - User found, attempting to get token...");
-          const token = await auth.currentUser.getIdToken(true); // Force refresh
-          console.log("DIRECT TEST - Successfully got token:", token.substring(0, 20) + "...");
-        } catch (error) {
-          console.error("DIRECT TEST - Failed to get token:", error);
-        }
-      } else {
-        console.log("DIRECT TEST - No current user in auth on mount");
-      }
-    };
-    
-    // Wait a moment for auth state to potentially settle after initial load
-    const timer = setTimeout(checkAuth, 1000);
-    return () => clearTimeout(timer); // Cleanup timer
-  }, []); // Empty dependency array ensures it runs once on mount
-
-  // Get selected budget ID and loading state from BudgetContext
   const { selectedBudgetId, isLoadingBudgets, selectedBudget } = useBudgets();
-  const { currentUser, isLoading: isAuthLoading } = useAuth(); // Get user and auth loading state
-
-  // Use the selectedBudgetId from the context
+  const { currentUser, isLoading: isAuthLoading } = useAuth();
   const budgetId = selectedBudgetId;
   
-  // State to manage the currently displayed month (YYYY-MM format)
   const [currentMonthString, setCurrentMonthString] = useState(format(new Date(), 'yyyy-MM'));
   const [updateError, setUpdateError] = useState(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalculationError, setRecalculationError] = useState(null);
-  const [calculationStatus, setCalculationStatus] = useState(null); // New state for visual feedback
+  const [calculationStatus, setCalculationStatus] = useState(null); // 'pending', 'complete', 'error'
+  const [editingAllocation, setEditingAllocation] = useState({}); // { categoryId: newAmountStr }
 
-  // Use a ref to store the debounced function to access its .cancel() method
   const debouncedTriggerRecalculationRef = useRef(null);
 
-  // Pass the correct budgetId and monthString to the hook and get data
   const { 
     monthlyData, 
     categories, 
@@ -64,308 +43,273 @@ function BudgetPage() {
     rolloverAmount,
     isUsingServerCalculations,
     loading: dataLoading, 
-    error 
+    error: dataError // Renamed to avoid conflict with updateError/recalculationError
   } = useBudgetData(budgetId, currentMonthString);
 
   const triggerRecalculation = useCallback(async () => {
-    console.log("Starting recalculation process...");
-    if (isAuthLoading) {
-      console.log("Auth is still loading, not triggering recalculation");
-      return;
-    }
-    const auth = getAuth();
-    const firebaseUser = auth.currentUser;
-    console.log("Context currentUser:", currentUser ? currentUser.uid : "null");
-    console.log("Firebase auth.currentUser:", firebaseUser ? firebaseUser.uid : "null");
-    if (!firebaseUser) {
-      console.log("No authenticated Firebase user found, not triggering recalculation");
-      return;
-    }
-    if (!selectedBudgetId || !currentMonthString) {
-      console.log("Skipping recalculation: Missing budgetId or monthString.");
+    if (isAuthLoading || !currentUser || !selectedBudgetId || !currentMonthString) {
+      console.log("Skipping recalculation: Auth/User/Budget/Month not ready.");
       return; 
     }
     
+    setIsRecalculating(true);
+    setRecalculationError(null);
+    setCalculationStatus('pending');
     try {
-      console.log("Getting ID token for user:", firebaseUser.uid);
-      setIsRecalculating(true);
-      setRecalculationError(null);
-      
-      const token = await firebaseUser.getIdToken(true);
-      console.log("Obtained token of length:", token.length);
-      console.log("Token preview for recalculation call:", `${token.substring(0, 10)}...${token.substring(token.length - 10)}`);
-      
-      console.log("Calling recalculateBudget with token");
-      const result = await callRecalculateBudget(selectedBudgetId, currentMonthString);
-      console.log("Recalculation result:", result);
-      setCalculationStatus('complete'); // Set to complete on success
-      
+      const auth = getAuth();
+      const token = await auth.currentUser.getIdToken(true);
+      await callRecalculateBudget(selectedBudgetId, currentMonthString); // Token is now handled by the service call via Functions context
+      setCalculationStatus('complete');
     } catch (error) {
       console.error("Recalculation error:", error);
       setRecalculationError(error.message || "An error occurred during recalculation");
-      setCalculationStatus('error'); // Set to error on failure
+      setCalculationStatus('error');
     } finally {
       setIsRecalculating(false);
-      // Reset status after a short delay if it was complete or error
       setTimeout(() => {
         if (calculationStatus === 'complete' || calculationStatus === 'error') {
           setCalculationStatus(null);
         }
-      }, 3000); // Reset after 3 seconds
+      }, 3000);
     }
-  }, [isAuthLoading, currentUser, selectedBudgetId, currentMonthString, callRecalculateBudget]);
+  }, [isAuthLoading, currentUser, selectedBudgetId, currentMonthString, calculationStatus]); // Added calculationStatus to deps
 
   useEffect(() => {
     if (!isAuthLoading && currentUser && selectedBudgetId && currentMonthString) {
-      console.log("Initial trigger conditions met, calling direct recalculation.")
       triggerRecalculation(); 
-    } else {
-      console.log("Conditions not met for triggering initial recalculation (isAuthLoading: " + isAuthLoading + ", currentUser: " + !!currentUser + ", budgetId: " + selectedBudgetId + ", month: " + currentMonthString + ")."); 
     }
-  }, [isAuthLoading, currentUser, selectedBudgetId, currentMonthString, triggerRecalculation]);
+  }, [isAuthLoading, currentUser, selectedBudgetId, currentMonthString]); // Removed triggerRecalculation from here to avoid loop on its own change
 
-  useEffect(() => {
+   useEffect(() => {
     debouncedTriggerRecalculationRef.current = debounce(() => {
       if (typeof triggerRecalculation === 'function') {
-        console.log("Calling debounced triggerRecalculation");
         triggerRecalculation();
       }
-    }, 500); // Changed from 2000ms to 500ms
+    }, 1000); // Debounce time for recalculation after allocation change
 
     return () => {
       if (debouncedTriggerRecalculationRef.current && 
           typeof debouncedTriggerRecalculationRef.current.cancel === 'function') {
-        console.log("Cancelling pending debounced recalculation on cleanup.");
         debouncedTriggerRecalculationRef.current.cancel();
       }
     };
   }, [triggerRecalculation]);
 
-  /**
-   * Handle allocation change for a category
-   * @param {string} categoryId - The ID of the category to update
-   * @param {number} newAmount - The new allocation amount
-   */
-  const handleAllocationChange = async (categoryId, newAmount) => {
-    setUpdateError(null);
-    
-    try {
-      if (!categoryId) {
-        throw new Error('Category ID is required');
-      }
-      
-      if (typeof newAmount !== 'number' || isNaN(newAmount) || newAmount < 0) {
-        throw new Error('Amount must be a non-negative number');
-      }
-      
-      console.log(`Updating allocation for category ${categoryId} to ${newAmount}`);
-      
-      await updateAllocation(budgetId, currentMonthString, categoryId, newAmount);
-      
-      console.log(`Successfully updated allocation for ${categoryId}`);
-      
-      setCalculationStatus('pending'); // Show a "Recalculating..." indicator
 
-      if (debouncedTriggerRecalculationRef.current && 
-          typeof debouncedTriggerRecalculationRef.current === 'function') {
+  const handleAllocationChange = async (categoryId, newAmountStr) => {
+    const newAmount = parseFloat(newAmountStr);
+    if (!categoryId || typeof newAmount !== 'number' || isNaN(newAmount) || newAmount < 0) {
+      setUpdateError('Montant invalide.');
+      setEditingAllocation(prev => ({...prev, [categoryId]: newAmountStr})); // keep invalid input for correction
+      return;
+    }
+    setUpdateError(null);
+    setEditingAllocation(prev => ({...prev, [categoryId]: undefined })); // Clear editing state for this category
+
+    try {
+      await updateAllocation(budgetId, currentMonthString, categoryId, newAmount);
+      if (debouncedTriggerRecalculationRef.current) {
         debouncedTriggerRecalculationRef.current();
-      } else {
-        console.warn("debouncedTriggerRecalculationRef.current is not a function.");
       }
-      
     } catch (error) {
       console.error('Failed to update allocation:', error);
       setUpdateError(error.message);
     }
   };
-
-  /**
-   * Handles navigating to the previous month.
-   */
-  const handlePreviousMonth = () => {
-    try {
-      // Parse the current month string into a Date object
-      const currentDateObj = parse(currentMonthString, 'yyyy-MM', new Date());
-      // Calculate the previous month
-      const previousMonthDate = subMonths(currentDateObj, 1);
-      // Format the new date back to YYYY-MM string
-      const previousMonthString = format(previousMonthDate, 'yyyy-MM');
-      
-      console.log('Navigating to previous month:', previousMonthString);
-      setCurrentMonthString(previousMonthString);
-    } catch (e) {
-      console.error('Error navigating to previous month:', e);
-      // Handle error (e.g., show a message)
-    }
-  };
-
-  /**
-   * Handles navigating to the next month.
-   */
-  const handleNextMonth = () => {
-    try {
-      // Parse the current month string into a Date object
-      const currentDateObj = parse(currentMonthString, 'yyyy-MM', new Date());
-      // Calculate the next month
-      const nextMonthDate = addMonths(currentDateObj, 1);
-      // Format the new date back to YYYY-MM string
-      const nextMonthString = format(nextMonthDate, 'yyyy-MM');
-      
-      console.log('Navigating to next month:', nextMonthString);
-      setCurrentMonthString(nextMonthString);
-    } catch (e) {
-      console.error('Error navigating to next month:', e);
-      // Handle error (e.g., show a message)
-    }
-  };
-
-  // Format month string for display (This is now done in BudgetHeader)
-  // let displayMonth = 'Mois actuel';
-  // if (monthString) {
-  //   try {
-  //       displayMonth = format(parseISO(monthString + '-01'), 'MMMM yyyy', { locale: frCA });
-  //   } catch (e) {
-  //       console.error("Error formatting month string:", e); 
-  //   }
-  // }
   
-  // Get budget name from the selectedBudget object provided by BudgetContext
-  const budgetName = selectedBudget?.budgetName || "Mon Budget"; // Use selectedBudget from context
+  const handleAllocationInputChange = (categoryId, value) => {
+    setEditingAllocation(prev => ({...prev, [categoryId]: value}));
+  };
 
-  // Handle loading state from BudgetContext (and potentially AuthContext if still needed)
-  if (isLoadingBudgets) { // Primarily check if budgets are loading/selecting
-    return <div className={styles.pageContainer}>Chargement des budgets...</div>;
+  const navigateMonth = (direction) => {
+    try {
+      const currentDateObj = parse(currentMonthString, 'yyyy-MM', new Date());
+      const newDate = direction === 'prev' ? subMonths(currentDateObj, 1) : addMonths(currentDateObj, 1);
+      setCurrentMonthString(format(newDate, 'yyyy-MM'));
+    } catch (e) {
+      console.error('Error navigating month:', e);
+    }
+  };
+
+  const budgetName = selectedBudget?.budgetName || "Mon Budget";
+  let displayMonth = currentMonthString;
+  try {
+    displayMonth = format(parse(currentMonthString, 'yyyy-MM', new Date()), 'MMMM yyyy', { locale: frCA });
+  } catch (e) { console.error("Error formatting month string:", e); }
+
+
+  if (isLoadingBudgets) {
+    return <div className={styles.loadingContainer} role="status" aria-live="polite">Chargement des budgets...</div>;
   }
-
-  // Handle case where no budget is selected
   if (!budgetId) {
-    // Provide a more informative message if there are budgets but none selected vs no budgets at all
-    // (Requires access to userBudgets from useBudgets, not shown here for brevity)
-    return <div className={styles.pageContainer}>Sélectionnez ou créez un budget pour commencer.</div>;
-  }
-
-  // Handle loading state for the specific budget's data (categories, monthlyData)
-  if (dataLoading) {
     return (
-        <div className={styles.pageContainer}>
-          {/* Display header even while loading details for context */}
-          <BudgetHeader 
-            budgetName={budgetName} 
-            currentMonthString={currentMonthString} // Pass month string to header
-            onPreviousMonth={handlePreviousMonth}
-            onNextMonth={handleNextMonth}
-            availableFunds={availableFunds}
-            totalAllocated={totalAllocated}
-            remainingToAllocate={remainingToAllocate}
-            totalSpent={totalSpent}
-            monthlySavings={monthlySavings}
-            rolloverAmount={rolloverAmount}
-            isUsingServerCalculations={isUsingServerCalculations}
-          />
-          <p>Chargement des données du budget...</p>
-        </div>
-      );
-  }
-
-  // Handle error state from data fetching hook
-  if (error) {
-    return (
-        <div className={styles.pageContainer}>
-          <BudgetHeader 
-            budgetName={budgetName} 
-            currentMonthString={currentMonthString} // Pass month string to header
-            onPreviousMonth={handlePreviousMonth}
-            onNextMonth={handleNextMonth}
-            availableFunds={availableFunds}
-            totalAllocated={totalAllocated}
-            remainingToAllocate={remainingToAllocate}
-            totalSpent={totalSpent}
-            monthlySavings={monthlySavings}
-            rolloverAmount={rolloverAmount}
-            isUsingServerCalculations={isUsingServerCalculations}
-          />
-         <div className={styles.error}>Erreur lors du chargement des données: {error.message}</div>
-        </div>
-      );
-  }
-
-  // Main content rendering
-  return (
-    <div className={styles.pageContainer}>
-      <BudgetHeader 
-        budgetName={budgetName} 
-        currentMonthString={currentMonthString} // Pass the current month string
-        onPreviousMonth={handlePreviousMonth} // Pass the handler
-        onNextMonth={handleNextMonth} // Pass the handler
-        availableFunds={availableFunds}
-        totalAllocated={totalAllocated}
-        remainingToAllocate={remainingToAllocate}
-        totalSpent={totalSpent}
-        monthlySavings={monthlySavings}
-        rolloverAmount={rolloverAmount}
-        isUsingServerCalculations={isUsingServerCalculations}
-        isRecalculating={isRecalculating} // Pass loading state
-      />
-
-      {/* Visual feedback for calculation status */}
-      {calculationStatus === 'pending' && (
-        <div className={styles.recalculatingIndicatorContainer}>
-          <small className={styles.recalculatingIndicator}>Recalcul en cours...</small>
-        </div>
-      )}
-
-      {updateError && (
-        <div className={styles.error}>
-          Erreur lors de la mise à jour: {updateError}
-        </div>
-      )}
-      {recalculationError && (
-        <div className={`${styles.error} ${styles.recalcError}`}> {/* Optional: different styling */}
-          Erreur de recalcul: {recalculationError}
-        </div>
-      )}
-
-      <div className={styles.categoryListContainer}>
-        {/* Column Headers - Could be extracted to a component */}
-        <div className={styles.categoryHeaderRow}>
-          <div className={styles.categoryName}>Catégorie</div>
-          <div className={styles.amountCell}>Alloué</div>
-          <div className={styles.amountCell}>Activité</div>
-          <div className={styles.amountCell}>Disponible</div>
-        </div>
-
-        {categories && categories.length > 0 ? (
-          categories.map((category) => {
-            // Get the allocated amount for this category (default to 0 if not found)
-            const allocatedAmount = monthlyData?.allocations?.[category.id] ?? 0;
-            
-            // Get the activity amount from categoryActivityMap (default to 0 if no transactions)
-            const activityAmount = categoryActivityMap?.[category.id] ?? 0;
-            
-            // Calculate available amount (allocated + activity)
-            // Since activity is already signed (negative for expenses, positive for income),
-            // adding it to the allocated amount correctly reduces the available amount for expenses
-            // and increases it for income categories that receive money
-            const availableAmount = allocatedAmount + activityAmount;
-            
-            return (
-              <CategoryRow 
-                key={category.id}
-                categoryId={category.id} // Pass categoryId as prop
-                categoryName={category.name}
-                allocatedAmount={allocatedAmount}
-                activityAmount={activityAmount}
-                availableAmount={availableAmount}
-                onAllocationChange={handleAllocationChange} // Pass the handler function
-              />
-            );
-          })
-        ) : (
-          monthlyData ? 
-          <p>Aucune allocation définie pour ce mois. Commencez à budgéter !</p> : 
-          <p>Aucune catégorie trouvée pour ce budget ou données mensuelles non disponibles.</p>
-        )}
+      <div className={`${styles.emptyState} ${styles.budgetPage}`}>
+        <InfoIcon />
+        <h2 className={styles.emptyStateTitle}>Aucun Budget Sélectionné</h2>
+        <p className={styles.emptyStateText}>Veuillez sélectionner un budget ou en créer un nouveau pour commencer.</p>
+        {/* Add a button to navigate to budget creation/selection if applicable */}
       </div>
+    );
+  }
+  if (dataLoading && !monthlyData) { // Show loading only if no data is yet available
+    return <div className={styles.loadingContainer} role="status" aria-live="polite">Chargement des données du budget pour {displayMonth}...</div>;
+  }
+  if (dataError) {
+    return (
+      <div className={`${styles.errorDisplay} ${styles.budgetPage}`} role="alert">
+        <h3>Erreur de Chargement des Données</h3>
+        <p>{dataError.message}</p>
+        <p>Essayez de rafraîchir ou de sélectionner un autre mois.</p>
+      </div>
+    );
+  }
+  
+  // Determine status for "Remaining to Allocate"
+  let remainingStatusStyle = styles.remainingZero;
+  if (remainingToAllocate > 0.009) remainingStatusStyle = styles.remainingPositive;
+  else if (remainingToAllocate < -0.009) remainingStatusStyle = styles.remainingNegative;
+
+  return (
+    <div className={styles.budgetPage}>
+      <header className={styles.header}>
+        <h1 className={styles.budgetName}>{budgetName}</h1>
+        <div className={styles.monthNavigation}>
+          <button onClick={() => navigateMonth('prev')} className={styles.navButton} aria-label="Mois précédent">
+            <ChevronLeftIcon />
+          </button>
+          <span className={styles.currentMonthDisplay} aria-live="polite" aria-atomic="true">{displayMonth}</span>
+          <button onClick={() => navigateMonth('next')} className={styles.navButton} aria-label="Mois suivant">
+            <ChevronRightIcon />
+          </button>
+        </div>
+      </header>
+
+      <section className={styles.summaryMetrics} aria-label="Résumé du budget">
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Disponible à Allouer</span>
+          <span className={styles.statValue}>{formatCurrency(availableFunds)}</span>
+          {rolloverAmount !== undefined && rolloverAmount !== 0 && (
+            <span className={styles.statSubValue}>(Dont report: {formatCurrency(rolloverAmount)})</span>
+          )}
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Total Alloué</span>
+          <span className={styles.statValue}>{formatCurrency(totalAllocated)}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Reste à Allouer</span>
+          <span className={`${styles.statValue} ${remainingStatusStyle}`}>{formatCurrency(remainingToAllocate)}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Total Dépensé</span>
+          <span className={styles.statValue}>{formatCurrency(totalSpent)}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Épargne du Mois</span>
+          <span className={styles.statValue}>{formatCurrency(monthlySavings)}</span>
+        </div>
+      </section>
+      
+      {(isRecalculating || calculationStatus === 'pending') && (
+        <div className={styles.recalculatingIndicator} role="status" aria-live="polite">Recalcul en cours...</div>
+      )}
+      {calculationStatus === 'complete' && (
+        <div className={styles.recalculatingIndicatorComplete} role="status" aria-live="polite">Budget recalculé!</div>
+      )}
+      {updateError && <div className={styles.errorDisplay} role="alert">Erreur de mise à jour: {updateError}</div>}
+      {recalculationError && <div className={styles.errorDisplay} role="alert">Erreur de recalcul: {recalculationError}</div>}
+       {isUsingServerCalculations !== undefined && (
+          <p className={styles.dataSourceIndicator}>
+            (Données: {isUsingServerCalculations ? 'Serveur' : 'Client'})
+          </p>
+        )}
+
+
+      <section className={styles.categorySection} aria-labelledby="category-section-title">
+        <h2 id="category-section-title" className={styles.sectionTitle}>Catégories</h2>
+        {categories && categories.length > 0 ? (
+          <div className={styles.categoryCardList}>
+            {categories.map((category) => {
+              const allocatedAmount = monthlyData?.allocations?.[category.id] ?? 0;
+              const activityAmount = categoryActivityMap?.[category.id] ?? 0; // Already signed
+              const availableInCategory = allocatedAmount + activityAmount; // Correct calculation
+              
+              // For progress bar: if allocated is 0, progress is 0 unless activity is positive (income to category)
+              // Progress shows "spent" part of allocation. Expenses are negative activity.
+              const spentAmount = activityAmount < 0 ? Math.abs(activityAmount) : 0;
+              let progressPercent = 0;
+              if (allocatedAmount > 0) {
+                progressPercent = Math.min((spentAmount / allocatedAmount) * 100, 100);
+              } else if (spentAmount > 0) { // Spent without allocation
+                progressPercent = 100; // Show as fully "overspent" bar
+              }
+
+              // Input handling
+              const currentInputValue = editingAllocation[category.id] !== undefined 
+                                        ? editingAllocation[category.id] 
+                                        : allocatedAmount.toString();
+
+              return (
+                <div key={category.id} className={styles.categoryCard}>
+                  <div className={styles.categoryCardHeader}>
+                    <span className={styles.categoryName}>{category.name}</span>
+                    <input 
+                      type="number"
+                      className={styles.categoryAllocationInput}
+                      value={currentInputValue}
+                      onChange={(e) => handleAllocationInputChange(category.id, e.target.value)}
+                      onBlur={(e) => handleAllocationChange(category.id, e.target.value)}
+                      onKeyPress={(e) => { if (e.key === 'Enter') handleAllocationChange(category.id, e.target.value);}}
+                      aria-label={`Allocation pour ${category.name}`}
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className={styles.categoryCardBody}>
+                    <div className={styles.categoryProgressBarContainer}>
+                      <div 
+                        className={styles.categoryProgressBarFilled} 
+                        style={{ width: `${progressPercent}%` }}
+                        role="progressbar"
+                        aria-valuenow={progressPercent}
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-label={`Dépensé ${formatCurrency(spentAmount)} sur ${formatCurrency(allocatedAmount)}`}
+                      ></div>
+                    </div>
+                    <div className={styles.categoryFigures}>
+                      <div className={styles.figure}>
+                        <span className={styles.figureLabel}>Alloué</span>
+                        <span className={styles.figureValue}>{formatCurrency(allocatedAmount)}</span>
+                      </div>
+                       <div className={styles.figure}>
+                        <span className={styles.figureLabel}>Activité</span>
+                        <span className={styles.figureValue}>{formatCurrency(activityAmount)}</span>
+                      </div>
+                      <div className={styles.figure}>
+                        <span className={styles.figureLabel}>Disponible</span>
+                        <span className={`${styles.figureValue} ${availableInCategory < 0 ? styles.figureValueNegative : ''}`}>
+                          {formatCurrency(availableInCategory)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className={styles.emptyState}>
+            <PlusCircleIcon />
+            <h3 className={styles.emptyStateTitle}>Aucune Catégorie</h3>
+            <p className={styles.emptyStateText}>
+              {monthlyData ? "Aucune catégorie définie pour ce budget." : "Commencez par ajouter des catégories à votre budget."}
+            </p>
+            {/* You might want a button here to add categories if applicable */}
+            {/* <button className={styles.emptyStateButton}>Ajouter une Catégorie</button> */}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
