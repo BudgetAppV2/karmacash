@@ -8,7 +8,7 @@ import logger from '../services/logger'; // Assuming logger is available
  * Custom hook to fetch budget data including monthly details, categories, transactions, and category activity.
  * @param {string} budgetId - The ID of the budget to fetch data for.
  * @param {string} monthString - The month string in "YYYY-MM" format.
- * @returns {object} - { monthlyData, categories, transactions, categoryActivityMap, monthlyRevenue, monthlyRecurringSpending, availableFunds, totalAllocated, remainingToAllocate, loading, error }
+ * @returns {object} - { monthlyData, categories, transactions, categoryActivityMap, monthlyRevenue, monthlyRecurringSpending, availableFunds, totalAllocated, remainingToAllocate, totalSpent, monthlySavings, rolloverAmount, isUsingServerCalculations, loading, error }
  */
 function useBudgetData(budgetId, monthString) {
   const [monthlyData, setMonthlyData] = useState(null);
@@ -16,6 +16,47 @@ function useBudgetData(budgetId, monthString) {
   const [transactions, setTransactions] = useState([]); // New state for transactions
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // --- Client-side calculation logic (to be used as fallback) ---
+  const clientCalculatedMonthlyRevenue = useMemo(() => {
+    if (!transactions || transactions.length === 0) return 0;
+    return transactions.filter(tx => tx.type === 'income').reduce((sum, tx) => sum + (tx.amount || 0), 0);
+  }, [transactions]);
+
+  const clientCalculatedMonthlyRecurringSpending = useMemo(() => {
+    if (!transactions || transactions.length === 0) return 0;
+    return transactions.filter(tx => tx.type === 'expense' && tx.isRecurringInstance === true).reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+  }, [transactions]);
+
+  // Note: Full rollover logic (B6.1 - 3.3) is complex and server-side is preferred.
+  // Client-side placeholder for rollover will be 0 if server data not present.
+  const clientCalculatedRolloverAmount = 0; 
+
+  const clientCalculatedAvailableFunds = useMemo(() => {
+    return clientCalculatedMonthlyRevenue - clientCalculatedMonthlyRecurringSpending + clientCalculatedRolloverAmount;
+  }, [clientCalculatedMonthlyRevenue, clientCalculatedMonthlyRecurringSpending, clientCalculatedRolloverAmount]);
+
+  const clientCalculatedTotalAllocated = useMemo(() => {
+    if (!monthlyData || !monthlyData.allocations) return 0;
+    return Object.values(monthlyData.allocations).reduce((sum, allocation) => sum + (allocation || 0), 0);
+  }, [monthlyData]);
+
+  const clientCalculatedRemainingToAllocate = useMemo(() => {
+    return clientCalculatedAvailableFunds - clientCalculatedTotalAllocated;
+  }, [clientCalculatedAvailableFunds, clientCalculatedTotalAllocated]);
+  
+  // Client-side totalSpent (B6.1 - 3.8)
+  const clientCalculatedTotalSpent = useMemo(() => {
+    if (!transactions || transactions.length === 0) return 0;
+    return transactions.filter(tx => tx.type === 'expense').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+  }, [transactions]);
+
+  // Client-side monthlySavings (B6.1 - 3.9)
+  const clientCalculatedMonthlySavings = useMemo(() => {
+    return clientCalculatedMonthlyRevenue - clientCalculatedTotalSpent;
+  }, [clientCalculatedMonthlyRevenue, clientCalculatedTotalSpent]);
+
+  // --- End of client-side calculation logic ---
 
   // Calculate category activity map using transactions
   // This is the sum of all transaction amounts (which are already signed) for each category
@@ -57,64 +98,31 @@ function useBudgetData(budgetId, monthString) {
     return activityMap;
   }, [transactions]);
 
-  // Calculate ZBB figures based on B6.1
-  // A. Calculate monthlyRevenue (B6.1 - 3.1)
-  const monthlyRevenue = useMemo(() => {
-    if (!transactions || transactions.length === 0) {
-      return 0;
+  // --- Determine final values, preferring server-calculated data --- 
+  const serverCalculated = monthlyData?.calculated;
+  const isUsingServerCalculations = !!serverCalculated;
+
+  const monthlyRevenue = isUsingServerCalculations ? (serverCalculated.revenue ?? clientCalculatedMonthlyRevenue) : clientCalculatedMonthlyRevenue;
+  const monthlyRecurringSpending = isUsingServerCalculations ? (serverCalculated.recurringExpenses ?? clientCalculatedMonthlyRecurringSpending) : clientCalculatedMonthlyRecurringSpending;
+  // Rollover primarily comes from server; client fallback is 0 as defined above.
+  const rolloverAmount = isUsingServerCalculations ? (serverCalculated.rolloverFromPrevious ?? clientCalculatedRolloverAmount) : clientCalculatedRolloverAmount;
+  const availableFunds = isUsingServerCalculations ? (serverCalculated.availableToAllocate ?? clientCalculatedAvailableFunds) : clientCalculatedAvailableFunds;
+  const totalAllocated = isUsingServerCalculations ? (serverCalculated.totalAllocated ?? clientCalculatedTotalAllocated) : clientCalculatedTotalAllocated;
+  const remainingToAllocate = isUsingServerCalculations ? (serverCalculated.remainingToAllocate ?? clientCalculatedRemainingToAllocate) : clientCalculatedRemainingToAllocate;
+  const totalSpent = isUsingServerCalculations ? (serverCalculated.totalSpent ?? clientCalculatedTotalSpent) : clientCalculatedTotalSpent;
+  const monthlySavings = isUsingServerCalculations ? (serverCalculated.monthlySavings ?? clientCalculatedMonthlySavings) : clientCalculatedMonthlySavings;
+
+  // Logging the source of calculations
+  useEffect(() => {
+    if (budgetId && monthString) {
+      if (isUsingServerCalculations) {
+        logger.debug('useBudgetData', 'Using SERVER-calculated budget figures', { budgetId, monthString, serverCalculated });
+      } else if (monthlyData) { // monthlyData exists but monthlyData.calculated doesn't
+        logger.debug('useBudgetData', 'Using CLIENT-calculated budget figures (server data not available or incomplete)', { budgetId, monthString });
+      }
+      // If monthlyData is null, initial loading or error state handled by `loading` and `error` flags.
     }
-    const incomeTransactions = transactions.filter(tx => tx.type === 'income');
-    const totalIncome = incomeTransactions.reduce((sum, tx) => sum + tx.amount, 0);
-    logger.debug('useBudgetData', 'Monthly Revenue calculated', { totalIncome });
-    return totalIncome;
-  }, [transactions]);
-
-  // B. Calculate monthlyRecurringExpenses_absolute_sum (B6.1 - 3.2)
-  // Assuming isRecurringInstance flag is present on transactions as per M3.
-  const monthlyRecurringSpending = useMemo(() => {
-    if (!transactions || transactions.length === 0) {
-      return 0;
-    }
-    const recurringExpenseTransactions = transactions.filter(
-      tx => tx.type === 'expense' && tx.isRecurringInstance === true
-    );
-    // Sum the absolute values as per B6.1 formula interpretation
-    const totalRecurringExpense = recurringExpenseTransactions.reduce(
-      (sum, tx) => sum + Math.abs(tx.amount),
-      0
-    );
-    logger.debug('useBudgetData', 'Monthly Recurring Spending calculated (absolute sum)', { totalRecurringExpense });
-    return totalRecurringExpense;
-  }, [transactions]);
-
-  // C. Define rolloverAmount_placeholder (B6.1 - 3.3 simplified)
-  const rolloverAmount_placeholder = 0; // Full rollover logic deferred
-
-  // D. Calculate availableFunds (B6.1 - 3.4)
-  // Formula: MonthlyRevenue - MonthlyRecurringExpenses + RolloverAmount
-  const availableFunds = useMemo(() => {
-    const funds = monthlyRevenue - monthlyRecurringSpending + rolloverAmount_placeholder;
-     logger.debug('useBudgetData', 'Available Funds calculated', { funds, monthlyRevenue, monthlyRecurringSpending, rolloverAmount_placeholder });
-    return funds;
-  }, [monthlyRevenue, monthlyRecurringSpending, rolloverAmount_placeholder]);
-
-  // E. Calculate totalAllocated (B6.1 - 3.5)
-  const totalAllocated = useMemo(() => {
-    if (!monthlyData || !monthlyData.allocations) {
-      return 0;
-    }
-    const allocations = monthlyData.allocations;
-    const total = Object.values(allocations).reduce((sum, allocation) => sum + allocation, 0);
-    logger.debug('useBudgetData', 'Total Allocated calculated', { total });
-    return total;
-  }, [monthlyData]); // Dependency on monthlyData to react to allocation changes
-
-  // F. Calculate remainingToAllocate (B6.1 - 3.6)
-  const remainingToAllocate = useMemo(() => {
-    const remaining = availableFunds - totalAllocated;
-    logger.debug('useBudgetData', 'Remaining to Allocate calculated', { remaining, availableFunds, totalAllocated });
-    return remaining;
-  }, [availableFunds, totalAllocated]);
+  }, [monthlyData, isUsingServerCalculations, budgetId, monthString]); // Add relevant dependencies
 
   useEffect(() => {
     // Ensure budgetId and monthString are provided before fetching
@@ -241,6 +249,10 @@ function useBudgetData(budgetId, monthString) {
     availableFunds, 
     totalAllocated, 
     remainingToAllocate, 
+    totalSpent, 
+    monthlySavings, 
+    rolloverAmount, 
+    isUsingServerCalculations, 
     loading, 
     error 
   };

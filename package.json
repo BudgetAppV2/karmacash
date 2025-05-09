@@ -15,8 +15,8 @@
     "test:basic": "vitest run tests/basic-rules.test.js",
     "test:validate": "vitest run tests/firestore-validation.test.js",
     "check-ports": "node tests/check-ports.js",
-    "emulators": "firebase emulators:start",
-    "dev:emulators": "firebase emulators:start & vite"
+    "emulators": "export FIREBASE_AUTH_EMULATOR_HOST='127.0.0.1:9099' && firebase emulators:start",
+    "dev:emulators": "export FIREBASE_AUTH_EMULATOR_HOST='127.0.0.1:9099' && firebase emulators:start & vite"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -25,6 +25,7 @@
     "firebase": "^11.6.0",
     "framer-motion": "^12.8.0",
     "google-auth-library": "^9.15.1",
+    "lodash": "^4.17.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.0"

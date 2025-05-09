@@ -12,6 +12,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getAuth } from 'firebase/auth';
 import { db } from './firebaseInit';
 import logger from '../logger';
 import { initializeDefaultCategories } from './categories';
@@ -750,33 +751,46 @@ export const updateAllocation = async (budgetId, monthString, categoryId, newAmo
  * @returns {Promise<object>} - An object indicating success or failure, and data/error.
  */
 export const callRecalculateBudget = async (budgetId, monthString) => {
-  if (!budgetId || typeof budgetId !== 'string' || budgetId.trim() === '') {
-    logger.error('BudgetService', 'callRecalculateBudget', 'Invalid or missing budgetId', { budgetId });
-    throw new Error('Budget ID is required to recalculate budget.');
-  }
-  if (!monthString || typeof monthString !== 'string' || !/^\d{4}-\d{2}$/.test(monthString)) {
-    logger.error('BudgetService', 'callRecalculateBudget', 'Invalid or missing monthString', { monthString });
-    throw new Error('Month string in YYYY-MM format is required to recalculate budget.');
-  }
-
-  const functionsInstance = getFunctions();
-  const recalculateBudgetFn = httpsCallable(functionsInstance, 'recalculateBudget');
-
   try {
-    logger.info('BudgetService', 'callRecalculateBudget', 'Calling recalculateBudget function', { budgetId, monthString });
-    const result = await recalculateBudgetFn({ budgetId, monthString });
-    logger.info('BudgetService', 'callRecalculateBudget', 'recalculateBudget function successful', { budgetId, monthString, resultData: result.data });
-    return { success: true, data: result.data };
+    // Get the current Firebase Auth user and their token
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+      // Log error before throwing
+      logger.error('BudgetService', 'callRecalculateBudget', 'User not authenticated client-side.');
+      throw new Error("User not authenticated");
+    }
+    
+    // Get a fresh ID token
+    logger.debug('BudgetService', 'callRecalculateBudget', 'Getting fresh ID token for user', { userId: user.uid });
+    const idToken = await user.getIdToken(true);
+    
+    // Get the functions instance
+    const functionsInstance = getFunctions();
+    const recalculateBudgetFn = httpsCallable(functionsInstance, 'recalculateBudget');
+    
+    // Call the function with the token included
+    logger.info('BudgetService', 'callRecalculateBudget', 'Calling recalculateBudget with manual token', { budgetId, monthString });
+    const result = await recalculateBudgetFn({ 
+      token: idToken, 
+      budgetId, 
+      monthString 
+    });
+    // Assuming the callable function returns { data: { success: ..., message: ..., ... } }
+    // Log success/failure based on function response if needed
+    logger.info('BudgetService', 'callRecalculateBudget', 'recalculateBudget function completed', { budgetId, monthString, success: result?.data?.success });
+    return result.data; // Return the data object from the function result
+
   } catch (error) {
+    // Log the error from the callable function call
     logger.error('BudgetService', 'callRecalculateBudget', 'Error calling recalculateBudget function', {
       budgetId,
       monthString,
-      errorCode: error.code,
+      errorCode: error.code, // Include Firebase error code if available
       errorMessage: error.message,
-      errorDetails: error.details,
       stack: error.stack
     });
-    // Rethrow a more generic error for the UI to handle, or a specific one if preferred.
-    throw new Error(`Failed to recalculate budget: ${error.message || 'Unknown error occurred.'}`);
+    // Rethrow the error so the UI layer can handle it
+    throw error; 
   }
 }; 

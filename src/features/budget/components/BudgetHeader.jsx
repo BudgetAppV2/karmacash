@@ -15,8 +15,12 @@ import { formatCurrency } from '../../../utils/formatters'; // Adjust path as ne
  * @param {number} props.availableFunds - The calculated funds available to allocate.
  * @param {number} props.totalAllocated - The calculated total amount allocated.
  * @param {number} props.remainingToAllocate - The calculated remaining amount to allocate.
+ * @param {number} [props.totalSpent] - The calculated total amount spent this month.
+ * @param {number} [props.monthlySavings] - The calculated total savings for the month.
+ * @param {number} [props.rolloverAmount] - The amount rolled over from the previous month.
+ * @param {boolean} [props.isUsingServerCalculations] - Flag indicating if server data is used.
  */
-function BudgetHeader({ budgetName, currentMonthString, onPreviousMonth, onNextMonth, availableFunds, totalAllocated, remainingToAllocate }) {
+function BudgetHeader({ budgetName, currentMonthString, onPreviousMonth, onNextMonth, availableFunds, totalAllocated, remainingToAllocate, totalSpent, monthlySavings, rolloverAmount, isUsingServerCalculations }) {
   // Format the currentMonthString for display
   let displayMonth = 'Mois actuel';
   if (currentMonthString) {
@@ -41,7 +45,10 @@ function BudgetHeader({ budgetName, currentMonthString, onPreviousMonth, onNextM
       {/* ZBB Summary Display */}
       <div className={styles.zbbSummary}>
         <p>Disponible à allouer: {availableFunds !== undefined ? formatCurrency(availableFunds) : '-'}</p>
+        {rolloverAmount !== undefined && <p style={{ fontSize: '0.8em', paddingLeft: '15px' }}>(Dont report: {formatCurrency(rolloverAmount)})</p>}
         <p>Total Alloué: {totalAllocated !== undefined ? formatCurrency(totalAllocated) : '-'}</p>
+        <p>Total Dépensé: {totalSpent !== undefined ? formatCurrency(totalSpent) : '-'}</p>
+        <p>Épargne du Mois: {monthlySavings !== undefined ? formatCurrency(monthlySavings) : '-'}</p>
         <p>
           Reste à Allouer: 
           <span className={
@@ -52,6 +59,11 @@ function BudgetHeader({ budgetName, currentMonthString, onPreviousMonth, onNextM
             {remainingToAllocate !== undefined ? formatCurrency(remainingToAllocate) : '-'}
           </span>
         </p>
+        {isUsingServerCalculations !== undefined && (
+          <p className={styles.dataSourceIndicator}>
+            (Données: {isUsingServerCalculations ? 'Serveur' : 'Client'})
+          </p>
+        )}
       </div>
     </div>
   );
@@ -65,10 +77,18 @@ BudgetHeader.propTypes = {
   availableFunds: PropTypes.number,
   totalAllocated: PropTypes.number,
   remainingToAllocate: PropTypes.number,
+  totalSpent: PropTypes.number,
+  monthlySavings: PropTypes.number,
+  rolloverAmount: PropTypes.number,
+  isUsingServerCalculations: PropTypes.bool,
 };
 
 BudgetHeader.defaultProps = {
   budgetName: 'Budget',
+  totalSpent: undefined,
+  monthlySavings: undefined,
+  rolloverAmount: undefined,
+  isUsingServerCalculations: undefined,
 };
 
 export default BudgetHeader; 

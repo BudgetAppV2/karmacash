@@ -2,74 +2,128 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const { parse, subMonths, format, startOfMonth, endOfMonth } = require('date-fns');
 
-// admin.initializeApp() is called globally in functions/index.js.
+/**
+ * Helper function to parse YYYY-MM string and return start/end Date objects.
+ * @param {string} monthString The month string in "YYYY-MM" format.
+ * @returns {{startDate: Date, endDate: Date}} Object containing start and end Date objects.
+ */
+const parseMonthStringForDates = (monthString) => {
+  if (!monthString || !/^\d{4}-\d{2}$/.test(monthString)) {
+    throw new Error(`Invalid monthString format: ${monthString}. Expected YYYY-MM.`);
+  }
+  try {
+    // Use date-fns parse for robust date creation
+    const referenceDate = parse(monthString + '-01', 'yyyy-MM-dd', new Date());
+    const startDate = startOfMonth(referenceDate);
+    const endDate = endOfMonth(referenceDate);
+    return { startDate, endDate };
+  } catch (error) {
+    functions.logger.error("Error parsing monthString with date-fns:", { monthString, error: error.message });
+    throw new Error(`Failed to parse monthString: ${monthString}. ${error.message}`);
+  }
+};
 
 /**
  * Recalculates monthly budget summary figures.
  * @param {object} data The data object passed to the function.
+ * @param {string} data.token (Optional) Manually passed ID token.
  * @param {string} data.budgetId The ID of the budget.
  * @param {string} data.monthString The month string in "YYYY-MM" format.
  * @param {object} context The context object containing authentication information.
  * @returns {Promise<object>} A promise that resolves with a success or error object.
  */
 exports.recalculateBudget = functions.https.onCall(async (data, context) => {
-  // Input Validation
-  if (!context.auth) {
-    functions.logger.error('User unauthenticated for recalculateBudget call.');
-    throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated to perform this action.');
+  let userId;
+  
+  // Try regular auth context first
+  if (context.auth) {
+    userId = context.auth.uid;
+    functions.logger.info("Authentication successful via context.auth", { userId });
+  } 
+  // Fallback to manual verification if context.auth is missing
+  else {
+    functions.logger.warn("context.auth missing, attempting manual token verification.");
+    try {
+      // Extract token from potentially nested data structure
+      const inputData = data.data || data; // Handle potential nesting from some client versions
+      const token = inputData.token;
+      
+      if (!token) {
+        functions.logger.error("Manual verification failed: No token provided in data.");
+        throw new functions.https.HttpsError('unauthenticated', 'Authentication token is required.');
+      }
+      
+      // Verify the token manually
+      functions.logger.debug("Attempting manual token verification...");
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      userId = decodedToken.uid;
+      functions.logger.info("Authentication successful via manual token verification", { userId });
+    } catch (error) {
+      functions.logger.error("Manual token verification failed:", { errorMessage: error.message, errorCode: error.code });
+      // Throw specific error details if helpful, otherwise generic unauthenticated
+      throw new functions.https.HttpsError('unauthenticated', `Token verification failed: ${error.message}`);
+    }
+  }
+  
+  // Re-check if userId was obtained
+  if (!userId) {
+    functions.logger.error("Fatal: userId could not be determined after auth checks.");
+    throw new functions.https.HttpsError('internal', 'Could not determine user authentication.');
   }
 
-  const { budgetId, monthString } = data;
-
+  // Extract budget parameters from the correct location (handle nesting)
+  const inputData = data.data || data;
+  const { budgetId, monthString } = inputData;
+  
+  // Validate required parameters
   if (!budgetId || typeof budgetId !== 'string' || budgetId.trim() === '') {
-    functions.logger.error('Invalid or missing budgetId for recalculateBudget.', { budgetId });
+    functions.logger.error("Missing or invalid budgetId", { userId });
     throw new functions.https.HttpsError('invalid-argument', 'A valid budgetId (string) is required.');
   }
-
-  if (!monthString || typeof monthString !== 'string' || monthString.trim() === '') {
-    functions.logger.error('Invalid or missing monthString for recalculateBudget.', { monthString });
-    throw new functions.https.HttpsError('invalid-argument', 'A valid monthString (string) is required.');
+  
+  if (!monthString || typeof monthString !== 'string' || !/^\d{4}-\d{2}$/.test(monthString)) {
+    functions.logger.error("Missing or invalid monthString", { userId, budgetId });
+    throw new functions.https.HttpsError('invalid-argument', 'A valid monthString (YYYY-MM) is required.');
   }
-
-  const monthStringRegex = /^\d{4}-\d{2}$/;
-  if (!monthStringRegex.test(monthString)) {
-    functions.logger.error('Invalid monthString format for recalculateBudget. Expected YYYY-MM.', { monthString });
-    throw new functions.https.HttpsError('invalid-argument', 'Invalid monthString format. Expected YYYY-MM.');
-  }
-
-  const userId = context.auth.uid;
-
-  // Initial Logging
-  functions.logger.info('recalculateBudget function invoked.', {
-    userId,
-    budgetId,
-    monthString,
+  
+  functions.logger.info("recalculateBudget invoked with valid auth and parameters", { 
+    userId, 
+    budgetId, 
+    monthString 
   });
-
-  const db = admin.firestore();
-  const currentMonthlyDataRef = db.doc(`budgets/${budgetId}/monthlyData/${monthString}`);
-
+  
   try {
+    // *** Add Check for Budget Document Existence ***
+    const db = admin.firestore();
+    const budgetRef = db.doc(`budgets/${budgetId}`); // Use db instance
+    const budgetDoc = await budgetRef.get();
+    if (!budgetDoc.exists) {
+      functions.logger.error(`Budget document not found: ${budgetId}`, { userId });
+      throw new functions.https.HttpsError('not-found', `Budget with ID ${budgetId} not found`);
+    }
+    functions.logger.debug("Budget document exists.", { userId, budgetId });
+
+    const currentMonthlyDataRef = db.doc(`budgets/${budgetId}/monthlyData/${monthString}`);
+
     // A. Fetch Transactions for the Month
-    const referenceDate = parse(monthString + "-01", 'yyyy-MM-dd', new Date()); 
-    const startOfMonthTimestamp = admin.firestore.Timestamp.fromDate(startOfMonth(referenceDate));
-    const endOfMonthTimestamp = admin.firestore.Timestamp.fromDate(endOfMonth(referenceDate));
+    const { startDate, endDate } = parseMonthStringForDates(monthString);
+    functions.logger.debug('Querying transactions between:', { startDate: startDate.toISOString(), endDate: endDate.toISOString() });
 
     const transactionsQuery = db.collection(`budgets/${budgetId}/transactions`)
-      .where('date', '>=', startOfMonthTimestamp)
-      .where('date', '<=', endOfMonthTimestamp);
+      .where('date', '>=', startDate)
+      .where('date', '<=', endDate);
 
     const transactionsSnapshot = await transactionsQuery.get();
     const transactions = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    functions.logger.info(`Fetched ${transactions.length} transactions for month ${monthString}.`, { userId, budgetId });
+    functions.logger.debug(`Fetched ${transactions.length} transactions for month ${monthString}.`, { userId, budgetId });
 
     // B. Fetch Current Allocations
     const currentMonthlyDataSnap = await currentMonthlyDataRef.get();
     const currentAllocations = currentMonthlyDataSnap.exists ? currentMonthlyDataSnap.data().allocations || {} : {};
-    functions.logger.info(`Fetched current allocations for month ${monthString}. Found: ${currentMonthlyDataSnap.exists}`, { userId, budgetId, allocationsCount: Object.keys(currentAllocations).length });
+    functions.logger.debug(`Fetched current allocations. Found: ${currentMonthlyDataSnap.exists}`, { userId, budgetId });
 
     // C. Fetch Previous Month's Calculated Data (for Rollover)
-    const previousMonthDate = subMonths(referenceDate, 1);
+    const previousMonthDate = subMonths(startDate, 1);
     const previousMonthString = format(previousMonthDate, 'yyyy-MM');
     const previousMonthlyDataRef = db.doc(`budgets/${budgetId}/monthlyData/${previousMonthString}`);
     const previousMonthlyDataSnap = await previousMonthlyDataRef.get();
@@ -77,47 +131,18 @@ exports.recalculateBudget = functions.https.onCall(async (data, context) => {
     const previousCalculatedData = previousMonthlyDataSnap.exists ? previousMonthlyDataSnap.data().calculated : null;
     const prevAvailableToAllocate = previousCalculatedData?.availableToAllocate ?? 0;
     const prevTotalAllocated = previousCalculatedData?.totalAllocated ?? 0;
+    functions.logger.debug(`Previous month (${previousMonthString}) data found: ${previousMonthlyDataSnap.exists}`, { userId, budgetId });
 
-    if (previousMonthlyDataSnap.exists) {
-      functions.logger.info(`Found previous month's (${previousMonthString}) data for rollover.`, { userId, budgetId, prevAvailableToAllocate, prevTotalAllocated });
-    } else {
-      functions.logger.info(`No previous month's (${previousMonthString}) data found for rollover. Rollover values will be 0.`, { userId, budgetId });
-    }
-
-    // TODO: Task 3 - Perform B6.1 Calculations
-
-    // A. Calculate monthlyRevenue (B6.1 - 3.1)
-    const calculatedMonthlyRevenue = transactions
-      .filter(tx => tx.type === 'income')
-      .reduce((sum, tx) => sum + (tx.amount || 0), 0);
-
-    // B. Calculate monthlyRecurringExpenses_absolute_sum (B6.1 - 3.2)
-    const calculatedMonthlyRecurringExpensesAbsoluteSum = transactions
-      .filter(tx => tx.type === 'expense' && tx.isRecurringInstance === true)
-      .reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
-
-    // C. Calculate rolloverAmount (B6.1 - 3.3)
+    // --- B6.1 Calculations --- 
+    const calculatedMonthlyRevenue = transactions.filter(tx => tx.type === 'income').reduce((sum, tx) => sum + (tx.amount || 0), 0);
+    const calculatedMonthlyRecurringExpensesAbsoluteSum = transactions.filter(tx => tx.type === 'expense' && tx.isRecurringInstance === true).reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
     const calculatedRolloverAmount = prevAvailableToAllocate - prevTotalAllocated;
-
-    // D. Calculate availableFunds (B6.1 - 3.4)
     const calculatedAvailableFunds = calculatedMonthlyRevenue - calculatedMonthlyRecurringExpensesAbsoluteSum + calculatedRolloverAmount;
-
-    // E. Calculate totalAllocated (B6.1 - 3.5)
-    const calculatedTotalAllocated = Object.values(currentAllocations)
-      .reduce((sum, alloc) => sum + (typeof alloc === 'number' && alloc >= 0 ? alloc : 0), 0);
-
-    // F. Calculate remainingToAllocate (B6.1 - 3.6)
+    const calculatedTotalAllocated = Object.values(currentAllocations).reduce((sum, alloc) => sum + (typeof alloc === 'number' && alloc >= 0 ? alloc : 0), 0);
     const calculatedRemainingToAllocate = calculatedAvailableFunds - calculatedTotalAllocated;
-
-    // G. Calculate totalSpent (B6.1 - 3.8)
-    const calculatedTotalSpent = transactions
-      .filter(tx => tx.type === 'expense')
-      .reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
-
-    // H. Calculate monthlySavings (B6.1 - 3.9)
+    const calculatedTotalSpent = transactions.filter(tx => tx.type === 'expense').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
     const calculatedMonthlySavings = calculatedMonthlyRevenue - calculatedTotalSpent;
 
-    // I. Assemble calculatedData Object
     const calculatedData = {
       revenue: calculatedMonthlyRevenue,
       recurringExpenses: calculatedMonthlyRecurringExpensesAbsoluteSum,
@@ -128,33 +153,57 @@ exports.recalculateBudget = functions.https.onCall(async (data, context) => {
       totalSpent: calculatedTotalSpent,
       monthlySavings: calculatedMonthlySavings
     };
+    functions.logger.info('Completed B6.1 calculations.', { userId, budgetId, monthString }); // Removed verbose calculatedData log
 
-    functions.logger.info('Completed B6.1 calculations.', { userId, budgetId, monthString, calculatedData });
+    // --- Write Calculated Data --- 
+    // Add this right before line 160 (actual serverTimestamp usage):
+    functions.logger.debug('Admin objects directly before serverTimestamp usage:', {
+      hasAdminObject: !!admin,
+      hasFirestoreProperty: !!(admin && admin.firestore), // Check if firestore property exists
+      isFirestoreFunction: typeof admin?.firestore === 'function', // Check if admin.firestore is a function (it should be)
+      hasFieldValueProperty: !!(admin && admin.firestore && admin.firestore.FieldValue), // Check if FieldValue exists
+      // Check if serverTimestamp is a function on FieldValue IF FieldValue exists
+      hasServerTimestampFunction: typeof admin?.firestore?.FieldValue?.serverTimestamp === 'function',
+      // Attempt to log a small part of admin stringified, might still fail if too complex early
+      // adminJsonPreview: admin ? (JSON.stringify(admin).substring(0, 100) + '...') : "admin object is null/undefined"
+      // Let's avoid stringifying admin directly if it's causing issues.
+      // Instead, focus on the path to serverTimestamp.
+    });
 
-    // TODO: Task 4 - Write Calculated Data
+    // Replace the serverTimestamp line with a fallback
+    let updatedAtValue;
+    // Try to use serverTimestamp, but have a fallback
+    if (admin && admin.firestore && admin.firestore.FieldValue && typeof admin.firestore.FieldValue.serverTimestamp === 'function') {
+      updatedAtValue = admin.firestore.FieldValue.serverTimestamp();
+    } else {
+      functions.logger.warn('Could not access admin.firestore.FieldValue.serverTimestamp(). Using new Date() as fallback for updatedAt.', {
+        userId, budgetId, monthString
+      });
+      updatedAtValue = new Date(); // Using plain Date instead of serverTimestamp due to issues in emulator
+    }
+
     await currentMonthlyDataRef.set({
-      budgetId, // Denormalize budgetId as per B5.2 schema for monthlyData
-      month: monthString, // Denormalize month as per B5.2 schema for monthlyData
-      year: parseInt(monthString.substring(0, 4), 10), // Denormalize year as per B5.2
+      budgetId, 
+      month: monthString, 
+      year: parseInt(monthString.substring(0, 4), 10),
       calculated: calculatedData,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      // Ensure createdAt is only set if the document is new, or handle appropriately
-      // For simplicity here, we rely on merge:true; a more robust solution might check doc.exists
-      // and conditionally add createdAt: admin.firestore.FieldValue.serverTimestamp()
+      updatedAt: updatedAtValue, // Use the obtained timestampValue
     }, { merge: true });
-
     functions.logger.info(`Successfully wrote calculated data to monthlyData for ${monthString}.`, { userId, budgetId });
 
     // Return success
-    return { success: true, message: "Budget successfully recalculated and data persisted." }; // Updated success message
+    return { success: true, message: "Budget successfully recalculated and data persisted." }; 
+
   } catch (error) {
-    functions.logger.error('Error during data fetching in recalculateBudget', { 
+    // Catch errors from the main logic (fetching, calculating, writing)
+    functions.logger.error('Error during budget recalculation logic', { 
       userId, 
       budgetId, 
       monthString, 
       errorMessage: error.message, 
       errorStack: error.stack 
     });
-    throw new functions.https.HttpsError('internal', 'An error occurred while fetching budget data.', error.message);
+    // Use 'internal' for server-side processing errors
+    throw new functions.https.HttpsError('internal', 'An error occurred while recalculating the budget.', error.message);
   }
 }); 

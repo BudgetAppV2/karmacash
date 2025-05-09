@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { format, parseISO, parse, subMonths, addMonths } from 'date-fns';
 import { frCA } from 'date-fns/locale';
+import { getAuth } from 'firebase/auth'; // Import getAuth
 import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 import { useBudgets } from '../../contexts/BudgetContext'; // Import useBudgets
 import useBudgetData from '../../hooks/useBudgetData';
@@ -8,8 +9,31 @@ import { updateAllocation, callRecalculateBudget } from '../../services/firebase
 import BudgetHeader from './components/BudgetHeader';
 import CategoryRow from './components/CategoryRow';
 import styles from './BudgetPage.module.css';
+import { debounce } from 'lodash'; // Or implement your own debounce function
 
 function BudgetPage() {
+  // Add this near the top of the component, outside other hooks
+  useEffect(() => {
+    const checkAuth = async () => {
+      const auth = getAuth();
+      if (auth.currentUser) {
+        try {
+          console.log("DIRECT TEST - User found, attempting to get token...");
+          const token = await auth.currentUser.getIdToken(true); // Force refresh
+          console.log("DIRECT TEST - Successfully got token:", token.substring(0, 20) + "...");
+        } catch (error) {
+          console.error("DIRECT TEST - Failed to get token:", error);
+        }
+      } else {
+        console.log("DIRECT TEST - No current user in auth on mount");
+      }
+    };
+    
+    // Wait a moment for auth state to potentially settle after initial load
+    const timer = setTimeout(checkAuth, 1000);
+    return () => clearTimeout(timer); // Cleanup timer
+  }, []); // Empty dependency array ensures it runs once on mount
+
   // Get selected budget ID and loading state from BudgetContext
   const { selectedBudgetId, isLoadingBudgets, selectedBudget } = useBudgets();
   const { currentUser, isLoading: isAuthLoading } = useAuth(); // Get user and auth loading state
@@ -22,6 +46,10 @@ function BudgetPage() {
   const [updateError, setUpdateError] = useState(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalculationError, setRecalculationError] = useState(null);
+  const [calculationStatus, setCalculationStatus] = useState(null); // New state for visual feedback
+
+  // Use a ref to store the debounced function to access its .cancel() method
+  const debouncedTriggerRecalculationRef = useRef(null);
 
   // Pass the correct budgetId and monthString to the hook and get data
   const { 
@@ -31,38 +59,87 @@ function BudgetPage() {
     availableFunds,
     totalAllocated,
     remainingToAllocate,
+    totalSpent,
+    monthlySavings,
+    rolloverAmount,
+    isUsingServerCalculations,
     loading: dataLoading, 
     error 
   } = useBudgetData(budgetId, currentMonthString);
 
   const triggerRecalculation = useCallback(async () => {
-    if (!currentUser || !selectedBudgetId || !currentMonthString) {
-      console.log("Skipping recalculation: Missing user, budgetId, or monthString.");
+    console.log("Starting recalculation process...");
+    if (isAuthLoading) {
+      console.log("Auth is still loading, not triggering recalculation");
+      return;
+    }
+    const auth = getAuth();
+    const firebaseUser = auth.currentUser;
+    console.log("Context currentUser:", currentUser ? currentUser.uid : "null");
+    console.log("Firebase auth.currentUser:", firebaseUser ? firebaseUser.uid : "null");
+    if (!firebaseUser) {
+      console.log("No authenticated Firebase user found, not triggering recalculation");
+      return;
+    }
+    if (!selectedBudgetId || !currentMonthString) {
+      console.log("Skipping recalculation: Missing budgetId or monthString.");
       return; 
     }
-
-    setIsRecalculating(true);
-    setRecalculationError(null);
-    console.log(`Triggering server-side recalculation for ${selectedBudgetId} / ${currentMonthString}`);
-
+    
     try {
-      await callRecalculateBudget(selectedBudgetId, currentMonthString);
-      console.log("Server-side recalculation call successful.");
+      console.log("Getting ID token for user:", firebaseUser.uid);
+      setIsRecalculating(true);
+      setRecalculationError(null);
+      
+      const token = await firebaseUser.getIdToken(true);
+      console.log("Obtained token of length:", token.length);
+      console.log("Token preview for recalculation call:", `${token.substring(0, 10)}...${token.substring(token.length - 10)}`);
+      
+      console.log("Calling recalculateBudget with token");
+      const result = await callRecalculateBudget(selectedBudgetId, currentMonthString);
+      console.log("Recalculation result:", result);
+      setCalculationStatus('complete'); // Set to complete on success
+      
     } catch (error) {
-      console.error("Server-side recalculation call failed:", error);
-      setRecalculationError(error.message || "Failed to recalculate budget.");
+      console.error("Recalculation error:", error);
+      setRecalculationError(error.message || "An error occurred during recalculation");
+      setCalculationStatus('error'); // Set to error on failure
     } finally {
       setIsRecalculating(false);
+      // Reset status after a short delay if it was complete or error
+      setTimeout(() => {
+        if (calculationStatus === 'complete' || calculationStatus === 'error') {
+          setCalculationStatus(null);
+        }
+      }, 3000); // Reset after 3 seconds
     }
-  }, [currentUser, selectedBudgetId, currentMonthString]);
+  }, [isAuthLoading, currentUser, selectedBudgetId, currentMonthString, callRecalculateBudget]);
 
   useEffect(() => {
     if (!isAuthLoading && currentUser && selectedBudgetId && currentMonthString) {
-      triggerRecalculation();
+      console.log("Initial trigger conditions met, calling direct recalculation.")
+      triggerRecalculation(); 
     } else {
-      console.log("Conditions not met for triggering recalculation (isAuthLoading: " + isAuthLoading + ", currentUser: " + !!currentUser + ", budgetId: " + selectedBudgetId + ", month: " + currentMonthString + ")."); 
+      console.log("Conditions not met for triggering initial recalculation (isAuthLoading: " + isAuthLoading + ", currentUser: " + !!currentUser + ", budgetId: " + selectedBudgetId + ", month: " + currentMonthString + ")."); 
     }
   }, [isAuthLoading, currentUser, selectedBudgetId, currentMonthString, triggerRecalculation]);
+
+  useEffect(() => {
+    debouncedTriggerRecalculationRef.current = debounce(() => {
+      if (typeof triggerRecalculation === 'function') {
+        console.log("Calling debounced triggerRecalculation");
+        triggerRecalculation();
+      }
+    }, 500); // Changed from 2000ms to 500ms
+
+    return () => {
+      if (debouncedTriggerRecalculationRef.current && 
+          typeof debouncedTriggerRecalculationRef.current.cancel === 'function') {
+        console.log("Cancelling pending debounced recalculation on cleanup.");
+        debouncedTriggerRecalculationRef.current.cancel();
+      }
+    };
+  }, [triggerRecalculation]);
 
   /**
    * Handle allocation change for a category
@@ -70,11 +147,9 @@ function BudgetPage() {
    * @param {number} newAmount - The new allocation amount
    */
   const handleAllocationChange = async (categoryId, newAmount) => {
-    // Clear any previous errors
     setUpdateError(null);
     
     try {
-      // Validate inputs
       if (!categoryId) {
         throw new Error('Category ID is required');
       }
@@ -85,16 +160,22 @@ function BudgetPage() {
       
       console.log(`Updating allocation for category ${categoryId} to ${newAmount}`);
       
-      // Call the service function to update the allocation in Firestore
       await updateAllocation(budgetId, currentMonthString, categoryId, newAmount);
       
-      // No need to update local state as real-time listener will handle the update
       console.log(`Successfully updated allocation for ${categoryId}`);
+      
+      setCalculationStatus('pending'); // Show a "Recalculating..." indicator
+
+      if (debouncedTriggerRecalculationRef.current && 
+          typeof debouncedTriggerRecalculationRef.current === 'function') {
+        debouncedTriggerRecalculationRef.current();
+      } else {
+        console.warn("debouncedTriggerRecalculationRef.current is not a function.");
+      }
+      
     } catch (error) {
       console.error('Failed to update allocation:', error);
       setUpdateError(error.message);
-      
-      // Could show a toast notification here if available in the UI
     }
   };
 
@@ -176,6 +257,10 @@ function BudgetPage() {
             availableFunds={availableFunds}
             totalAllocated={totalAllocated}
             remainingToAllocate={remainingToAllocate}
+            totalSpent={totalSpent}
+            monthlySavings={monthlySavings}
+            rolloverAmount={rolloverAmount}
+            isUsingServerCalculations={isUsingServerCalculations}
           />
           <p>Chargement des données du budget...</p>
         </div>
@@ -194,6 +279,10 @@ function BudgetPage() {
             availableFunds={availableFunds}
             totalAllocated={totalAllocated}
             remainingToAllocate={remainingToAllocate}
+            totalSpent={totalSpent}
+            monthlySavings={monthlySavings}
+            rolloverAmount={rolloverAmount}
+            isUsingServerCalculations={isUsingServerCalculations}
           />
          <div className={styles.error}>Erreur lors du chargement des données: {error.message}</div>
         </div>
@@ -211,8 +300,19 @@ function BudgetPage() {
         availableFunds={availableFunds}
         totalAllocated={totalAllocated}
         remainingToAllocate={remainingToAllocate}
+        totalSpent={totalSpent}
+        monthlySavings={monthlySavings}
+        rolloverAmount={rolloverAmount}
+        isUsingServerCalculations={isUsingServerCalculations}
         isRecalculating={isRecalculating} // Pass loading state
       />
+
+      {/* Visual feedback for calculation status */}
+      {calculationStatus === 'pending' && (
+        <div className={styles.recalculatingIndicatorContainer}>
+          <small className={styles.recalculatingIndicator}>Recalcul en cours...</small>
+        </div>
+      )}
 
       {updateError && (
         <div className={styles.error}>
@@ -269,5 +369,5 @@ function BudgetPage() {
     </div>
   );
 }
-  
+
 export default BudgetPage;
