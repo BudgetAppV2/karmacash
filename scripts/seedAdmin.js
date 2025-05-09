@@ -18,7 +18,9 @@
  *   --skip-categories    Skip category creation
  *   --skip-transactions  Skip transaction creation
  *   --skip-rules         Skip recurring rule creation
+ *   --skip-allocations   Skip monthly budget allocation creation
  *   --target-month=<YYYY-MM> Generate transactions for a specific month (e.g., 2025-05)
+ *   --recurring-instances-pct=<N> Percentage of transactions that should be recurring instances (default: 30)
  *   --debug             Enable verbose debug logging
  *   --help              Show this help message
  * 
@@ -693,18 +695,30 @@ function generateDateInMonth(yearMonthString) {
  * @param {string} budgetId - The budget ID
  * @param {string} userId - The user ID creating the transactions
  * @param {Object[]} categories - Array of category objects with their IDs and details
- * @param {number} [count=15] - Number of transactions to create
+ * @param {Object} options - Options for transaction creation
+ * @param {number} [options.count=20] - Number of transactions to create
+ * @param {Array} [options.recurringRules=[]] - Recurring rules to use for recurring instances
+ * @param {number} [options.recurringInstancesPercent=30] - Percentage of transactions that should be recurring instances
  * @returns {Promise<string[]>} - Array of created transaction IDs
  */
-async function seedSampleTransactions(budgetId, userId, categories, count = 15) {
+async function seedSampleTransactions(budgetId, userId, categories, options = {}) {
   const operation = 'seedSampleTransactions';
   try {
+    // Get existing options with defaults
+    const {
+      count = 20,
+      recurringRules = [],
+      recurringInstancesPercent = 30
+    } = options;
+
     debugLog.info(operation, 'Starting transaction seeding process', { 
       budgetId, 
       userId,
       categoryCount: categories.length,
       targetCount: count,
-      targetMonth: args['target-month'] || 'default (last 60 days)'
+      targetMonth: args['target-month'] || 'default (last 60 days)',
+      recurringRulesAvailable: recurringRules.length,
+      recurringInstancesPercent
     });
 
     if (!categories?.length) {
@@ -736,15 +750,45 @@ async function seedSampleTransactions(budgetId, userId, categories, count = 15) 
       const date = args['target-month']
         ? generateDateInMonth(args['target-month']) // Generate date in specific month
         : generateDate(0, 60);                      // Spread across last 60 days (default)
-        
-      const descriptions = sampleTransactions[category.type][category.name] || ['Transaction'];
-      const description = descriptions[Math.floor(Math.random() * descriptions.length)];
-      const amount = generateAmount(category.name, category.type);
-
+      
       // Create document reference
       const transactionDocRef = transactionsRef.doc();
       const transactionId = transactionDocRef.id;
       transactionIds.push(transactionId);
+
+      // Determine if this should be a recurring instance
+      // Only make expense transactions recurring instances, and only if we have recurring rules
+      const shouldBeRecurringInstance = 
+        category.type === 'expense' && 
+        recurringRules.length > 0 && 
+        Math.random() * 100 < recurringInstancesPercent;
+
+      let description, amount, isRecurringInstance = false, recurringRuleId = null;
+
+      if (shouldBeRecurringInstance) {
+        // Pick a random recurring rule
+        const randomRuleIndex = Math.floor(Math.random() * recurringRules.length);
+        const recurringRule = recurringRules[randomRuleIndex];
+        
+        // Use the rule's details
+        isRecurringInstance = true;
+        recurringRuleId = recurringRule.id;
+        description = `${recurringRule.name} (récurrent)`;
+        
+        // Find the category for this rule
+        const ruleCategory = categories.find(c => c.id === recurringRule.categoryId);
+        
+        // Generate a realistic amount based on the rule's amount (with some variation)
+        const variationPercent = Math.random() * 10 - 5; // -5% to +5% variation
+        const baseAmount = Math.abs(recurringRule.amount);
+        const variation = baseAmount * (variationPercent / 100);
+        amount = -Math.abs(baseAmount + variation); // Ensure negative for expenses
+      } else {
+        // Regular non-recurring transaction
+        const descriptions = sampleTransactions[category.type][category.name] || ['Transaction'];
+        description = descriptions[Math.floor(Math.random() * descriptions.length)];
+        amount = generateAmount(category.name, category.type);
+      }
 
       const transactionData = {
         budgetId,
@@ -753,8 +797,8 @@ async function seedSampleTransactions(budgetId, userId, categories, count = 15) 
         amount,
         description,
         date: admin.firestore.Timestamp.fromDate(date),
-        isRecurringInstance: false,
-        recurringRuleId: null,
+        isRecurringInstance,
+        recurringRuleId,
         createdByUserId: userId,
         lastEditedByUserId: userId,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -777,7 +821,9 @@ async function seedSampleTransactions(budgetId, userId, categories, count = 15) 
             hasAmount: typeof transactionData.amount === 'number',
             hasDescription: typeof transactionData.description === 'string',
             hasDate: transactionData.date instanceof admin.firestore.Timestamp,
-            hasCreatedByUserId: transactionData.createdByUserId === userId
+            hasCreatedByUserId: transactionData.createdByUserId === userId,
+            isRecurringInstance: transactionData.isRecurringInstance,
+            hasRecurringRuleId: transactionData.isRecurringInstance ? !!transactionData.recurringRuleId : true
           }
         });
       }
@@ -789,15 +835,16 @@ async function seedSampleTransactions(budgetId, userId, categories, count = 15) 
     debugLog.info(operation, 'Committing transactions batch');
     await batch.commit();
 
-    // Log success with statistics
-    const expenseCount = transactionIds.length * 0.7;
-    const incomeCount = transactionIds.length * 0.3;
+    // Count regular vs recurring transactions
+    const recurringCount = transactionIds.filter((_, i) => i % 10 < (recurringInstancesPercent / 10)).length;
+    const regularCount = transactionIds.length - recurringCount;
     
+    // Log success with statistics
     debugLog.info(operation, 'Transactions created successfully', {
       budgetId,
       totalCount: transactionIds.length,
-      expenseCount: Math.round(expenseCount),
-      incomeCount: Math.round(incomeCount),
+      regularCount,
+      recurringCount,
       targetMonth: args['target-month'] || 'default (last 60 days)'
     });
 
@@ -985,6 +1032,131 @@ async function seedSampleRecurringRules(budgetId, userId, categories) {
 }
 
 /**
+ * Seeds monthly budget allocations for a given budget and month
+ * @param {string} budgetId - The budget ID to seed allocations for
+ * @param {string} userId - The user ID creating the allocations
+ * @param {Array} categories - Array of category objects with their IDs and details
+ * @param {string} [targetMonth=null] - Target month in YYYY-MM format (use current month if not specified)
+ * @returns {Promise<Object>} - The created monthly data document
+ */
+async function seedMonthlyBudgetAllocations(budgetId, userId, categories, targetMonth = null) {
+  const operation = 'seedMonthlyBudgetAllocations';
+  try {
+    // Determine month to use (either specified target month or current month)
+    const now = new Date();
+    const monthToUse = targetMonth || 
+      `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    
+    debugLog.info(operation, 'Starting monthly budget allocation seeding', { 
+      budgetId, 
+      userId,
+      monthToUse,
+      categoryCount: categories.length
+    });
+
+    // Get only expense categories
+    const expenseCategories = categories.filter(c => c.type === 'expense');
+    
+    if (expenseCategories.length === 0) {
+      throw new Error('No expense categories found to create allocations');
+    }
+    
+    // Calculate a reasonable total budget amount (between 2000-3500)
+    const totalBudget = Math.floor(Math.random() * 1500) + 2000;
+    
+    // Create allocations map with sensible allocated amounts
+    const allocations = {};
+    let remainingBudget = totalBudget;
+    
+    // Process all categories except the last one with random amounts
+    for (let i = 0; i < expenseCategories.length - 1; i++) {
+      const category = expenseCategories[i];
+      // Ensure we don't allocate more than 60% of remaining budget to any category
+      // Also ensure we leave some minimum for remaining categories
+      const maxAllocation = Math.min(
+        remainingBudget * 0.6, 
+        remainingBudget - (expenseCategories.length - i - 1) * 50
+      );
+      
+      // Generate a random allocation between 50 and maxAllocation
+      const allocation = Math.max(50, Math.floor(Math.random() * maxAllocation));
+      allocations[category.id] = allocation;
+      remainingBudget -= allocation;
+    }
+    
+    // Allocate the remaining budget to the last category
+    const lastCategory = expenseCategories[expenseCategories.length - 1];
+    allocations[lastCategory.id] = Math.max(50, remainingBudget);
+    
+    debugLog.debug(operation, 'Generated allocations', {
+      budgetId,
+      monthToUse,
+      totalAllocated: Object.values(allocations).reduce((sum, val) => sum + val, 0),
+      allocations
+    });
+
+    // Create the monthlyData document
+    const monthlyDataRef = db.doc(`budgets/${budgetId}/monthlyData/${monthToUse}`);
+    
+    // Calculate sample month values for the calculated field
+    // These values won't be perfectly accurate without real calculation logic,
+    // but they provide reasonable test data
+    const income = Math.floor(Math.random() * 1000) + totalBudget; // Income > totalBudget
+    const recurringExpenses = Math.floor(totalBudget * 0.4); // 40% of budget is recurring
+    const rollover = Math.floor(Math.random() * 300) - 100; // Between -100 and 200
+    const availableToAllocate = income - recurringExpenses + rollover;
+    const totalAllocated = Object.values(allocations).reduce((sum, val) => sum + val, 0);
+    const remainingToAllocate = availableToAllocate - totalAllocated;
+    const spent = Math.floor(totalAllocated * 0.7); // 70% of budget spent
+    const savings = income - spent;
+
+    // Prepare document data following B5.2 schema
+    const monthlyData = {
+      budgetId,
+      month: monthToUse,
+      year: parseInt(monthToUse.split('-')[0], 10),
+      calculated: {
+        revenue: income,
+        recurringExpenses: recurringExpenses,
+        rolloverFromPrevious: rollover,
+        availableToAllocate: availableToAllocate,
+        totalAllocated: totalAllocated,
+        remainingToAllocate: remainingToAllocate,
+        totalSpent: spent,
+        monthlySavings: savings
+      },
+      allocations,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastEditedByUserId: userId
+    };
+
+    await monthlyDataRef.set(monthlyData);
+    
+    debugLog.info(operation, 'Monthly budget allocations created successfully', {
+      budgetId,
+      monthToUse,
+      totalAllocated,
+      categoryCount: Object.keys(allocations).length
+    });
+
+    return monthlyData;
+  } catch (error) {
+    debugLog.error(operation, 'Failed to seed monthly budget allocations', error);
+    
+    // Enhance error message based on common issues
+    if (error.code === 'permission-denied') {
+      console.error('\nPermission denied. Please check:');
+      console.error('1. User has editor/owner role in the budget');
+      console.error('2. All required fields are present and valid');
+      console.error('3. Budget and categories exist\n');
+    }
+    
+    throw error;
+  }
+}
+
+/**
  * Lists all budgets for a user
  * @param {string} userId - The user ID to list budgets for
  * @returns {Promise<Array>} - Array of budget objects
@@ -1117,23 +1289,62 @@ async function main() {
       debugLog.info('main', 'Using existing categories', { count: categoryIds.length });
     }
     
-    const categories = defaultCategories.map((cat, index) => ({
-      ...cat,
-      id: categoryIds[index]
+    const categories = categoryIds.map((id, index) => ({
+      ...defaultCategories[index],
+      id
     }));
+    
+    // Create recurring rules if not skipped and we have categories
+    let ruleIds = [];
+    let rules = [];
+    if (!args['skip-rules'] && categoryIds.length > 0) {
+      ruleIds = await seedSampleRecurringRules(budgetId, userData.id, categories);
+      
+      // Fetch the created rules if any were created
+      if (ruleIds.length > 0) {
+        const rulesRef = db.collection(`budgets/${budgetId}/recurringRules`);
+        const rulesSnapshot = await Promise.all(
+          ruleIds.map(id => rulesRef.doc(id).get())
+        );
+        rules = rulesSnapshot.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+      }
+      
+      debugLog.info('main', 'Recurring rules created', { count: ruleIds.length });
+    }
+    
+    // Get the recurring instances percentage from CLI args (default to 30%)
+    const recurringInstancesPercent = parseInt(args['recurring-instances-pct'] || '30', 10);
     
     // Create transactions if not skipped and we have categories
     let transactionIds = [];
     if (!args['skip-transactions'] && categoryIds.length > 0) {
-      transactionIds = await seedSampleTransactions(budgetId, userData.id, categories, 20);
-      debugLog.info('main', 'Transactions created', { count: transactionIds.length });
+      transactionIds = await seedSampleTransactions(budgetId, userData.id, categories, {
+        count: 20,
+        recurringRules: rules,
+        recurringInstancesPercent
+      });
+      debugLog.info('main', 'Transactions created', { 
+        count: transactionIds.length,
+        recurringInstancesPercent
+      });
     }
     
-    // Create recurring rules if not skipped and we have categories
-    let ruleIds = [];
-    if (!args['skip-rules'] && categoryIds.length > 0) {
-      ruleIds = await seedSampleRecurringRules(budgetId, userData.id, categories);
-      debugLog.info('main', 'Recurring rules created', { count: ruleIds.length });
+    // Create monthly budget allocations if not skipped and we have categories
+    let monthlyData = null;
+    if (!args['skip-allocations'] && categoryIds.length > 0) {
+      monthlyData = await seedMonthlyBudgetAllocations(
+        budgetId, 
+        userData.id, 
+        categories, 
+        args['target-month']
+      );
+      debugLog.info('main', 'Monthly budget allocations created', { 
+        month: monthlyData.month,
+        allocations: Object.keys(monthlyData.allocations).length
+      });
     }
     
     debugLog.info('main', 'Seeding process completed successfully', {
@@ -1141,7 +1352,9 @@ async function main() {
       budgetId,
       categoryCount: categoryIds.length,
       transactionCount: transactionIds.length,
-      recurringRuleCount: ruleIds.length
+      recurringRuleCount: ruleIds.length,
+      recurringInstancesPercent,
+      monthlyAllocations: monthlyData ? true : false
     });
     
     process.exit(0);
@@ -1206,7 +1419,9 @@ Options:
   --skip-categories       Skip category creation
   --skip-transactions     Skip transaction creation
   --skip-rules            Skip recurring rule creation
+  --skip-allocations      Skip monthly budget allocation creation
   --target-month=<YYYY-MM> Generate transactions for a specific month (e.g., 2025-05)
+  --recurring-instances-pct=<N> Percentage of transactions that should be recurring instances (default: 30)
   --debug                 Enable verbose debug logging
   --help                  Show this help message
 
