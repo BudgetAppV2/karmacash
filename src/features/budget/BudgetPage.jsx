@@ -260,6 +260,7 @@ function BudgetPage() {
                     allocatedAmount={allocatedAmount}
                     spentAmount={spentAmount}
                     categoryType={category.type}
+                    categoryColor={category.color}
                     currentAllocation={currentInputValue}
                     onAllocationChange={(value) => handleAllocationInputChange(category.id, value)}
                     onAllocationSave={() => handleAllocationChange(category.id, editingAllocation[category.id] ?? allocatedAmount.toString())}

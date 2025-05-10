@@ -5,62 +5,100 @@ function formatCurrency(amount) {
   return amount?.toLocaleString('fr-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2 });
 }
 
-// Helper for status color and label
-function getStatusInfo(progress, isOverspent, isZeroAllocation) {
-  if (isOverspent) return { label: 'Dépassement', color: 'var(--color-negative)' };
-  if (progress >= 90 && !isZeroAllocation) return { label: 'Presque atteint', color: 'var(--color-warning, #E0B470)' };
-  if (progress > 0) return { label: 'En cours', color: 'var(--color-information)' };
-  if (isZeroAllocation) return { label: 'Non alloué', color: 'var(--color-border-x-light, #eee)' };
-  return { label: 'OK', color: 'var(--color-positive)' };
-}
-
 export default function CategoryProgressDisplay({
   categoryName,
   allocatedAmount = 0,
   spentAmount = 0,
   categoryType = 'expense',
+  categoryColor,
   currentAllocation,
   onAllocationChange,
   onAllocationSave,
   isSavingAllocation = false,
 }) {
-  // Calculate progress and remaining
-  const progress = allocatedAmount > 0 ? Math.min((spentAmount / allocatedAmount) * 100, 100) : 0;
+  let progress = 0;
+  if (allocatedAmount > 0) {
+    progress = Math.min((spentAmount / allocatedAmount) * 100, 100);
+  } else if (spentAmount > 0) {
+    progress = 100;
+  }
+  
   const remaining = allocatedAmount - spentAmount;
-  const isOverspent = spentAmount > allocatedAmount;
-  const isZeroAllocation = allocatedAmount === 0;
-  const statusInfo = getStatusInfo(progress, isOverspent, isZeroAllocation);
+  const isTrulyOverspent = (allocatedAmount > 0 && spentAmount > allocatedAmount) || (allocatedAmount === 0 && spentAmount > 0);
 
-  // CIRCULAR PROGRESS (SVG)
-  const RADIUS = 22;
-  const STROKE = 7;
+  const RADIUS = 25;
+  const STROKE = 8;
   const CIRCUM = 2 * Math.PI * RADIUS;
-  const offset = CIRCUM * (1 - progress / 100);
+  const visualProgressPercent = progress;
+  const offset = CIRCUM * (1 - visualProgressPercent / 100);
+
+  const displayPercentText = allocatedAmount > 0 || spentAmount > 0 
+    ? `${Math.round(visualProgressPercent)}%` 
+    : '--';
 
   return (
-    <section className={styles.container} aria-label={`Catégorie ${categoryName}`}>
-      <div className={styles.mainContentRow}>
-        <div className={styles.leftContent}>
-          <header className={styles.headerRow}>
-            <h3 className={styles.categoryName}>{categoryName}</h3>
-            <span className={styles.statusBadge} style={{ background: statusInfo.color }}>{statusInfo.label}</span>
-          </header>
-          <div className={styles.amountsRow}>
-            <div className={styles.amountBlock}>
-              <span className={styles.amountLabel}>Alloué</span>
-              <span className={styles.amountValue}>{formatCurrency(allocatedAmount)}</span>
+    <section 
+      className={styles.container}
+      aria-label={`Catégorie ${categoryName}`}
+      style={{ '--category-card-accent-color': categoryColor || 'transparent' }}
+    >
+      {isTrulyOverspent && <div className={styles.overspendingDot}></div>}
+      
+      <div className={styles.topContent}>
+        <h3 className={styles.categoryName}>{categoryName}</h3>
+        <div className={styles.budgetDetailsRow}>
+          <div className={styles.budgetDetailItem}>
+            <span className={styles.budgetDetailLabel}>Alloué</span>
+            <div className={styles.budgetDetailValuePill}>
+              <span className={styles.budgetDetailValue}>{formatCurrency(allocatedAmount)}</span>
             </div>
-            <div className={styles.amountBlock}>
-              <span className={styles.amountLabel}>Dépensé</span>
-              <span className={styles.amountValue}>{formatCurrency(spentAmount)}</span>
+          </div>
+          <div className={styles.budgetDetailItem}>
+            <span className={styles.budgetDetailLabel}>Dépensé</span>
+            <div className={styles.budgetDetailValuePill}>
+              <span className={styles.budgetDetailValue}>{formatCurrency(spentAmount)}</span>
             </div>
-            <div className={styles.amountBlock}>
-              <span className={styles.amountLabel}>Reste</span>
-              <span className={`${styles.amountValue} ${remaining < 0 ? styles.negative : ''}`}>{formatCurrency(remaining)}</span>
+          </div>
+          <div className={styles.budgetDetailItem}>
+            <span className={styles.budgetDetailLabel}>Reste</span>
+            <div className={styles.budgetDetailValuePill}>
+              <span className={`${styles.budgetDetailValue} ${remaining < 0 ? styles.negativeValue : ''}`}>{formatCurrency(remaining)}</span>
             </div>
           </div>
         </div>
-        <div className={styles.progressCol}>
+      </div>
+
+      <div className={styles.bottomControlsRow}>
+        <div className={styles.allocationControls}>
+          <form className={styles.allocationForm} onSubmit={e => { e.preventDefault(); onAllocationSave?.(); }}>
+            <label htmlFor={`allocation-input-${categoryName}`} className={styles.inputLabel}>
+              Modifier l'allocation
+            </label>
+            <div className={styles.inputRow}>
+              <input
+                id={`allocation-input-${categoryName}`}
+                className={styles.allocationInput}
+                type="number"
+                min="0"
+                step="0.01"
+                value={currentAllocation}
+                onChange={e => onAllocationChange?.(e.target.value)}
+                aria-label={`Montant alloué pour ${categoryName}`}
+                disabled={isSavingAllocation}
+              />
+            </div>
+            <button
+              className={styles.saveButton}
+              type="submit"
+              disabled={isSavingAllocation}
+              aria-busy={isSavingAllocation}
+            >
+              {isSavingAllocation ? 'Enregistrement...' : 'Sauvegarder'}
+            </button>
+          </form>
+        </div>
+
+        <div className={styles.progressIndicatorWrapper}>
           <svg
             className={styles.circularProgress}
             width={60}
@@ -84,7 +122,7 @@ export default function CategoryProgressDisplay({
               r={RADIUS}
               strokeWidth={STROKE}
               fill="none"
-              stroke={statusInfo.color}
+              stroke={categoryColor || '#cccccc'}
               strokeDasharray={CIRCUM}
               strokeDashoffset={offset}
               strokeLinecap="round"
@@ -96,37 +134,11 @@ export default function CategoryProgressDisplay({
               dominantBaseline="central"
               className={styles.progressPercentText}
             >
-              {allocatedAmount > 0 ? `${Math.round(progress)}%` : '--'}
+              {displayPercentText}
             </text>
           </svg>
         </div>
       </div>
-      <form className={styles.allocationForm} onSubmit={e => { e.preventDefault(); onAllocationSave?.(); }}>
-        <label htmlFor={`allocation-input-${categoryName}`} className={styles.inputLabel}>
-          Modifier l'allocation
-        </label>
-        <div className={styles.inputRow}>
-          <input
-            id={`allocation-input-${categoryName}`}
-            className={styles.allocationInput}
-            type="number"
-            min="0"
-            step="0.01"
-            value={currentAllocation}
-            onChange={e => onAllocationChange?.(e.target.value)}
-            aria-label={`Montant alloué pour ${categoryName}`}
-            disabled={isSavingAllocation}
-          />
-          <button
-            className={styles.saveButton}
-            type="submit"
-            disabled={isSavingAllocation}
-            aria-busy={isSavingAllocation}
-          >
-            {isSavingAllocation ? 'Enregistrement...' : 'Sauvegarder'}
-          </button>
-        </div>
-      </form>
     </section>
   );
 } 
