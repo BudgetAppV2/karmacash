@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ToastProvider } from '../../contexts/ToastContext';
 import { useBudgets } from '../../contexts/BudgetContext';
-import TestDataGenerator from '../TestDataGenerator';
+import AdminSeedDataTool from '../admin/AdminSeedDataTool';
 import ensoCircleSvg from '../../assets/enso-circle.svg';
 
 function MainLayout() {
@@ -236,7 +236,7 @@ function MainLayout() {
       <main className="app-main">
         <ToastProvider>
           <Outlet />
-          <TestDataGenerator />
+          {import.meta.env.DEV && <AdminSeedDataTool />}
         </ToastProvider>
       </main>
       

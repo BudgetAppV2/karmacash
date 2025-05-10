@@ -13,6 +13,8 @@ const logger = require('./utils/logger');
  * - createBudgetCallable: Creates a budget with membership doc (bypassing security rules)
  * - testAuth: Diagnostic function for auth testing
  * - echoTest: Diagnostic function that returns received data
+ * - testAuthContext: Test function for auth context propagation
+ * - triggerAdminSeed: Admin tool to seed test data for development/testing
  */
 
 const { 
@@ -41,6 +43,12 @@ const { OAuth2Client } = require('google-auth-library');
 
 // Import for the new recalculateBudget function
 const budgetFunctions = require('./src/budgets/recalculateBudget');
+
+// Import for the test auth context function
+const adminFunctions = require('./src/admin/testAuthContext');
+
+// Import for the admin seed function
+const adminSeedFunctions = require('./src/admin/triggerAdminSeed');
 
 // This creates direct references to the Firestore classes
 const FirestoreTimestamp = firestore.Timestamp;
@@ -1464,3 +1472,10 @@ exports.createBudgetCallable = functions.https.onCall(async (data, context) => {
 
 // Export the new recalculateBudget function
 exports.recalculateBudget = budgetFunctions.recalculateBudget;
+
+// Export the test auth context functions
+exports.testAuthContext = adminFunctions.testAuthContext;
+exports.testAuthContextHTTP = adminFunctions.testAuthContextHTTP;
+
+// Export admin test functions
+exports.triggerAdminSeed = adminSeedFunctions.triggerAdminSeed;
