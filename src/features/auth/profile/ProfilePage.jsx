@@ -12,6 +12,26 @@ import {
 } from '../../../services/firebase/auth';
 import { getUserSettings, updateUserSettings } from '../../../services/firebase/firestore';
 import logger from '../../../services/logger';
+// Import AuthContextTester for development mode
+import AuthContextTester from '../../../components/admin/AuthContextTester';
+
+// Add a style for the dev tools section
+const devToolsStyle = {
+  marginTop: '40px',
+  padding: '24px',
+  borderTop: '1px solid #EEEEEE',
+  borderRadius: '8px',
+  backgroundColor: '#FAFAFA'
+};
+
+const devToolsHeadingStyle = {
+  fontSize: '1.2rem',
+  color: '#3A5A78',
+  fontWeight: '500',
+  marginBottom: '16px',
+  paddingBottom: '12px',
+  borderBottom: '1px dashed #DDDDDD'
+};
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -464,6 +484,14 @@ const ProfilePage = () => {
           </div>
         )}
       </div>
+      
+      {/* Render the AuthContextTester component only in development mode */}
+      {import.meta.env.DEV && (
+        <div style={devToolsStyle} className="dev-tools-section">
+          <h2 style={devToolsHeadingStyle}>Outils de développement</h2>
+          <AuthContextTester />
+        </div>
+      )}
     </div>
   );
 };

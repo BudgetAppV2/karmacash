@@ -12,8 +12,46 @@ import {
   } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, collection, getDocs } from 'firebase/firestore';
 import logger from '../logger';
-import { auth } from './firebaseInit';
-import { db } from './firebaseInit';
+import { auth, db, isEmulatorMode } from './firebaseInit';
+  
+/**
+ * Enhanced logger wrapper to prevent Firebase Auth emulator errors
+ * This addresses the 400 Bad Request error by preventing problematic log requests in emulator mode
+ */
+const authLogger = {
+  debug: (service, operation, message, data = {}) => {
+    // Skip remote logging in emulator mode to prevent CORS/Bad Request errors
+    if (isEmulatorMode) {
+      console.debug(`[${service}:${operation}] ${message}`, data);
+      return;
+    }
+    logger.debug(service, operation, message, data);
+  },
+  info: (service, operation, message, data = {}) => {
+    // Skip remote logging in emulator mode to prevent CORS/Bad Request errors
+    if (isEmulatorMode) {
+      console.info(`[${service}:${operation}] ${message}`, data);
+      return;
+    }
+    logger.info(service, operation, message, data);
+  },
+  warn: (service, operation, message, data = {}) => {
+    // Skip remote logging in emulator mode to prevent CORS/Bad Request errors
+    if (isEmulatorMode) {
+      console.warn(`[${service}:${operation}] ${message}`, data);
+      return;
+    }
+    logger.warn(service, operation, message, data);
+  },
+  error: (service, operation, message, data = {}) => {
+    // Skip remote logging in emulator mode to prevent CORS/Bad Request errors
+    if (isEmulatorMode) {
+      console.error(`[${service}:${operation}] ${message}`, data);
+      return;
+    }
+    logger.error(service, operation, message, data);
+  }
+};
   
 /**
  * Register a new user with email and password
@@ -29,10 +67,11 @@ export const registerUser = async (email, password, displayName = '') => {
       email, 
       passwordLength: password.length, 
       displayName,
-      authInstance: !!auth
+      authInstance: !!auth,
+      emulatorMode: isEmulatorMode
     });
     
-    logger.debug('AuthService', 'registerUser', 'Starting user registration', { email });
+    authLogger.debug('AuthService', 'registerUser', 'Starting user registration', { email });
     
     // Add detailed context before calling the Firebase function
     console.log('AUTH EMULATOR DEBUG - About to call createUserWithEmailAndPassword with:',
@@ -52,7 +91,7 @@ export const registerUser = async (email, password, displayName = '') => {
         console.log('AUTH EMULATOR DEBUG - updateProfile succeeded for user:', userCredential.user.uid);
       } catch (profileError) {
         // Log the error but continue with registration process
-        logger.warn('AuthService', 'registerUser', 'Failed to set display name', { 
+        authLogger.warn('AuthService', 'registerUser', 'Failed to set display name', { 
           userId: userCredential.user.uid,
           error: profileError.message
         });
@@ -66,7 +105,7 @@ export const registerUser = async (email, password, displayName = '') => {
       const userId = userCredential.user.uid;
       const userDocRef = doc(db, 'users', userId);
       
-      logger.debug('AuthService', 'registerUser', 'Creating user document in Firestore', { 
+      authLogger.debug('AuthService', 'registerUser', 'Creating user document in Firestore', { 
         userId: userId
       });
       
@@ -90,12 +129,12 @@ export const registerUser = async (email, password, displayName = '') => {
       // Create the document
       await setDoc(userDocRef, userData);
       
-      logger.info('AuthService', 'registerUser', 'User document created in Firestore', { 
+      authLogger.info('AuthService', 'registerUser', 'User document created in Firestore', { 
         userId: userId
       });
     } catch (firestoreError) {
       // Critical error - log detailed information
-      logger.error('AuthService', 'registerUser', 'Failed to create user document in Firestore', {
+      authLogger.error('AuthService', 'registerUser', 'Failed to create user document in Firestore', {
         userId: userCredential.user.uid,
         error: firestoreError.message,
         code: firestoreError.code,
@@ -116,12 +155,12 @@ export const registerUser = async (email, password, displayName = '') => {
     // Send email verification - also wrap in try-catch to ensure it doesn't block completion
     try {
       await sendEmailVerification(userCredential.user);
-      logger.info('AuthService', 'registerUser', 'Verification email sent', {
+      authLogger.info('AuthService', 'registerUser', 'Verification email sent', {
         userId: userCredential.user.uid
       });
     } catch (emailError) {
       // Non-critical error - log but continue
-      logger.warn('AuthService', 'registerUser', 'Failed to send verification email', {
+      authLogger.warn('AuthService', 'registerUser', 'Failed to send verification email', {
         userId: userCredential.user.uid,
         error: emailError.message
       });
@@ -129,7 +168,7 @@ export const registerUser = async (email, password, displayName = '') => {
       // We continue since this is not critical for account creation
     }
     
-    logger.info('AuthService', 'registerUser', 'User registered successfully', { 
+    authLogger.info('AuthService', 'registerUser', 'User registered successfully', { 
       userId: userCredential.user.uid
     });
     
@@ -144,7 +183,7 @@ export const registerUser = async (email, password, displayName = '') => {
       fullError: JSON.stringify(error)
     });
     
-    logger.error('AuthService', 'registerUser', 'Registration failed', { 
+    authLogger.error('AuthService', 'registerUser', 'Registration failed', { 
       error: error.message, 
       code: error.code
     });

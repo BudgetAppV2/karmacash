@@ -9,6 +9,7 @@ import { updateAllocation, callRecalculateBudget } from '../../services/firebase
 import { debounce } from 'lodash';
 import styles from './BudgetPage.module.css'; // Styles will be completely revamped
 import { formatCurrency } from '../../utils/formatters'; 
+import CategoryProgressDisplay from '../../components/budget/CategoryProgressDisplay';
 
 // Icons (assuming you have an icon library or SVGs)
 const ChevronLeftIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="24" height="24"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>;
@@ -249,51 +250,21 @@ function BudgetPage() {
                                         ? editingAllocation[category.id] 
                                         : allocatedAmount.toString();
 
+              // If you have a per-category saving state, use it; otherwise, default to false
+              const isSavingAllocation = false; // Replace with actual state if available
+
               return (
                 <div key={category.id} className={styles.categoryCard}>
-                  <div className={styles.categoryCardHeader}>
-                    <span className={styles.categoryName}>{category.name}</span>
-                    <input 
-                      type="number"
-                      className={styles.categoryAllocationInput}
-                      value={currentInputValue}
-                      onChange={(e) => handleAllocationInputChange(category.id, e.target.value)}
-                      onBlur={(e) => handleAllocationChange(category.id, e.target.value)}
-                      onKeyPress={(e) => { if (e.key === 'Enter') handleAllocationChange(category.id, e.target.value);}}
-                      aria-label={`Allocation pour ${category.name}`}
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  <div className={styles.categoryCardBody}>
-                    <div className={styles.categoryProgressBarContainer}>
-                      <div 
-                        className={styles.categoryProgressBarFilled} 
-                        style={{ width: `${progressPercent}%` }}
-                        role="progressbar"
-                        aria-valuenow={progressPercent}
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                        aria-label={`Dépensé ${formatCurrency(spentAmount)} sur ${formatCurrency(allocatedAmount)}`}
-                      ></div>
-                    </div>
-                    <div className={styles.categoryFigures}>
-                      <div className={styles.figure}>
-                        <span className={styles.figureLabel}>Alloué</span>
-                        <span className={styles.figureValue}>{formatCurrency(allocatedAmount)}</span>
-                      </div>
-                       <div className={styles.figure}>
-                        <span className={styles.figureLabel}>Activité</span>
-                        <span className={styles.figureValue}>{formatCurrency(activityAmount)}</span>
-                      </div>
-                      <div className={styles.figure}>
-                        <span className={styles.figureLabel}>Disponible</span>
-                        <span className={`${styles.figureValue} ${availableInCategory < 0 ? styles.figureValueNegative : ''}`}>
-                          {formatCurrency(availableInCategory)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  <CategoryProgressDisplay
+                    categoryName={category.name}
+                    allocatedAmount={allocatedAmount}
+                    spentAmount={spentAmount}
+                    categoryType={category.type}
+                    currentAllocation={currentInputValue}
+                    onAllocationChange={(value) => handleAllocationInputChange(category.id, value)}
+                    onAllocationSave={() => handleAllocationChange(category.id, editingAllocation[category.id] ?? allocatedAmount.toString())}
+                    isSavingAllocation={isSavingAllocation}
+                  />
                 </div>
               );
             })}
