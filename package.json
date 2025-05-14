@@ -28,7 +28,8 @@
     "lodash": "^4.17.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.5.0"
+    "react-router-dom": "^7.5.0",
+    "task-master-ai": "^0.13.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
