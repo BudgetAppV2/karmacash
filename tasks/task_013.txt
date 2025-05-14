@@ -1,0 +1,19 @@
+# Task ID: 13
+# Title: PT-B7X-DRAFT-S2: Draft Section 'The Optimized Workflow Steps' for B7.X
+# Status: pending
+# Dependencies: 11
+# Priority: medium
+# Description: Draft the section detailing each step of "The Optimized Workflow: From Manus Planning to Task Master Execution" for the [B7.X AI Workflow] document.
+# Details:
+- Describe Step 1: High-Level Planning (HD + CK).
+- Describe Step 2: Detailed Task Breakdown (Manus AI via HD/CK Prompt), including the critical Manus AI Output Template.
+- Describe Step 3: JSON Transformation (CK/Claude/Other AI via HD/CK Prompt), including the example transformation prompt.
+- Describe Step 4: Update tasks.json (HD).
+- Describe Step 5: Generate Task Files (Task Master via Cursor AI - Optional).
+- Describe Step 6: Task Management during SHIP (Task Master via Cursor AI).
+- Reference Section 2 and 3 of `Workflow_Integration_Manus_TaskMaster_v1.md`.
+
+# Test Strategy:
+- Confirm all steps and their details from Section 2 and 3 of the source document are accurately represented.
+- Ensure the Manus AI Output Template is correctly included.
+- Required Bible Updates: Draft of The Optimized Workflow Steps section for B7.X created.

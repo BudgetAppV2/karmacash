@@ -1,0 +1,15 @@
+# Task ID: 7
+# Title: PT-B1.3-M6-01: Decide and Draft M6 Core Objectives and Key Tasks for B1.3
+# Status: pending
+# Dependencies: 6
+# Priority: high
+# Description: Define the core objectives and key tasks for Milestone 6 (M6) based on the M4PLAN-derived plan and decisions made for M5 (e.g., onboarding implementation). Draft this section for the [B1.3 Roadmap & Milestones] document.
+# Details:
+- Review summarized M6 tasks from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md`.
+- Incorporate tasks such as: Onboarding implementation (if decided in M5), complete validation of budget calculations, integration and non-regression testing, UX testing and feedback incorporation, performance optimization, security review, deployment preparation, and final user documentation.
+- Draft the M6 section for B1.3, outlining objectives, key tasks, and references to relevant Bible documents.
+
+# Test Strategy:
+- Confirm all relevant M6 points from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` are addressed in the B1.3 M6 draft.
+- Ensure the drafted M6 section in B1.3 is clear, concise, and actionable.
+- Required Bible Updates: Draft of M6 section for B1.3 created.

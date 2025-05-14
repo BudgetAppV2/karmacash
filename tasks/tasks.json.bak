@@ -1,0 +1,209 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "M5.1.1: Implement Input Validation for Category Allocations to Prevent Negative \"Reste à Allouer\"",
+      "description": "Modify category allocation inputs to prevent users from entering values that cause \"Reste à Allouer\" to become negative relative to \"AvailableFunds\".",
+      "details": "- Modify `BudgetCategoryRow.tsx` (ref B3.7 - 4.1) to cap input values or display clear validation messages if an entered allocation would make \"Reste à Allouer\" negative.\n- Ensure client-side logic prevents `TotalAllocated` from exceeding `AvailableFunds` (ref B6.1 - 3.6) through direct input in a single category field.\n- Validation messages should be contextual, clear (e.g., \"Allocation cannot exceed available funds\"), and non-disruptive, adhering to B3.4 UI Guidelines and B3.7 - 8.2.\n- The `RemainingToAllocateIndicator.tsx` (ref B3.7 - 4.2) must update in real-time and should not display a negative value as a direct result of a user typing an excessive amount in one category's allocation field.\n- Interaction should feel helpful, guiding the user to a balanced budget (ref B3.4 UI Guidelines).",
+      "testStrategy": "- Unit test the input capping logic and validation message triggering.\n- UI test: enter allocation amounts less than, equal to, and greater than the permissible limit. Verify input capping/validation message and that `RemainingToAllocate` does not go below zero due to this action.\n- Test with `AvailableFunds` being positive. Test with `AvailableFunds` being negative (due to rollover, ref B6.1 - 4.2) – in this case, any positive allocation will further increase the negative `RemainingToAllocate`, but the principle is about not allocating *more* than `AvailableFunds` if `AvailableFunds` is positive.\n- Ensure `RemainingToAllocateIndicator` updates correctly in real-time during input.\n- Accessibility testing for validation messages (e.g., ARIA attributes).\n- Required Bible Updates:\n  - B6.1 (Budget Calculations): Update section 3.6 (Monthly Remaining to Allocate Calculation) with an implementation note on client-side input controls preventing `TotalAllocated` from exceeding `AvailableFunds`. Update section 9 (Validation Rules) with a new rule for this client-side validation.\n  - B3.7 (UI Component Specs): Update `BudgetCategoryRow` (4.1) to detail the input validation behavior, capping mechanism, and interaction with validation messages.",
+      "priority": "high",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 2,
+      "title": "M5.1.2: Design and Implement \"Allocation Sliders\" UI Component",
+      "description": "Create a new reusable \"Allocation Slider\" UI component, or significantly enhance the `BudgetCategoryRow` (ref B3.7 - 4.1) to include a slider for setting category budget allocations.",
+      "details": "- Create a new component: `AllocationSlider.tsx` or enhance `BudgetCategoryRow.tsx`.\n- Visual design must align with the KarmaCash Zen/Tranquility theme (ref B3.4 UI Guidelines, B3.8 Style Guide v2). Sliders should be visually clean, with adequate touch targets.\n- Slider minimum value is 0. Maximum value will be dynamic (handled in M5.1.3). Consider appropriate step increments (e.g., 1, 5, 10 currency units) or continuous sliding.\n- The current allocated value set by the slider must be clearly visible, either on the slider itself or alongside it.\n- If a numerical input field co-exists with the slider for the same category allocation, they must be synchronized.\n- Ensure smooth and responsive slider movement. Implement gentle animations for interaction feedback (ref B3.11 Animations & Interactions).\n- Sliders must be keyboard accessible (e.g., arrow keys to adjust) and provide appropriate ARIA attributes for screen readers.",
+      "testStrategy": "- Component test: render the slider with various initial values, min, and max settings.\n- Interaction test: verify dragging the slider handle updates the associated allocated value correctly in the component's state and visually.\n- Keyboard navigation test: ensure slider value can be adjusted using keyboard controls.\n- Accessibility test: verify with screen reader and keyboard-only operation.\n- Visual test: ensure alignment with style guide (B3.8) and theme (B3.4).\n- If synchronized with a numerical input, verify changes in one reflect correctly in the other.\n- Required Bible Updates:\n  - B3.7 (UI Component Specs): Add a new component specification (e.g., Section 4.X `AllocationSlider`). This spec should detail purpose, visual appearance (referencing B3.8 v2), props (value, min, max, step, onChange, disabled), interaction model, and accessibility considerations. Update `BudgetCategoryRow` (4.1) to describe its integration of the `AllocationSlider`.\n  - B3.8 (Style Guide v2): Add specific styling guidelines for sliders if not already covered.\n  - B3.11 (Animations & Interactions): Define any subtle animations for slider handle interaction or value change feedback.",
+      "priority": "high",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 3,
+      "title": "M5.1.3: Integrate Allocation Sliders with Budget Logic and \"Reste à Allouer\" Constraint",
+      "description": "Connect the Allocation Slider components to the application's budget state management. Ensure that adjusting a slider updates the corresponding category's allocated amount, which in turn updates `TotalAllocated` and `RemainingToAllocate` in real-time. The collective adjustment of sliders must adhere to the constraint that `TotalAllocated` does not exceed `AvailableFunds`.",
+      "details": "- Modify `AllocationSlider.tsx`, `BudgetCategoryRow.tsx`, and the main Budget page/view for central state management of all allocations, `AvailableFunds`, and `RemainingToAllocate`.\n- The `recalculateBudget` logic (ref B6.1) will be invoked frequently as sliders are manipulated. Client-side performance for these recalculations is important.\n- The dynamic `max` value of each category's slider must be calculated such that `slider.value <= category.currentAllocation + RemainingToAllocate_overall` (where `RemainingToAllocate_overall` is the total remaining based on `AvailableFunds`).\n- If `RemainingToAllocate_overall` is zero or negative (e.g., because `AvailableFunds` is negative), sliders should not allow further increases in allocation (their max should be their current value or they should appear disabled for increase).\n- If `AvailableFunds` is zero or negative, all allocation sliders should effectively have a max of 0 (or be disabled for increase), as there are no funds to allocate.\n- The `RemainingToAllocateIndicator` (ref B3.7 - 4.2) must update instantly as any slider is adjusted. Other sliders' effective ranges might also need to update visually.",
+      "testStrategy": "- Integration test: Adjust one slider and verify `RemainingToAllocate` updates correctly. Verify other sliders' potential max values update if applicable.\n- Scenario test: With positive `RemainingToAllocate`, adjust a slider to consume all of it. `RemainingToAllocate` should become 0. Attempting to increase any slider further should be prevented.\n- Scenario test: If `AvailableFunds` is 0 or negative, verify sliders are appropriately constrained (e.g., max 0 or disabled for increase).\n- Test with multiple categories and sliders, ensuring the sum of allocations never exceeds `AvailableFunds` through slider use.\n- UI test: Responsiveness of the `RemainingToAllocateIndicator` and sliders during adjustments.\n- Required Bible Updates:\n  - B6.1 (Budget Calculations): Update section 3.6 (Monthly Remaining to Allocate Calculation) with a note: \"When using interactive allocation tools like sliders, client-side logic must dynamically adjust slider ranges to ensure that the sum of all allocations does not exceed `AvailableFunds`.\" Consider adding a sub-section under Section 5 (User Interface Calculations) detailing the logic for calculating dynamic maximums for allocation sliders.\n  - B3.7 (UI Component Specs): Update the `AllocationSlider` spec (from M5.1.2) to thoroughly document how its `max` prop is dynamically calculated and how it behaves when `AvailableFunds` or `RemainingToAllocate` are zero or negative.",
+      "priority": "high",
+      "dependencies": [
+        1,
+        2
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 4,
+      "title": "M5.1.4: Review and Update Backend for Saving Allocations",
+      "description": "Review and, if necessary, update the backend mechanism (e.g., Firebase Callable Function as per B4.3) responsible for saving the user's budget allocations. Ensure it correctly persists the allocations set by the user via the improved UI (direct input or sliders) and reliably stores the client-validated data.",
+      "details": "- Review the Firebase Callable Function (or other server-side endpoint, ref B4.3 Backend Functions) that receives the `allocations` map and updates the budget document in Firestore.\n- The server-side `recalculateBudget` function (ref B6.1) will likely be triggered after updating allocations to ensure all `calculated.*` fields in the budget document are accurate.\n- Decision Point: For M5.1, primarily rely on the strengthened client-side validation for the \"Reste à Allouer\" constraint. The server saves what the client sends. Server-side re-validation for this specific constraint could be added for extra robustness but increases complexity.\n- Ensure the user receives clear feedback upon saving (success or failure), typically via a Toast Notification (ref B3.7 - 8.1, B3.11 Animations & Interactions for gentle feedback).",
+      "testStrategy": "- Integration test: After making valid allocations on the client (respecting all new constraints), trigger the save operation.\n- Data validation: Verify that the budget data, when re-fetched or viewed after save, shows the correct allocations and a `RemainingToAllocate` value consistent with the client-side display before saving.\n- Backend error handling test: If the save operation fails for any reason (e.g., network issue, Firestore permissions), ensure the client UI provides appropriate feedback (e.g., error toast).\n- (Optional, if server-side validation for this constraint is added): Use a tool to attempt to save allocations that violate the constraint directly to the backend and verify the backend's response (e.g., rejection with an error code).\n- Required Bible Updates:\n  - B4.3 (Backend Functions): Document any changes to the save allocation function. Specifically, note its reliance on client-validated allocations for the \"Reste à Allouer\" constraint, or detail any server-side checks if implemented.\n  - B6.1 (Budget Calculations): Update Section 6 (Recalculation Triggers) to clarify the interaction between client-side validated allocations and the server-side save/recalculation process. Specify the server's behavior if, hypothetically, it received allocations that would make `RemainingToAllocate` negative (relative to positive `AvailableFunds`).",
+      "priority": "medium",
+      "dependencies": [
+        1,
+        3
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 5,
+      "title": "PT-INPUT-01: Review and Analyze Core Planning Inputs for Roadmap Update",
+      "priority": "high",
+      "dependencies": [],
+      "description": "Thoroughly review and synthesize key information from provided planning documents to inform the update of the KarmaCash Roadmap [B1.3] and Post-MVP Features [B1.4].",
+      "details": "- Analyze `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` (referred to as M4PLAN-derived plan) to extract all decisions, discussion points, and proposed tasks for M5, M6, and Post-MVP features.\n- Cross-reference with the current `B1.3_Roadmap_Milestones.md` to identify discrepancies and areas needing updates.\n- Review `B1.4_PostMVP_Features.md` against M4PLAN-derived plan for consistency and necessary refinements.\n- Note the existing M5.1 tasks (#1-4 from `tasks.json` / initial `pasted_content.txt`) that must be incorporated into the M5 plan within B1.3.\n- Consult `B0_README_TOC.md` for overall Bible structure and context.",
+      "testStrategy": "- Confirm all sections of `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` relevant to M5, M6, and Post-MVP have been reviewed.\n- Create a summary of key decisions and task items to be integrated into B1.3 and B1.4.\n- Required Bible Updates: None directly from this step, but this task produces inputs for B1.3 and B1.4 updates.",
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 6,
+      "title": "PT-B1.3-M5-01: Decide and Draft M5 Core Objectives and Key Tasks for B1.3",
+      "priority": "high",
+      "dependencies": [
+        5
+      ],
+      "description": "Based on the analysis of M4PLAN-derived plan, decide on the core objectives and key tasks for Milestone 5 (M5) and draft this section for the [B1.3 Roadmap & Milestones] document.",
+      "details": "- Review summarized M5 tasks from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md`.\n- Incorporate the pre-defined M5.1 tasks (#1-4 from `tasks.json` / initial `pasted_content.txt`) into the M5 plan.\n- Address key M5 discussion points from M4PLAN-derived plan (e.g., category deletion logic, navigation UI, dashboard concept, login/signup polish, onboarding prep, persistent notes strategy, `recalculateBudget` review, UI clarifications, \"Fonds Disponibles\" UI if recurring expense toggle is deferred, commercialization model, task manager integration exploration).\n- Draft the M5 section for B1.3, outlining objectives, key tasks, and references to relevant Bible documents (e.g., B6.1, B3.7).",
+      "testStrategy": "- Confirm all relevant M5 points from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` are addressed in the B1.3 M5 draft.\n- Verify M5.1 tasks (#1-4) are correctly integrated.\n- Ensure the drafted M5 section in B1.3 is clear, concise, and actionable.\n- Required Bible Updates: Draft of M5 section for B1.3 created.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 7,
+      "title": "PT-B1.3-M6-01: Decide and Draft M6 Core Objectives and Key Tasks for B1.3",
+      "priority": "high",
+      "dependencies": [
+        6
+      ],
+      "description": "Define the core objectives and key tasks for Milestone 6 (M6) based on the M4PLAN-derived plan and decisions made for M5 (e.g., onboarding implementation). Draft this section for the [B1.3 Roadmap & Milestones] document.",
+      "details": "- Review summarized M6 tasks from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md`.\n- Incorporate tasks such as: Onboarding implementation (if decided in M5), complete validation of budget calculations, integration and non-regression testing, UX testing and feedback incorporation, performance optimization, security review, deployment preparation, and final user documentation.\n- Draft the M6 section for B1.3, outlining objectives, key tasks, and references to relevant Bible documents.",
+      "testStrategy": "- Confirm all relevant M6 points from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` are addressed in the B1.3 M6 draft.\n- Ensure the drafted M6 section in B1.3 is clear, concise, and actionable.\n- Required Bible Updates: Draft of M6 section for B1.3 created.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 8,
+      "title": "PT-B1.3-PMVP-01: Refine and Draft Post-MVP Features List for B1.3 and B1.4",
+      "priority": "high",
+      "dependencies": [
+        7
+      ],
+      "description": "Update and refine the list of Post-MVP features in both the [B1.3 Roadmap & Milestones] document and the [B1.4 PostMVP Features] document, based on the M4PLAN-derived plan and the current B1.4 content.",
+      "details": "- Review Post-MVP suggestions from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` (e.g., recurring expense toggle, shared budget transaction comparison graph, full dashboard development).\n- Cross-reference with `B1.4_PostMVP_Features.md` (Shared Budgets, Goal Setting, Push Notifications, Basic Reporting, CSV Import/Reconciliation).\n- Consolidate and prioritize the Post-MVP feature list.\n- Draft the Post-MVP section for B1.3 and update B1.4 accordingly.",
+      "testStrategy": "- Confirm consistency between the Post-MVP sections in the updated B1.3 and B1.4.\n- Verify that all key Post-MVP features from input documents are considered and appropriately listed.\n- Required Bible Updates: Draft of Post-MVP section for B1.3 created; Updated version of B1.4 PostMVP Features document drafted.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 9,
+      "title": "PT-B1.3-FIN-01: Finalize and Review Updated B1.3 Roadmap & Milestones Document",
+      "priority": "high",
+      "dependencies": [
+        8
+      ],
+      "description": "Compile all drafted sections (M5, M6, Post-MVP) into the [B1.3 Roadmap & Milestones] document. Conduct a comprehensive review for consistency, clarity, completeness, and accuracy.",
+      "details": "- Integrate the drafted M5, M6, and Post-MVP sections into the existing B1.3 structure.\n- Review all dependencies, timelines (if any mentioned), and references to other Bible documents for correctness.\n- Ensure overall document flow and readability.",
+      "testStrategy": "- Perform a full read-through of the updated B1.3 document.\n- Check for any unresolved comments or placeholders.\n- Confirm all instructions from the initial prompt regarding B1.3 update have been met.\n- Required Bible Updates: Final draft of B1.3 Roadmap & Milestones document ready for validation by HD.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "PT-B7X-INPUT-01: Review and Analyze Workflow Integration Document for B7.X",
+      "priority": "high",
+      "dependencies": [],
+      "description": "Thoroughly review and analyze the `Workflow_Integration_Manus_TaskMaster_v1.md` content (provided via pasted_content.txt) to extract all necessary information for drafting the new [B7.X AI Workflow] document.",
+      "details": "- Identify and list all core tools and their roles (KarmaCash Bible, SHIP, CK, Manus AI, Claude Task Master, Cursor AI, HD).\n- Detail each step of \"The Optimized Workflow: From Manus Planning to Task Master Execution\".\n- Extract the precise \"Manus AI Output Template\".\n- Document the JSON transformation process and the example prompt.\n- Capture the `tasks.json` schema.\n- List all \"SHIP Template Integration Points\".\n- Summarize the \"CK Role & Responsibilities (New Workflow)\".\n- Note any \"Key Workflow Decisions & Rationale\".",
+      "testStrategy": "- Create a checklist or summary of all key components from `Workflow_Integration_Manus_TaskMaster_v1.md` that must be included in B7.X.\n- Confirm all sections of the source document have been processed.\n- Required Bible Updates: None directly, this task produces inputs for B7.X drafting tasks.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 11,
+      "title": "PT-B7X-OUTLINE-01: Outline Structure for New B7.X AI Workflow Document",
+      "priority": "high",
+      "dependencies": [
+        10
+      ],
+      "description": "Define a logical and comprehensive structure (sections and sub-sections) for the new [B7.X AI Workflow] document, based on the analysis of `Workflow_Integration_Manus_TaskMaster_v1.md`.",
+      "details": "- Propose main sections such as: Introduction/Purpose, Core Tools Overview & Roles, The Optimized Workflow (detailing each step), Manus AI Output Template, JSON Transformation & Schema, SHIP Template Integration, CK Role & Responsibilities, Further Documentation/Next Steps.\n- Ensure the outline flows logically and covers all critical aspects of the new workflow.",
+      "testStrategy": "- Review the proposed outline against the checklist/summary created in PT-B7X-INPUT-01 to ensure full coverage.\n- Confirm the structure is intuitive and easy to navigate.\n- Required Bible Updates: Detailed outline for B7.X document created.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 12,
+      "title": "PT-B7X-DRAFT-S1: Draft Section 'Introduction and Core Tools/Roles' for B7.X",
+      "priority": "medium",
+      "dependencies": [
+        11
+      ],
+      "description": "Draft the initial sections of the [B7.X AI Workflow] document, covering the purpose and an overview of core tools and their roles as defined in `Workflow_Integration_Manus_TaskMaster_v1.md`.",
+      "details": "- Write the introduction, explaining the purpose of the new workflow and the document.\n- Detail each tool (KarmaCash Bible, SHIP, CK, Manus AI, Claude Task Master, Cursor AI, HD) and its specific role within this integrated workflow, referencing Section 1 of the source document.",
+      "testStrategy": "- Verify that the drafted content accurately reflects Section 1 of `Workflow_Integration_Manus_TaskMaster_v1.md`.\n- Ensure clarity and conciseness.\n- Required Bible Updates: Draft of Introduction and Core Tools/Roles sections for B7.X created.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 13,
+      "title": "PT-B7X-DRAFT-S2: Draft Section 'The Optimized Workflow Steps' for B7.X",
+      "priority": "medium",
+      "dependencies": [
+        11
+      ],
+      "description": "Draft the section detailing each step of \"The Optimized Workflow: From Manus Planning to Task Master Execution\" for the [B7.X AI Workflow] document.",
+      "details": "- Describe Step 1: High-Level Planning (HD + CK).\n- Describe Step 2: Detailed Task Breakdown (Manus AI via HD/CK Prompt), including the critical Manus AI Output Template.\n- Describe Step 3: JSON Transformation (CK/Claude/Other AI via HD/CK Prompt), including the example transformation prompt.\n- Describe Step 4: Update tasks.json (HD).\n- Describe Step 5: Generate Task Files (Task Master via Cursor AI - Optional).\n- Describe Step 6: Task Management during SHIP (Task Master via Cursor AI).\n- Reference Section 2 and 3 of `Workflow_Integration_Manus_TaskMaster_v1.md`.",
+      "testStrategy": "- Confirm all steps and their details from Section 2 and 3 of the source document are accurately represented.\n- Ensure the Manus AI Output Template is correctly included.\n- Required Bible Updates: Draft of The Optimized Workflow Steps section for B7.X created.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 14,
+      "title": "PT-B7X-DRAFT-S3: Draft Section 'tasks.json Schema and Key Decisions' for B7.X",
+      "priority": "medium",
+      "dependencies": [
+        11
+      ],
+      "description": "Draft the sections covering the `tasks.json` schema and key workflow decisions for the [B7.X AI Workflow] document.",
+      "details": "- Document the precise `tasks.json` schema as specified in Section 4 of `Workflow_Integration_Manus_TaskMaster_v1.md`.\n- Explain the key workflow decisions and their rationale (Bypassed parse-prd, Direct tasks.json update, Structured Text Template, Incremental Task Generation), referencing Section 3 of the source document.",
+      "testStrategy": "- Verify the `tasks.json` schema is an exact match to the source.\n- Confirm all key decisions and rationales are clearly articulated.\n- Required Bible Updates: Draft of tasks.json Schema and Key Decisions sections for B7.X created.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 15,
+      "title": "PT-B7X-DRAFT-S4: Draft Sections 'SHIP Integration, CK Role, and Conclusion' for B7.X",
+      "priority": "medium",
+      "dependencies": [
+        11
+      ],
+      "description": "Draft the final sections of the [B7.X AI Workflow] document, covering SHIP integration points, CK responsibilities, next steps, and further documentation.",
+      "details": "- Detail the \"SHIP Template Integration Points\" (Section 5 of source).\n- Describe the \"CK Role & Responsibilities (New Workflow)\" (Section 6 of source).\n- Include \"Next Steps & Testing\" and \"Further Documentation\" (Sections 7 & 8 of source), including the link to Task Master documentation.\n- Write a concluding paragraph summarizing the benefits of the new workflow.",
+      "testStrategy": "- Ensure all points from Sections 5, 6, 7, and 8 of `Workflow_Integration_Manus_TaskMaster_v1.md` are covered.\n- Verify the conclusion is appropriate.\n- Required Bible Updates: Draft of SHIP Integration, CK Role, and Conclusion sections for B7.X created.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 16,
+      "title": "PT-B7X-FIN-01: Finalize and Review Draft of B7.X AI Workflow Document",
+      "priority": "high",
+      "dependencies": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "description": "Compile all drafted sections of the [B7.X AI Workflow] document. Conduct a comprehensive review for consistency, clarity, completeness, accuracy, and adherence to the overall Bible style.",
+      "details": "- Integrate all drafted sections according to the defined outline.\n- Perform a full read-through, checking for grammatical errors, typos, and clarity.\n- Ensure all cross-references (if any) are correct.\n- Verify that the document fulfills the original request to document the new AI workflow.",
+      "testStrategy": "- Confirm the assembled B7.X document is complete and coherent.\n- Check that all aspects of the `Workflow_Integration_Manus_TaskMaster_v1.md` have been appropriately translated into this new Bible document.\n- Required Bible Updates: Final draft of B7.X AI Workflow document ready for validation by HD.",
+      "status": "pending",
+      "subtasks": []
+    }
+  ]
+}

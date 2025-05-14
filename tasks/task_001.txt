@@ -1,0 +1,22 @@
+# Task ID: 1
+# Title: M5.1.1: Implement Input Validation for Category Allocations to Prevent Negative "Reste à Allouer"
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Modify category allocation inputs to prevent users from entering values that cause "Reste à Allouer" to become negative relative to "AvailableFunds".
+# Details:
+- Modify `BudgetCategoryRow.tsx` (ref B3.7 - 4.1) to cap input values or display clear validation messages if an entered allocation would make "Reste à Allouer" negative.
+- Ensure client-side logic prevents `TotalAllocated` from exceeding `AvailableFunds` (ref B6.1 - 3.6) through direct input in a single category field.
+- Validation messages should be contextual, clear (e.g., "Allocation cannot exceed available funds"), and non-disruptive, adhering to B3.4 UI Guidelines and B3.7 - 8.2.
+- The `RemainingToAllocateIndicator.tsx` (ref B3.7 - 4.2) must update in real-time and should not display a negative value as a direct result of a user typing an excessive amount in one category's allocation field.
+- Interaction should feel helpful, guiding the user to a balanced budget (ref B3.4 UI Guidelines).
+
+# Test Strategy:
+- Unit test the input capping logic and validation message triggering.
+- UI test: enter allocation amounts less than, equal to, and greater than the permissible limit. Verify input capping/validation message and that `RemainingToAllocate` does not go below zero due to this action.
+- Test with `AvailableFunds` being positive. Test with `AvailableFunds` being negative (due to rollover, ref B6.1 - 4.2) – in this case, any positive allocation will further increase the negative `RemainingToAllocate`, but the principle is about not allocating *more* than `AvailableFunds` if `AvailableFunds` is positive.
+- Ensure `RemainingToAllocateIndicator` updates correctly in real-time during input.
+- Accessibility testing for validation messages (e.g., ARIA attributes).
+- Required Bible Updates:
+  - B6.1 (Budget Calculations): Update section 3.6 (Monthly Remaining to Allocate Calculation) with an implementation note on client-side input controls preventing `TotalAllocated` from exceeding `AvailableFunds`. Update section 9 (Validation Rules) with a new rule for this client-side validation.
+  - B3.7 (UI Component Specs): Update `BudgetCategoryRow` (4.1) to detail the input validation behavior, capping mechanism, and interaction with validation messages.

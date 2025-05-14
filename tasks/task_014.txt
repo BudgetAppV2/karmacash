@@ -1,0 +1,14 @@
+# Task ID: 14
+# Title: PT-B7X-DRAFT-S3: Draft Section 'tasks.json Schema and Key Decisions' for B7.X
+# Status: pending
+# Dependencies: 11
+# Priority: medium
+# Description: Draft the sections covering the `tasks.json` schema and key workflow decisions for the [B7.X AI Workflow] document.
+# Details:
+- Document the precise `tasks.json` schema as specified in Section 4 of `Workflow_Integration_Manus_TaskMaster_v1.md`.
+- Explain the key workflow decisions and their rationale (Bypassed parse-prd, Direct tasks.json update, Structured Text Template, Incremental Task Generation), referencing Section 3 of the source document.
+
+# Test Strategy:
+- Verify the `tasks.json` schema is an exact match to the source.
+- Confirm all key decisions and rationales are clearly articulated.
+- Required Bible Updates: Draft of tasks.json Schema and Key Decisions sections for B7.X created.

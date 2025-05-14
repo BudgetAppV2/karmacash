@@ -1,0 +1,17 @@
+# Task ID: 5
+# Title: PT-INPUT-01: Review and Analyze Core Planning Inputs for Roadmap Update
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Thoroughly review and synthesize key information from provided planning documents to inform the update of the KarmaCash Roadmap [B1.3] and Post-MVP Features [B1.4].
+# Details:
+- Analyze `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` (referred to as M4PLAN-derived plan) to extract all decisions, discussion points, and proposed tasks for M5, M6, and Post-MVP features.
+- Cross-reference with the current `B1.3_Roadmap_Milestones.md` to identify discrepancies and areas needing updates.
+- Review `B1.4_PostMVP_Features.md` against M4PLAN-derived plan for consistency and necessary refinements.
+- Note the existing M5.1 tasks (#1-4 from `tasks.json` / initial `pasted_content.txt`) that must be incorporated into the M5 plan within B1.3.
+- Consult `B0_README_TOC.md` for overall Bible structure and context.
+
+# Test Strategy:
+- Confirm all sections of `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` relevant to M5, M6, and Post-MVP have been reviewed.
+- Create a summary of key decisions and task items to be integrated into B1.3 and B1.4.
+- Required Bible Updates: None directly from this step, but this task produces inputs for B1.3 and B1.4 updates.

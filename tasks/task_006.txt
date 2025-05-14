@@ -1,0 +1,43 @@
+# Task ID: 6
+# Title: PT-B1.3-M5-01: Decide and Draft M5 Core Objectives and Key Tasks for B1.3
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Based on the analysis of M4PLAN-derived plan, decide on the core objectives and key tasks for Milestone 5 (M5) and draft this section for the [B1.3 Roadmap & Milestones] document.
+# Details:
+- Review summarized M5 tasks from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md`.
+- Incorporate the pre-defined M5.1 tasks (#1-4 from `tasks.json` / initial `pasted_content.txt`) into the M5 plan.
+- Address key M5 discussion points from M4PLAN-derived plan (e.g., category deletion logic, navigation UI, dashboard concept, login/signup polish, onboarding prep, persistent notes strategy, `recalculateBudget` review, UI clarifications, "Fonds Disponibles" UI if recurring expense toggle is deferred, commercialization model, task manager integration exploration).
+- Draft the M5 section for B1.3, outlining objectives, key tasks, and references to relevant Bible documents (e.g., B6.1, B3.7).
+
+# Test Strategy:
+- Confirm all relevant M5 points from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` are addressed in the B1.3 M5 draft.
+- Verify M5.1 tasks (#1-4) are correctly integrated.
+- Ensure the drafted M5 section in B1.3 is clear, concise, and actionable.
+- Required Bible Updates: Draft of M5 section for B1.3 created.
+
+# Subtasks:
+## 1. Consolidate M5 Inputs and Discussion Points [done]
+### Dependencies: None
+### Description: Gather and organize all relevant M5 inputs, discussion points, and existing plans from various sources.
+### Details:
+Review meeting notes, emails, and existing documents related to M5. Create a comprehensive list of all potential objectives and tasks. Identify any conflicting ideas or overlapping concepts.
+
+## 2. Strategic Decision-Making for M5 Objectives [done]
+### Dependencies: 6.1
+### Description: Analyze consolidated inputs and make strategic decisions on M5 objectives, including prioritization.
+### Details:
+Evaluate each potential objective based on strategic importance, feasibility, and alignment with overall goals. Prioritize objectives and create a shortlist of key M5 objectives. Ensure alignment with higher-level strategies and stakeholder expectations.
+
+## 3. Define Key Tasks for M5 Objectives [done]
+### Dependencies: 6.2
+### Description: Develop a detailed list of key tasks for each prioritized M5 objective, ensuring integration of M5.1 tasks.
+### Details:
+Break down each M5 objective into specific, actionable tasks. Ensure M5.1 tasks are fully integrated and aligned with the overall M5 structure. Identify dependencies between tasks and potential resource requirements.
+
+## 4. Draft and Review M5 Section for B1.3 Document [pending]
+### Dependencies: 6.3
+### Description: Create the M5 section draft for the B1.3 document and conduct a thorough review.
+### Details:
+Write a clear and concise draft of the M5 section, including objectives and key tasks. Ensure proper formatting and consistency with other sections of the B1.3 document. Review the draft for completeness, clarity, and alignment with strategic goals. Make necessary revisions based on feedback.
+

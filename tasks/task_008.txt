@@ -1,0 +1,16 @@
+# Task ID: 8
+# Title: PT-B1.3-PMVP-01: Refine and Draft Post-MVP Features List for B1.3 and B1.4
+# Status: pending
+# Dependencies: 7
+# Priority: high
+# Description: Update and refine the list of Post-MVP features in both the [B1.3 Roadmap & Milestones] document and the [B1.4 PostMVP Features] document, based on the M4PLAN-derived plan and the current B1.4 content.
+# Details:
+- Review Post-MVP suggestions from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` (e.g., recurring expense toggle, shared budget transaction comparison graph, full dashboard development).
+- Cross-reference with `B1.4_PostMVP_Features.md` (Shared Budgets, Goal Setting, Push Notifications, Basic Reporting, CSV Import/Reconciliation).
+- Consolidate and prioritize the Post-MVP feature list.
+- Draft the Post-MVP section for B1.3 and update B1.4 accordingly.
+
+# Test Strategy:
+- Confirm consistency between the Post-MVP sections in the updated B1.3 and B1.4.
+- Verify that all key Post-MVP features from input documents are considered and appropriately listed.
+- Required Bible Updates: Draft of Post-MVP section for B1.3 created; Updated version of B1.4 PostMVP Features document drafted.

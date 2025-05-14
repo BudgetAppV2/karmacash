@@ -1,0 +1,23 @@
+# Task ID: 3
+# Title: M5.1.3: Integrate Allocation Sliders with Budget Logic and "Reste à Allouer" Constraint
+# Status: pending
+# Dependencies: 1, 2
+# Priority: high
+# Description: Connect the Allocation Slider components to the application's budget state management. Ensure that adjusting a slider updates the corresponding category's allocated amount, which in turn updates `TotalAllocated` and `RemainingToAllocate` in real-time. The collective adjustment of sliders must adhere to the constraint that `TotalAllocated` does not exceed `AvailableFunds`.
+# Details:
+- Modify `AllocationSlider.tsx`, `BudgetCategoryRow.tsx`, and the main Budget page/view for central state management of all allocations, `AvailableFunds`, and `RemainingToAllocate`.
+- The `recalculateBudget` logic (ref B6.1) will be invoked frequently as sliders are manipulated. Client-side performance for these recalculations is important.
+- The dynamic `max` value of each category's slider must be calculated such that `slider.value <= category.currentAllocation + RemainingToAllocate_overall` (where `RemainingToAllocate_overall` is the total remaining based on `AvailableFunds`).
+- If `RemainingToAllocate_overall` is zero or negative (e.g., because `AvailableFunds` is negative), sliders should not allow further increases in allocation (their max should be their current value or they should appear disabled for increase).
+- If `AvailableFunds` is zero or negative, all allocation sliders should effectively have a max of 0 (or be disabled for increase), as there are no funds to allocate.
+- The `RemainingToAllocateIndicator` (ref B3.7 - 4.2) must update instantly as any slider is adjusted. Other sliders' effective ranges might also need to update visually.
+
+# Test Strategy:
+- Integration test: Adjust one slider and verify `RemainingToAllocate` updates correctly. Verify other sliders' potential max values update if applicable.
+- Scenario test: With positive `RemainingToAllocate`, adjust a slider to consume all of it. `RemainingToAllocate` should become 0. Attempting to increase any slider further should be prevented.
+- Scenario test: If `AvailableFunds` is 0 or negative, verify sliders are appropriately constrained (e.g., max 0 or disabled for increase).
+- Test with multiple categories and sliders, ensuring the sum of allocations never exceeds `AvailableFunds` through slider use.
+- UI test: Responsiveness of the `RemainingToAllocateIndicator` and sliders during adjustments.
+- Required Bible Updates:
+  - B6.1 (Budget Calculations): Update section 3.6 (Monthly Remaining to Allocate Calculation) with a note: "When using interactive allocation tools like sliders, client-side logic must dynamically adjust slider ranges to ensure that the sum of all allocations does not exceed `AvailableFunds`." Consider adding a sub-section under Section 5 (User Interface Calculations) detailing the logic for calculating dynamic maximums for allocation sliders.
+  - B3.7 (UI Component Specs): Update the `AllocationSlider` spec (from M5.1.2) to thoroughly document how its `max` prop is dynamically calculated and how it behaves when `AvailableFunds` or `RemainingToAllocate` are zero or negative.

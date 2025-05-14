@@ -1,0 +1,26 @@
+# Task ID: 2
+# Title: M5.1.2: Design and Implement "Allocation Sliders" UI Component
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Create a new reusable "Allocation Slider" UI component, or significantly enhance the `BudgetCategoryRow` (ref B3.7 - 4.1) to include a slider for setting category budget allocations.
+# Details:
+- Create a new component: `AllocationSlider.tsx` or enhance `BudgetCategoryRow.tsx`.
+- Visual design must align with the KarmaCash Zen/Tranquility theme (ref B3.4 UI Guidelines, B3.8 Style Guide v2). Sliders should be visually clean, with adequate touch targets.
+- Slider minimum value is 0. Maximum value will be dynamic (handled in M5.1.3). Consider appropriate step increments (e.g., 1, 5, 10 currency units) or continuous sliding.
+- The current allocated value set by the slider must be clearly visible, either on the slider itself or alongside it.
+- If a numerical input field co-exists with the slider for the same category allocation, they must be synchronized.
+- Ensure smooth and responsive slider movement. Implement gentle animations for interaction feedback (ref B3.11 Animations & Interactions).
+- Sliders must be keyboard accessible (e.g., arrow keys to adjust) and provide appropriate ARIA attributes for screen readers.
+
+# Test Strategy:
+- Component test: render the slider with various initial values, min, and max settings.
+- Interaction test: verify dragging the slider handle updates the associated allocated value correctly in the component's state and visually.
+- Keyboard navigation test: ensure slider value can be adjusted using keyboard controls.
+- Accessibility test: verify with screen reader and keyboard-only operation.
+- Visual test: ensure alignment with style guide (B3.8) and theme (B3.4).
+- If synchronized with a numerical input, verify changes in one reflect correctly in the other.
+- Required Bible Updates:
+  - B3.7 (UI Component Specs): Add a new component specification (e.g., Section 4.X `AllocationSlider`). This spec should detail purpose, visual appearance (referencing B3.8 v2), props (value, min, max, step, onChange, disabled), interaction model, and accessibility considerations. Update `BudgetCategoryRow` (4.1) to describe its integration of the `AllocationSlider`.
+  - B3.8 (Style Guide v2): Add specific styling guidelines for sliders if not already covered.
+  - B3.11 (Animations & Interactions): Define any subtle animations for slider handle interaction or value change feedback.

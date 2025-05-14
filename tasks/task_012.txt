@@ -1,0 +1,14 @@
+# Task ID: 12
+# Title: PT-B7X-DRAFT-S1: Draft Section 'Introduction and Core Tools/Roles' for B7.X
+# Status: pending
+# Dependencies: 11
+# Priority: medium
+# Description: Draft the initial sections of the [B7.X AI Workflow] document, covering the purpose and an overview of core tools and their roles as defined in `Workflow_Integration_Manus_TaskMaster_v1.md`.
+# Details:
+- Write the introduction, explaining the purpose of the new workflow and the document.
+- Detail each tool (KarmaCash Bible, SHIP, CK, Manus AI, Claude Task Master, Cursor AI, HD) and its specific role within this integrated workflow, referencing Section 1 of the source document.
+
+# Test Strategy:
+- Verify that the drafted content accurately reflects Section 1 of `Workflow_Integration_Manus_TaskMaster_v1.md`.
+- Ensure clarity and conciseness.
+- Required Bible Updates: Draft of Introduction and Core Tools/Roles sections for B7.X created.
