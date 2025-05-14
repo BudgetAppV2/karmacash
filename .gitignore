@@ -24,5 +24,7 @@ dist-ssr
 *.sw?
 .env.local
 src/.env.local
+
+# Sensitive files
+mcp.json
 .env.local
-src/.env.local
