@@ -71,7 +71,7 @@
       "description": "Based on the analysis of M4PLAN-derived plan, decide on the core objectives and key tasks for Milestone 5 (M5) and draft this section for the [B1.3 Roadmap & Milestones] document.",
       "details": "- Review summarized M5 tasks from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md`.\n- Incorporate the pre-defined M5.1 tasks (#1-4 from `tasks.json` / initial `pasted_content.txt`) into the M5 plan.\n- Address key M5 discussion points from M4PLAN-derived plan (e.g., category deletion logic, navigation UI, dashboard concept, login/signup polish, onboarding prep, persistent notes strategy, `recalculateBudget` review, UI clarifications, \"Fonds Disponibles\" UI if recurring expense toggle is deferred, commercialization model, task manager integration exploration).\n- Draft the M5 section for B1.3, outlining objectives, key tasks, and references to relevant Bible documents (e.g., B6.1, B3.7).",
       "testStrategy": "- Confirm all relevant M5 points from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` are addressed in the B1.3 M5 draft.\n- Verify M5.1 tasks (#1-4) are correctly integrated.\n- Ensure the drafted M5 section in B1.3 is clear, concise, and actionable.\n- Required Bible Updates: Draft of M5 section for B1.3 created.",
-      "status": "pending",
+      "status": "done",
       "subtasks": [
         {
           "id": 1,
@@ -109,7 +109,7 @@
             3
           ],
           "details": "Write a clear and concise draft of the M5 section, including objectives and key tasks. Ensure proper formatting and consistency with other sections of the B1.3 document. Review the draft for completeness, clarity, and alignment with strategic goals. Make necessary revisions based on feedback.",
-          "status": "pending"
+          "status": "done"
         }
       ]
     },
@@ -199,7 +199,7 @@
       "description": "Draft the section detailing each step of \"The Optimized Workflow: From Manus Planning to Task Master Execution\" for the [B7.X AI Workflow] document.",
       "details": "- Describe Step 1: High-Level Planning (HD + CK).\n- Describe Step 2: Detailed Task Breakdown (Manus AI via HD/CK Prompt), including the critical Manus AI Output Template.\n- Describe Step 3: JSON Transformation (CK/Claude/Other AI via HD/CK Prompt), including the example transformation prompt.\n- Describe Step 4: Update tasks.json (HD).\n- Describe Step 5: Generate Task Files (Task Master via Cursor AI - Optional).\n- Describe Step 6: Task Management during SHIP (Task Master via Cursor AI).\n- Reference Section 2 and 3 of `Workflow_Integration_Manus_TaskMaster_v1.md`.",
       "testStrategy": "- Confirm all steps and their details from Section 2 and 3 of the source document are accurately represented.\n- Ensure the Manus AI Output Template is correctly included.\n- Required Bible Updates: Draft of The Optimized Workflow Steps section for B7.X created.",
-      "status": "pending",
+      "status": "done",
       "subtasks": []
     },
     {
@@ -212,7 +212,7 @@
       "description": "Draft the sections covering the `tasks.json` schema and key workflow decisions for the [B7.X AI Workflow] document.",
       "details": "- Document the precise `tasks.json` schema as specified in Section 4 of `Workflow_Integration_Manus_TaskMaster_v1.md`.\n- Explain the key workflow decisions and their rationale (Bypassed parse-prd, Direct tasks.json update, Structured Text Template, Incremental Task Generation), referencing Section 3 of the source document.",
       "testStrategy": "- Verify the `tasks.json` schema is an exact match to the source.\n- Confirm all key decisions and rationales are clearly articulated.\n- Required Bible Updates: Draft of tasks.json Schema and Key Decisions sections for B7.X created.",
-      "status": "pending",
+      "status": "done",
       "subtasks": []
     },
     {
@@ -225,7 +225,7 @@
       "description": "Draft the final sections of the [B7.X AI Workflow] document, covering SHIP integration points, CK responsibilities, next steps, and further documentation.",
       "details": "- Detail the \"SHIP Template Integration Points\" (Section 5 of source).\n- Describe the \"CK Role & Responsibilities (New Workflow)\" (Section 6 of source).\n- Include \"Next Steps & Testing\" and \"Further Documentation\" (Sections 7 & 8 of source), including the link to Task Master documentation.\n- Write a concluding paragraph summarizing the benefits of the new workflow.",
       "testStrategy": "- Ensure all points from Sections 5, 6, 7, and 8 of `Workflow_Integration_Manus_TaskMaster_v1.md` are covered.\n- Verify the conclusion is appropriate.\n- Required Bible Updates: Draft of SHIP Integration, CK Role, and Conclusion sections for B7.X created.",
-      "status": "pending",
+      "status": "done",
       "subtasks": []
     },
     {
@@ -241,7 +241,7 @@
       "description": "Compile all drafted sections of the [B7.X AI Workflow] document. Conduct a comprehensive review for consistency, clarity, completeness, accuracy, and adherence to the overall Bible style.",
       "details": "- Integrate all drafted sections according to the defined outline.\n- Perform a full read-through, checking for grammatical errors, typos, and clarity.\n- Ensure all cross-references (if any) are correct.\n- Verify that the document fulfills the original request to document the new AI workflow.",
       "testStrategy": "- Confirm the assembled B7.X document is complete and coherent.\n- Check that all aspects of the `Workflow_Integration_Manus_TaskMaster_v1.md` have been appropriately translated into this new Bible document.\n- Required Bible Updates: Final draft of B7.X AI Workflow document ready for validation by HD.",
-      "status": "pending",
+      "status": "done",
       "subtasks": []
     }
   ]

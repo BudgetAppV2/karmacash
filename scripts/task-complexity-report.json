@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "generatedAt": "2025-05-17T20:36:12.301Z",
+    "tasksAnalyzed": 8,
+    "thresholdScore": 5,
+    "projectName": "KarmaCash",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 101,
+      "taskTitle": "NavUX.1: Définir la structure et les éléments de la barre d'onglets inférieure",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into the following subtasks:\n1. Identifier les 4-5 sections principales de l'application à inclure dans la barre d'onglets\n2. Sélectionner les icônes Heroicons appropriées pour chaque onglet\n3. Déterminer l'emplacement des fonctionnalités secondaires (Paramètres, Profil, Déconnexion)\n4. Valider la conformité avec les principes de navigation intuitive et de hiérarchie visuelle",
+      "reasoning": "Cette tâche implique la conception de la structure de base de la barre d'onglets, ce qui nécessite une réflexion sur les sections principales, le choix des icônes et l'emplacement des fonctionnalités secondaires. Bien que relativement simple, elle nécessite une coordination avec les exigences et les directives de conception existantes, ce qui la rend légèrement plus complexe."
+    },
+    {
+      "taskId": 102,
+      "taskTitle": "NavUX.2: Concevoir les états visuels et les transitions de la barre d'onglets",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into the following subtasks:\n1. Concevoir des états actifs visuellement distincts pour les onglets\n2. Définir les transitions animées entre les états d'onglets\n3. Appliquer les variables de style du guide de style pour garantir la cohérence visuelle\n4. S'assurer que les états actifs sont clairement visibles pour améliorer la découvrabilité",
+      "reasoning": "Cette tâche implique la conception des états visuels (actif, inactif, hover) et des transitions animées pour la barre d'onglets. Cela nécessite une réflexion approfondie sur l'expérience utilisateur, l'application des directives de conception et l'intégration des animations, ce qui la rend légèrement plus complexe que la tâche précédente."
+    },
+    {
+      "taskId": 103,
+      "taskTitle": "NavUX.3: Développer le composant React de la barre d'onglets inférieure",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Expand this task into the following subtasks:\n1. Développer un composant React réutilisable pour la barre d'onglets\n2. Intégrer les icônes Heroicons sélectionnées\n3. Implémenter les états visuels (actif, inactif, hover)\n4. Assurer la compatibilité PWA et la réactivité sur différents appareils\n5. Implémenter la gestion de l'état de navigation pour suivre l'onglet actif",
+      "reasoning": "Cette tâche implique le développement du composant React pour la barre d'onglets, en intégrant la structure, les icônes et les états visuels définis précédemment. Cela nécessite une bonne compréhension du système de composants existant, de l'intégration des animations et de la gestion de l'état, ce qui la rend légèrement plus complexe que la conception."
+    },
+    {
+      "taskId": 104,
+      "taskTitle": "NavUX.4: Implémenter les transitions animées entre les sections",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into the following subtasks:\n1. Implémenter les transitions animées définies dans NavUX.2\n2. Appliquer les durées et fonctions d'accélération appropriées\n3. Assurer que les transitions sont fluides et non-distrayantes\n4. Implémenter la prise en charge de la préférence \"prefers-reduced-motion\" pour l'accessibilité",
+      "reasoning": "Cette tâche implique le développement des transitions animées entre les sections de l'application lors du changement d'onglet. Cela nécessite une bonne compréhension des animations, de l'optimisation des performances et de l'accessibilité, ce qui la rend légèrement plus complexe que le développement du composant de base."
+    },
+    {
+      "taskId": 105,
+      "taskTitle": "NavUX.5: Intégrer la barre d'onglets avec le routage de l'application",
+      "complexityScore": 8,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Expand this task into the following subtasks:\n1. Configurer le routage React pour les sections principales\n2. Synchroniser l'état actif des onglets avec les routes actuelles\n3. Implémenter la persistance de l'état de navigation entre les sessions\n4. Assurer que l'historique de navigation fonctionne correctement\n5. Gérer correctement les routes imbriquées et les sous-sections",
+      "reasoning": "Cette tâche implique l'intégration de la barre d'onglets avec le système de routage de l'application, ce qui nécessite une bonne compréhension du routage React, de la gestion de l'état et de la synchronisation entre la navigation et les routes. Cela la rend légèrement plus complexe que les tâches précédentes."
+    },
+    {
+      "taskId": 106,
+      "taskTitle": "NavUX.6: Concevoir et implémenter l'accès aux fonctionnalités secondaires",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into the following subtasks:\n1. Implémenter l'approche choisie pour les fonctionnalités secondaires\n2. Concevoir l'interface utilisateur pour l'accès aux fonctionnalités secondaires\n3. Appliquer les principes de design et les variables CSS du guide de style\n4. Assurer que l'accès aux fonctionnalités secondaires est intuitif et découvrable",
+      "reasoning": "Cette tâche implique le développement de la solution pour accéder aux fonctionnalités secondaires (Paramètres, Profil, Déconnexion). Bien qu'elle nécessite une conception et une implémentation spécifiques, elle est relativement plus simple que les tâches précédentes, car elle s'appuie sur les spécifications existantes."
+    },
+    {
+      "taskId": 107,
+      "taskTitle": "NavUX.7: Adapter la navigation pour différentes tailles d'écran",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into the following subtasks:\n1. Implémenter des adaptations responsives pour la barre d'onglets\n2. Ajuster le positionnement, la taille et l'espacement des éléments de navigation\n3. Optimiser l'expérience tactile sur mobile tout en maintenant une navigation efficace sur desktop\n4. Assurer que la navigation reste intuitive et découvrable sur toutes les tailles d'écran",
+      "reasoning": "Cette tâche implique l'optimisation de la navigation pour différentes tailles d'écran, ce qui nécessite une réflexion sur les adaptations responsives, l'expérience utilisateur sur mobile et desktop, ainsi que le maintien de l'intuitivité et de la découvrabilité. Cela la rend légèrement plus complexe que les tâches précédentes."
+    },
+    {
+      "taskId": 108,
+      "taskTitle": "NavUX.8: Tests utilisateurs et ajustements finaux",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into the following subtasks:\n1. Concevoir et mener des tests utilisateurs ciblés sur la nouvelle navigation\n2. Évaluer si la nouvelle navigation résout les problèmes identifiés\n3. Recueillir des retours sur les transitions et animations\n4. Identifier et implémenter les ajustements finaux nécessaires",
+      "reasoning": "Cette tâche implique la réalisation de tests utilisateurs pour évaluer l'efficacité de la nouvelle navigation et effectuer les ajustements finaux nécessaires. Bien qu'elle nécessite une réflexion sur la conception des tests et l'analyse des résultats, elle est relativement plus simple que les tâches de conception et de développement précédentes."
+    }
+  ]
+}

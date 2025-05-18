@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Implement Core Slider Functionality
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Develop the main slider logic including value constraints, step increments, and change handlers.
+# Details:
+Implement logic to constrain value between minValue and maxValue. Handle step increments, including continuous slide if step is 0 or undefined (round to 2 decimal places for currency). Implement onChange callback to propagate new value to parent. Add onDragEnd callback for less frequent state updates. Ensure the component adheres to the defined props and maintains internal state for smooth updates.
+
+# Test Strategy:
+Write unit tests for value constraints, step increments, and callback functions. Test edge cases like minimum and maximum values, and various step sizes.

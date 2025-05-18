@@ -1,0 +1,11 @@
+# Task ID: 1
+# Title: Create AllocationSlider Component Skeleton
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Set up the basic structure of the AllocationSlider.tsx React component with initial props and state management.
+# Details:
+Create a new file AllocationSlider.tsx. Define a functional component with React.FC type. Initialize props interface with value, minValue, maxValue, step, onChange, onDragEnd, isDisabled, label, ariaLabelledBy, ariaDescribedBy, and currencySymbol. Set up internal state for smooth visual updates during drag operations. Use React.memo for component memoization.
+
+# Test Strategy:
+Create unit tests to verify component renders without crashing and accepts all defined props correctly.

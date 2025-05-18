@@ -1,6 +1,6 @@
 # Task ID: 6
 # Title: PT-B1.3-M5-01: Decide and Draft M5 Core Objectives and Key Tasks for B1.3
-# Status: pending
+# Status: done
 # Dependencies: 5
 # Priority: high
 # Description: Based on the analysis of M4PLAN-derived plan, decide on the core objectives and key tasks for Milestone 5 (M5) and draft this section for the [B1.3 Roadmap & Milestones] document.
@@ -35,7 +35,7 @@ Evaluate each potential objective based on strategic importance, feasibility, an
 ### Details:
 Break down each M5 objective into specific, actionable tasks. Ensure M5.1 tasks are fully integrated and aligned with the overall M5 structure. Identify dependencies between tasks and potential resource requirements.
 
-## 4. Draft and Review M5 Section for B1.3 Document [pending]
+## 4. Draft and Review M5 Section for B1.3 Document [done]
 ### Dependencies: 6.3
 ### Description: Create the M5 section draft for the B1.3 document and conduct a thorough review.
 ### Details:

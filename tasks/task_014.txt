@@ -1,6 +1,6 @@
 # Task ID: 14
 # Title: PT-B7X-DRAFT-S3: Draft Section 'tasks.json Schema and Key Decisions' for B7.X
-# Status: pending
+# Status: done
 # Dependencies: 11
 # Priority: medium
 # Description: Draft the sections covering the `tasks.json` schema and key workflow decisions for the [B7.X AI Workflow] document.

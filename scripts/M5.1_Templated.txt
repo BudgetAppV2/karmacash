@@ -1,0 +1,90 @@
+--- START OF TASK ---
+# Title: M5.1.1: Implement Input Validation for Category Allocations to Prevent Negative "Reste à Allouer"
+# Priority: high
+# Dependencies: None
+# Description: Modify category allocation inputs to prevent users from entering values that cause "Reste à Allouer" to become negative relative to "AvailableFunds".
+# Details:
+# - Modify `BudgetCategoryRow.tsx` (ref B3.7 - 4.1) to cap input values or display clear validation messages if an entered allocation would make "Reste à Allouer" negative.
+# - Ensure client-side logic prevents `TotalAllocated` from exceeding `AvailableFunds` (ref B6.1 - 3.6) through direct input in a single category field.
+# - Validation messages should be contextual, clear (e.g., "Allocation cannot exceed available funds"), and non-disruptive, adhering to B3.4 UI Guidelines and B3.7 - 8.2.
+# - The `RemainingToAllocateIndicator.tsx` (ref B3.7 - 4.2) must update in real-time and should not display a negative value as a direct result of a user typing an excessive amount in one category's allocation field.
+# - Interaction should feel helpful, guiding the user to a balanced budget (ref B3.4 UI Guidelines).
+# Test Strategy:
+# - Unit test the input capping logic and validation message triggering.
+# - UI test: enter allocation amounts less than, equal to, and greater than the permissible limit. Verify input capping/validation message and that `RemainingToAllocate` does not go below zero due to this action.
+# - Test with `AvailableFunds` being positive. Test with `AvailableFunds` being negative (due to rollover, ref B6.1 - 4.2) – in this case, any positive allocation will further increase the negative `RemainingToAllocate`, but the principle is about not allocating *more* than `AvailableFunds` if `AvailableFunds` is positive.
+# - Ensure `RemainingToAllocateIndicator` updates correctly in real-time during input.
+# - Accessibility testing for validation messages (e.g., ARIA attributes).
+# - Required Bible Updates:
+#   - B6.1 (Budget Calculations): Update section 3.6 (Monthly Remaining to Allocate Calculation) with an implementation note on client-side input controls preventing `TotalAllocated` from exceeding `AvailableFunds`. Update section 9 (Validation Rules) with a new rule for this client-side validation.
+#   - B3.7 (UI Component Specs): Update `BudgetCategoryRow` (4.1) to detail the input validation behavior, capping mechanism, and interaction with validation messages.
+--- END OF TASK ---
+
+--- START OF TASK ---
+# Title: M5.1.2: Design and Implement "Allocation Sliders" UI Component
+# Priority: high
+# Dependencies: None
+# Description: Create a new reusable "Allocation Slider" UI component, or significantly enhance the `BudgetCategoryRow` (ref B3.7 - 4.1) to include a slider for setting category budget allocations.
+# Details:
+# - Create a new component: `AllocationSlider.tsx` or enhance `BudgetCategoryRow.tsx`.
+# - Visual design must align with the KarmaCash Zen/Tranquility theme (ref B3.4 UI Guidelines, B3.8 Style Guide v2). Sliders should be visually clean, with adequate touch targets.
+# - Slider minimum value is 0. Maximum value will be dynamic (handled in M5.1.3). Consider appropriate step increments (e.g., 1, 5, 10 currency units) or continuous sliding.
+# - The current allocated value set by the slider must be clearly visible, either on the slider itself or alongside it.
+# - If a numerical input field co-exists with the slider for the same category allocation, they must be synchronized.
+# - Ensure smooth and responsive slider movement. Implement gentle animations for interaction feedback (ref B3.11 Animations & Interactions).
+# - Sliders must be keyboard accessible (e.g., arrow keys to adjust) and provide appropriate ARIA attributes for screen readers.
+# Test Strategy:
+# - Component test: render the slider with various initial values, min, and max settings.
+# - Interaction test: verify dragging the slider handle updates the associated allocated value correctly in the component's state and visually.
+# - Keyboard navigation test: ensure slider value can be adjusted using keyboard controls.
+# - Accessibility test: verify with screen reader and keyboard-only operation.
+# - Visual test: ensure alignment with style guide (B3.8) and theme (B3.4).
+# - If synchronized with a numerical input, verify changes in one reflect correctly in the other.
+# - Required Bible Updates:
+#   - B3.7 (UI Component Specs): Add a new component specification (e.g., Section 4.X `AllocationSlider`). This spec should detail purpose, visual appearance (referencing B3.8 v2), props (value, min, max, step, onChange, disabled), interaction model, and accessibility considerations. Update `BudgetCategoryRow` (4.1) to describe its integration of the `AllocationSlider`.
+#   - B3.8 (Style Guide v2): Add specific styling guidelines for sliders if not already covered.
+#   - B3.11 (Animations & Interactions): Define any subtle animations for slider handle interaction or value change feedback.
+--- END OF TASK ---
+
+--- START OF TASK ---
+# Title: M5.1.3: Integrate Allocation Sliders with Budget Logic and "Reste à Allouer" Constraint
+# Priority: high
+# Dependencies: M5.1.1: Implement Input Validation for Category Allocations to Prevent Negative "Reste à Allouer", M5.1.2: Design and Implement "Allocation Sliders" UI Component
+# Description: Connect the Allocation Slider components to the application's budget state management. Ensure that adjusting a slider updates the corresponding category's allocated amount, which in turn updates `TotalAllocated` and `RemainingToAllocate` in real-time. The collective adjustment of sliders must adhere to the constraint that `TotalAllocated` does not exceed `AvailableFunds`.
+# Details:
+# - Modify `AllocationSlider.tsx`, `BudgetCategoryRow.tsx`, and the main Budget page/view for central state management of all allocations, `AvailableFunds`, and `RemainingToAllocate`.
+# - The `recalculateBudget` logic (ref B6.1) will be invoked frequently as sliders are manipulated. Client-side performance for these recalculations is important.
+# - The dynamic `max` value of each category's slider must be calculated such that `slider.value <= category.currentAllocation + RemainingToAllocate_overall` (where `RemainingToAllocate_overall` is the total remaining based on `AvailableFunds`).
+# - If `RemainingToAllocate_overall` is zero or negative (e.g., because `AvailableFunds` is negative), sliders should not allow further increases in allocation (their max should be their current value or they should appear disabled for increase).
+# - If `AvailableFunds` is zero or negative, all allocation sliders should effectively have a max of 0 (or be disabled for increase), as there are no funds to allocate.
+# - The `RemainingToAllocateIndicator` (ref B3.7 - 4.2) must update instantly as any slider is adjusted. Other sliders' effective ranges might also need to update visually.
+# Test Strategy:
+# - Integration test: Adjust one slider and verify `RemainingToAllocate` updates correctly. Verify other sliders' potential max values update if applicable.
+# - Scenario test: With positive `RemainingToAllocate`, adjust a slider to consume all of it. `RemainingToAllocate` should become 0. Attempting to increase any slider further should be prevented.
+# - Scenario test: If `AvailableFunds` is 0 or negative, verify sliders are appropriately constrained (e.g., max 0 or disabled for increase).
+# - Test with multiple categories and sliders, ensuring the sum of allocations never exceeds `AvailableFunds` through slider use.
+# - UI test: Responsiveness of the `RemainingToAllocateIndicator` and sliders during adjustments.
+# - Required Bible Updates:
+#   - B6.1 (Budget Calculations): Update section 3.6 (Monthly Remaining to Allocate Calculation) with a note: "When using interactive allocation tools like sliders, client-side logic must dynamically adjust slider ranges to ensure that the sum of all allocations does not exceed `AvailableFunds`." Consider adding a sub-section under Section 5 (User Interface Calculations) detailing the logic for calculating dynamic maximums for allocation sliders.
+#   - B3.7 (UI Component Specs): Update the `AllocationSlider` spec (from M5.1.2) to thoroughly document how its `max` prop is dynamically calculated and how it behaves when `AvailableFunds` or `RemainingToAllocate` are zero or negative.
+--- END OF TASK ---
+
+--- START OF TASK ---
+# Title: M5.1.4: Review and Update Backend for Saving Allocations
+# Priority: medium
+# Dependencies: M5.1.1: Implement Input Validation for Category Allocations to Prevent Negative "Reste à Allouer", M5.1.3: Integrate Allocation Sliders with Budget Logic and "Reste à Allouer" Constraint
+# Description: Review and, if necessary, update the backend mechanism (e.g., Firebase Callable Function as per B4.3) responsible for saving the user's budget allocations. Ensure it correctly persists the allocations set by the user via the improved UI (direct input or sliders) and reliably stores the client-validated data.
+# Details:
+# - Review the Firebase Callable Function (or other server-side endpoint, ref B4.3 Backend Functions) that receives the `allocations` map and updates the budget document in Firestore.
+# - The server-side `recalculateBudget` function (ref B6.1) will likely be triggered after updating allocations to ensure all `calculated.*` fields in the budget document are accurate.
+# - Decision Point: For M5.1, primarily rely on the strengthened client-side validation for the "Reste à Allouer" constraint. The server saves what the client sends. Server-side re-validation for this specific constraint could be added for extra robustness but increases complexity.
+# - Ensure the user receives clear feedback upon saving (success or failure), typically via a Toast Notification (ref B3.7 - 8.1, B3.11 Animations & Interactions for gentle feedback).
+# Test Strategy:
+# - Integration test: After making valid allocations on the client (respecting all new constraints), trigger the save operation.
+# - Data validation: Verify that the budget data, when re-fetched or viewed after save, shows the correct allocations and a `RemainingToAllocate` value consistent with the client-side display before saving.
+# - Backend error handling test: If the save operation fails for any reason (e.g., network issue, Firestore permissions), ensure the client UI provides appropriate feedback (e.g., error toast).
+# - (Optional, if server-side validation for this constraint is added): Use a tool to attempt to save allocations that violate the constraint directly to the backend and verify the backend's response (e.g., rejection with an error code).
+# - Required Bible Updates:
+#   - B4.3 (Backend Functions): Document any changes to the save allocation function. Specifically, note its reliance on client-validated allocations for the "Reste à Allouer" constraint, or detail any server-side checks if implemented.
+#   - B6.1 (Budget Calculations): Update Section 6 (Recalculation Triggers) to clarify the interaction between client-side validated allocations and the server-side save/recalculation process. Specify the server's behavior if, hypothetically, it received allocations that would make `RemainingToAllocate` negative (relative to positive `AvailableFunds`).
+--- END OF TASK ---

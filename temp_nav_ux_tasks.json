@@ -1,0 +1,98 @@
+[
+    {
+      "id": 101,
+      "title": "NavUX.1: Définir la structure et les éléments de la barre d'onglets inférieure",
+      "priority": "high",
+      "dependencies": [],
+      "description": "Concevoir la structure de base de la barre d'onglets inférieure, définir les sections principales de l'application et sélectionner les icônes appropriées.",
+      "details": "- Identifier les 4-5 sections principales de l'application à inclure dans la barre d'onglets (basé sur la réponse HD #3 concernant la préférence pour une barre d'onglets inférieure).\n- Sélectionner les icônes appropriées de la bibliothèque Heroicons pour chaque onglet (conformément à la réponse HD #3 et aux directives de `B3.8 Style Guide v2` section 4.1 sur l'iconographie).\n- Déterminer l'emplacement des fonctionnalités secondaires (Paramètres, Profil, Déconnexion) comme mentionné dans la réponse HD #3 (onglet \"Plus\" ou icône d'avatar).\n- Respecter les principes de navigation intuitive et de hiérarchie visuelle mentionnés dans la réponse HD #1 et #2.\n- Se conformer aux principes de design \"Zen/Tranquility\" décrits dans `B3.4 UI Guidelines`.",
+      "mockupDesignNeeded": "Yes - Un mockup simple montrant la disposition de la barre d'onglets, les icônes sélectionnées et l'emplacement des fonctionnalités secondaires.",
+      "testStrategy": "- Confirmer que la structure de la barre d'onglets est définie avec 4-5 éléments principaux.\n- Vérifier que les icônes Heroicons sont sélectionnées pour chaque onglet.\n- Valider que l'emplacement des fonctionnalités secondaires est clairement défini.\n- Mettre à jour la section B3.7 pour inclure les spécifications du composant de barre d'onglets inférieure.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 102,
+      "title": "NavUX.2: Concevoir les états visuels et les transitions de la barre d'onglets",
+      "priority": "high",
+      "dependencies": [101],
+      "description": "Définir les états visuels (actif, inactif, hover) et les transitions animées pour la barre d'onglets inférieure.",
+      "details": "- Concevoir des états actifs visuellement distincts pour les onglets, en réponse à la préoccupation de \"manque de hiérarchie visuelle\" mentionnée dans la réponse HD #1.\n- Définir les transitions animées entre les états d'onglets conformément aux principes de `B3.11 Animations & Interactions` section 3.3 sur les transitions de navigation.\n- Appliquer les variables de couleur, d'espacement et de typographie du `B3.8 Style Guide v2` pour garantir la cohérence visuelle.\n- Concevoir des transitions fluides et non-distrayantes entre les sections, comme mentionné dans la réponse HD #5.\n- S'assurer que les états actifs sont clairement visibles, conformément à la réponse HD #5 concernant les contraintes de design.",
+      "mockupDesignNeeded": "Yes - Illustrations des différents états des onglets (actif, inactif, hover) et storyboard simple des transitions animées.",
+      "testStrategy": "- Confirmer que les états visuels des onglets sont clairement définis et distincts.\n- Vérifier que les transitions animées sont spécifiées conformément à `B3.11`.\n- Valider que les états actifs sont suffisamment visibles pour améliorer la \"découvrabilité\" mentionnée dans la réponse HD #1.\n- Documenter les spécifications des états et transitions dans la section appropriée du guide de style.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 103,
+      "title": "NavUX.3: Développer le composant React de la barre d'onglets inférieure",
+      "priority": "high",
+      "dependencies": [101, 102],
+      "description": "Implémenter le composant React réutilisable pour la barre d'onglets inférieure, intégrant la structure, les icônes et les états visuels définis.",
+      "details": "- Développer un composant React pour la barre d'onglets inférieure, compatible avec la structure de composants existante (basé sur la réponse HD #5 concernant les contraintes techniques).\n- Intégrer les icônes Heroicons sélectionnées dans NavUX.1 (conformément à la réponse HD #3 et #5).\n- Implémenter les états visuels (actif, inactif, hover) définis dans NavUX.2.\n- Assurer la compatibilité PWA et la réactivité sur différents appareils, comme mentionné dans la réponse HD #5.\n- Utiliser les variables CSS définies dans `B3.8 Style Guide v2` pour garantir la cohérence visuelle.\n- Implémenter la gestion de l'état de navigation pour suivre l'onglet actif.",
+      "mockupDesignNeeded": "Non - Utiliser les mockups et spécifications des tâches NavUX.1 et NavUX.2.",
+      "testStrategy": "- Vérifier que le composant s'affiche correctement sur différentes tailles d'écran.\n- Confirmer que les états visuels (actif, inactif, hover) fonctionnent comme prévu.\n- Tester la compatibilité avec les principes d'accessibilité (WCAG 2.1 AA) mentionnés dans `B3.4 UI Guidelines`.\n- Valider que le composant utilise correctement les variables CSS du thème.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 104,
+      "title": "NavUX.4: Implémenter les transitions animées entre les sections",
+      "priority": "medium",
+      "dependencies": [103],
+      "description": "Développer les transitions animées entre les différentes sections de l'application lors du changement d'onglet.",
+      "details": "- Implémenter les transitions animées définies dans NavUX.2, en utilisant Framer Motion comme recommandé dans `B3.11 Animations & Interactions` section 5.1.\n- Appliquer les durées et fonctions d'accélération appropriées selon `B3.11` section 2 (timing et easing).\n- S'assurer que les transitions sont fluides et non-distrayantes, comme mentionné dans la réponse HD #5.\n- Implémenter la prise en charge de la préférence \"prefers-reduced-motion\" pour l'accessibilité, conformément à `B3.11` section 5.3.\n- Optimiser les performances des animations, particulièrement sur les appareils mobiles, comme indiqué dans `B3.11` section 5.2.",
+      "mockupDesignNeeded": "Non - Utiliser les spécifications de transitions définies dans NavUX.2.",
+      "testStrategy": "- Vérifier que les transitions entre les sections sont fluides et conformes aux spécifications.\n- Tester les performances sur différents appareils pour s'assurer qu'il n'y a pas de ralentissement.\n- Confirmer que la préférence \"prefers-reduced-motion\" est correctement respectée.\n- Valider que les transitions améliorent l'expérience utilisateur sans créer de distraction.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 105,
+      "title": "NavUX.5: Intégrer la barre d'onglets avec le routage de l'application",
+      "priority": "high",
+      "dependencies": [103],
+      "description": "Intégrer la barre d'onglets avec le système de routage de l'application pour permettre la navigation entre les sections principales.",
+      "details": "- Configurer le routage React pour les sections principales identifiées dans NavUX.1.\n- Synchroniser l'état actif des onglets avec les routes actuelles de l'application.\n- Implémenter la persistance de l'état de navigation entre les sessions utilisateur.\n- Assurer que l'historique de navigation fonctionne correctement avec la barre d'onglets (retour, avant).\n- Gérer correctement les routes imbriquées et les sous-sections tout en maintenant l'état actif approprié dans la barre d'onglets.",
+      "mockupDesignNeeded": "Non - Tâche technique basée sur les spécifications précédentes.",
+      "testStrategy": "- Vérifier que la navigation entre les sections fonctionne correctement via la barre d'onglets.\n- Confirmer que l'état actif des onglets est correctement synchronisé avec les routes actuelles.\n- Tester la persistance de l'état de navigation entre les sessions.\n- Valider que l'historique de navigation fonctionne comme prévu avec la barre d'onglets.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 106,
+      "title": "NavUX.6: Concevoir et implémenter l'accès aux fonctionnalités secondaires",
+      "priority": "medium",
+      "dependencies": [101],
+      "description": "Développer la solution pour accéder aux fonctionnalités secondaires (Paramètres, Profil, Déconnexion) selon l'approche définie dans NavUX.1.",
+      "details": "- Implémenter l'approche choisie dans NavUX.1 pour les fonctionnalités secondaires (onglet \"Plus\" ou icône d'avatar dans l'en-tête).\n- Concevoir l'interface utilisateur pour l'accès aux fonctionnalités secondaires en respectant le thème \"Zen/Tranquility\" de `B3.4 UI Guidelines`.\n- Appliquer les principes de design et les variables CSS de `B3.8 Style Guide v2`.\n- Implémenter les transitions et animations appropriées selon `B3.11 Animations & Interactions`.\n- Assurer que l'accès aux fonctionnalités secondaires est intuitif et découvrable, répondant aux problèmes mentionnés dans la réponse HD #1.",
+      "mockupDesignNeeded": "Partiellement - Si l'approche diffère significativement des patterns standard, un mockup simple peut être nécessaire.",
+      "testStrategy": "- Vérifier que toutes les fonctionnalités secondaires sont accessibles via la solution implémentée.\n- Confirmer que l'interface utilisateur est cohérente avec le thème \"Zen/Tranquility\".\n- Tester l'intuitivité de l'accès aux fonctionnalités secondaires.\n- Valider que les transitions et animations fonctionnent comme prévu.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 107,
+      "title": "NavUX.7: Adapter la navigation pour différentes tailles d'écran",
+      "priority": "medium",
+      "dependencies": [103, 106],
+      "description": "Optimiser la navigation pour différentes tailles d'écran, en assurant une expérience cohérente et réactive sur mobile et desktop.",
+      "details": "- Implémenter des adaptations responsives pour la barre d'onglets sur différentes tailles d'écran, conformément à la réponse HD #5 concernant les contraintes techniques.\n- Ajuster le positionnement, la taille et l'espacement des éléments de navigation selon les breakpoints définis dans `B3.8 Style Guide v2` section 9.1.\n- Optimiser l'expérience tactile sur mobile tout en maintenant une navigation efficace sur desktop.\n- Assurer que la navigation reste intuitive et découvrable sur toutes les tailles d'écran, répondant aux problèmes mentionnés dans la réponse HD #1.\n- Respecter les principes de design responsive de `B3.4 UI Guidelines`.",
+      "mockupDesignNeeded": "Partiellement - Des indications sur les adaptations spécifiques pour desktop peuvent être nécessaires si elles diffèrent significativement de la version mobile.",
+      "testStrategy": "- Tester la navigation sur différentes tailles d'écran et appareils.\n- Vérifier que l'expérience utilisateur reste cohérente et intuitive sur toutes les plateformes.\n- Confirmer que les adaptations responsives fonctionnent correctement aux breakpoints définis.\n- Valider que la navigation est optimisée pour l'interaction tactile sur mobile.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 108,
+      "title": "NavUX.8: Tests utilisateurs et ajustements finaux",
+      "priority": "medium",
+      "dependencies": [103, 104, 105, 106, 107],
+      "description": "Réaliser des tests utilisateurs pour évaluer l'efficacité de la nouvelle navigation et effectuer les ajustements finaux nécessaires.",
+      "details": "- Concevoir et mener des tests utilisateurs ciblés sur la nouvelle navigation.\n- Évaluer si la nouvelle navigation résout les problèmes identifiés dans la réponse HD #1 (découvrabilité, hiérarchie visuelle, apparence moderne, efficacité).\n- Vérifier que la navigation répond aux attentes de style et de \"feeling\" mentionnées dans la réponse HD #2 (moderne, intuitive, visuellement attrayante, efficace).\n- Recueillir des retours sur les transitions et animations pour s'assurer qu'elles sont fluides et non-distrayantes.\n- Identifier et implémenter les ajustements finaux nécessaires basés sur les retours utilisateurs.",
+      "mockupDesignNeeded": "Non - Tâche d'évaluation et d'ajustement basée sur l'implémentation existante.",
+      "testStrategy": "- Documenter les résultats des tests utilisateurs et les problèmes identifiés.\n- Vérifier que les ajustements finaux résolvent efficacement les problèmes identifiés.\n- Confirmer que la navigation finale répond à tous les critères définis dans les réponses HD.\n- Valider que l'expérience de navigation est cohérente avec le thème \"Zen/Tranquility\" de KarmaCash.",
+      "status": "pending",
+      "subtasks": []
+    }
+  ]
