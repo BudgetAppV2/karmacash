@@ -251,4 +251,24 @@
     width: 8px;
     height: 8px;
   }
+}
+
+.inputInvalid {
+  border-color: var(--color-negative) !important; /* Soft terra cotta for error indication */
+  box-shadow: 0 0 0 1px var(--color-negative); /* Subtle glow for focus */
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Added transition */
+}
+
+.inputApproachingMax {
+  border-color: var(--color-warning-border, rgba(224, 180, 112, 0.7)) !important; /* Conceptual: Light Gold/Ochre border */
+  box-shadow: 0 0 0 1px var(--color-warning-shadow, rgba(224, 180, 112, 0.4)); /* Conceptual: Subtle glow */
+  /* background-color: var(--color-warning-x-light-bg, #FFFBF0); Optional: very subtle background tint */
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.maxValueHint {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-secondary, #88837A);
+  margin-left: var(--spacing-2, 0.5rem);
+  font-style: italic;
 } 

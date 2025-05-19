@@ -1,75 +1,51 @@
 {
   "meta": {
-    "generatedAt": "2025-05-17T20:36:12.301Z",
-    "tasksAnalyzed": 8,
+    "generatedAt": "2025-05-18T01:59:38.842Z",
+    "tasksAnalyzed": 5,
     "thresholdScore": 5,
     "projectName": "KarmaCash",
     "usedResearch": true
   },
   "complexityAnalysis": [
     {
-      "taskId": 101,
-      "taskTitle": "NavUX.1: Définir la structure et les éléments de la barre d'onglets inférieure",
-      "complexityScore": 6,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into the following subtasks:\n1. Identifier les 4-5 sections principales de l'application à inclure dans la barre d'onglets\n2. Sélectionner les icônes Heroicons appropriées pour chaque onglet\n3. Déterminer l'emplacement des fonctionnalités secondaires (Paramètres, Profil, Déconnexion)\n4. Valider la conformité avec les principes de navigation intuitive et de hiérarchie visuelle",
-      "reasoning": "Cette tâche implique la conception de la structure de base de la barre d'onglets, ce qui nécessite une réflexion sur les sections principales, le choix des icônes et l'emplacement des fonctionnalités secondaires. Bien que relativement simple, elle nécessite une coordination avec les exigences et les directives de conception existantes, ce qui la rend légèrement plus complexe."
-    },
-    {
-      "taskId": 102,
-      "taskTitle": "NavUX.2: Concevoir les états visuels et les transitions de la barre d'onglets",
+      "taskId": 201,
+      "taskTitle": "M5.1.1 - Amélioration du \"Reste à Allouer\" avec validation préventive",
       "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into the following subtasks:\n1. Concevoir des états actifs visuellement distincts pour les onglets\n2. Définir les transitions animées entre les états d'onglets\n3. Appliquer les variables de style du guide de style pour garantir la cohérence visuelle\n4. S'assurer que les états actifs sont clairement visibles pour améliorer la découvrabilité",
-      "reasoning": "Cette tâche implique la conception des états visuels (actif, inactif, hover) et des transitions animées pour la barre d'onglets. Cela nécessite une réflexion approfondie sur l'expérience utilisateur, l'application des directives de conception et l'intégration des animations, ce qui la rend légèrement plus complexe que la tâche précédente."
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the task into the following subtasks:\n1. Analyze the existing code for input validation and \"Reste à Allouer\" calculation\n2. Implement preventive validation logic to prevent negative \"Reste à Allouer\" values\n3. Develop a mechanism to cap input values at the maximum available\n4. Create subtle visual indicators (soft red border per [B3.8]) when an input exceeds the limit\n5. Implement clear and non-alarming explanation messages (per [B3.4])\n6. Add visual cues when the \"Reste à Allouer\" approaches zero",
+      "reasoning": "This task involves implementing complex client-side validation and visual feedback mechanisms, which requires analyzing existing code, designing new logic, and integrating multiple UI components. The level of detail in the requirements and the need for a cohesive user experience contribute to the moderate complexity."
     },
     {
-      "taskId": 103,
-      "taskTitle": "NavUX.3: Développer le composant React de la barre d'onglets inférieure",
-      "complexityScore": 7,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Expand this task into the following subtasks:\n1. Développer un composant React réutilisable pour la barre d'onglets\n2. Intégrer les icônes Heroicons sélectionnées\n3. Implémenter les états visuels (actif, inactif, hover)\n4. Assurer la compatibilité PWA et la réactivité sur différents appareils\n5. Implémenter la gestion de l'état de navigation pour suivre l'onglet actif",
-      "reasoning": "Cette tâche implique le développement du composant React pour la barre d'onglets, en intégrant la structure, les icônes et les états visuels définis précédemment. Cela nécessite une bonne compréhension du système de composants existant, de l'intégration des animations et de la gestion de l'état, ce qui la rend légèrement plus complexe que la conception."
-    },
-    {
-      "taskId": 104,
-      "taskTitle": "NavUX.4: Implémenter les transitions animées entre les sections",
-      "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into the following subtasks:\n1. Implémenter les transitions animées définies dans NavUX.2\n2. Appliquer les durées et fonctions d'accélération appropriées\n3. Assurer que les transitions sont fluides et non-distrayantes\n4. Implémenter la prise en charge de la préférence \"prefers-reduced-motion\" pour l'accessibilité",
-      "reasoning": "Cette tâche implique le développement des transitions animées entre les sections de l'application lors du changement d'onglet. Cela nécessite une bonne compréhension des animations, de l'optimisation des performances et de l'accessibilité, ce qui la rend légèrement plus complexe que le développement du composant de base."
-    },
-    {
-      "taskId": 105,
-      "taskTitle": "NavUX.5: Intégrer la barre d'onglets avec le routage de l'application",
+      "taskId": 202,
+      "taskTitle": "M5.1.2 - Implémentation des curseurs d'allocation interactifs",
       "complexityScore": 8,
+      "recommendedSubtasks": 8,
+      "expansionPrompt": "Break down the task into the following subtasks:\n1. Design the visual appearance of the allocation sliders in line with the \"Zen/Tranquility\" theme per [B3.4]\n2. Develop the slider components with dynamic range (0 to maximum available for each category)\n3. Implement the logic to calculate the maximum available for each category based on the \"Reste à Allouer\"\n4. Develop real-time synchronization between sliders and numeric input fields\n5. Ensure that modifications via sliders or direct input are perfectly synchronized\n6. Implement keyboard navigation (arrow keys) for accessibility\n7. Add appropriate ARIA attributes for screen readers\n8. Optimize touch targets according to [B3.4] guidelines",
+      "reasoning": "This task involves designing and implementing interactive allocation sliders with complex logic, including dynamic range calculations, real-time synchronization, and accessibility features. The need for a cohesive user experience, visual design, and technical integration contribute to the high complexity."
+    },
+    {
+      "taskId": 203,
+      "taskTitle": "M5.1.3 - Intégration et coordination des composants de budgétisation",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down the task into the following subtasks:\n1. Coordinate the \"Reste à Allouer\" validations with the behavior of the allocation sliders\n2. Implement the dynamic update of the slider maximum ranges based on the real-time \"Reste à Allouer\"\n3. Ensure that changes in one category correctly affect the available ranges for other categories\n4. Develop client-side logic to guarantee data consistency across all components\n5. Optimize real-time calculations to avoid slowdowns (debouncing/throttling if necessary)\n6. Manage intermediate states during multiple adjustments for a fluid experience\n7. Implement efficient event handling to minimize unnecessary recalculations",
+      "reasoning": "This task focuses on the technical integration and coordination between the various budgeting components, including the validation logic and the interactive sliders. The need to ensure a cohesive and responsive user experience, while maintaining data integrity and performance, contributes to the high complexity."
+    },
+    {
+      "taskId": 204,
+      "taskTitle": "M5.1.4 - Révision de la logique backend pour la sauvegarde des allocations",
+      "complexityScore": 6,
       "recommendedSubtasks": 5,
-      "expansionPrompt": "Expand this task into the following subtasks:\n1. Configurer le routage React pour les sections principales\n2. Synchroniser l'état actif des onglets avec les routes actuelles\n3. Implémenter la persistance de l'état de navigation entre les sessions\n4. Assurer que l'historique de navigation fonctionne correctement\n5. Gérer correctement les routes imbriquées et les sous-sections",
-      "reasoning": "Cette tâche implique l'intégration de la barre d'onglets avec le système de routage de l'application, ce qui nécessite une bonne compréhension du routage React, de la gestion de l'état et de la synchronisation entre la navigation et les routes. Cela la rend légèrement plus complexe que les tâches précédentes."
+      "expansionPrompt": "Break down the task into the following subtasks:\n1. Audit the existing code for allocation saving\n2. Identify vulnerabilities or areas for improvement in the current logic\n3. Strengthen data structure and integrity validations (valid numeric values, correct category IDs)\n4. Optimize the manual save process via the \"Sauvegarder\" button\n5. Implement a data verification mechanism before sending to the server",
+      "reasoning": "This task involves reviewing and improving the backend logic for saving budget allocations, which is a relatively straightforward task compared to the previous ones. The main focus is on reinforcing data integrity and providing appropriate user feedback, which contributes to a moderate complexity level."
     },
     {
-      "taskId": 106,
-      "taskTitle": "NavUX.6: Concevoir et implémenter l'accès aux fonctionnalités secondaires",
-      "complexityScore": 6,
+      "taskId": 205,
+      "taskTitle": "M5.1.5 - Clarification UI pour le calcul des \"Fonds Disponibles\"",
+      "complexityScore": 5,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into the following subtasks:\n1. Implémenter l'approche choisie pour les fonctionnalités secondaires\n2. Concevoir l'interface utilisateur pour l'accès aux fonctionnalités secondaires\n3. Appliquer les principes de design et les variables CSS du guide de style\n4. Assurer que l'accès aux fonctionnalités secondaires est intuitif et découvrable",
-      "reasoning": "Cette tâche implique le développement de la solution pour accéder aux fonctionnalités secondaires (Paramètres, Profil, Déconnexion). Bien qu'elle nécessite une conception et une implémentation spécifiques, elle est relativement plus simple que les tâches précédentes, car elle s'appuie sur les spécifications existantes."
-    },
-    {
-      "taskId": 107,
-      "taskTitle": "NavUX.7: Adapter la navigation pour différentes tailles d'écran",
-      "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into the following subtasks:\n1. Implémenter des adaptations responsives pour la barre d'onglets\n2. Ajuster le positionnement, la taille et l'espacement des éléments de navigation\n3. Optimiser l'expérience tactile sur mobile tout en maintenant une navigation efficace sur desktop\n4. Assurer que la navigation reste intuitive et découvrable sur toutes les tailles d'écran",
-      "reasoning": "Cette tâche implique l'optimisation de la navigation pour différentes tailles d'écran, ce qui nécessite une réflexion sur les adaptations responsives, l'expérience utilisateur sur mobile et desktop, ainsi que le maintien de l'intuitivité et de la découvrabilité. Cela la rend légèrement plus complexe que les tâches précédentes."
-    },
-    {
-      "taskId": 108,
-      "taskTitle": "NavUX.8: Tests utilisateurs et ajustements finaux",
-      "complexityScore": 6,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into the following subtasks:\n1. Concevoir et mener des tests utilisateurs ciblés sur la nouvelle navigation\n2. Évaluer si la nouvelle navigation résout les problèmes identifiés\n3. Recueillir des retours sur les transitions et animations\n4. Identifier et implémenter les ajustements finaux nécessaires",
-      "reasoning": "Cette tâche implique la réalisation de tests utilisateurs pour évaluer l'efficacité de la nouvelle navigation et effectuer les ajustements finaux nécessaires. Bien qu'elle nécessite une réflexion sur la conception des tests et l'analyse des résultats, elle est relativement plus simple que les tâches de conception et de développement précédentes."
+      "expansionPrompt": "Break down the task into the following subtasks:\n1. Craft clear explanatory content detailing the calculation formula: (Total monthly income) - (Sum of recurring expenses) + (Previous month's carry-over)\n2. Design a tooltip (infobulle) according to [B3.8] guidelines\n3. Add an information icon (Heroicon) next to the \"Fonds Disponibles\" display\n4. Implement the interaction to show the tooltip on hover/click on the icon",
+      "reasoning": "This task focuses on improving the UI clarity around the calculation of \"Fonds Disponibles\", which primarily involves adding an explanatory tooltip. The complexity is relatively lower as it does not require significant technical integration or complex logic, but rather a thoughtful UI design and content creation."
     }
   ]
 }

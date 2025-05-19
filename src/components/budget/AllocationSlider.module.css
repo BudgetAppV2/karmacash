@@ -1,0 +1,140 @@
+/* src/components/budget/AllocationSlider.module.css */
+
+.sliderContainer {
+  width: 100%;
+  padding: var(--spacing-2, 8px) 0; /* Add some vertical padding */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3, 12px);
+}
+
+.slider {
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full width of its container */
+  height: 8px; /* Slim track height */
+  background: var(--color-highlight, #D9D0C7); /* Base track color (unfilled part for Webkit/others) */
+  outline: none; /* Remove outline */
+  border-radius: var(--border-radius-full, 999px); /* Pill-shaped track */
+  cursor: pointer;
+}
+
+/* Webkit (Chrome, Safari, Opera, Edge Chromium) */
+.slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: var(--color-primary, #919A7F); /* This will act as the 'filled' color */
+  border-radius: var(--border-radius-full, 999px);
+  /* The .slider background (var(--color-highlight)) will show as the unfilled part */
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  width: 20px; /* Thumb size */
+  height: 20px; /* Thumb size */
+  background: var(--color-primary, #919A7F); /* Muted Sage Green */
+  border-radius: 50%; /* Circular thumb */
+  cursor: pointer;
+  border: none; /* No border on thumb itself */
+  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03)); /* Subtle elevation */
+  margin-top: -6px; /* Adjust thumb position to be centered on the track ( (track_height - thumb_height) / 2 ) -> (8px - 20px) / 2 = -6px */
+}
+
+/* Firefox */
+.slider::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: var(--color-highlight, #D9D0C7); /* Unfilled part */
+  border-radius: var(--border-radius-full, 999px);
+}
+
+.slider::-moz-range-progress {
+  height: 8px;
+  background: var(--color-primary, #919A7F); /* Filled part */
+  border-radius: var(--border-radius-full, 999px);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary, #919A7F);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
+}
+
+/* IE / Edge (older versions might need -ms-track and -ms-thumb) */
+.slider::-ms-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: transparent; /* IE/Edge track needs to be transparent to style fill/lower correctly */
+  border-color: transparent;
+  color: transparent;
+}
+
+.slider::-ms-fill-lower {
+  background: var(--color-primary, #919A7F); /* Color of the track before thumb */
+  border-radius: var(--border-radius-full, 999px);
+}
+
+.slider::-ms-fill-upper {
+  background: var(--color-highlight, #D9D0C7); /* Color of the track after thumb */
+  border-radius: var(--border-radius-full, 999px);
+}
+
+.slider::-ms-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary, #919A7F);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
+  margin-top: 0px; /* MS thumb positioning is different */
+}
+
+/* Focus states for accessibility - more visible outline */
+.slider:focus {
+  outline: none; /* We'll style the thumb on focus */
+}
+
+.slider:focus::-webkit-slider-thumb {
+  box-shadow: var(--shadow-level-1), 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4); /* Ring effect */
+}
+
+.slider:focus::-moz-range-thumb {
+  box-shadow: var(--shadow-level-1), 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4);
+}
+
+.slider:focus::-ms-thumb {
+ box-shadow: var(--shadow-level-1), 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4);
+}
+
+/* Disabled state */
+.slider:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.slider:disabled::-webkit-slider-thumb {
+  background: var(--color-text-secondary, #88837A);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.slider:disabled::-moz-range-thumb {
+  background: var(--color-text-secondary, #88837A);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.slider:disabled::-ms-thumb {
+  background: var(--color-text-secondary, #88837A);
+  box-shadow: none;
+  cursor: not-allowed;
+} 

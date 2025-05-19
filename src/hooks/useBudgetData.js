@@ -8,16 +8,21 @@ import logger from '../services/logger'; // Assuming logger is available
  * Custom hook to fetch budget data including monthly details, categories, transactions, and category activity.
  * @param {string} budgetId - The ID of the budget to fetch data for.
  * @param {string} monthString - The month string in "YYYY-MM" format.
+ * @param {object} [editingAllocations] - Optional. Current in-flight edits for allocations { categoryId: amountStr }.
  * @returns {object} - { monthlyData, categories, transactions, categoryActivityMap, monthlyRevenue, monthlyRecurringSpending, availableFunds, totalAllocated, remainingToAllocate, totalSpent, monthlySavings, rolloverAmount, isUsingServerCalculations, loading, error }
  */
-function useBudgetData(budgetId, monthString) {
+function useBudgetData(budgetId, monthString, editingAllocations = {}) {
   const [monthlyData, setMonthlyData] = useState(null);
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]); // New state for transactions
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- Client-side calculation logic (to be used as fallback) ---
+  // Derived constants based on state, should be defined early if other useMemos depend on them.
+  const serverCalculated = monthlyData?.calculated;
+  const isUsingServerCalculations = !!serverCalculated;
+
+  // Client-side calculation logic (fallbacks)
   const clientCalculatedMonthlyRevenue = useMemo(() => {
     if (!transactions || transactions.length === 0) return 0;
     return transactions.filter(tx => tx.type === 'income').reduce((sum, tx) => sum + (tx.amount || 0), 0);
@@ -28,87 +33,77 @@ function useBudgetData(budgetId, monthString) {
     return transactions.filter(tx => tx.type === 'expense' && tx.isRecurringInstance === true).reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
   }, [transactions]);
 
-  // Note: Full rollover logic (B6.1 - 3.3) is complex and server-side is preferred.
-  // Client-side placeholder for rollover will be 0 if server data not present.
-  const clientCalculatedRolloverAmount = 0; 
+  const clientCalculatedRolloverAmount = 0; // Static client-side fallback
 
   const clientCalculatedAvailableFunds = useMemo(() => {
     return clientCalculatedMonthlyRevenue - clientCalculatedMonthlyRecurringSpending + clientCalculatedRolloverAmount;
-  }, [clientCalculatedMonthlyRevenue, clientCalculatedMonthlyRecurringSpending, clientCalculatedRolloverAmount]);
+  }, [clientCalculatedMonthlyRevenue, clientCalculatedMonthlyRecurringSpending]); // Removed clientCalculatedRolloverAmount as it's constant
 
-  const clientCalculatedTotalAllocated = useMemo(() => {
-    if (!monthlyData || !monthlyData.allocations) return 0;
-    return Object.values(monthlyData.allocations).reduce((sum, allocation) => sum + (allocation || 0), 0);
-  }, [monthlyData]);
+  // Total allocated, considering unsaved edits from editingAllocations
+  const currentTotalAllocatedBasedOnEdits = useMemo(() => {
+    let total = 0;
+    const baseAllocations = monthlyData?.allocations || {};
+    const allCategoryIds = new Set([
+      ...Object.keys(baseAllocations),
+      ...Object.keys(editingAllocations)
+    ]);
 
-  const clientCalculatedRemainingToAllocate = useMemo(() => {
-    return clientCalculatedAvailableFunds - clientCalculatedTotalAllocated;
-  }, [clientCalculatedAvailableFunds, clientCalculatedTotalAllocated]);
+    allCategoryIds.forEach(catId => {
+      const amountStr = editingAllocations[catId];
+      if (amountStr !== undefined) {
+        const numericAmount = parseFloat(amountStr);
+        if (!isNaN(numericAmount)) {
+          total += numericAmount;
+        }
+      } else if (baseAllocations[catId] !== undefined) {
+        total += parseFloat(baseAllocations[catId]) || 0;
+      }
+    });
+    return total;
+  }, [monthlyData, editingAllocations, categories]);
+
+  // Use currentTotalAllocatedBasedOnEdits for remainingToAllocate calculation
+  const currentRemainingToAllocateBasedOnEdits = useMemo(() => {
+    const available = isUsingServerCalculations 
+                      ? (serverCalculated?.availableToAllocate ?? clientCalculatedAvailableFunds) 
+                      : clientCalculatedAvailableFunds;
+    return available - currentTotalAllocatedBasedOnEdits;
+  }, [isUsingServerCalculations, serverCalculated, clientCalculatedAvailableFunds, currentTotalAllocatedBasedOnEdits]); // Added serverCalculated to dependencies
   
-  // Client-side totalSpent (B6.1 - 3.8)
   const clientCalculatedTotalSpent = useMemo(() => {
     if (!transactions || transactions.length === 0) return 0;
     return transactions.filter(tx => tx.type === 'expense').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
   }, [transactions]);
 
-  // Client-side monthlySavings (B6.1 - 3.9)
   const clientCalculatedMonthlySavings = useMemo(() => {
     return clientCalculatedMonthlyRevenue - clientCalculatedTotalSpent;
   }, [clientCalculatedMonthlyRevenue, clientCalculatedTotalSpent]);
 
-  // --- End of client-side calculation logic ---
-
-  // Calculate category activity map using transactions
-  // This is the sum of all transaction amounts (which are already signed) for each category
   const categoryActivityMap = useMemo(() => {
-    if (!transactions || transactions.length === 0) {
-      return {};
-    }
-
-    logger.debug('useBudgetData', 'Calculating category activity map', { 
-      transactionCount: transactions.length 
-    });
-    
+    if (!transactions || transactions.length === 0) return {};
+    logger.debug('useBudgetData', 'Calculating category activity map', { transactionCount: transactions.length });
     const activityMap = {};
-    
     transactions.forEach(transaction => {
-      // Skip transactions without a valid categoryId or amount
       if (!transaction.categoryId || typeof transaction.amount !== 'number') {
-        logger.warn('useBudgetData', 'Invalid transaction data for activity calculation', {
-          transactionId: transaction.id,
-          categoryId: transaction.categoryId,
-          amount: transaction.amount
-        });
-        return; // Skip this transaction
+        logger.warn('useBudgetData', 'Invalid transaction data for activity calculation', { transactionId: transaction.id, categoryId: transaction.categoryId, amount: transaction.amount });
+        return;
       }
-      
-      // Initialize category in the map if it doesn't exist yet
-      if (!activityMap[transaction.categoryId]) {
-        activityMap[transaction.categoryId] = 0;
-      }
-      
-      // Sum the transaction amount (already properly signed as per B5.2)
+      if (!activityMap[transaction.categoryId]) activityMap[transaction.categoryId] = 0;
       activityMap[transaction.categoryId] += transaction.amount;
     });
-    
-    logger.debug('useBudgetData', 'Category activity map calculated', { 
-      categoryCount: Object.keys(activityMap).length 
-    });
-    
+    logger.debug('useBudgetData', 'Category activity map calculated', { categoryCount: Object.keys(activityMap).length });
     return activityMap;
   }, [transactions]);
 
-  // --- Determine final values, preferring server-calculated data --- 
-  const serverCalculated = monthlyData?.calculated;
-  const isUsingServerCalculations = !!serverCalculated;
-
+  // Final figures for export, prioritizing server data or edited values
   const monthlyRevenue = isUsingServerCalculations ? (serverCalculated.revenue ?? clientCalculatedMonthlyRevenue) : clientCalculatedMonthlyRevenue;
   const monthlyRecurringSpending = isUsingServerCalculations ? (serverCalculated.recurringExpenses ?? clientCalculatedMonthlyRecurringSpending) : clientCalculatedMonthlyRecurringSpending;
-  // Rollover primarily comes from server; client fallback is 0 as defined above.
   const rolloverAmount = isUsingServerCalculations ? (serverCalculated.rolloverFromPrevious ?? clientCalculatedRolloverAmount) : clientCalculatedRolloverAmount;
   const availableFunds = isUsingServerCalculations ? (serverCalculated.availableToAllocate ?? clientCalculatedAvailableFunds) : clientCalculatedAvailableFunds;
-  const totalAllocated = isUsingServerCalculations ? (serverCalculated.totalAllocated ?? clientCalculatedTotalAllocated) : clientCalculatedTotalAllocated;
-  const remainingToAllocate = isUsingServerCalculations ? (serverCalculated.remainingToAllocate ?? clientCalculatedRemainingToAllocate) : clientCalculatedRemainingToAllocate;
+  
+  const totalAllocated = currentTotalAllocatedBasedOnEdits;
+  const remainingToAllocate = currentRemainingToAllocateBasedOnEdits;
+  
   const totalSpent = isUsingServerCalculations ? (serverCalculated.totalSpent ?? clientCalculatedTotalSpent) : clientCalculatedTotalSpent;
   const monthlySavings = isUsingServerCalculations ? (serverCalculated.monthlySavings ?? clientCalculatedMonthlySavings) : clientCalculatedMonthlySavings;
 
@@ -116,13 +111,12 @@ function useBudgetData(budgetId, monthString) {
   useEffect(() => {
     if (budgetId && monthString) {
       if (isUsingServerCalculations) {
-        logger.debug('useBudgetData', 'Using SERVER-calculated budget figures', { budgetId, monthString, serverCalculated });
-      } else if (monthlyData) { // monthlyData exists but monthlyData.calculated doesn't
-        logger.debug('useBudgetData', 'Using CLIENT-calculated budget figures (server data not available or incomplete)', { budgetId, monthString });
+        logger.debug('useBudgetData', 'Using SERVER-calculated budget figures where available', { budgetId, monthString, serverCalculated });
+      } else if (monthlyData) { 
+        logger.debug('useBudgetData', 'Using CLIENT-calculated budget figures (server data incomplete or not used for all fields)', { budgetId, monthString });
       }
-      // If monthlyData is null, initial loading or error state handled by `loading` and `error` flags.
     }
-  }, [monthlyData, isUsingServerCalculations, budgetId, monthString]); // Add relevant dependencies
+  }, [monthlyData, isUsingServerCalculations, budgetId, monthString, serverCalculated]); // Added serverCalculated to dep array
 
   useEffect(() => {
     // Ensure budgetId and monthString are provided before fetching

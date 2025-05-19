@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { format, parse, parseISO, subMonths, addMonths } from 'date-fns';
 import { frCA } from 'date-fns/locale';
 import { getAuth } from 'firebase/auth';
@@ -17,6 +17,8 @@ const ChevronRightIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="
 const InfoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>;
 const PlusCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 
+// Define threshold as a constant
+const RAA_APPROACHING_ZERO_THRESHOLD = 20;
 
 function BudgetPage() {
   const { selectedBudgetId, isLoadingBudgets, selectedBudget } = useBudgets();
@@ -29,6 +31,11 @@ function BudgetPage() {
   const [recalculationError, setRecalculationError] = useState(null);
   const [calculationStatus, setCalculationStatus] = useState(null); // 'pending', 'complete', 'error'
   const [editingAllocation, setEditingAllocation] = useState({}); // { categoryId: newAmountStr }
+  const [invalidInputCategoryId, setInvalidInputCategoryId] = useState(null); // New state for validation
+  const [allocationAdjustmentInfo, setAllocationAdjustmentInfo] = useState(null); // New state for capping info
+
+  const [activeFeedback, setActiveFeedback] = useState({ text: null, type: null, categoryName: null });
+  const feedbackTimeoutRef = useRef(null);
 
   const debouncedTriggerRecalculationRef = useRef(null);
 
@@ -38,14 +45,68 @@ function BudgetPage() {
     categoryActivityMap, 
     availableFunds,
     totalAllocated,
-    remainingToAllocate,
+    remainingToAllocate: instantRemainingToAllocate,
     totalSpent,
     monthlySavings,
     rolloverAmount,
     isUsingServerCalculations,
     loading: dataLoading, 
-    error: dataError // Renamed to avoid conflict with updateError/recalculationError
-  } = useBudgetData(budgetId, currentMonthString);
+    error: dataError
+  } = useBudgetData(budgetId, currentMonthString, editingAllocation);
+
+  // New state for deferred update logic
+  const [activeSliderCategoryId, setActiveSliderCategoryId] = useState(null);
+  const [debouncedRemainingToAllocateForInactive, setDebouncedRemainingToAllocateForInactive] = useState(null);
+
+  // Effect for Capping Message
+  useEffect(() => {
+    if (feedbackTimeoutRef.current) {
+      clearTimeout(feedbackTimeoutRef.current);
+      feedbackTimeoutRef.current = null;
+    }
+
+    if (allocationAdjustmentInfo && allocationAdjustmentInfo.categoryId) {
+      const categoryName = categories.find(c => c.id === allocationAdjustmentInfo.categoryId)?.name || 'cette catégorie';
+      const messageText = `Le montant pour ${categoryName} a été ajusté à ${formatCurrency(allocationAdjustmentInfo.cappedAmount)} pour respecter les fonds disponibles.`;
+      setActiveFeedback({ text: messageText, type: 'info', categoryName });
+
+      feedbackTimeoutRef.current = setTimeout(() => {
+        setActiveFeedback({ text: null, type: null, categoryName: null });
+      }, 5000);
+    }
+     // Cleanup function
+     return () => {
+      if (feedbackTimeoutRef.current) {
+        clearTimeout(feedbackTimeoutRef.current);
+      }
+    };
+  }, [allocationAdjustmentInfo, categories]);
+
+  // Effect for Error Message
+  useEffect(() => {
+    // Clear previous error-type feedback if conditions are no longer met
+    if (!updateError && !invalidInputCategoryId && activeFeedback.type === 'error') {
+      setActiveFeedback({ text: null, type: null, categoryName: null });
+    }
+
+    if (updateError) {
+      let messageText = updateError; // Use the raw error first
+      let errorCategoryName = null;
+
+      if (invalidInputCategoryId) {
+        errorCategoryName = categories.find(c => c.id === invalidInputCategoryId)?.name || 'une catégorie';
+        // More specific message if invalidInputCategoryId is present
+        messageText = `Ce changement dépasserait votre 'Reste à Allouer'. Veuillez ajuster le montant pour ${errorCategoryName} ou d'autres catégories.`;
+      }
+      setActiveFeedback({ text: messageText, type: 'error', categoryName: errorCategoryName });
+    } else if (invalidInputCategoryId && !updateError) { // Case where only invalidInputCategoryId is set
+      const errorCategoryName = categories.find(c => c.id === invalidInputCategoryId)?.name || 'une catégorie';
+      const messageText = `Veuillez ajuster le montant pour ${errorCategoryName} pour ne pas dépasser le 'Reste à Allouer'.`;
+      setActiveFeedback({ text: messageText, type: 'error', categoryName: errorCategoryName });
+    }
+    
+    // Do not auto-clear error messages with a timeout here. They persist until the error condition is resolved.
+  }, [updateError, invalidInputCategoryId, categories, activeFeedback.type]);
 
   const triggerRecalculation = useCallback(async () => {
     if (isAuthLoading || !currentUser || !selectedBudgetId || !currentMonthString) {
@@ -96,31 +157,144 @@ function BudgetPage() {
     };
   }, [triggerRecalculation]);
 
+  // Debounce update for inactive categories' RAA
+  const scheduleDebouncedRaaUpdate = useMemo(() => 
+    debounce((newRaa) => {
+      setDebouncedRemainingToAllocateForInactive(newRaa);
+    }, 400), // 400ms delay, adjust as needed
+  []);
 
-  const handleAllocationChange = async (categoryId, newAmountStr) => {
-    const newAmount = parseFloat(newAmountStr);
-    if (!categoryId || typeof newAmount !== 'number' || isNaN(newAmount) || newAmount < 0) {
-      setUpdateError('Montant invalide.');
-      setEditingAllocation(prev => ({...prev, [categoryId]: newAmountStr})); // keep invalid input for correction
+  useEffect(() => {
+    // When instantRemainingToAllocate changes (due to slider/input), schedule its update for inactive cards
+    if (instantRemainingToAllocate !== null && instantRemainingToAllocate !== undefined) {
+      scheduleDebouncedRaaUpdate(instantRemainingToAllocate);
+    }
+    return () => {
+      scheduleDebouncedRaaUpdate.cancel();
+    };
+  }, [instantRemainingToAllocate, scheduleDebouncedRaaUpdate]);
+
+  // Initialize debouncedRemainingToAllocateForInactive with the first valid instantRemainingToAllocate
+  useEffect(() => {
+    if (debouncedRemainingToAllocateForInactive === null && instantRemainingToAllocate !== null && instantRemainingToAllocate !== undefined) {
+      setDebouncedRemainingToAllocateForInactive(instantRemainingToAllocate);
+    }
+  }, [instantRemainingToAllocate, debouncedRemainingToAllocateForInactive]);
+
+  // Ensure all these handlers are stable with useCallback
+  const processSliderAllocationChange = useCallback((categoryId, valueAsString) => {
+    const originalAllocation = monthlyData?.allocations?.[categoryId] ?? 0;
+    const proposedNumericValue = parseFloat(valueAsString);
+
+    if (isNaN(proposedNumericValue) || proposedNumericValue < 0) {
+      setInvalidInputCategoryId(categoryId); 
       return;
     }
-    setUpdateError(null);
-    setEditingAllocation(prev => ({...prev, [categoryId]: undefined })); // Clear editing state for this category
 
-    try {
-      await updateAllocation(budgetId, currentMonthString, categoryId, newAmount);
-      if (debouncedTriggerRecalculationRef.current) {
-        debouncedTriggerRecalculationRef.current();
-      }
-    } catch (error) {
-      console.error('Failed to update allocation:', error);
-      setUpdateError(error.message);
+    const allocationDifference = proposedNumericValue - originalAllocation;
+    if (allocationDifference > 0 && allocationDifference > (instantRemainingToAllocate + 0.001)) {
+      setInvalidInputCategoryId(categoryId);
+    } else {
+      setInvalidInputCategoryId(null); 
     }
-  };
-  
-  const handleAllocationInputChange = (categoryId, value) => {
-    setEditingAllocation(prev => ({...prev, [categoryId]: value}));
-  };
+  }, [monthlyData, instantRemainingToAllocate, categories]);
+
+  const debouncedProcessSliderAllocation = useMemo(
+    () => debounce(processSliderAllocationChange, 250), 
+    [processSliderAllocationChange]
+  );
+
+  const handleSliderChangeImmediate = useCallback((categoryId, numericValueFromSlider) => {
+    const valueAsString = numericValueFromSlider.toString();
+    setEditingAllocation(prev => ({ ...prev, [categoryId]: valueAsString }));
+
+    // RESTORED: Call the debounced version
+    debouncedProcessSliderAllocation(categoryId, valueAsString);
+    // processSliderAllocationChange(categoryId, valueAsString); // This was the temporary direct call
+
+  }, [debouncedProcessSliderAllocation]); // Dependency is now the debounced function
+
+  const handleNumericInputChange = useCallback((categoryId, value) => {
+    // setActiveFeedback(prev => prev.type === 'info' && prev.text && prev.text.includes("ajusté à") ? prev : { text: null, type: null, categoryName: null });
+    // setUpdateError(null); 
+    // setInvalidInputCategoryId(null);
+    // ^ Clearing these might be too aggressive if a debounced slider error is pending.
+    // Let effects handle clearing based on error states.
+
+    const stringValue = typeof value === 'number' ? value.toString() : (value || '');
+    const originalAllocation = monthlyData?.allocations?.[categoryId] ?? 0;
+
+    // Update editing state immediately for text input responsiveness
+    setEditingAllocation(prev => ({ ...prev, [categoryId]: stringValue }));
+
+    if (stringValue === '' || (stringValue.endsWith('.') && !isNaN(parseFloat(stringValue.slice(0,-1))))) {
+      // Allow valid partial inputs for text field
+      setInvalidInputCategoryId(null); // Clear if it was previously invalid due to this field
+      return;
+    }
+    
+    const proposedNumericValue = parseFloat(stringValue);
+
+    if (isNaN(proposedNumericValue) || proposedNumericValue < 0) {
+      setInvalidInputCategoryId(categoryId); 
+      return;
+    }
+
+    const allocationDifference = proposedNumericValue - originalAllocation;
+    if (allocationDifference > 0 && allocationDifference > (instantRemainingToAllocate + 0.001)) {
+      setInvalidInputCategoryId(categoryId);
+    } else {
+      setInvalidInputCategoryId(null);
+    }
+  }, [monthlyData, instantRemainingToAllocate]);
+
+  const handleAllocationChange = useCallback(async (categoryId, newAmountStr) => {
+    setActiveFeedback(prev => (prev.type === 'error' || prev.type === 'info') ? { text: null, type: null, categoryName: null } : prev);
+    setUpdateError(null); setAllocationAdjustmentInfo(null); 
+    let newAmount = parseFloat(newAmountStr);
+    const originalAllocation = monthlyData?.allocations?.[categoryId] ?? 0;
+    const maxPossibleIncrease = instantRemainingToAllocate > 0 ? instantRemainingToAllocate : 0;
+    const maxAllowedForThisCategory = originalAllocation + maxPossibleIncrease;
+    let cappedInfoForState = null;
+    if (newAmount > maxAllowedForThisCategory + 0.001) {
+      cappedInfoForState = { categoryId, categoryName: categories.find(c=>c.id === categoryId)?.name, cappedAmount: newAmount, originalInput: newAmountStr }; 
+      newAmount = maxAllowedForThisCategory;
+      setEditingAllocation(prev => ({...prev, [categoryId]: newAmount.toFixed(2)}));
+    }
+    const allocationDifference = newAmount - originalAllocation;
+    if (allocationDifference > 0 && allocationDifference > (instantRemainingToAllocate + 0.001)) { 
+      setUpdateError("L'allocation dépasse le montant restant à allouer."); 
+      setInvalidInputCategoryId(categoryId); 
+      if (!cappedInfoForState) setEditingAllocation(prev => ({...prev, [categoryId]: originalAllocation.toString()}));
+      return;
+    }
+    if (!categoryId || typeof newAmount !== 'number' || isNaN(newAmount) || newAmount < 0) {
+      setUpdateError('Montant invalide.'); setInvalidInputCategoryId(categoryId); 
+      setEditingAllocation(prev => ({...prev, [categoryId]: newAmountStr})); return;
+    }
+    setInvalidInputCategoryId(null); setEditingAllocation(prev => ({...prev, [categoryId]: undefined })); 
+    if (cappedInfoForState) setAllocationAdjustmentInfo(cappedInfoForState);
+    try { 
+      await updateAllocation(budgetId, currentMonthString, categoryId, newAmount);
+      if (debouncedTriggerRecalculationRef.current) debouncedTriggerRecalculationRef.current();
+    } catch (e) { setUpdateError(e.message); }
+  }, [monthlyData, categories, instantRemainingToAllocate, budgetId, currentMonthString, debouncedTriggerRecalculationRef, setActiveFeedback, setUpdateError, setAllocationAdjustmentInfo, setEditingAllocation, setInvalidInputCategoryId]);
+
+  const handleSliderInteractionStart = useCallback((categoryId) => {
+    setActiveSliderCategoryId(categoryId);
+  }, [setActiveSliderCategoryId]); // Added setActiveSliderCategoryId to deps
+
+  const handleSliderInteractionEnd = useCallback(() => {
+    setActiveSliderCategoryId(null);
+    scheduleDebouncedRaaUpdate.cancel();
+    setDebouncedRemainingToAllocateForInactive(instantRemainingToAllocate);
+  }, [instantRemainingToAllocate, scheduleDebouncedRaaUpdate, setActiveSliderCategoryId, setDebouncedRemainingToAllocateForInactive]); // Added deps
+
+  // Determine status for main "Reste à Allouer" display
+  let remainingStatusStyle = styles.raaNeutral;
+  if (instantRemainingToAllocate < -0.009) remainingStatusStyle = styles.raaNegative;
+  else if (instantRemainingToAllocate > 0.009 && instantRemainingToAllocate <= RAA_APPROACHING_ZERO_THRESHOLD) remainingStatusStyle = styles.raaApproachingZero;
+  else if (instantRemainingToAllocate > RAA_APPROACHING_ZERO_THRESHOLD) remainingStatusStyle = styles.raaPositive;
 
   const navigateMonth = (direction) => {
     try {
@@ -137,7 +311,6 @@ function BudgetPage() {
   try {
     displayMonth = format(parse(currentMonthString, 'yyyy-MM', new Date()), 'MMMM yyyy', { locale: frCA });
   } catch (e) { console.error("Error formatting month string:", e); }
-
 
   if (isLoadingBudgets) {
     return <div className={styles.loadingContainer} role="status" aria-live="polite">Chargement des budgets...</div>;
@@ -165,11 +338,6 @@ function BudgetPage() {
     );
   }
   
-  // Determine status for "Remaining to Allocate"
-  let remainingStatusStyle = styles.remainingZero;
-  if (remainingToAllocate > 0.009) remainingStatusStyle = styles.remainingPositive;
-  else if (remainingToAllocate < -0.009) remainingStatusStyle = styles.remainingNegative;
-
   return (
     <div className={styles.budgetPage}>
       <header className={styles.header}>
@@ -199,7 +367,7 @@ function BudgetPage() {
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Reste à Allouer</span>
-          <span className={`${styles.statValue} ${remainingStatusStyle}`}>{formatCurrency(remainingToAllocate)}</span>
+          <span className={`${styles.statValue} ${remainingStatusStyle}`}>{formatCurrency(instantRemainingToAllocate)}</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Total Dépensé</span>
@@ -217,8 +385,16 @@ function BudgetPage() {
       {calculationStatus === 'complete' && (
         <div className={styles.recalculatingIndicatorComplete} role="status" aria-live="polite">Budget recalculé!</div>
       )}
-      {updateError && <div className={styles.errorDisplay} role="alert">Erreur de mise à jour: {updateError}</div>}
-      {recalculationError && <div className={styles.errorDisplay} role="alert">Erreur de recalcul: {recalculationError}</div>}
+      {activeFeedback.text && (
+        <div 
+          className={`${styles.feedbackContainer} ${styles[activeFeedback.type === 'info' ? 'feedbackInfo' : 'feedbackError']}`}
+          role={activeFeedback.type === 'error' ? 'alert' : 'status'}
+          aria-live="polite"
+        >
+          <InfoIcon /> {/* Consider making icon conditional or type-specific */}
+          <span>{activeFeedback.text}</span>
+        </div>
+      )}
        {isUsingServerCalculations !== undefined && (
           <p className={styles.dataSourceIndicator}>
             (Données: {isUsingServerCalculations ? 'Serveur' : 'Client'})
@@ -232,39 +408,44 @@ function BudgetPage() {
           <div className={styles.categoryCardList}>
             {categories.map((category) => {
               const allocatedAmount = monthlyData?.allocations?.[category.id] ?? 0;
-              const activityAmount = categoryActivityMap?.[category.id] ?? 0; // Already signed
-              const availableInCategory = allocatedAmount + activityAmount; // Correct calculation
-              
-              // For progress bar: if allocated is 0, progress is 0 unless activity is positive (income to category)
-              // Progress shows "spent" part of allocation. Expenses are negative activity.
-              const spentAmount = activityAmount < 0 ? Math.abs(activityAmount) : 0;
-              let progressPercent = 0;
-              if (allocatedAmount > 0) {
-                progressPercent = Math.min((spentAmount / allocatedAmount) * 100, 100);
-              } else if (spentAmount > 0) { // Spent without allocation
-                progressPercent = 100; // Show as fully "overspent" bar
-              }
-
-              // Input handling
               const currentInputValue = editingAllocation[category.id] !== undefined 
                                         ? editingAllocation[category.id] 
                                         : allocatedAmount.toString();
+              
+              const isCurrentCategoryActive = category.id === activeSliderCategoryId;
+              const rtaForThisCategoryMaxCalc = (activeSliderCategoryId === null || isCurrentCategoryActive) 
+                                           ? instantRemainingToAllocate 
+                                           : (debouncedRemainingToAllocateForInactive ?? instantRemainingToAllocate);
+              
+              const positiveRtaForMax = rtaForThisCategoryMaxCalc > 0 ? rtaForThisCategoryMaxCalc : 0;
+              const maxPotentialAllocationForCategory = allocatedAmount + positiveRtaForMax;
 
-              // If you have a per-category saving state, use it; otherwise, default to false
-              const isSavingAllocation = false; // Replace with actual state if available
+              const onSaveHandler = () => handleAllocationChange(category.id, editingAllocation[category.id] ?? allocatedAmount.toString());
+              
+              // REINSTATE CORRECTED LOGIC for spentForCategory:
+              const netActivityForCategory = categoryActivityMap?.[category.id] ?? 0;
+              const spentForCategory = Math.max(0, -netActivityForCategory); 
+
+              const isSavingAllocation = false; 
+              const isInputCurrentlyInvalid = invalidInputCategoryId === category.id;
 
               return (
                 <div key={category.id} className={styles.categoryCard}>
                   <CategoryProgressDisplay
-                    categoryName={category.name}
-                    allocatedAmount={allocatedAmount}
-                    spentAmount={spentAmount}
-                    categoryType={category.type}
+                    category={category} 
+                    allocatedAmount={allocatedAmount} 
+                    spentAmount={spentForCategory} // Use corrected positive value
+                    categoryType={category.type} 
                     categoryColor={category.color}
-                    currentAllocation={currentInputValue}
-                    onAllocationChange={(value) => handleAllocationInputChange(category.id, value)}
-                    onAllocationSave={() => handleAllocationChange(category.id, editingAllocation[category.id] ?? allocatedAmount.toString())}
+                    currentAllocation={currentInputValue} 
+                    maxAllowedValue={maxPotentialAllocationForCategory} 
+                    baseOnNumericInputChange={handleNumericInputChange}
+                    baseOnSliderChange={handleSliderChangeImmediate}
+                    baseOnAllocationSave={handleAllocationChange} 
+                    baseOnSliderInteractionStart={handleSliderInteractionStart}
+                    baseOnSliderInteractionEnd={handleSliderInteractionEnd} 
                     isSavingAllocation={isSavingAllocation}
+                    isInputInvalid={isInputCurrentlyInvalid}
                   />
                 </div>
               );

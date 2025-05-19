@@ -155,6 +155,24 @@
 .remainingNegative { color: var(--color-error); }
 .remainingZero { color: var(--color-text-primary); }
 
+/* Ensure these styles are defined or updated for RAA specifically if needed */
+/* These might already exist or be covered by .remainingPositive etc. */
+.raaPositive {
+  color: var(--color-positive-text, var(--color-positive, #568E8D)); /* Default to base positive color */
+}
+
+.raaNegative {
+  color: var(--color-negative-text, var(--color-negative, #C17C74)); /* Default to base negative color */
+}
+
+.raaNeutral {
+  color: var(--color-text-primary, #2F2F2F);
+}
+
+.raaApproachingZero {
+  color: var(--color-warning-text, var(--color-warning, #E0B470)); /* Using a color from B3.8 categorical like Ochre/Gold for subtle warning */
+  /* font-weight: var(--font-weight-semibold); */ /* Optionally make it a bit bolder */
+}
 
 /* Indicators & Error Messages */
 .recalculatingIndicator,
@@ -195,6 +213,62 @@
   margin-bottom: var(--spacing-sm);
 }
 
+.infoDisplay {
+  margin-bottom: var(--spacing-3);
+  padding: var(--spacing-3);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-information-light, #e0f2fe); /* Assuming a light version of info color */
+  color: var(--color-information-dark, #075985); /* Assuming a dark version of info color for text */
+  border: 1px solid var(--color-information, #7dd3fc);
+  animation: fadeInOut 3s ease-in-out forwards; /* Added animation */
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  15% { opacity: 1; transform: translateY(0); }
+  85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+/* Styles for the feedback message system */
+.feedbackContainer {
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
+  margin: var(--spacing-md, 1rem) auto; /* Centered with margin */
+  border-radius: var(--border-radius-md, 0.5rem);
+  box-shadow: var(--shadow-level-1, 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06));
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 0.5rem);
+  max-width: 600px; /* Max width for readability */
+  text-align: left; /* Align text to the left within the container */
+  /* Removed fixed positioning to allow it to flow with content, e.g., above categories */
+}
+
+.feedbackContainer svg {
+  flex-shrink: 0; /* Prevent icon from shrinking */
+  width: 20px;
+  height: 20px;
+}
+
+.feedbackInfo {
+  background-color: var(--color-information-x-light, #e0f2fe);
+  color: var(--color-information-dark, #0c5460);
+  border: 1px solid var(--color-information-light, #bee5eb);
+}
+
+.feedbackInfo svg {
+  color: var(--color-information, #31708f);
+}
+
+.feedbackError {
+  background-color: var(--color-negative-x-light, #f8d7da);
+  color: var(--color-negative-dark, #721c24);
+  border: 1px solid var(--color-negative-light, #f5c6cb);
+}
+
+.feedbackError svg {
+  color: var(--color-negative, #C17C74);
+}
 
 /* Category Section */
 .categorySection {
