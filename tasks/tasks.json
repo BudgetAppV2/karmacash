@@ -86,7 +86,7 @@
       "details": "- Concevoir l'apparence visuelle des curseurs en accord avec le thème \"Zen/Tranquillité\" du Bible [B3.4]\n- Développer les composants de curseurs avec plage dynamique (0 à maximum disponible pour chaque catégorie)\n- Implémenter la logique de calcul du maximum disponible pour chaque catégorie en fonction du \"Reste à Allouer\"\n- Développer la synchronisation en temps réel entre curseurs et champs de saisie numérique\n- Assurer que les modifications par curseur ou par saisie directe sont parfaitement synchronisées\n- Implémenter la navigation au clavier (touches fléchées) pour l'accessibilité\n- Ajouter les attributs ARIA appropriés pour les lecteurs d'écran\n- Optimiser les cibles tactiles selon les directives du Bible [B3.4]\n- Configurer des incréments sensibles (1, 5, 10 unités monétaires) selon le contexte\n- S'inspirer de l'exemple de la Banque Nationale pour la fluidité et la réactivité",
       "mockupDesignNeeded": "Oui - Maquettes détaillées pour l'apparence des curseurs, leurs états (repos, focus, actif, désactivé), et leur comportement lors des interactions.",
       "testStrategy": "- Tester la synchronisation bidirectionnelle entre curseurs et champs de saisie\n- Vérifier l'accessibilité avec différents outils d'assistance (navigation clavier, lecteurs d'écran)\n- Confirmer que les curseurs respectent les contraintes de taille des cibles tactiles\n- Tester la fluidité et la réactivité sur différents appareils (desktop, mobile)\n- Vérifier que les incréments sont appropriés et que l'expérience utilisateur est intuitive",
-      "status": "pending",
+      "status": "done",
       "subtasks": [
         {
           "id": 1,
@@ -146,7 +146,7 @@
             5
           ],
           "details": "Ensure that users can navigate and adjust the allocation values using the keyboard, specifically the arrow keys, to improve accessibility and usability.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 7,
@@ -156,7 +156,7 @@
             6
           ],
           "details": "Identify and add the necessary ARIA attributes to the slider components and related UI elements to ensure they are properly recognized and interpreted by screen readers, providing a seamless experience for users with visual impairments.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 8,
@@ -166,7 +166,7 @@
             7
           ],
           "details": "Review the touch target sizes and spacing of the allocation sliders and related UI components to ensure they adhere to the guidelines outlined in [B3.4], providing an optimal touch-based experience.",
-          "status": "pending"
+          "status": "done"
         }
       ]
     },

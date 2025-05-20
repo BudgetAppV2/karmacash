@@ -9,8 +9,71 @@
       "details": "- Analyser le code existant de validation des entrées et de calcul du \"Reste à Allouer\"\n- Implémenter une logique de validation préventive qui empêche les entrées qui rendraient le \"Reste à Allouer\" négatif\n- Développer un mécanisme de plafonnement des valeurs d'entrée au maximum disponible\n- Créer des indicateurs visuels subtils (bordure rouge douce selon Bible [B3.8]) lorsqu'une entrée dépasse la limite\n- Implémenter des messages d'explication clairs et non alarmants (selon Bible [B3.4])\n- Ajouter des indices visuels lorsque le \"Reste à Allouer\" approche de zéro\n- Assurer que la validation se fait en temps réel pendant la saisie utilisateur\n- Prioriser la rigueur budgétaire tout en maintenant une expérience utilisateur fluide et non restrictive",
       "mockupDesignNeeded": "Oui - Maquette simple pour les états visuels d'erreur et d'avertissement des champs de saisie, ainsi que pour l'indicateur de \"Reste à Allouer\" approchant zéro.",
       "testStrategy": "- Tester la saisie de valeurs valides et invalides dans différentes catégories\n- Vérifier que le plafonnement fonctionne correctement sans permettre de dépasser le montant disponible\n- Confirmer que les retours visuels sont clairs mais non intrusifs\n- Tester différents scénarios de montants (petits, grands, décimaux)\n- Vérifier la réactivité de l'interface lors des validations en temps réel",
-      "status": "pending",
-      "subtasks": []
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Analyze the existing code for input validation and \"Reste à Allouer\" calculation",
+          "description": "Review the existing codebase to understand the current implementation of input validation and \"Reste à Allouer\" calculation.",
+          "dependencies": [],
+          "details": "Identify the relevant code sections, understand the existing logic, and document any areas for improvement.",
+          "status": "done"
+        },
+        {
+          "id": 2,
+          "title": "Implement preventive validation logic to prevent negative \"Reste à Allouer\" values",
+          "description": "Develop new validation logic to ensure that the \"Reste à Allouer\" value never becomes negative.",
+          "dependencies": [
+            1
+          ],
+          "details": "Design and implement the validation rules to prevent negative values, considering edge cases and user experience.",
+          "status": "done"
+        },
+        {
+          "id": 3,
+          "title": "Develop a mechanism to cap input values at the maximum available",
+          "description": "Create a mechanism to limit the input values to the maximum available amount.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Determine the appropriate capping logic and integrate it with the input fields.",
+          "status": "done"
+        },
+        {
+          "id": 4,
+          "title": "Create subtle visual indicators (soft red border per [B3.8]) when an input exceeds the limit",
+          "description": "Implement visual feedback to indicate when an input value exceeds the available limit.",
+          "dependencies": [
+            3
+          ],
+          "details": "Design and integrate the visual indicators, such as a soft red border, to provide clear feedback to the user.",
+          "status": "done"
+        },
+        {
+          "id": 5,
+          "title": "Implement clear and non-alarming explanation messages (per [B3.4])",
+          "description": "Develop explanatory messages to inform the user about the input validation and capping mechanisms.",
+          "dependencies": [
+            2,
+            3,
+            4
+          ],
+          "details": "Craft clear and non-alarming messages that provide helpful information to the user without being overly intrusive.",
+          "status": "done"
+        },
+        {
+          "id": 6,
+          "title": "Add visual cues when the \"Reste à Allouer\" approaches zero",
+          "description": "Implement visual indicators to alert the user when the \"Reste à Allouer\" value is approaching zero.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Design and integrate subtle visual cues, such as color changes or icons, to provide feedback on the \"Reste à Allouer\" status.",
+          "status": "done"
+        }
+      ]
     },
     {
       "id": 202,
@@ -31,7 +94,7 @@
           "description": "Create the visual design for the allocation sliders that aligns with the \"Zen/Tranquility\" theme as per the guidelines in [B3.4].",
           "dependencies": [],
           "details": "The visual design should incorporate calming and serene elements to match the overall theme. Ensure the sliders, labels, and other UI components are visually appealing and consistent with the brand identity.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 2,
@@ -41,7 +104,7 @@
             1
           ],
           "details": "The slider range should be from 0 to the maximum available value for each allocation category. The maximum available value should be determined based on the \"Reste à Allouer\" calculation.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 3,
@@ -51,7 +114,7 @@
             2
           ],
           "details": "The maximum available value for each category should be calculated dynamically based on the remaining amount to allocate (\"Reste à Allouer\"). This value should be used to set the range of the sliders.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 4,
@@ -62,7 +125,7 @@
             3
           ],
           "details": "Implement the necessary logic to keep the sliders and numeric input fields in sync, so that any modifications made to one are instantly reflected in the other.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 5,
@@ -72,7 +135,7 @@
             4
           ],
           "details": "Develop robust mechanisms to ensure that any updates to the allocation values, whether made through the sliders or by directly editing the numeric inputs, are instantly reflected across the entire interface.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 6,

@@ -59,6 +59,12 @@ function useBudgetData(budgetId, monthString, editingAllocations = {}) {
         total += parseFloat(baseAllocations[catId]) || 0;
       }
     });
+
+    console.log(`[useBudgetData] Calculating currentTotalAllocatedBasedOnEdits:`);
+    console.log(`  - Base Allocations (monthlyData?.allocations or equivalent):`, baseAllocations); // Ensure 'baseAllocations' is the correct variable
+    console.log(`  - Editing Allocations (editingAllocations param):`, editingAllocations);
+    console.log(`  - Resulting currentTotalAllocatedBasedOnEdits:`, total); // 'total' is the sum calculated in this memo
+
     return total;
   }, [monthlyData, editingAllocations, categories]);
 
@@ -67,6 +73,16 @@ function useBudgetData(budgetId, monthString, editingAllocations = {}) {
     const available = isUsingServerCalculations 
                       ? (serverCalculated?.availableToAllocate ?? clientCalculatedAvailableFunds) 
                       : clientCalculatedAvailableFunds;
+
+    // In useBudgetData.js, inside useMemo for currentRemainingToAllocateBasedOnEdits
+    const resolvedAvailableFunds = isUsingServerCalculations ? (serverCalculated?.availableToAllocate ?? clientCalculatedAvailableFunds) : clientCalculatedAvailableFunds;
+    const calculatedRemaining = resolvedAvailableFunds - currentTotalAllocatedBasedOnEdits; // Calculate for logging before returning
+    
+    console.log(`[useBudgetData] Calculating currentRemainingToAllocateBasedOnEdits:`);
+    console.log(`  - Resolved Available Funds:`, resolvedAvailableFunds);
+    console.log(`  - currentTotalAllocatedBasedOnEdits (input to this calc):`, currentTotalAllocatedBasedOnEdits);
+    console.log(`  - Resulting remainingToAllocate:`, calculatedRemaining);
+    
     return available - currentTotalAllocatedBasedOnEdits;
   }, [isUsingServerCalculations, serverCalculated, clientCalculatedAvailableFunds, currentTotalAllocatedBasedOnEdits]); // Added serverCalculated to dependencies
   

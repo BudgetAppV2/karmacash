@@ -62,6 +62,7 @@ const AllocationSlider = ({
     <div className={`${styles.sliderContainer} ${className}`}>
       <input
         type="range"
+        role="slider"
         className={styles.slider}
         min={min}
         max={max}
@@ -72,8 +73,12 @@ const AllocationSlider = ({
         onTouchStart={handleTouchStart}
         onMouseUp={handleMouseUp}
         onTouchEnd={handleTouchEnd}
-        onBlur={handleBlur} // Added onBlur for interaction end
+        onBlur={handleBlur}
         aria-label={ariaLabel}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        aria-valuetext={`$${value.toFixed(2)}`}
         disabled={disabled}
       />
     </div>

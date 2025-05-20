@@ -30,16 +30,32 @@
 }
 
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default CSS styles */
+  -webkit-appearance: none;
   appearance: none;
-  width: 20px; /* Thumb size */
-  height: 20px; /* Thumb size */
-  background: var(--color-primary, #919A7F); /* Muted Sage Green */
-  border-radius: 50%; /* Circular thumb */
+  width: 44px; /* Touch target size */
+  height: 44px; /* Touch target size */
+  background: var(--color-primary, #919A7F);
+  border-radius: 50%;
   cursor: pointer;
-  border: none; /* No border on thumb itself */
-  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03)); /* Subtle elevation */
-  margin-top: -6px; /* Adjust thumb position to be centered on the track ( (track_height - thumb_height) / 2 ) -> (8px - 20px) / 2 = -6px */
+  border: none;
+  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
+  margin-top: -18px; /* Center thumb on 8px track: (8-44)/2 = -18px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Visually smaller thumb inside for Zen style */
+  /* Use a pseudo-element for the inner circle if needed */
+}
+
+.slider::-webkit-slider-thumb::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  background: var(--color-primary, #919A7F);
+  border-radius: 50%;
+  margin: auto;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03);
 }
 
 /* Firefox */
@@ -58,13 +74,16 @@
 }
 
 .slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 44px;
+  height: 44px;
   background: var(--color-primary, #919A7F);
   border-radius: 50%;
   cursor: pointer;
   border: none;
   box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* IE / Edge (older versions might need -ms-track and -ms-thumb) */
@@ -88,14 +107,16 @@
 }
 
 .slider::-ms-thumb {
-  width: 20px;
-  height: 20px;
+  width: 44px;
+  height: 44px;
   background: var(--color-primary, #919A7F);
   border-radius: 50%;
   cursor: pointer;
   border: none;
   box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
-  margin-top: 0px; /* MS thumb positioning is different */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Focus states for accessibility - more visible outline */

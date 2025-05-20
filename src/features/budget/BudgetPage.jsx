@@ -183,7 +183,7 @@ function BudgetPage() {
 
   // Ensure all these handlers are stable with useCallback
   const processSliderAllocationChange = useCallback((categoryId, valueAsString) => {
-    const originalAllocation = monthlyData?.allocations?.[categoryId] ?? 0;
+    const savedAllocForThisCategory = monthlyData?.allocations?.[categoryId] ?? 0;
     const proposedNumericValue = parseFloat(valueAsString);
 
     if (isNaN(proposedNumericValue) || proposedNumericValue < 0) {
@@ -191,8 +191,12 @@ function BudgetPage() {
       return;
     }
 
-    const allocationDifference = proposedNumericValue - originalAllocation;
-    if (allocationDifference > 0 && allocationDifference > (instantRemainingToAllocate + 0.001)) {
+    // Corrected Validation:
+    // instantRemainingToAllocate is RAA_after_proposedNumericValue_is_factored_out
+    const initialRaaAvailableToThisCategory = instantRemainingToAllocate + (proposedNumericValue - savedAllocForThisCategory);
+    const trueCapForThisCategory = Math.max(0, savedAllocForThisCategory + initialRaaAvailableToThisCategory);
+
+    if (proposedNumericValue > trueCapForThisCategory + 0.001) {
       setInvalidInputCategoryId(categoryId);
     } else {
       setInvalidInputCategoryId(null); 
@@ -215,24 +219,15 @@ function BudgetPage() {
   }, [debouncedProcessSliderAllocation]); // Dependency is now the debounced function
 
   const handleNumericInputChange = useCallback((categoryId, value) => {
-    // setActiveFeedback(prev => prev.type === 'info' && prev.text && prev.text.includes("ajusté à") ? prev : { text: null, type: null, categoryName: null });
-    // setUpdateError(null); 
-    // setInvalidInputCategoryId(null);
-    // ^ Clearing these might be too aggressive if a debounced slider error is pending.
-    // Let effects handle clearing based on error states.
-
     const stringValue = typeof value === 'number' ? value.toString() : (value || '');
-    const originalAllocation = monthlyData?.allocations?.[categoryId] ?? 0;
-
-    // Update editing state immediately for text input responsiveness
     setEditingAllocation(prev => ({ ...prev, [categoryId]: stringValue }));
 
     if (stringValue === '' || (stringValue.endsWith('.') && !isNaN(parseFloat(stringValue.slice(0,-1))))) {
-      // Allow valid partial inputs for text field
       setInvalidInputCategoryId(null); // Clear if it was previously invalid due to this field
       return;
     }
     
+    const savedAllocForThisCategory = monthlyData?.allocations?.[categoryId] ?? 0;
     const proposedNumericValue = parseFloat(stringValue);
 
     if (isNaN(proposedNumericValue) || proposedNumericValue < 0) {
@@ -240,45 +235,83 @@ function BudgetPage() {
       return;
     }
 
-    const allocationDifference = proposedNumericValue - originalAllocation;
-    if (allocationDifference > 0 && allocationDifference > (instantRemainingToAllocate + 0.001)) {
+    // Corrected Validation:
+    // instantRemainingToAllocate is RAA_after_proposedNumericValue_is_factored_out
+    const initialRaaAvailableToThisCategory = instantRemainingToAllocate + (proposedNumericValue - savedAllocForThisCategory);
+    const trueCapForThisCategory = Math.max(0, savedAllocForThisCategory + initialRaaAvailableToThisCategory);
+
+    if (proposedNumericValue > trueCapForThisCategory + 0.001) {
       setInvalidInputCategoryId(categoryId);
     } else {
       setInvalidInputCategoryId(null);
     }
-  }, [monthlyData, instantRemainingToAllocate]);
+  }, [monthlyData, instantRemainingToAllocate, categories]); // Added categories to dependencies
 
   const handleAllocationChange = useCallback(async (categoryId, newAmountStr) => {
     setActiveFeedback(prev => (prev.type === 'error' || prev.type === 'info') ? { text: null, type: null, categoryName: null } : prev);
-    setUpdateError(null); setAllocationAdjustmentInfo(null); 
-    let newAmount = parseFloat(newAmountStr);
-    const originalAllocation = monthlyData?.allocations?.[categoryId] ?? 0;
-    const maxPossibleIncrease = instantRemainingToAllocate > 0 ? instantRemainingToAllocate : 0;
-    const maxAllowedForThisCategory = originalAllocation + maxPossibleIncrease;
-    let cappedInfoForState = null;
-    if (newAmount > maxAllowedForThisCategory + 0.001) {
-      cappedInfoForState = { categoryId, categoryName: categories.find(c=>c.id === categoryId)?.name, cappedAmount: newAmount, originalInput: newAmountStr }; 
-      newAmount = maxAllowedForThisCategory;
-      setEditingAllocation(prev => ({...prev, [categoryId]: newAmount.toFixed(2)}));
-    }
-    const allocationDifference = newAmount - originalAllocation;
-    if (allocationDifference > 0 && allocationDifference > (instantRemainingToAllocate + 0.001)) { 
-      setUpdateError("L'allocation dépasse le montant restant à allouer."); 
+    setUpdateError(null); 
+    setAllocationAdjustmentInfo(null); 
+    
+    let newAmountNum = parseFloat(newAmountStr);
+
+    if (isNaN(newAmountNum) || newAmountNum < 0) {
+      setUpdateError('Montant invalide.'); 
       setInvalidInputCategoryId(categoryId); 
-      if (!cappedInfoForState) setEditingAllocation(prev => ({...prev, [categoryId]: originalAllocation.toString()}));
+      // Do not change editingAllocation here, let the invalid state show on current input
       return;
     }
-    if (!categoryId || typeof newAmount !== 'number' || isNaN(newAmount) || newAmount < 0) {
-      setUpdateError('Montant invalide.'); setInvalidInputCategoryId(categoryId); 
-      setEditingAllocation(prev => ({...prev, [categoryId]: newAmountStr})); return;
+
+    const savedAllocForThisCategory = monthlyData?.allocations?.[categoryId] ?? 0;
+    
+    // Calculate the correct maximum this category can be allocated
+    // This logic mirrors the fixed maxPotentialAllocationForCategory in the render loop
+    const rtaFromHookForCap = instantRemainingToAllocate; // RAA_after_newAmountNum_is_factored_out
+    
+    // Initial RAA available for this category = rtaFromHookForCap + (newAmountNum - savedAllocForThisCategory)
+    const initialRaaAvailableToThisCategory = rtaFromHookForCap + (newAmountNum - savedAllocForThisCategory);
+    const trueCapForThisCategory = Math.max(0, savedAllocForThisCategory + initialRaaAvailableToThisCategory);
+
+    let cappedInfoForState = null;
+
+    if (newAmountNum > trueCapForThisCategory + 0.001) {
+      cappedInfoForState = { 
+        categoryId, 
+        categoryName: categories.find(c => c.id === categoryId)?.name || 'cette catégorie', 
+        cappedAmount: trueCapForThisCategory, 
+        originalInput: newAmountStr 
+      };
+      newAmountNum = trueCapForThisCategory;
+      // Update UI to show the capped value immediately
+      setEditingAllocation(prev => ({ ...prev, [categoryId]: newAmountNum.toFixed(2) }));
     }
-    setInvalidInputCategoryId(null); setEditingAllocation(prev => ({...prev, [categoryId]: undefined })); 
-    if (cappedInfoForState) setAllocationAdjustmentInfo(cappedInfoForState);
+    
+    setInvalidInputCategoryId(null); // If we reach here, input is valid or has been capped to be valid.
+    
+    if (cappedInfoForState) {
+        setAllocationAdjustmentInfo(cappedInfoForState);
+    }
+
     try { 
-      await updateAllocation(budgetId, currentMonthString, categoryId, newAmount);
-      if (debouncedTriggerRecalculationRef.current) debouncedTriggerRecalculationRef.current();
-    } catch (e) { setUpdateError(e.message); }
-  }, [monthlyData, categories, instantRemainingToAllocate, budgetId, currentMonthString, debouncedTriggerRecalculationRef, setActiveFeedback, setUpdateError, setAllocationAdjustmentInfo, setEditingAllocation, setInvalidInputCategoryId]);
+      await updateAllocation(budgetId, currentMonthString, categoryId, newAmountNum); 
+      
+      // After successful save, clear the editing state for this category
+      // so the input reflects the source of truth (monthlyData.allocations)
+      setEditingAllocation(prev => {
+        const newState = {...prev};
+        delete newState[categoryId]; 
+        return newState;
+      });
+
+      if (debouncedTriggerRecalculationRef.current) {
+        debouncedTriggerRecalculationRef.current();
+      }
+    } catch (e) { 
+      setUpdateError(e.message); 
+      // If save fails, editingAllocation still holds the value that failed.
+      // User can see it and retry or change it.
+    }
+  // Deps: Add `categories` because it's used in find.
+}, [monthlyData, categories, instantRemainingToAllocate, budgetId, currentMonthString, debouncedTriggerRecalculationRef, setActiveFeedback, setUpdateError, setAllocationAdjustmentInfo, setEditingAllocation, setInvalidInputCategoryId]);
 
   const handleSliderInteractionStart = useCallback((categoryId) => {
     setActiveSliderCategoryId(categoryId);
@@ -418,7 +451,26 @@ function BudgetPage() {
                                            : (debouncedRemainingToAllocateForInactive ?? instantRemainingToAllocate);
               
               const positiveRtaForMax = rtaForThisCategoryMaxCalc > 0 ? rtaForThisCategoryMaxCalc : 0;
-              const maxPotentialAllocationForCategory = allocatedAmount + positiveRtaForMax;
+
+              // Logic for maxPotentialAllocationForCategory
+              const savedAlloc = allocatedAmount; // allocatedAmount is already the saved allocation
+              const currentEditingValStr = editingAllocation[category.id]; // Current string from input/slider
+              let numericCurrentInputValue = parseFloat(currentEditingValStr);
+
+              // Fallback logic for numericCurrentInputValue - updated to be more explicit as per user request
+              if (currentEditingValStr === undefined || currentEditingValStr.trim() === "" || isNaN(numericCurrentInputValue)) {
+                  numericCurrentInputValue = savedAlloc;
+              }
+
+              // rtaFromHook is the RAA from useBudgetData, processed to be non-negative.
+              // This value already reflects (numericCurrentInputValue - savedAlloc) having been "subtracted" from the initial RAA.
+              const rtaFromHook = positiveRtaForMax; 
+
+              // THE ACTUAL CALCULATION - Corrected to use numericCurrentInputValue
+              const maxPotentialAllocationForCategory = Math.max(0, numericCurrentInputValue + rtaFromHook);
+
+              // Debugging logs (confirming they use the variables from the calculation above)
+              // console.log(`[BudgetPage] Category: ${category.name}`);
 
               const onSaveHandler = () => handleAllocationChange(category.id, editingAllocation[category.id] ?? allocatedAmount.toString());
               
