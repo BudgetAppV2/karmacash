@@ -1,0 +1,88 @@
+/* BudgetPageHeader.module.css */
+/* This file contains additional styles for the BudgetPageHeader component */
+/* Most styling is handled by Tailwind CSS directly in the component */
+
+/* For any styles that need to be merged with Tailwind classes */
+.stickyHeader {
+  z-index: 20; /* Ensure the header stays on top of other content */
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(12px); /* Enhanced blur effect */
+  -webkit-backdrop-filter: blur(12px); /* For Safari support */
+  /* Use the app's background color with transparency */
+  background-color: rgba(243, 240, 232, 0.85); /* #F3F0E8 with 85% opacity */
+  /* Enhanced shadow for better visibility when scrolling */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.08);
+  /* Use surface color for card components within the header */
+  --card-background: rgba(255, 255, 255, 0.85);
+  padding-bottom: 0.5rem; /* Ensure consistent bottom padding */
+  position: sticky; /* Ensure this is sticky */
+  top: 0; /* Stick to the top */
+  width: 100%; /* Take full width */
+  overflow: visible; /* Allow content to be visible outside the header */
+}
+
+/* Style for cards inside the header */
+.stickyHeader :global(.bg-gray-50\/90) {
+  background-color: var(--card-background);
+  border: 1px solid rgba(255, 255, 255, 0.4); /* Subtle border for contrast */
+}
+
+/* Enhanced metric item styling */
+.metricLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.metricValue {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--card-background);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+  .metricsGrid {
+    row-gap: 0.75rem;
+  }
+  
+  .metricLabel {
+    font-size: var(--font-size-sm);
+  }
+  
+  .metricValue {
+    font-size: var(--font-size-sm);
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 1rem;
+  }
+  
+  .savingsMetric {
+    grid-column: span 3;
+    margin-top: 0.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .metricsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    row-gap: 1.25rem;
+  }
+  
+  .savingsMetric {
+    grid-column: span 4;
+    margin-top: 0.25rem;
+  }
+} 

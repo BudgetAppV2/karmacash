@@ -182,7 +182,7 @@
       "details": "- Coordonner les validations du \"Reste à Allouer\" avec le comportement des curseurs d'allocation\n- Implémenter la mise à jour dynamique des plages maximales des curseurs en fonction du \"Reste à Allouer\" en temps réel\n- Assurer que les modifications d'une catégorie affectent correctement les plages disponibles pour les autres catégories\n- Développer une logique côté client pour garantir la cohérence des données entre tous les composants\n- Optimiser les calculs en temps réel pour éviter les ralentissements (debouncing/throttling si nécessaire)\n- Gérer les états intermédiaires lors des ajustements multiples pour une expérience fluide\n- Assurer que les validations et les contraintes s'appliquent de manière cohérente, que l'utilisateur interagisse via les curseurs ou les champs de saisie\n- Implémenter une gestion efficace des événements pour minimiser les recalculs inutiles",
       "mockupDesignNeeded": "Non - Cette tâche concerne principalement l'intégration technique et le comportement dynamique.",
       "testStrategy": "- Tester les interactions combinées entre curseurs et champs de saisie\n- Vérifier que les contraintes du \"Reste à Allouer\" sont correctement reflétées dans les plages des curseurs\n- Tester des scénarios d'allocation complexes impliquant plusieurs catégories\n- Évaluer les performances lors d'ajustements rapides et multiples\n- Confirmer que l'expérience utilisateur reste fluide et intuitive dans tous les scénarios d'utilisation",
-      "status": "pending",
+      "status": "done",
       "subtasks": [
         {
           "id": 1,
@@ -190,7 +190,7 @@
           "description": "Ensure that the \"Reste à Allouer\" validations are properly integrated with the allocation sliders, so that changes in one component are reflected in the other.",
           "dependencies": [],
           "details": "This includes implementing the necessary logic to synchronize the \"Reste à Allouer\" values with the slider positions and ranges.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 2,
@@ -200,7 +200,7 @@
             1
           ],
           "details": "This will ensure that the sliders always reflect the available budget for each category.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 3,
@@ -211,7 +211,7 @@
             2
           ],
           "details": "This will maintain data consistency and prevent invalid allocations across the different categories.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 4,
@@ -223,7 +223,7 @@
             3
           ],
           "details": "This includes handling edge cases, validating user inputs, and maintaining the integrity of the overall budgeting system.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 5,
@@ -236,7 +236,7 @@
             4
           ],
           "details": "Implement techniques like debouncing or throttling to manage the frequency of updates and calculations.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 6,
@@ -250,7 +250,7 @@
             5
           ],
           "details": "This will ensure a smooth and responsive user experience, even when the user is making multiple changes.",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": 7,
@@ -265,7 +265,7 @@
             6
           ],
           "details": "This will further optimize the performance and responsiveness of the budgeting system.",
-          "status": "pending"
+          "status": "done"
         }
       ]
     },

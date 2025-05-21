@@ -3,7 +3,7 @@
   background-color: white !important; /* Reinstated !important to override global style */
   /* border-radius: var(--border-radius-md); */
   border-radius: var(--border-radius-medium, 0.5rem); /* Adjusted for "rounder" 0.5rem */
-  padding: var(--spacing-4, 1rem); /* Adjusted padding to a more standard variable, check mockup */
+  padding: var(--spacing-3, 0.75rem); /* Reduced padding to make card more compact */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Match reference card shadow */
   position: relative; /* For absolute positioning of dot */
   display: flex;
@@ -18,14 +18,14 @@
 
 .topContent {
   /* This div groups categoryName and budgetDetailsRow */
-  margin-bottom: var(--spacing-2, 0.5rem); /* Reduced from spacing-3 */
+  margin-bottom: var(--spacing-2, 0.5rem); /* Reduced to make card more compact */
 }
 
 .categoryName {
   font-size: 1rem; 
   font-weight: 500; 
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-2, 0.5rem); /* Reduced from spacing-3 */
+  margin-bottom: var(--spacing-1, 0.25rem); /* Reduced to make card more compact */
   flex: 1;
   min-width: 0;
   text-overflow: ellipsis;
@@ -60,7 +60,7 @@
 
 .budgetDetailValuePill {
   background-color: var(--color-background-subtle-pill, rgba(0,0,0,0.03));
-  padding: var(--spacing-1, 0.25rem) var(--spacing-3, 0.75rem);
+  padding: var(--spacing-1, 0.25rem) var(--spacing-2, 0.5rem); /* Reduced horizontal padding */
   border-radius: var(--border-radius-full, 999px);
   display: inline-block; /* Or flex if inner content needs alignment */
   min-width: 60px; /* Ensure pills have some minimum width */
@@ -77,32 +77,32 @@
   color: var(--color-negative, red) !important; /* Ensure it overrides other color styles */
 }
 
-/* Styles for the bottom row containing allocation form and progress indicator */
+/* Updated styles for the bottom row containing allocation form and progress indicator */
 .bottomControlsRow {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Changed from flex-end to center */
-  gap: var(--spacing-3, 0.75rem);
-  margin-top: auto; 
-  /* padding-top: var(--spacing-3, 0.75rem); // Removed */
+  align-items: center; /* Center items vertically */
+  gap: var(--spacing-2, 0.5rem); /* Reduced gap */
+  margin-top: var(--spacing-1, 0.25rem); /* Reduced to make card more compact */
 }
 
 .allocationControls {
   flex-grow: 1; /* Allow allocation controls to take available space */
   min-width: 0; /* For flex shrinking */
+  flex-basis: 60%; /* Allocate 60% of the width to the slider area */
 }
 
-.allocationForm { /* Existing styles, might need minor tweaks for new context */
+.allocationForm { /* Updated styles for more compact form */
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-15, 0.375rem); /* Reduced from spacing-2, using 0.375rem as example */
-  /* Consider adding align-items: flex-start; if button shouldn't be full width */
+  gap: var(--spacing-1, 0.25rem); /* Reduced gap */
+  width: 100%; /* Ensure form takes full width of controls */
 }
 
 .inputLabel { /* Existing styles */
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-  margin-bottom: 2px;
+  margin-bottom: 0; /* Reduced to make card more compact */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; 
 }
 
@@ -110,11 +110,12 @@
   display: flex;
   gap: var(--spacing-2, 0.5rem);
   align-items: center;
+  margin-top: var(--spacing-1, 0.25rem); /* Added space between slider and input */
 }
 
 .allocationInput { /* Existing styles */
   font-size: var(--font-size-md);
-  padding: 0.5em 1em;
+  padding: 0.3em 0.6em; /* Reduced padding to make more compact */
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
   /* width: 100px; // Width might need to be more flexible or controlled by parent */
@@ -131,16 +132,17 @@
   background: var(--color-surface);
 }
 
-.saveButton { /* Existing styles */
+.saveButton { /* Updated styles for more compact button */
   background: var(--color-primary);
   color: var(--color-surface);
   border: none;
   border-radius: var(--border-radius-sm);
-  padding: 0.5em 1.25em; /* Ensure padding makes it touch-friendly */
+  padding: 0.4em 0.8em; /* Reduced horizontal padding */
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition: background 0.2s;
+  margin-top: var(--spacing-1, 0.25rem); /* Reduced to make card more compact */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; 
 }
 .saveButton:disabled {
@@ -160,32 +162,35 @@
   box-shadow: 0 0 3px rgba(0,0,0,0.2);
 }
 
-/* New style for the progress indicator wrapper */
-.progressIndicatorWrapper { /* Existing styles */
-  margin-top: auto; 
-  align-self: flex-end; 
-  padding: var(--spacing-2, 0.5rem); 
-  /* Ensure it doesn't shrink too much if allocationControls are wide */
-  flex-shrink: 0;
+/* Updated style for the progress indicator wrapper */
+.progressIndicatorWrapper { 
+  margin-top: 0; /* Removed auto margin */
+  align-self: center; /* Center in flex container */
+  flex-shrink: 0; /* Don't shrink */
+  flex-basis: 40%; /* Allocate 40% of the width to the progress circle */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: var(--spacing-2, 0.5rem); /* Add some space between slider and circle */
 }
 
-.circularProgress { /* Existing styles */
+.circularProgress { /* Increased size of the progress circle */
   display: block;
-  width: 60px;
-  height: 60px;
+  width: 90px; /* Increased from 80px */
+  height: 90px; /* Increased from 80px */
 }
-.progressTrack { /* Existing styles */
+.progressTrack { /* Updated track styling */
   stroke: var(--color-border-x-light, #eee);
   opacity: 1;
-  stroke-width: 8px; 
+  stroke-width: 8px; /* Increased for better visibility */
 }
-.progressIndicator { /* Existing styles */
-  stroke-width: 8px; 
+.progressIndicator { /* Updated indicator styling */
+  stroke-width: 8px; /* Increased for better visibility */
   transition: stroke-dashoffset 0.4s var(--ease-standard, ease);
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.04));
 }
-.progressPercentText { /* Existing styles */
-  font-size: 1.2rem;
+.progressPercentText { /* Increased font size to match larger circle */
+  font-size: 1.5rem; /* Increased from 1.4rem */
   font-weight: var(--font-weight-semibold);
   fill: var(--color-text-primary);
   pointer-events: none;
@@ -204,71 +209,137 @@
 /* Responsive adjustments will be crucial for the new layout */
 @media (max-width: 600px) {
   .container {
-    padding: var(--spacing-3, 0.75rem);
+    padding: var(--spacing-2, 0.5rem);
   }
+  
+  .categoryName {
+    font-size: 0.9rem; /* Slightly smaller category name */
+    margin-bottom: var(--spacing-1, 0.25rem);
+  }
+  
+  /* Make budget details more compact */
   .budgetDetailsRow {
-    /* Stack items vertically on smaller screens if space is an issue, or reduce gap */
-    /* flex-direction: column; */ 
-    /* gap: var(--spacing-3, 0.75rem); */
-    /* align-items: stretch; */
-    /* For now, let it try to fit, might need text size adjustments below */
+    gap: var(--spacing-1, 0.25rem);
   }
+  
   .budgetDetailValuePill {
     padding: var(--spacing-0, 0.125rem) var(--spacing-2, 0.5rem);
   }
+  
   .budgetDetailValue {
     font-size: var(--font-size-xs, 0.75rem); /* Smaller for pills on mobile */
   }
-
+  
+  /* Ensure bottom controls row keeps its horizontal layout */
   .bottomControlsRow {
-    flex-direction: column;
-    align-items: stretch; /* Make children take full width */
-    gap: var(--spacing-3, 0.75rem);
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-2, 0.5rem);
   }
+  
+  /* Adjust allocation controls layout for mobile */
+  .allocationControls {
+    flex-basis: 50%; /* Reduced to give more space to progress circle */
+  }
+  
+  /* Adjust progress circle size for mobile */
   .progressIndicatorWrapper {
-    align-self: center; /* Center progress circle when stacked */
-    margin-top: var(--spacing-2, 0.5rem); /* Space above when stacked */
+    flex-basis: 50%; /* Increased for mobile to allow for larger circle */
   }
-  .allocationInput {
-    /* width: 80px; // Already commented, flex-grow should handle it */
+  
+  .circularProgress {
+    width: 90px; /* Keep the same size as desktop */
+    height: 90px;
+  }
+  
+  .progressPercentText {
+    font-size: 1.5rem; /* Keep the same size as desktop */
   }
 }
 
 @media (max-width: 480px) {
-  .categoryName {
-    font-size: 0.9rem; /* Slightly smaller category name */
-    margin-bottom: var(--spacing-2, 0.5rem);
+  .container {
+    padding: var(--spacing-2, 0.5rem);
   }
+  
   .budgetDetailLabel {
     font-size: calc(var(--font-size-xs, 0.75rem) * 0.9); /* Even smaller label */
   }
-  .progressIndicatorWrapper {
-    padding: var(--spacing-1, 0.25rem);
-  }
+  
   .overspendingDot {
     top: 6px;
     right: 6px;
     width: 8px;
     height: 8px;
   }
+  
+  /* Keep horizontal layout for the controls and progress circle */
+  .bottomControlsRow {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-2, 0.5rem);
+  }
+  
+  .allocationControls {
+    flex-basis: 45%; /* Slightly less space for controls */
+    order: 1; /* Normal flow */
+  }
+  
+  .progressIndicatorWrapper {
+    flex-basis: 55%; /* More space for progress wrapper */
+    order: 2; /* Normal flow */
+    margin-bottom: 0;
+  }
+  
+  /* Large progress circle, but fits the container */
+  .circularProgress {
+    width: 85px; /* Slightly smaller to fit better in layout */
+    height: 85px;
+  }
+  
+  .progressPercentText {
+    font-size: 1.4rem; /* Adjusted for circle size */
+  }
+  
+  /* Stack input and save button to save horizontal space */
+  .inputRow {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  
+  .allocationInput {
+    width: 100%;
+    font-size: var(--font-size-sm, 0.875rem);
+  }
+  
+  /* Make allocation form more compact */
+  .allocationForm {
+    gap: var(--spacing-1, 0.25rem);
+  }
+  
+  .saveButton {
+    padding: 0.3em 0.6em;
+    font-size: calc(var(--font-size-sm, 0.875rem) * 0.9);
+  }
 }
 
+/* Input validation styles */
 .inputInvalid {
-  border-color: var(--color-negative) !important; /* Soft terra cotta for error indication */
-  box-shadow: 0 0 0 1px var(--color-negative); /* Subtle glow for focus */
-  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Added transition */
+  border-color: var(--color-negative, red);
+  outline: 2px solid var(--color-negative, red);
+  background: var(--color-negative-x-light, rgba(193, 124, 116, 0.05)) !important;
 }
 
 .inputApproachingMax {
-  border-color: var(--color-warning-border, rgba(224, 180, 112, 0.7)) !important; /* Conceptual: Light Gold/Ochre border */
-  box-shadow: 0 0 0 1px var(--color-warning-shadow, rgba(224, 180, 112, 0.4)); /* Conceptual: Subtle glow */
-  /* background-color: var(--color-warning-x-light-bg, #FFFBF0); Optional: very subtle background tint */
-  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  border-color: var(--color-warning, #E0B470);
+  background: var(--color-warning-x-light, rgba(224, 180, 112, 0.05)) !important;
 }
 
 .maxValueHint {
+  color: var(--color-text-secondary);
   font-size: var(--font-size-xs, 0.75rem);
-  color: var(--color-text-secondary, #88837A);
-  margin-left: var(--spacing-2, 0.5rem);
-  font-style: italic;
+  white-space: nowrap;
 } 

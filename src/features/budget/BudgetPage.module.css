@@ -53,7 +53,9 @@
   gap: var(--spacing-lg);
   padding: var(--spacing-md);
   background-color: var(--color-background-alt); /* Subtle background for depth */
-  min-height: 100vh;
+  height: auto; /* Change from min-height: 100vh to allow scrolling */
+  overflow-y: visible; /* Ensure content can overflow and scroll */
+  position: relative; /* Ensure proper stacking context */
 }
 
 /* Header Styles */
@@ -272,35 +274,31 @@
 
 /* Category Section */
 .categorySection {
-  background-color: var(--color-surface);
-  padding: var(--spacing-md);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-level-1);
+  margin-top: var(--spacing-md);
 }
 
 .sectionTitle {
   font-size: var(--font-size-lg);
   color: var(--color-text-primary);
-  margin: 0 0 var(--spacing-md) 0;
+  margin-bottom: var(--spacing-md);
   font-weight: var(--font-weight-medium);
-  text-align: center;
 }
 
 .categoryCardList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--spacing-md);
 }
 
 .categoryCard {
-  background-color: var(--color-background-alt); /* Slightly different from page bg */
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--border-radius-lg); /* Softer, larger radius */
-  padding: var(--spacing-md);
-  box-shadow: var(--shadow-level-0);
-  transition: box-shadow var(--transition-fast);
+  /* Individual card styling will largely come from CategoryProgressDisplay.module.css */
+  /* This just handles the grid placement and any animations/interactions */
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  overflow: hidden; /* Ensure content doesn't overflow rounded corners */
 }
+
 .categoryCard:hover {
+  transform: translateY(-2px);
   box-shadow: var(--shadow-level-2);
 }
 
@@ -452,8 +450,7 @@
 /* Tablet and Up */
 @media (min-width: 768px) {
   .budgetPage {
-    padding: var(--spacing-lg);
-    gap: var(--spacing-xl);
+    padding: var(--spacing-md, 1rem);
   }
 
   .header {
@@ -479,16 +476,16 @@
   }
 
   .categorySection {
-    padding: var(--spacing-lg);
+    /* Add any tablet-specific adjustments */
   }
+
   .sectionTitle {
-    text-align: left; /* Align with content */
+    /* Add any tablet-specific adjustments */
   }
+
   .categoryCardList {
-    display: grid;
-    /* Create 2 columns on tablet, but allow them to grow */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(2, 1fr); /* Two cards per row on tablets */
+    gap: var(--spacing-md);
   }
    .categoryCardHeader {
     margin-bottom: var(--spacing-md);
@@ -514,8 +511,23 @@
     /* grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));  */
   }
    .categoryCardList {
-    /* Could go to 3 columns if cards are not too wide */
-    /* grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); */
+    grid-template-columns: repeat(3, 1fr); /* Three cards per row on desktop */
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 600px) {
+  .budgetPage {
+    padding: var(--spacing-sm);
+  }
+  
+  .categoryCardList {
+    gap: var(--spacing-sm); /* Reduce gap between cards */
+  }
+  
+  .sectionTitle {
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-sm);
   }
 }
   

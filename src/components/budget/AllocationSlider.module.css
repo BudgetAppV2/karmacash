@@ -2,138 +2,203 @@
 
 .sliderContainer {
   width: 100%;
-  padding: var(--spacing-2, 8px) 0; /* Add some vertical padding */
+  padding: var(--spacing-3, 12px) 0; /* Increased padding for better visual breathing room */
   display: flex;
   align-items: center;
   gap: var(--spacing-3, 12px);
+  /* Remove touch action properties to allow normal scrolling */
 }
 
+/* Base slider styling */
 .slider {
   -webkit-appearance: none; /* Override default CSS styles */
   appearance: none;
   width: 100%; /* Full width of its container */
-  height: 8px; /* Slim track height */
-  background: var(--color-highlight, #D9D0C7); /* Base track color (unfilled part for Webkit/others) */
+  height: 8px; /* Slightly thicker track for better visibility */
+  background: var(--color-highlight, #D9D0C7); /* Base track color (unfilled part) */
   outline: none; /* Remove outline */
-  border-radius: var(--border-radius-full, 999px); /* Pill-shaped track */
+  border-radius: var(--border-radius-full, 9999px); /* Fully rounded track */
   cursor: pointer;
+  position: relative; /* For potential positioning of pseudo-elements */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15); /* Enhanced inset shadow for depth */
 }
 
-/* Webkit (Chrome, Safari, Opera, Edge Chromium) */
+/*
+ * WebKit Browsers (Chrome, Safari, newer Edge)
+ * Note: WebKit browsers are tricky because they don't support
+ * native ways to style the "filled" portion of the track.
+ */
 .slider::-webkit-slider-runnable-track {
   width: 100%;
-  height: 8px;
+  height: 8px; /* Match the height of the base slider */
   cursor: pointer;
-  background: var(--color-primary, #919A7F); /* This will act as the 'filled' color */
-  border-radius: var(--border-radius-full, 999px);
-  /* The .slider background (var(--color-highlight)) will show as the unfilled part */
+  border-radius: var(--border-radius-full, 9999px);
 }
 
+/* Create a cleaner, more modern thumb */
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 44px; /* Touch target size */
-  height: 44px; /* Touch target size */
+  width: 24px; /* Slightly larger thumb for better touch target */
+  height: 24px; /* Slightly larger thumb for better touch target */
   background: var(--color-primary, #919A7F);
   border-radius: 50%;
   cursor: pointer;
-  border: none;
-  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
-  margin-top: -18px; /* Center thumb on 8px track: (8-44)/2 = -18px */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Visually smaller thumb inside for Zen style */
-  /* Use a pseudo-element for the inner circle if needed */
+  border: 2px solid #ffffff; /* White border for definition */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06); /* Enhanced shadow */
+  margin-top: -8px; /* Center the thumb on the 8px track: (8-24)/2 = -8px */
+  z-index: 3; /* Ensure it's above track */
+  position: relative;
+  /* Adding transition for smooth hover/active effects */
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.slider::-webkit-slider-thumb::before {
+/* Create a dynamic filled track effect for WebKit */
+.slider::before {
   content: '';
-  display: block;
-  width: 24px;
-  height: 24px;
-  background: var(--color-primary, #919A7F);
-  border-radius: 50%;
-  margin: auto;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03);
+  position: absolute;
+  height: 8px; /* Match slider height */
+  left: 0;
+  top: 0;
+  width: var(--slider-percentage, 0%); /* Will be set via JS */
+  max-width: 100%;
+  background: var(--slider-filled-color, var(--color-primary, #919A7F));
+  background-image: linear-gradient(to right, 
+    color-mix(in srgb, var(--slider-filled-color, var(--color-primary, #919A7F)) 90%, black), 
+    var(--slider-filled-color, var(--color-primary, #919A7F))
+  ); /* Subtle gradient for depth using the category color */
+  border-radius: var(--border-radius-full, 9999px);
+  z-index: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow for the filled part */
+  pointer-events: none; /* Ensure it doesn't interfere with interactions */
 }
 
 /* Firefox */
 .slider::-moz-range-track {
   width: 100%;
-  height: 8px;
+  height: 8px; /* Match slider height */
   cursor: pointer;
   background: var(--color-highlight, #D9D0C7); /* Unfilled part */
-  border-radius: var(--border-radius-full, 999px);
+  border-radius: var(--border-radius-full, 9999px);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15); /* Enhanced inset shadow for depth */
 }
 
 .slider::-moz-range-progress {
-  height: 8px;
-  background: var(--color-primary, #919A7F); /* Filled part */
-  border-radius: var(--border-radius-full, 999px);
+  height: 8px; /* Match slider height */
+  background: var(--slider-filled-color, var(--color-primary, #919A7F));
+  background-image: linear-gradient(to right, 
+    color-mix(in srgb, var(--slider-filled-color, var(--color-primary, #919A7F)) 90%, black), 
+    var(--slider-filled-color, var(--color-primary, #919A7F))
+  ); /* Subtle gradient for depth using the category color */
+  border-radius: var(--border-radius-full, 9999px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow for the filled part */
 }
 
 .slider::-moz-range-thumb {
-  width: 44px;
-  height: 44px;
+  width: 24px; /* Slightly larger thumb for better touch target */
+  height: 24px; /* Slightly larger thumb for better touch target */
   background: var(--color-primary, #919A7F);
   border-radius: 50%;
   cursor: pointer;
-  border: none;
-  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 2px solid #ffffff; /* White border for definition */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06); /* Enhanced shadow */
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* IE / Edge (older versions might need -ms-track and -ms-thumb) */
+/* Microsoft browsers */
 .slider::-ms-track {
   width: 100%;
-  height: 8px;
+  height: 8px; /* Match slider height */
   cursor: pointer;
-  background: transparent; /* IE/Edge track needs to be transparent to style fill/lower correctly */
+  background: transparent; /* Track needs to be transparent */
   border-color: transparent;
   color: transparent;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15); /* Enhanced inset shadow for depth */
 }
 
 .slider::-ms-fill-lower {
-  background: var(--color-primary, #919A7F); /* Color of the track before thumb */
-  border-radius: var(--border-radius-full, 999px);
+  background: var(--slider-filled-color, var(--color-primary, #919A7F));
+  background-image: linear-gradient(to right, 
+    color-mix(in srgb, var(--slider-filled-color, var(--color-primary, #919A7F)) 90%, black), 
+    var(--slider-filled-color, var(--color-primary, #919A7F))
+  ); /* Subtle gradient for depth using the category color */
+  border-radius: var(--border-radius-full, 9999px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow for the filled part */
 }
 
 .slider::-ms-fill-upper {
   background: var(--color-highlight, #D9D0C7); /* Color of the track after thumb */
-  border-radius: var(--border-radius-full, 999px);
+  border-radius: var(--border-radius-full, 9999px);
 }
 
 .slider::-ms-thumb {
-  width: 44px;
-  height: 44px;
+  width: 24px; /* Slightly larger thumb for better touch target */
+  height: 24px; /* Slightly larger thumb for better touch target */
   background: var(--color-primary, #919A7F);
   border-radius: 50%;
   cursor: pointer;
-  border: none;
-  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 2px solid #ffffff; /* White border */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06); /* Enhanced shadow */
+  /* No need for margin adjustment in MS browsers */
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Focus states for accessibility - more visible outline */
+/* Focus states - enhanced for accessibility */
 .slider:focus {
-  outline: none; /* We'll style the thumb on focus */
+  outline: none; /* Remove default outline */
 }
 
 .slider:focus::-webkit-slider-thumb {
-  box-shadow: var(--shadow-level-1), 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4); /* Ring effect */
+  box-shadow: 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4); /* Ring effect */
+  transform: scale(1.05); /* Subtle enlargement for focus state */
 }
 
 .slider:focus::-moz-range-thumb {
-  box-shadow: var(--shadow-level-1), 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4);
+  box-shadow: 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4);
+  transform: scale(1.05); /* Subtle enlargement for focus state */
 }
 
 .slider:focus::-ms-thumb {
- box-shadow: var(--shadow-level-1), 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4);
+  box-shadow: 0 0 0 3px var(--color-surface, #FFFFFF), 0 0 0 5px var(--color-primary-light, #B0B8A4);
+  transform: scale(1.05); /* Subtle enlargement for focus state */
+}
+
+/* Hover state for better interactivity */
+.slider:hover::-webkit-slider-thumb {
+  background: color-mix(in srgb, var(--color-primary, #919A7F) 90%, white); /* Slightly lighter on hover */
+  transform: scale(1.08); /* Slightly larger scale effect */
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08); /* Enhanced shadow on hover */
+}
+
+.slider:hover::-moz-range-thumb {
+  background: color-mix(in srgb, var(--color-primary, #919A7F) 90%, white); /* Slightly lighter on hover */
+  transform: scale(1.08); /* Slightly larger scale effect */
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08); /* Enhanced shadow on hover */
+}
+
+.slider:hover::-ms-thumb {
+  background: color-mix(in srgb, var(--color-primary, #919A7F) 90%, white); /* Slightly lighter on hover */
+  transform: scale(1.08); /* Slightly larger scale effect */
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08); /* Enhanced shadow on hover */
+}
+
+/* Active state when dragging */
+.slider:active::-webkit-slider-thumb {
+  background: color-mix(in srgb, var(--color-primary, #919A7F) 80%, black); /* Slightly darker when active */
+  transform: scale(1.12); /* Larger when being dragged */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 5px rgba(0, 0, 0, 0.1); /* Enhanced shadow when active */
+}
+
+.slider:active::-moz-range-thumb {
+  background: color-mix(in srgb, var(--color-primary, #919A7F) 80%, black); /* Slightly darker when active */
+  transform: scale(1.12); /* Larger when being dragged */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 5px rgba(0, 0, 0, 0.1); /* Enhanced shadow when active */
+}
+
+.slider:active::-ms-thumb {
+  background: color-mix(in srgb, var(--color-primary, #919A7F) 80%, black); /* Slightly darker when active */
+  transform: scale(1.12); /* Larger when being dragged */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 5px rgba(0, 0, 0, 0.1); /* Enhanced shadow when active */
 }
 
 /* Disabled state */
@@ -145,17 +210,61 @@
 .slider:disabled::-webkit-slider-thumb {
   background: var(--color-text-secondary, #88837A);
   box-shadow: none;
+  border-color: var(--color-highlight, #D9D0C7);
   cursor: not-allowed;
+  transform: scale(1); /* Reset any transforms */
 }
 
 .slider:disabled::-moz-range-thumb {
   background: var(--color-text-secondary, #88837A);
   box-shadow: none;
+  border-color: var(--color-highlight, #D9D0C7);
   cursor: not-allowed;
+  transform: scale(1); /* Reset any transforms */
 }
 
 .slider:disabled::-ms-thumb {
   background: var(--color-text-secondary, #88837A);
   box-shadow: none;
+  border-color: var(--color-highlight, #D9D0C7);
   cursor: not-allowed;
+  transform: scale(1); /* Reset any transforms */
+}
+
+.slider:disabled::before {
+  background: var(--color-text-secondary, #88837A);
+  opacity: 0.6;
+}
+
+/* Add mobile-specific adjustments */
+@media (max-width: 480px) {
+  .sliderContainer {
+    padding: var(--spacing-2, 8px) 0; /* Reduced padding for mobile screens */
+    gap: var(--spacing-2, 8px); /* Reduced gap between elements */
+  }
+  
+  /* Make the thumb slightly smaller on mobile for better proportions */
+  .slider::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    margin-top: -6px; /* Adjust for smaller thumb: (8-20)/2 = -6px */
+    /* Use only essential touch properties */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .slider::-ms-thumb {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Ensure the slider itself has optimized touch behavior */
+  .slider {
+    /* Allow normal scrolling */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+  }
 } 

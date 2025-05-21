@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import styles from './CategoryProgressDisplay.module.css';
 import AllocationSlider from './AllocationSlider';
 
@@ -6,8 +6,19 @@ function formatCurrency(amount) {
   return amount?.toLocaleString('fr-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2 });
 }
 
-// Remove custom areCategoryPropsEqual and revert to default React.memo behavior for now
-// const areCategoryPropsEqual = (prevProps, nextProps) => { ... };
+// Custom comparison function for React.memo
+const areCategoryPropsEqual = (prevProps, nextProps) => {
+  // Check primary data values that would cause visual changes
+  return (
+    prevProps.category.id === nextProps.category.id &&
+    prevProps.allocatedAmount === nextProps.allocatedAmount &&
+    prevProps.spentAmount === nextProps.spentAmount &&
+    prevProps.currentAllocation === nextProps.currentAllocation &&
+    prevProps.isSavingAllocation === nextProps.isSavingAllocation &&
+    prevProps.isInputInvalid === nextProps.isInputInvalid &&
+    prevProps.maxAllowedValue === nextProps.maxAllowedValue
+  );
+};
 
 const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
   category, // Expecting the whole category object { id, name, type, color }
@@ -53,18 +64,32 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
     }
   }, [currentAllocation, maxAllowedValue]);
 
-  const numericCurrentAllocation = parseFloat(currentAllocation);
+  // Use useMemo for expensive calculations
+  const numericCurrentAllocation = useMemo(() => {
+    return parseFloat(currentAllocation);
+  }, [currentAllocation]);
+  
   const displayAllocated = isNaN(numericCurrentAllocation) ? allocatedAmount : numericCurrentAllocation;
 
-  let progress = 0;
-  if (displayAllocated > 0) {
-    progress = Math.min((spentAmount / displayAllocated) * 100, 100);
-  } else if (spentAmount > 0) { 
-    progress = 100;
-  }
-  
-  const remaining = displayAllocated - spentAmount;
-  const isTrulyOverspent = (displayAllocated > 0 && spentAmount > displayAllocated) || (displayAllocated === 0 && spentAmount > 0);
+  // Memoize calculated values to prevent recalculations
+  const { progress, remaining, isTrulyOverspent } = useMemo(() => {
+    let calculatedProgress = 0;
+    if (displayAllocated > 0) {
+      calculatedProgress = Math.min((spentAmount / displayAllocated) * 100, 100);
+    } else if (spentAmount > 0) { 
+      calculatedProgress = 100;
+    }
+    
+    const calculatedRemaining = displayAllocated - spentAmount;
+    const calculatedIsOverspent = (displayAllocated > 0 && spentAmount > displayAllocated) || 
+                                 (displayAllocated === 0 && spentAmount > 0);
+                                 
+    return {
+      progress: calculatedProgress,
+      remaining: calculatedRemaining,
+      isTrulyOverspent: calculatedIsOverspent
+    };
+  }, [displayAllocated, spentAmount]);
 
   // Create specific handlers using useCallback, bound to categoryId
   const handleLocalNumericInputChange = useCallback((value) => {
@@ -89,18 +114,30 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
   // or wrapped if consistency is desired or if it might need categoryId later.
   // For now, passing directly as BudgetPage's handleSliderInteractionEnd doesn't take categoryId.
 
-  const RADIUS = 25;
-  const STROKE = 8;
-  const CIRCUM = 2 * Math.PI * RADIUS;
-  const visualProgressPercent = progress;
-  const offset = CIRCUM * (1 - visualProgressPercent / 100);
-  const displayPercentText = displayAllocated > 0 || spentAmount > 0 ? `${Math.round(visualProgressPercent)}%` : '--';
-
+  // Visual setup for progress circle - memoize these calculations
+  const circleProps = useMemo(() => {
+    const RADIUS = 36; // Increased radius for larger circle
+    const STROKE = 8;
+    const CIRCUM = 2 * Math.PI * RADIUS;
+    const offset = CIRCUM * (1 - progress / 100);
+    const displayPercentText = displayAllocated > 0 || spentAmount > 0 ? `${Math.round(progress)}%` : '--';
+    
+    return {
+      RADIUS,
+      STROKE,
+      CIRCUM,
+      offset,
+      displayPercentText
+    };
+  }, [progress, displayAllocated, spentAmount]);
+  
+  // Use memoized callbacks and values to minimize rerenders and improve touch response
   return (
     <section 
       className={styles.container}
       aria-label={`Catégorie ${categoryName}`}
       style={{ '--category-card-accent-color': categoryColor || 'transparent' }}
+      data-scroll-container="true"
     >
       {isTrulyOverspent && <div className={styles.overspendingDot}></div>}
       <div className={styles.topContent}>
@@ -141,7 +178,8 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
               ariaLabel={`Modifier l'allocation pour ${categoryName}`}
               disabled={isSavingAllocation} 
               onInteractionStart={handleLocalSliderInteractionStart} 
-              onInteractionEnd={baseOnSliderInteractionEnd} // Passed directly     
+              onInteractionEnd={baseOnSliderInteractionEnd} // Passed directly
+              categoryColor={categoryColor} // Pass the category color to the slider     
             />
             <div className={styles.inputRow}>
               <input
@@ -175,30 +213,30 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
         <div className={styles.progressIndicatorWrapper}>
           <svg
             className={styles.circularProgress}
-            width={60}
-            height={60}
-            viewBox="0 0 60 60"
+            width={100}
+            height={100}
+            viewBox="0 0 100 100"
             aria-label="Progression du budget"
             role="img"
           >
             <circle
               className={styles.progressTrack}
-              cx="30"
-              cy="30"
-              r={RADIUS}
-              strokeWidth={STROKE}
+              cx="50"
+              cy="50"
+              r={circleProps.RADIUS}
+              strokeWidth={circleProps.STROKE}
               fill="none"
             />
             <circle
               className={styles.progressIndicator}
-              cx="30"
-              cy="30"
-              r={RADIUS}
-              strokeWidth={STROKE}
+              cx="50"
+              cy="50"
+              r={circleProps.RADIUS}
+              strokeWidth={circleProps.STROKE}
               fill="none"
               stroke={categoryColor || '#cccccc'}
-              strokeDasharray={CIRCUM}
-              strokeDashoffset={offset}
+              strokeDasharray={circleProps.CIRCUM}
+              strokeDashoffset={circleProps.offset}
               strokeLinecap="round"
             />
             <text
@@ -208,7 +246,7 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
               dominantBaseline="central"
               className={styles.progressPercentText}
             >
-              {displayPercentText}
+              {circleProps.displayPercentText}
             </text>
           </svg>
         </div>
@@ -217,5 +255,5 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
   );
 }; 
 
-// Revert to default React.memo without custom comparison for now
-export default React.memo(CategoryProgressDisplayComponent); 
+// Use React.memo with custom comparison function to prevent unnecessary rerenders
+export default React.memo(CategoryProgressDisplayComponent, areCategoryPropsEqual); 

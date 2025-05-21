@@ -10,10 +10,10 @@ import { debounce } from 'lodash';
 import styles from './BudgetPage.module.css'; // Styles will be completely revamped
 import { formatCurrency } from '../../utils/formatters'; 
 import CategoryProgressDisplay from '../../components/budget/CategoryProgressDisplay';
+// Import the new BudgetPageHeader component
+import BudgetPageHeader from './components/BudgetPageHeader';
 
 // Icons (assuming you have an icon library or SVGs)
-const ChevronLeftIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="24" height="24"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>;
-const ChevronRightIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="24" height="24"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>;
 const InfoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>;
 const PlusCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 
@@ -51,7 +51,9 @@ function BudgetPage() {
     rolloverAmount,
     isUsingServerCalculations,
     loading: dataLoading, 
-    error: dataError
+    error: dataError,
+    monthlyRevenue,
+    monthlyRecurringSpending
   } = useBudgetData(budgetId, currentMonthString, editingAllocation);
 
   // New state for deferred update logic
@@ -373,44 +375,24 @@ function BudgetPage() {
   
   return (
     <div className={styles.budgetPage}>
-      <header className={styles.header}>
-        <h1 className={styles.budgetName}>{budgetName}</h1>
-        <div className={styles.monthNavigation}>
-          <button onClick={() => navigateMonth('prev')} className={styles.navButton} aria-label="Mois précédent">
-            <ChevronLeftIcon />
-          </button>
-          <span className={styles.currentMonthDisplay} aria-live="polite" aria-atomic="true">{displayMonth}</span>
-          <button onClick={() => navigateMonth('next')} className={styles.navButton} aria-label="Mois suivant">
-            <ChevronRightIcon />
-          </button>
-        </div>
-      </header>
-
-      <section className={styles.summaryMetrics} aria-label="Résumé du budget">
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Disponible à Allouer</span>
-          <span className={styles.statValue}>{formatCurrency(availableFunds)}</span>
-          {rolloverAmount !== undefined && rolloverAmount !== 0 && (
-            <span className={styles.statSubValue}>(Dont report: {formatCurrency(rolloverAmount)})</span>
-          )}
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Total Alloué</span>
-          <span className={styles.statValue}>{formatCurrency(totalAllocated)}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Reste à Allouer</span>
-          <span className={`${styles.statValue} ${remainingStatusStyle}`}>{formatCurrency(instantRemainingToAllocate)}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Total Dépensé</span>
-          <span className={styles.statValue}>{formatCurrency(totalSpent)}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Épargne du Mois</span>
-          <span className={styles.statValue}>{formatCurrency(monthlySavings)}</span>
-        </div>
-      </section>
+      {/* Replace the old header and summaryMetrics with the new BudgetPageHeader */}
+      <BudgetPageHeader 
+        userName="Judith"
+        budgetName={budgetName}
+        currentMonthString={displayMonth}
+        onPreviousMonth={() => navigateMonth('prev')}
+        onNextMonth={() => navigateMonth('next')}
+        solde={monthlyRevenue - totalSpent} // Approximate calculation for overall balance
+        revenuTotal={monthlyRevenue}
+        totalDepensesFixes={monthlyRecurringSpending}
+        disponibleAAllouer={availableFunds}
+        totalAlloue={totalAllocated}
+        resteAAllouer={instantRemainingToAllocate}
+        totalDepense={totalSpent}
+        epargneDuMois={monthlySavings}
+        resteAAllouerStatusStyle={remainingStatusStyle}
+        rolloverAmount={rolloverAmount}
+      />
       
       {(isRecalculating || calculationStatus === 'pending') && (
         <div className={styles.recalculatingIndicator} role="status" aria-live="polite">Recalcul en cours...</div>

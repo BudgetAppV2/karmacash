@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 // No PropTypes in this project, using JSDoc as requested
 import styles from './AllocationSlider.module.css';
 
@@ -15,7 +15,8 @@ import styles from './AllocationSlider.module.css';
  *   className?: string, // Optional, for additional styling from parent
  *   disabled?: boolean, // Optional, to disable the slider
  *   onInteractionStart?: () => void, // New prop
- *   onInteractionEnd?: () => void    // New prop
+ *   onInteractionEnd?: () => void,    // New prop
+ *   categoryColor?: string // New prop for category color
  * }} props
  */
 const AllocationSlider = ({
@@ -29,7 +30,28 @@ const AllocationSlider = ({
   disabled = false,
   onInteractionStart,
   onInteractionEnd,
+  categoryColor, // Add new prop for category color
 }) => {
+  // Reference to the slider input element
+  const sliderRef = useRef(null);
+  // Track if touch is active to prevent duplicate events
+  const touchActiveRef = useRef(false);
+
+  // Update the CSS variable for WebKit browsers to show the filled track
+  useEffect(() => {
+    if (sliderRef.current) {
+      // Calculate percentage fill based on current value
+      const percentage = ((value - min) / (max - min)) * 100;
+      // Set the CSS custom property for the filled track
+      sliderRef.current.style.setProperty('--slider-percentage', `${percentage}%`);
+      // Set the category color for the filled track if provided
+      if (categoryColor) {
+        sliderRef.current.style.setProperty('--slider-filled-color', categoryColor);
+      } else {
+        sliderRef.current.style.removeProperty('--slider-filled-color');
+      }
+    }
+  }, [value, min, max, categoryColor]);
 
   const handleSliderChange = (event) => {
     const newValue = parseFloat(event.target.value);
@@ -40,7 +62,7 @@ const AllocationSlider = ({
     onInteractionStart?.();
   };
 
-  const handleTouchStart = () => {
+  const handleTouchStart = (e) => {
     onInteractionStart?.();
   };
 
@@ -56,11 +78,12 @@ const AllocationSlider = ({
   // especially for keyboard users or if focus is lost.
   const handleBlur = () => {
     onInteractionEnd?.(); 
-  }
+  };
 
   return (
     <div className={`${styles.sliderContainer} ${className}`}>
       <input
+        ref={sliderRef}
         type="range"
         role="slider"
         className={styles.slider}
