@@ -1,7 +1,7 @@
 {
   "meta": {
-    "generatedAt": "2025-05-21T20:20:09.180Z",
-    "tasksAnalyzed": 10,
+    "generatedAt": "2025-05-22T15:17:05.721Z",
+    "tasksAnalyzed": 8,
     "thresholdScore": 5,
     "projectName": "KarmaCash",
     "usedResearch": true
@@ -9,83 +9,131 @@
   "complexityAnalysis": [
     {
       "taskId": 1,
-      "taskTitle": "FTR-7.1 Définition du modèle de données pour les templates Firebase",
-      "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Define the Firestore data schema based on the suggested structure\n2. Implement the necessary Firestore validation rules\n3. Determine the required indexes for frequent queries\n4. Document the naming conventions and integrate with the existing data structures",
-      "reasoning": "This task involves designing a complex data model and requires careful consideration of various aspects such as data schema, validation, indexing, and integration with existing systems. The level of detail and the need for documentation make this a moderately complex task."
+      "taskTitle": "CKA.1 - Initialize Python Project for CK Assistant",
+      "complexityScore": 3,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Expand this task into subtasks for setting up the project directory, virtual environment, initial dependencies, module files, and Git repository.",
+      "reasoning": "This task involves setting up the basic project structure and tooling, which is a straightforward but necessary first step. It has a moderate complexity as it requires creating several files and directories, installing dependencies, and initializing a Git repo."
     },
     {
       "taskId": 2,
-      "taskTitle": "FTR-7.2 Configuration de la collection Firestore et des règles de sécurité",
-      "complexityScore": 6,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Create the 'templates' collection in Firestore based on the defined model\n2. Configure the Firestore security rules to allow access via API key\n3. Implement server-side data validation to ensure integrity\n4. Set up the appropriate performance and caching parameters",
-      "reasoning": "This task is focused on the technical implementation of the Firestore collection and security rules. While it requires some configuration and integration work, it is relatively straightforward compared to the data modeling task."
+      "taskTitle": "CKA.2 - Implement Configuration Module for API Keys & Endpoints",
+      "complexityScore": 4,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Expand this task into subtasks for loading environment variables, handling missing configuration, and providing access to the configuration values.",
+      "reasoning": "The configuration module is important for securely managing API keys and endpoints, but it has a slightly higher complexity due to the need for error handling and providing a clean interface to other modules."
     },
     {
       "taskId": 3,
-      "taskTitle": "FTR-7.3 Développement des Cloud Functions pour l'API de gestion des templates",
-      "complexityScore": 8,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Develop the API endpoints for retrieving, submitting, and listing templates\n2. Implement the API key-based authentication mechanism\n3. Handle errors and provide appropriate responses\n4. Create a new service file following the recommended architecture pattern",
-      "reasoning": "The development of the Cloud Functions API is a complex task as it involves implementing multiple endpoints, handling authentication, and ensuring proper error handling. The need to follow a specific architecture pattern adds to the complexity."
+      "taskTitle": "CKA.3 - Develop Template Exchange API Client Module",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Expand this task into subtasks for implementing the create/update and get template functions, handling HTTP responses, and managing errors.",
+      "reasoning": "The API client module has a higher complexity as it needs to handle the full CRUD operations for templates, including constructing payloads, making HTTP requests, and processing responses with error handling."
     },
     {
       "taskId": 4,
-      "taskTitle": "FTR-7.4 Création de l'interface web minimaliste pour la gestion des templates",
-      "complexityScore": 6,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Create the HTML/JS-based web interface with the two main functionalities\n2. Implement the form for submitting new templates\n3. Develop the view for consulting existing templates by sessionId\n4. Integrate the API key-based authentication and optimize the user experience",
-      "reasoning": "The web interface is relatively straightforward, as it involves a simple design and implementation. However, the need to integrate with the API, preserve markdown formatting, and optimize the user experience add some complexity to the task."
+      "taskTitle": "CKA.4 - Define Gemini Function Declarations for Template Exchange API",
+      "complexityScore": 4,
+      "recommendedSubtasks": 2,
+      "expansionPrompt": "Expand this task into subtasks for defining the function declarations for storing and retrieving templates, ensuring the parameter definitions match the API requirements.",
+      "reasoning": "This task involves defining the Gemini function declarations, which is a necessary step for integrating the Template Exchange API, but it has a moderate complexity as it mainly requires translating the API requirements into the Gemini function declaration format."
     },
     {
       "taskId": 5,
-      "taskTitle": "FTR-7.5 Développement du script d'intégration pour Cursor AI",
+      "taskTitle": "CKA.5 - Implement Gemini Interaction Module & Function Calling Logic",
       "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Develop the Cursor AI commands for fetching handoffs and submitting summaries\n2. Ensure seamless integration with the Cursor AI environment\n3. Handle the API key-based authentication securely\n4. Preserve markdown formatting during the data transfers",
-      "reasoning": "The integration with Cursor AI requires careful development to ensure a smooth user experience, secure authentication, and proper handling of the markdown formatting. The need to develop specific commands and integrate with an external system adds to the complexity."
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand this task into subtasks for initializing the Gemini model, processing prompts, handling function calls, and sending function responses back to Gemini.",
+      "reasoning": "The Gemini interaction module is the core of the application, responsible for managing the LLM interaction and executing the Template Exchange API calls. It has a higher complexity due to the need to handle function calls, process responses, and integrate with the other modules."
     },
     {
       "taskId": 6,
-      "taskTitle": "FTR-7.6 Configuration du déploiement Firebase pour l'interface web",
+      "taskTitle": "CKA.6 - Develop Main Script for CK Assistant User Interaction",
       "complexityScore": 5,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Configure the Firebase Hosting project to host the web interface\n2. Establish a simple deployment process (manual or automated)\n3. Set up the appropriate caching parameters for performance optimization\n4. Ensure secure access to the interface (simple authentication if needed)",
-      "reasoning": "The deployment of the web interface on Firebase Hosting is a relatively straightforward task, as it involves standard Firebase configuration and deployment practices. The main complexity lies in ensuring secure access and optimizing performance."
+      "expansionPrompt": "Expand this task into subtasks for initializing the application, handling user input, orchestrating the Gemini interaction, and displaying results.",
+      "reasoning": "The main script is responsible for the user-facing interaction, but it has a moderate complexity as it mainly needs to orchestrate the other modules and handle basic input/output."
     },
     {
       "taskId": 7,
-      "taskTitle": "FTR-7.7 Développement de l'extension Chrome pour Google AI Studio",
-      "complexityScore": 8,
+      "taskTitle": "CKA.7 - Implement Context Loading Module",
+      "complexityScore": 6,
       "recommendedSubtasks": 5,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Set up the Chrome extension project structure (manifest v3)\n2. Develop the content script to interact with the Google AI Studio interface\n3. Create the background script for communication with Firebase\n4. Implement the popup interface with the required functionalities\n5. Integrate secure authentication with the Firebase API",
-      "reasoning": "The development of the Chrome extension is a complex task, as it involves multiple components (content script, background script, popup interface) and the need to integrate with both the Google AI Studio interface and the Firebase API. The complexity is further increased by the requirement for secure authentication."
+      "expansionPrompt": "Expand this task into subtasks for loading content from SHIP documents, Task Master tasks, and Bible sections, and assembling the prompt context.",
+      "reasoning": "The context loading module has a higher complexity as it needs to handle reading content from various sources, parsing the data, and formatting it into a coherent prompt context for Gemini."
     },
     {
       "taskId": 8,
-      "taskTitle": "FTR-7.8 Empaquetage et déploiement de l'extension Chrome",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Finalize the extension manifest with all necessary permissions\n2. Optimize the extension code and resources\n3. Create the required graphic resources (icons)\n4. Package the extension for local installation\n5. Prepare the resources for potential publication in the Chrome Web Store",
-      "reasoning": "The packaging and deployment of the Chrome extension involves several technical tasks, such as optimizing the code, creating assets, and preparing the extension for distribution. While not overly complex, it requires attention to detail and following best practices."
+      "taskTitle": "CKA.8 - CK Assistant Testing, Refinement, and Initial Prompt Engineering",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand this task into subtasks for component testing, end-to-end flow testing, prompt engineering, and overall application refinement.",
+      "reasoning": "This task has a high complexity as it involves comprehensive testing of the entire application, refining the components based on test results, and performing initial prompt engineering, which requires experimentation and iteration."
     },
     {
-      "taskId": 9,
-      "taskTitle": "FTR-7.9 Tests d'intégration du flux de travail complet",
-      "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Create test scenarios covering the complete user journeys\n2. Verify the preservation of markdown formatting at each step\n3. Measure the time required for each step of the process\n4. Identify and document any issues or improvements",
-      "reasoning": "The integration testing of the complete workflow is a complex task, as it requires coordinating the various components (Google AI Studio extension, web interface, Cursor AI integration) and verifying the end-to-end functionality. The need to measure performance and identify potential issues adds to the complexity."
+      "taskId": "CKA.1",
+      "taskTitle": "CKA.1 - Initialize Python Project for CK Assistant",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on cka.1 - initialize python project for ck assistant.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
     },
     {
-      "taskId": 10,
-      "taskTitle": "FTR-7.10 Documentation utilisateur et mise à jour de la Bible",
-      "complexityScore": 6,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Write a comprehensive user guide covering all system components\n2. Update the existing Bible sections mentioned in the initial context\n3. Create the new Bible sections suggested for the system components\n4. Include examples, screenshots, and troubleshooting information",
-      "reasoning": "The documentation and Bible updates are important tasks, but they are relatively straightforward compared to the technical implementation tasks. The main complexity lies in ensuring the documentation is comprehensive and easy to follow for users."
+      "taskId": "CKA.2",
+      "taskTitle": "CKA.2 - Implement Configuration Module for API Keys & Endpoints",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on cka.2 - implement configuration module for api keys & endpoints.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": "CKA.3",
+      "taskTitle": "CKA.3 - Develop Template Exchange API Client Module",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on cka.3 - develop template exchange api client module.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": "CKA.4",
+      "taskTitle": "CKA.4 - Define Gemini Function Declarations for Template Exchange API",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on cka.4 - define gemini function declarations for template exchange api.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": "CKA.5",
+      "taskTitle": "CKA.5 - Implement Gemini Interaction Module & Function Calling Logic",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on cka.5 - implement gemini interaction module & function calling logic.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": "CKA.6",
+      "taskTitle": "CKA.6 - Develop Main Script for CK Assistant User Interaction",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on cka.6 - develop main script for ck assistant user interaction.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": "CKA.7",
+      "taskTitle": "CKA.7 - Implement Context Loading Module",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on cka.7 - implement context loading module.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": "CKA.8",
+      "taskTitle": "CKA.8 - CK Assistant Testing, Refinement, and Initial Prompt Engineering",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on cka.8 - ck assistant testing, refinement, and initial prompt engineering.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
     }
   ]
 }

@@ -1,573 +1,196 @@
 {
   "tasks": [
     {
-      "id": 1,
-      "title": "FTR-7.1 Définition du modèle de données pour les templates Firebase",
-      "description": "Concevoir et documenter la structure de données Firestore pour stocker les templates d'échange entre Google AI Studio et Cursor AI.",
-      "details": "# - Créer un schéma de données basé sur la structure suggérée dans la réponse HD #2 : { sessionId, type (handoff/summary), content, timestamp, status }\n# - Définir les règles de validation Firestore pour garantir l'intégrité des données\n# - Définir les index nécessaires pour les requêtes fréquentes (par sessionId, par type)\n# - Documenter les conventions de nommage pour les sessionId (ex: \"M5.S4\")\n# - Référencer la section Bible B5.2 pour maintenir la cohérence avec les structures de données existantes\n# - Créer une nouvelle section Bible (suggestion: B7.4) pour documenter cette nouvelle structure",
-      "mockupDesignNeeded": "Yes - Diagramme de la structure de données Firestore",
-      "testStrategy": "# - Confirmer que le schéma prend en charge tous les cas d'utilisation mentionnés dans les réponses HD #1 et #2\n# - Vérifier que la structure est optimisée pour les requêtes principales (récupération par sessionId)\n# - Mettre à jour la Bible avec la nouvelle section B7.4 documentant la structure de données des templates",
+      "id": "CKA.1",
+      "title": "CKA.1 - Initialize Python Project for CK Assistant",
+      "description": "Set up the fundamental Python project directory structure, virtual environment, and initial empty files for the CK Assistant modules.\n\nDetails:\n- Create a new root directory for the CK Assistant project (e.g., `ck_assistant_py`).\n- Initialize a Python virtual environment (e.g., using `venv`: `python -m venv .venv` and activate it).\n- Create a `requirements.txt` file and add initial potential dependencies:\n  - `google-generativeai` (for Gemini API)\n  - `requests` (for HTTP calls to Template Exchange API)\n  - `python-dotenv` (for managing API keys via .env file)\n- Install these initial dependencies (`pip install -r requirements.txt`).\n- Create initial empty Python files/directories for the modules suggested by Firebase Studio's Gemini:\n  - `main.py` (Main script/entry point)\n  - `config_loader.py` (Configuration Module)\n  - `gemini_interaction.py` (Gemini Interaction Module)\n  - `template_exchange_client.py` (Template Exchange API Client Module)\n  - (Optional for now) `context_loader.py` (Context Loading Module)\n- Create a `.gitignore` file with common Python ignores (e.g., `.venv/`, `__pycache__/`, `*.pyc`, `.env`).\n- Initialize a local Git repository in this new project directory (`git init`).",
+      "status": "pending",
       "priority": "high",
       "dependencies": [],
-      "status": "done",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Define the Firestore data schema based on the suggested structure",
-          "description": "Analyze the suggested data structure and define the appropriate Firestore data schema, including collections, documents, and fields.",
-          "dependencies": [],
-          "details": "Ensure the data schema aligns with the business requirements and can efficiently support the application's functionality.\n<info added on 2025-05-21T20:50:27.706Z>\nImplementation of the Firebase Firestore data model for templates exchange is complete. Key components include:\n\n1. Schema definition with validation in `models/template-exchange-schema.js`\n2. `TemplateModel` class with CRUD operations and optimized querying\n3. Firestore security rules in `firestore.rules` for schema validation and access control\n4. Index configuration in `firestore.indexes.json` for query optimization\n5. Firebase initialization and utility functions in `firebase/firebase.js`\n6. Documentation in `docs/template-exchange-data-model.md`\n7. Test suite in `tests/template-model.test.js`\n\nNotable features:\n- Schema fields: sessionId, type, content, timestamps, status, and metadata\n- Sharding strategy to mitigate 500 writes/second limitation\n- Comprehensive client and server-side validation\n- Optimized query methods with pagination support\n- Detailed documentation including examples and design decisions\n\nThe data model aligns with business requirements and supports efficient application functionality.\n</info added on 2025-05-21T20:50:27.706Z>",
-          "status": "done"
-        },
-        {
-          "id": 2,
-          "title": "Implement the necessary Firestore validation rules",
-          "description": "Identify the required validation rules for the Firestore data schema and implement them to ensure data integrity.",
-          "dependencies": [
-            1
-          ],
-          "details": "Consider data types, field requirements, and any other necessary constraints to maintain the integrity of the data.\n<info added on 2025-05-21T20:55:07.565Z>\nThe project structure for the Template Exchange System has been established in `src/template-exchange/`. The structure includes:\n\n- Logical folders: models/, api/, utils/, services/, components/, tests/, and docs/\n- Configuration files: package.json, .gitignore, and .eslintrc.js\n- An index.js entry point\n- A comprehensive README.md\n\nThis organization facilitates development, improves modularity, and ensures proper separation of concerns. The models/ folder will be particularly relevant for implementing the Firestore data schema based on the defined structure.\n</info added on 2025-05-21T20:55:07.565Z>",
-          "status": "done"
-        },
-        {
-          "id": 3,
-          "title": "Determine the required indexes for frequent queries",
-          "description": "Analyze the application's query patterns and identify the necessary indexes to optimize the performance of frequent queries.",
-          "dependencies": [
-            1
-          ],
-          "details": "Ensure the indexes are properly configured to support the application's data retrieval needs.\n<info added on 2025-05-21T20:55:50.429Z>\nThe Firestore indexes for the Template Exchange System have been implemented and configured in `firestore.indexes.json`. The following compound indexes were created for the templates collection:\n\n- `shard (ASC), sessionId (ASC), updatedAt (DESC)`\n- `shard (ASC), type (ASC), updatedAt (DESC)`\n- `shard (ASC), status (ASC), updatedAt (DESC)`\n- `shard (ASC), metadata.source (ASC), updatedAt (DESC)`\n- `shard (ASC), type (ASC), status (ASC), updatedAt (DESC)`\n\nThese indexes support the sharding approach to overcome Firestore's 500 writes/second limitation on collections with sequential timestamp fields. All queries in the `TemplateModel` class (in `models/template-exchange-schema.js`) have been optimized to use these indexes efficiently. The index configuration has been documented in `docs/template-exchange-data-model.md` for developer reference and to explain the query optimization approach. This setup ensures optimal performance for common query patterns in the Template Exchange System, even as the dataset grows.\n</info added on 2025-05-21T20:55:50.429Z>",
-          "status": "done"
-        },
-        {
-          "id": 4,
-          "title": "Document the naming conventions and integrate with the existing data structures",
-          "description": "Establish and document the naming conventions for the Firestore data schema, and integrate it with the existing data structures within the application.",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "Ensure the new data schema and naming conventions are aligned with the overall system architecture and can be seamlessly integrated.\n<info added on 2025-05-21T20:56:14.602Z>\nThe new data schema and naming conventions have been successfully aligned with the overall system architecture and integrated seamlessly. Key accomplishments include:\n\n1. Established clear naming conventions for session IDs, collection name, field names, shard values, type values, and status values.\n\n2. Created comprehensive documentation in `src/template-exchange/docs/template-exchange-data-model.md`, covering schema description, validation rules, common operations, design decisions, and integration points.\n\n3. Ensured proper integration with existing data structures, including alignment with Firebase security model, consistent timestamp handling, and following established validation approaches.\n\n4. Added the documentation as a new section in the application Bible, providing a clear reference for developers working with the Template Exchange System.\n\n5. Organized all elements within the `src/template-exchange/` folder structure, maintaining consistency with established patterns while accommodating specific requirements of the Template Exchange System.\n</info added on 2025-05-21T20:56:14.602Z>",
-          "status": "done"
-        }
-      ]
+      "subtasks": [],
+      "test_strategy": "- Confirm virtual environment is active and can import installed packages (e.g., `import google.generativeai`).\n- Confirm directory structure and empty module files are created as specified.\n- Confirm `.gitignore` is present and `git status` shows a clean working tree after initial commit.\n- Confirm `main.py` can be run (e.g., with a simple print statement) without errors."
     },
     {
-      "id": 2,
-      "title": "FTR-7.2 Configuration de la collection Firestore et des règles de sécurité",
-      "description": "Configurer la nouvelle collection 'templates' dans Firestore et mettre en place les règles de sécurité appropriées.",
-      "details": "# - Créer la nouvelle collection 'templates' dans Firestore basée sur le modèle défini dans FTR-7.1\n# - Configurer les règles de sécurité Firestore pour permettre l'accès via API key comme mentionné dans la réponse HD #3\n# - Implémenter la validation des données côté serveur pour garantir l'intégrité\n# - Configurer les paramètres de performance et de mise en cache appropriés\n# - Référencer la section Bible B5.2 pour les patterns d'accès aux données Firestore existants",
-      "mockupDesignNeeded": "No",
-      "testStrategy": "# - Confirmer que la collection est correctement créée et accessible via les identifiants Firebase\n# - Vérifier que les règles de sécurité bloquent les accès non autorisés\n# - Tester l'insertion et la récupération de données d'exemple pour valider la configuration\n# - Mettre à jour la Bible B5.2 avec les détails de la nouvelle collection 'templates'",
+      "id": "CKA.2",
+      "title": "CKA.2 - Implement Configuration Module for API Keys & Endpoints",
+      "description": "Develop the Configuration Module (`config_loader.py`) to securely load API keys (Gemini, Template Exchange) and the Template Exchange API base URL from environment variables or a `.env` file.\n\nDetails:\n- In `config_loader.py`, implement functions/logic to:\n  - Load environment variables using the `python-dotenv` library from a `.env` file.\n  - Specifically load:\n    - `GEMINI_API_KEY`\n    - `TEMPLATE_EXCHANGE_API_KEY` (this is the `x-api-key` for your existing API)\n    - `TEMPLATE_EXCHANGE_BASE_URL` (the base URL for your Cloud Function API, e.g., `https://YOUR_REGION-YOUR_PROJECT.cloudfunctions.net/api`)\n- Provide clear error handling if any required configuration variable is missing (e.g., raise an exception or log an error and exit).\n- Create a `.env.example` file in the project root that lists the required environment variables without their actual values (e.g., `GEMINI_API_KEY=\"YOUR_GEMINI_API_KEY_HERE\"`).\n- Add `.env` to the `.gitignore` file (already done in CKA.1 if followed, but double-check) to prevent accidental commits of secret keys.\n- The module should make these configuration values easily accessible to other parts of the CK Assistant application (e.g., via functions like `get_gemini_key()`, `get_template_api_key()`, `get_template_api_url()`).",
+      "status": "pending",
       "priority": "high",
-      "dependencies": [
-        1
-      ],
-      "status": "done",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Create the 'templates' collection in Firestore",
-          "description": "Create the 'templates' collection in Firestore based on the defined model",
-          "dependencies": [],
-          "details": "Ensure the collection structure and data model match the requirements",
-          "status": "done"
-        },
-        {
-          "id": 2,
-          "title": "Configure Firestore security rules",
-          "description": "Configure the Firestore security rules to allow access via API key",
-          "dependencies": [
-            1
-          ],
-          "details": "Set up the necessary security rules to restrict access to the 'templates' collection",
-          "status": "done"
-        },
-        {
-          "id": 3,
-          "title": "Implement server-side data validation",
-          "description": "Implement server-side data validation to ensure integrity",
-          "dependencies": [
-            1
-          ],
-          "details": "Implement validation logic to ensure the data integrity of the 'templates' collection",
-          "status": "done"
-        },
-        {
-          "id": 4,
-          "title": "Set up performance and caching parameters",
-          "description": "Set up the appropriate performance and caching parameters",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "Configure the necessary performance and caching settings to optimize the 'templates' collection",
-          "status": "done"
-        }
-      ]
+      "dependencies": [],
+      "subtasks": [],
+      "test_strategy": "- Create a `.env` file with dummy (or real, for local testing only) API keys and URL.\n- Write a small test script or add test calls in `main.py` to import `config_loader.py` and verify that:\n  - It correctly loads the values from the `.env` file.\n  - It handles missing variables gracefully (e.g., test by temporarily renaming a variable in `.env` and see if the error handling works).\n- Confirm that API keys are not hardcoded in `config_loader.py` or other source files."
     },
     {
-      "id": 3,
-      "title": "FTR-7.3 Développement des Cloud Functions pour l'API de gestion des templates",
-      "description": "Créer les Cloud Functions Firebase nécessaires pour exposer une API REST permettant la gestion des templates.",
-      "details": "# - Développer les endpoints API suivants basés sur la réponse HD #3 et #4:\n#   * GET /api/templates/:sessionId - Récupérer un template par sessionId\n#   * POST /api/templates - Soumettre un nouveau template\n#   * GET /api/templates - Lister tous les templates (avec filtres optionnels)\n# - Implémenter l'authentification par API key comme mentionné dans la réponse HD #3\n# - Gérer les erreurs et les réponses appropriées (404, 401, etc.)\n# - Ajouter l'horodatage automatique mentionné dans la réponse HD #2\n# - Créer un nouveau fichier de service JavaScript conforme au pattern d'architecture mentionné dans la réponse HD #3",
-      "mockupDesignNeeded": "No",
-      "testStrategy": "# - Tester chaque endpoint API avec Postman ou un outil similaire\n# - Vérifier que l'authentification par API key fonctionne correctement\n# - Confirmer que les réponses API sont formatées correctement et incluent toutes les données nécessaires\n# - Documenter les endpoints API dans une nouvelle section Bible (suggestion: B7.5)",
+      "id": "CKA.3",
+      "title": "CKA.3 - Develop Template Exchange API Client Module",
+      "description": "Implement the `template_exchange_client.py` module with Python functions to interact with the existing Template Exchange API (Cloud Function endpoints) for creating/updating and retrieving templates.\n\nDetails:\n- In `template_exchange_client.py`:\n  - Import necessary libraries (e.g., `requests`, and the `config_loader` module from CKA.2 to get API URL and key).\n  - Implement `create_or_update_template_api(session_id, template_type, content, status='draft', metadata=None)` function:\n    - This function will be called by the Gemini interaction logic when Gemini wants to store a handoff or summary.\n    - Construct the JSON payload as per `/api/templates` POST endpoint in `api-reference.md`:\n      ```json\n      {\n        \"sessionId\": session_id, // e.g., \"M5.S4\"\n        \"type\": template_type,   // \"handoff\" or \"summary\"\n        \"content\": content,      // Markdown string\n        \"status\": status,        // \"draft\", \"active\", \"archived\"\n        \"metadata\": metadata     // Optional dictionary\n      }\n      ```\n    - Make a `POST` request to `TEMPLATE_EXCHANGE_BASE_URL + \"/templates\"`.\n    - Include the `x-api-key: YOUR_TEMPLATE_EXCHANGE_API_KEY` header.\n    - Handle the HTTP response:\n      - Check for success status codes (e.g., 201 Created).\n      - Parse the JSON response (e.g., to get the created template ID).\n      - Implement robust error handling for API errors (4xx, 5xx status codes), network issues. Log errors and return a clear success/failure indication or the response data/error message.\n  - Implement `get_template_api(session_id, template_type='handoff')` function:\n    - This function will be called by the Gemini interaction logic when Gemini wants to fetch a template.\n    - Make a `GET` request to `TEMPLATE_EXCHANGE_BASE_URL + \"/templates/\" + session_id + \"?type=\" + template_type` (as per `api-reference.md`).\n    - Include the `x-api-key` header.\n    - Handle the HTTP response:\n      - Check for success (200 OK).\n      - Parse JSON response to get template content.\n      - Handle errors (e.g., 404 Not Found if template doesn't exist, other API/network errors). Log errors and return template data or None/error indication.\n  - (Optional, consider later) Implement functions for other API endpoints if needed (e.g., `list_templates_api`, `update_template_by_id_api`, `delete_template_api` from `api-reference.md`). Start with create/get.\n- Ensure all functions properly use the API base URL and API key loaded via the `config_loader` module.",
+      "status": "pending",
       "priority": "high",
-      "dependencies": [
-        2
-      ],
-      "status": "done",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Develop the API endpoints for retrieving, submitting, and listing templates",
-          "description": "Implement the necessary API endpoints to allow users to retrieve, submit, and list templates",
-          "dependencies": [],
-          "details": "This subtask should cover the development of the API endpoints for the core functionality of the Cloud Functions API, including endpoints for retrieving, submitting, and listing templates.",
-          "status": "done"
-        },
-        {
-          "id": 2,
-          "title": "Implement the API key-based authentication mechanism",
-          "description": "Develop the authentication mechanism for the API using API keys",
-          "dependencies": [
-            1
-          ],
-          "details": "This subtask should focus on implementing the API key-based authentication mechanism to secure the Cloud Functions API endpoints.",
-          "status": "done"
-        },
-        {
-          "id": 3,
-          "title": "Handle errors and provide appropriate responses",
-          "description": "Implement error handling and provide meaningful responses to API clients",
-          "dependencies": [
-            1,
-            2
-          ],
-          "details": "This subtask should cover the implementation of error handling and the provision of appropriate responses to API clients, ensuring a robust and user-friendly API experience.",
-          "status": "done"
-        },
-        {
-          "id": 4,
-          "title": "Create a new service file following the recommended architecture pattern",
-          "description": "Organize the API implementation into a new service file following the recommended architecture pattern",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "This subtask should involve the creation of a new service file that follows the recommended architecture pattern, ensuring the API implementation is structured and maintainable.",
-          "status": "done"
-        }
-      ]
+      "dependencies": [],
+      "subtasks": [],
+      "test_strategy": "- Unit/Integration Tests (can be manual initially using a test script):\n  - Test `create_or_update_template_api`:\n    - Call with valid data; verify a 201 response and that data appears in your Firebase Firestore `ai_handoffs` collection (check manually in Firebase Console).\n    - Call with missing required fields; verify a 400 Bad Request response from your API.\n    - Call with an invalid API key; verify a 401 Unauthorized response.\n  - Test `get_template_api`:\n    - After creating a template, try to fetch it by `sessionId` and `type`; verify correct content is returned.\n    - Try to fetch a non-existent template; verify a 404 Not Found response.\n    - Test with an invalid API key; verify 401 Unauthorized.\n- Ensure proper error logging is implemented for failed API calls."
     },
     {
-      "id": 4,
-      "title": "FTR-7.4 Création de l'interface web minimaliste pour la gestion des templates",
-      "description": "Développer une interface web simple pour soumettre et consulter les templates, hébergée sur Firebase Hosting.",
-      "details": "# - Créer une page HTML/JS minimaliste comme décrit dans la réponse HD #4\n# - Implémenter les deux fonctionnalités principales:\n#   1. Formulaire pour soumettre un nouveau template (sessionId, type, contenu)\n#   2. Vue pour consulter les templates existants par sessionId\n# - Assurer la préservation du formatage markdown lors de la soumission et de l'affichage\n# - Utiliser un design simple mais professionnel, cohérent avec l'identité visuelle de KarmaCash\n# - Intégrer l'authentification par API key pour les appels à l'API\n# - Optimiser pour une utilisation rapide (moins de 3 clics par tâche, comme mentionné dans la réponse HD #5)",
-      "mockupDesignNeeded": "Yes - Wireframe simple de l'interface utilisateur",
-      "testStrategy": "# - Vérifier que l'interface permet de soumettre un template sans perte de formatage\n# - Confirmer que la consultation des templates est intuitive et rapide\n# - Tester sur différents navigateurs pour assurer la compatibilité\n# - Mesurer le nombre de clics nécessaires pour accomplir chaque tâche (objectif: moins de 3)",
-      "priority": "medium",
-      "dependencies": [
-        3
-      ],
+      "id": "CKA.4",
+      "title": "CKA.4 - Define Gemini Function Declarations for Template Exchange API",
+      "description": "In `gemini_interaction.py`, create the Gemini `FunctionDeclaration` objects that describe the Template Exchange API operations (creating/updating and getting templates) so the Gemini model can request these actions.\n\nDetails:\n- In `gemini_interaction.py`:\n  - Import `FunctionDeclaration` and `Tool` from the `google.generativeai.types` (or directly `google.generativeai` depending on SDK version).\n  - Define a `FunctionDeclaration` for creating/updating a template:\n    - Name: e.g., `store_template_in_firebase` (this is the name Gemini will use in its `function_call`).\n    - Description: A clear description for Gemini, e.g., \"Stores or updates a handoff or summary template in the Firebase Template Exchange system for a given session.\"\n    - Parameters (as a JSON schema object):\n      - `sessionId` (type: string, description: \"Session ID, e.g., 'M5.S4'\", required)\n      - `type` (type: string, description: \"Template type, either 'handoff' or 'summary'\", enum: [\"handoff\", \"summary\"], required)\n      - `content` (type: string, description: \"The Markdown content of the template.\", required)\n      - `status` (type: string, description: \"Status of the template, e.g., 'draft', 'active'. Defaults to 'draft'.\", optional)\n      - `metadata` (type: object, description: \"Optional metadata dictionary for the template.\", optional, properties could be loosely defined or allow any additionalProperties)\n  - Define a `FunctionDeclaration` for getting a template:\n    - Name: e.g., `fetch_template_from_firebase`.\n    - Description: e.g., \"Retrieves a specific handoff or summary template from the Firebase Template Exchange system for a given session.\"\n    - Parameters (as a JSON schema object):\n      - `sessionId` (type: string, description: \"Session ID, e.g., 'M5.S4'\", required)\n      - `type` (type: string, description: \"Template type, either 'handoff' or 'summary'. Defaults to 'handoff'.\", enum: [\"handoff\", \"summary\"], optional)\n- These function declarations will be used when initializing the Gemini model with tools (covered in CKA.5).\n- Ensure the parameter names and types in these declarations accurately match what your Python functions in `template_exchange_client.py` (from CKA.3) expect as input and what your API (from `api-reference.md`) requires.\n- Refer to the Google Gemini API documentation for the exact syntax of `FunctionDeclaration` and parameter schema definition.",
       "status": "pending",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Create the HTML/JS-based web interface",
-          "description": "Develop the HTML and JavaScript-based web interface with the two main functionalities",
-          "dependencies": [],
-          "details": "The web interface should have a clean and intuitive design, allowing users to easily access the two main functionalities: submitting new templates and consulting existing templates by sessionId.",
-          "status": "pending"
-        },
-        {
-          "id": 2,
-          "title": "Implement the form for submitting new templates",
-          "description": "Develop the form for users to submit new templates",
-          "dependencies": [
-            1
-          ],
-          "details": "The form should allow users to input the necessary information for a new template, such as the template content (with support for Markdown formatting), a title, and any other relevant details. The form should also handle form validation and provide clear feedback to the user.",
-          "status": "pending"
-        },
-        {
-          "id": 3,
-          "title": "Develop the view for consulting existing templates by sessionId",
-          "description": "Create the view for users to search and view existing templates by sessionId",
-          "dependencies": [
-            1
-          ],
-          "details": "The view should allow users to search for and view existing templates by entering a sessionId. The templates should be displayed in a clear and organized manner, preserving the Markdown formatting.",
-          "status": "pending"
-        },
-        {
-          "id": 4,
-          "title": "Integrate the API key-based authentication and optimize the user experience",
-          "description": "Implement the API key-based authentication and optimize the overall user experience",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "Integrate the API key-based authentication to ensure secure access to the application. Additionally, optimize the user experience by improving the overall design, responsiveness, and accessibility of the web interface.",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "title": "FTR-7.5 Développement du script d'intégration pour Cursor AI",
-      "description": "Créer un script JavaScript pour Cursor AI permettant de récupérer et soumettre des templates via l'API.",
-      "details": "# - Développer les commandes Cursor AI mentionnées dans la réponse HD #4:\n#   * `fetch-handoff <sessionId>` - Récupérer un template de handoff\n#   * `submit-summary <sessionId> <content>` - Soumettre un résumé d'implémentation\n# - Assurer l'intégration transparente avec l'environnement Cursor AI\n# - Gérer l'authentification par API key de manière sécurisée\n# - Préserver le formatage markdown lors des transferts\n# - Implémenter des messages de confirmation clairs pour l'utilisateur\n# - Gérer les erreurs de manière élégante (problèmes réseau, templates non trouvés, etc.)",
-      "mockupDesignNeeded": "No",
-      "testStrategy": "# - Tester les commandes dans l'environnement Cursor AI avec des templates réels\n# - Vérifier que le formatage markdown est préservé dans les deux sens\n# - Mesurer le temps nécessaire pour un échange complet (objectif: moins de 30 secondes comme mentionné dans la réponse HD #5)\n# - Documenter l'utilisation des commandes dans une nouvelle section Bible (suggestion: B7.6)",
       "priority": "high",
-      "dependencies": [
-        3
-      ],
-      "status": "pending",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Develop Cursor AI commands for fetching handoffs and submitting summaries",
-          "description": "Implement the necessary commands to fetch handoff data and submit summary information to the Cursor AI system.",
-          "dependencies": [],
-          "details": "Ensure the commands are intuitive and provide a seamless user experience. Implement error handling and provide clear feedback to the user.",
-          "status": "pending"
-        },
-        {
-          "id": 2,
-          "title": "Integrate with the Cursor AI environment",
-          "description": "Ensure the developed commands and functionality integrate smoothly with the Cursor AI system.",
-          "dependencies": [
-            1
-          ],
-          "details": "Collaborate with the Cursor AI team to understand the integration requirements and implement the necessary connectivity.",
-          "status": "pending"
-        },
-        {
-          "id": 3,
-          "title": "Implement secure API key-based authentication",
-          "description": "Develop a secure mechanism to handle API key-based authentication for accessing the Cursor AI system.",
-          "dependencies": [
-            1,
-            2
-          ],
-          "details": "Ensure the API key is stored and transmitted securely. Implement measures to prevent unauthorized access.",
-          "status": "pending"
-        },
-        {
-          "id": 4,
-          "title": "Preserve markdown formatting during data transfers",
-          "description": "Ensure that the markdown formatting is preserved when transferring data between the application and the Cursor AI system.",
-          "dependencies": [
-            1,
-            2
-          ],
-          "details": "Implement necessary parsing and formatting logic to maintain the integrity of the markdown content.",
-          "status": "pending"
-        }
-      ]
+      "dependencies": [],
+      "subtasks": [],
+      "test_strategy": "- Review the defined `FunctionDeclaration` objects for correctness against:\n  - The Gemini API documentation for function calling.\n  - The parameters required by your Template Exchange API endpoints (as defined in `api-reference.md` and implemented in CKA.3).\n  - The expected inputs of the Python functions in `template_exchange_client.py`.\n- This task is primarily about defining data structures; direct execution testing comes in CKA.5 when these are used with the model.\n- A simple test could be to instantiate these `FunctionDeclaration` objects in a Python script to ensure no syntax errors."
     },
     {
-      "id": 6,
-      "title": "FTR-7.6 Configuration du déploiement Firebase pour l'interface web",
-      "description": "Configurer et déployer l'interface web sur Firebase Hosting pour un accès facile et sécurisé.",
-      "details": "# - Configurer le projet Firebase Hosting pour héberger l'interface web\n# - Mettre en place un processus de déploiement simple (manuel ou automatisé)\n# - Configurer les paramètres de cache appropriés pour optimiser les performances\n# - Assurer la sécurité de l'accès à l'interface (authentification simple si nécessaire)\n# - Référencer les sections Bible existantes sur le déploiement Firebase",
-      "mockupDesignNeeded": "No",
-      "testStrategy": "# - Vérifier que l'interface est correctement déployée et accessible via l'URL Firebase\n# - Tester les performances de chargement de la page\n# - Confirmer que toutes les fonctionnalités fonctionnent comme prévu dans l'environnement de production\n# - Documenter l'URL et les procédures de déploiement dans la Bible",
-      "priority": "medium",
-      "dependencies": [
-        4
-      ],
+      "id": "CKA.5",
+      "title": "CKA.5 - Implement Gemini Interaction Module & Function Calling Logic",
+      "description": "Develop the `gemini_interaction.py` module to initialize the Gemini model, send it prompts (with context and defined tools/functions), and process its responses, including executing function calls via the Template Exchange API Client.\n\nDetails:\n- In `gemini_interaction.py`:\n  - Import necessary libraries: `google.generativeai` as `genai`, the function declarations from CKA.4, the API client functions from CKA.3 (`template_exchange_client.py`), and config from CKA.2 (`config_loader.py`).\n  - Implement `initialize_gemini_model()` function:\n    - Retrieve `GEMINI_API_KEY` using `config_loader`.\n    - Configure `genai` with the API key.\n    - Get a generative model instance (e.g., `genai.GenerativeModel('gemini-1.5-pro-latest')` or another suitable model).\n    - Create a `Tool` object containing the list of `FunctionDeclaration` objects defined in CKA.4 (e.g., `store_template_in_firebase`, `fetch_template_from_firebase`).\n    - Return the initialized model configured with the `Tool`.\n  - Implement `generate_llm_response(model, prompt_text, chat_history=None)` function:** (This will be the main interaction point)\n    - Takes the initialized `model`, `prompt_text` (from HD or Context Loader), and an optional `chat_history` (for multi-turn conversations).\n    - Sends the content (prompt + history) to the model using `model.generate_content(..., tools=[the_tool_object_created_earlier])`.\n    - Process the `response` from `model.generate_content()`:\n      - Check if `response.candidates[0].content.parts[0].function_call` exists.\n      - If a `function_call` exists:\n        - Extract `function_name` and `args` (arguments dictionary).\n        - Conditionally execute the corresponding Python function from `template_exchange_client.py` (CKA.3) based on `function_name`:\n          - If `function_name == 'store_template_in_firebase'`: Call `template_exchange_client.create_or_update_template_api(**args)`.\n          - If `function_name == 'fetch_template_from_firebase'`: Call `template_exchange_client.get_template_api(**args)`.\n        - Prepare a `FunctionResponse` part: Create a `Part` object containing the result (success/failure, data) from your API client function.\n        - Send this `FunctionResponse` back to the Gemini model by calling `model.generate_content()` again, this time including the original prompt/history and the new `FunctionResponse` part in the `contents`.\n        - The model will then generate a final natural language response based on the function's output. Return this final text.\n      - If no `function_call` (i.e., a direct text response):\n        - Extract and return `response.text`.\n    - Handle potential errors during API calls to Gemini.\n- This module should not contain hardcoded prompts for specific tasks (like \"generate handoff for X\"); that will be handled by the Main Script (CKA.6) or Context Loader (CKA.7). This module provides the *mechanism* for LLM interaction and function execution.\n- Refer to Google Gemini API documentation for `generate_content`, handling `FunctionCall` parts, and sending `FunctionResponse` parts.",
       "status": "pending",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Configure Firebase Hosting project",
-          "description": "Set up the Firebase Hosting project to host the web interface",
-          "dependencies": [],
-          "details": "1. Create a new Firebase project\n2. Initialize Firebase Hosting for the project\n3. Configure the hosting settings (e.g., site name, default document)",
-          "status": "pending"
-        },
-        {
-          "id": 2,
-          "title": "Establish deployment process",
-          "description": "Set up a simple deployment process (manual or automated) for the web interface",
-          "dependencies": [
-            1
-          ],
-          "details": "1. Determine the deployment workflow (manual or automated)\n2. Configure the necessary scripts or tools for deployment\n3. Document the deployment process",
-          "status": "pending"
-        },
-        {
-          "id": 3,
-          "title": "Configure caching parameters",
-          "description": "Set up appropriate caching parameters for performance optimization",
-          "dependencies": [
-            1,
-            2
-          ],
-          "details": "1. Analyze the web interface assets and determine the appropriate caching strategy\n2. Configure the caching settings in the Firebase Hosting configuration\n3. Verify the caching behavior and performance improvements",
-          "status": "pending"
-        },
-        {
-          "id": 4,
-          "title": "Implement secure access",
-          "description": "Ensure secure access to the web interface (simple authentication if needed)",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "1. Determine the authentication requirements (e.g., public access, simple user authentication)\n2. Integrate the appropriate authentication mechanism (e.g., Firebase Authentication)\n3. Test the secure access to the web interface",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "title": "FTR-7.7 Développement de l'extension Chrome pour Google AI Studio",
-      "description": "Créer une extension Chrome pour injecter et extraire des templates depuis Google AI Studio.",
-      "details": "# - Configurer la structure du projet d'extension Chrome (manifeste v3)\n# - Développer un script de contenu (content script) pour interagir avec l'interface de Google AI Studio\n# - Créer un script d'arrière-plan (background script) pour la communication avec Firebase\n# - Développer une interface popup simple pour l'extension avec les fonctionnalités suivantes:\n#   * Sélection d'un template existant à injecter dans Google AI Studio\n#   * Bouton pour extraire le contenu actuel de Google AI Studio et le sauvegarder dans Firebase\n# - Implémenter l'authentification sécurisée avec l'API Firebase\n# - Gérer la préservation du formatage markdown lors des transferts\n# - Ajouter des indicateurs visuels de succès/échec des opérations",
-      "mockupDesignNeeded": "Yes - Wireframe de l'interface popup de l'extension",
-      "testStrategy": "# - Tester la détection correcte de l'interface Google AI Studio\n# - Vérifier l'injection correcte des templates dans l'entrée de Google AI Studio\n# - Confirmer l'extraction et le stockage des données depuis Google AI Studio vers Firebase\n# - Mesurer le temps nécessaire pour un échange complet (objectif: moins de 30 secondes)\n# - Tester le comportement de l'extension sur différentes versions de Chrome\n# - Documenter l'installation et l'utilisation de l'extension",
       "priority": "high",
-      "dependencies": [
-        3
-      ],
-      "status": "pending",
+      "dependencies": [],
       "subtasks": [
         {
-          "id": 1,
-          "title": "Set up the Chrome extension project structure (manifest v3)",
-          "description": "Create the necessary directory structure and files for the Chrome extension, including the manifest.json file for manifest v3.",
+          "id": "CKA.5.1",
+          "title": "Import Libraries and Set Up Module Structure",
+          "description": "Import necessary libraries and set up the basic structure of the `gemini_interaction.py` module.\n\nDetails:\n- Import required libraries:\n  - `google.generativeai` as `genai` for the Gemini API\n  - `config_loader` module from CKA.2 for accessing API keys\n  - Function declarations from CKA.4\n  - API client functions from `template_exchange_client.py` (CKA.3)\n- Create the module structure with proper docstrings and type annotations\n- Implement helper functions and constants that will be used across the module",
+          "status": "pending",
+          "priority": "high",
           "dependencies": [],
-          "details": "Ensure the project structure follows best practices for a Chrome extension, including the use of manifest v3.",
-          "status": "done"
+          "test_strategy": "- Verify that the module imports all necessary libraries without errors\n- Check that the module structure follows best practices for Python modules\n- Confirm that helper functions and constants are well-documented with proper type annotations"
         },
         {
-          "id": 2,
-          "title": "Develop the content script to interact with the Google AI Studio interface",
-          "description": "Create the content script that will interact with the Google AI Studio interface, handling user interactions and data retrieval.",
-          "dependencies": [
-            1
-          ],
-          "details": "Analyze the Google AI Studio interface and implement the necessary functionality in the content script.",
-          "status": "done"
+          "id": "CKA.5.2",
+          "title": "Implement Gemini Model Initialization Function",
+          "description": "Implement the `initialize_gemini_model()` function to set up and configure the Gemini AI model with the appropriate API key and tools.\n\nDetails:\n- Create the `initialize_gemini_model()` function that:\n  - Retrieves the `GEMINI_API_KEY` using the `config_loader` module\n  - Configures the Gemini API with the key using `genai.configure(api_key=api_key)`\n  - Creates a generative model instance with an appropriate model name (e.g., `gemini-1.5-pro-latest`)\n  - Retrieves the function declarations defined in CKA.4\n  - Creates a `Tool` object containing these function declarations\n  - Configures the model with the tool\n  - Returns the initialized model\n- Include error handling for cases where the API key is missing or invalid\n- Add logging for initialization steps and potential issues",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "test_strategy": "- Test initialization with a valid API key\n- Test initialization with a missing API key to verify error handling\n- Verify that the model is correctly configured with the function declarations\n- Check that logging provides appropriate information about the initialization process"
         },
         {
-          "id": 3,
-          "title": "Create the background script for communication with Firebase",
-          "description": "Develop the background script that will handle communication with the Firebase API, including authentication and data management.",
-          "dependencies": [
-            1
-          ],
-          "details": "Ensure the background script is properly integrated with the Firebase API and can securely handle data and authentication.",
-          "status": "done"
+          "id": "CKA.5.3",
+          "title": "Implement Base Response Generation Function",
+          "description": "Implement the core `generate_llm_response()` function that sends prompts to Gemini and processes the initial response.\n\nDetails:\n- Create the `generate_llm_response(model, prompt_text, chat_history=None)` function that:\n  - Takes the initialized Gemini model, prompt text, and optional chat history\n  - Formats the content correctly for Gemini, including prompt and history if provided\n  - Sends the content to Gemini using `model.generate_content()`\n  - Adds appropriate error handling for API rate limits, network issues, etc.\n  - Returns the response object for further processing\n- Implement basic response handling for direct text responses (non-function calls)\n- Add logging of prompts sent and responses received (excluding sensitive data)",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "test_strategy": "- Test with simple prompts that generate direct text responses\n- Verify that responses are correctly processed and returned\n- Test error handling with simulated API errors\n- Check that chat history is correctly incorporated if provided"
         },
         {
-          "id": 4,
-          "title": "Implement the popup interface with the required functionalities",
-          "description": "Design and implement the popup interface for the Chrome extension, providing the necessary functionalities to the user.",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "Ensure the popup interface is intuitive and provides a seamless user experience.",
-          "status": "pending"
+          "id": "CKA.5.4",
+          "title": "Implement Function Call Detection and Extraction",
+          "description": "Add logic to detect and extract function calls from Gemini responses.\n\nDetails:\n- Extend `generate_llm_response()` to:\n  - Check if the response contains a function call (i.e., `response.candidates[0].content.parts[0].function_call` exists)\n  - Extract the function name and arguments from the function call\n  - Validate that the function name matches one of the supported functions\n  - Parse and validate the function arguments\n  - Log details about the detected function call\n- Create helper functions for extracting and validating function calls\n- Handle edge cases like multiple function calls or malformed function calls",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "test_strategy": "- Test with prompts that trigger function calls\n- Verify that function calls are correctly detected and extracted\n- Test with invalid function calls to verify error handling\n- Check that the extracted function name and arguments match the expected values"
         },
         {
-          "id": 5,
-          "title": "Integrate secure authentication with the Firebase API",
-          "description": "Implement secure authentication mechanisms to allow users to authenticate with the Firebase API through the Chrome extension.",
-          "dependencies": [
-            3
-          ],
-          "details": "Ensure the authentication process is secure and follows best practices for Firebase authentication.",
-          "status": "done"
+          "id": "CKA.5.5",
+          "title": "Implement Function Execution Logic",
+          "description": "Implement the logic to execute the appropriate API client function based on the detected function call.\n\nDetails:\n- Create a function execution handler that:\n  - Takes the extracted function name and arguments\n  - Maps the function name to the corresponding API client function:\n    - `store_template_in_firebase` → `template_exchange_client.create_or_update_template_api()`\n    - `fetch_template_from_firebase` → `template_exchange_client.get_template_api()`\n  - Executes the function with the provided arguments\n  - Captures the result (success/failure, data) from the API client function\n  - Formats the result as a `FunctionResponse` object\n  - Handles and logs any errors that occur during function execution",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "test_strategy": "- Test execution of each supported function\n- Verify that the correct API client function is called with the correct arguments\n- Test error handling during function execution\n- Check that the function response is correctly formatted"
+        },
+        {
+          "id": "CKA.5.6",
+          "title": "Implement Function Response Handling and Final Response Generation",
+          "description": "Complete the function calling flow by sending function responses back to Gemini and generating the final response.\n\nDetails:\n- Extend `generate_llm_response()` to:\n  - Create a `FunctionResponse` part containing the result from the executed function\n  - Send this `FunctionResponse` back to Gemini by calling `model.generate_content()` again\n  - Include the original prompt/history and the new `FunctionResponse` in the `contents`\n  - Process the final response from Gemini\n  - Extract and return the final natural language response\n- Add comprehensive error handling for the entire function calling flow\n- Implement cleanup and logging for the completed process",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "test_strategy": "- Test the complete function calling flow from initial prompt to final response\n- Verify that the function response is correctly sent back to Gemini\n- Test that Gemini generates an appropriate final response based on the function result\n- Check error handling throughout the process\n- Verify that the final response is correctly returned to the caller"
         }
-      ]
+      ],
+      "test_strategy": "- Create test prompts that are likely to trigger each defined function call.\n- In a test script (or `main.py`):\n  - Initialize the model using `initialize_gemini_model()`.\n  - Call `generate_llm_response()` with a test prompt (e.g., \"Please store a handoff for session M0.S1 with content 'Test handoff content'. The type is 'handoff'.\").\n  - Verify (using mocks for the `template_exchange_client` initially, then with live API calls):\n    - That the correct `function_call` is received from Gemini.\n    - That the appropriate `template_exchange_client` function is called with the correct arguments extracted from `args`.\n    - That a `FunctionResponse` is correctly constructed and sent back to Gemini.\n    - That Gemini's final natural language response reflects the outcome of the function call (e.g., \"Okay, I've stored the handoff...\" or \"Sorry, I couldn't store the handoff because...\").\n  - Test with prompts that should *not* trigger function calls to ensure direct text responses are handled.\n- Test error handling for Gemini API issues.",
+      "complexityScore": 7
     },
     {
-      "id": 8,
-      "title": "FTR-7.8 Empaquetage et déploiement de l'extension Chrome",
-      "description": "Préparer l'extension Chrome pour le déploiement et la distribution.",
-      "details": "# - Finaliser le manifeste de l'extension avec toutes les autorisations nécessaires\n# - Optimiser le code et les ressources de l'extension\n# - Créer les ressources graphiques nécessaires (icônes en différentes tailles)\n# - Empaqueter l'extension pour une installation locale\n# - Préparer les ressources nécessaires pour une éventuelle publication dans le Chrome Web Store\n# - Créer un guide d'installation détaillé pour les utilisateurs\n# - Définir un processus de mise à jour simplifié",
-      "mockupDesignNeeded": "Partially - Icônes et assets visuels pour l'extension",
-      "testStrategy": "# - Vérifier que l'extension s'installe correctement à partir du package\n# - Tester toutes les fonctionnalités après l'installation du package\n# - Confirmer que les permissions demandées sont minimales et nécessaires\n# - Valider le fonctionnement sur différentes plateformes (Windows, macOS, Linux)\n# - S'assurer que le guide d'installation est clair et précis",
-      "priority": "medium",
-      "dependencies": [
-        7
-      ],
+      "id": "CKA.6",
+      "title": "CKA.6 - Develop Main Script for CK Assistant User Interaction",
+      "description": "Create the main executable Python script (`main.py`) that initializes the CK Assistant, handles user input (e.g., from the command line), orchestrates calls to the Gemini Interaction Module, and displays results.\n\nDetails:\n- In `main.py`:\n  - Import necessary modules: `config_loader` (CKA.2), `gemini_interaction` (CKA.5), and potentially `context_loader` (CKA.7, if implemented).\n  - Initialization Phase:\n    - Load configuration using `config_loader`.\n    - Initialize the Gemini model using `gemini_interaction.initialize_gemini_model()`.\n    - (If using chat history for multi-turn) Initialize an empty chat history list.\n  - Main Interaction Loop (e.g., a `while True` loop for command-line interaction):\n    - Prompt the user for input (e.g., `input(\"HD > \")`).\n    - Handle exit commands (e.g., if user types \"quit\" or \"exit\").\n    - Context Preparation (Simplified for now, enhanced by CKA.7 later):\n      - For now, the user's input text will be the primary prompt.\n      - (Future: Integrate `context_loader` to fetch SHIP content, TM details, etc., based on user input or pre-defined rules, and prepend this context to the user's direct prompt).\n    - Call Gemini Interaction Module:\n      - Pass the prepared prompt (and chat history, if applicable) to `gemini_interaction.generate_llm_response(model, user_prompt, chat_history)`.\n    - Display Results:\n      - Print the final natural language response received from `generate_llm_response()` to the console.\n      - (If `generate_llm_response` also returns structured data from function calls, decide how/if to display that raw data for debugging).\n    - (If using chat history) Append the user's prompt and the model's final response to the `chat_history` list.\n  - Implement basic error handling for issues during initialization or interaction.\n- This script will be the primary way the HD interacts with the CK Assistant initially.\n- Keep the initial version simple, focusing on the core loop of input -> process -> output.",
       "status": "pending",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Finalize the extension manifest with all necessary permissions",
-          "description": "Review the extension's functionality and ensure the manifest.json file includes all the required permissions.",
-          "dependencies": [],
-          "details": "Identify the necessary permissions based on the extension's features and update the manifest.json file accordingly.",
-          "status": "pending"
-        },
-        {
-          "id": 2,
-          "title": "Optimize the extension code and resources",
-          "description": "Optimize the extension's code and resources for better performance and efficiency.",
-          "dependencies": [],
-          "details": "Analyze the code and resources, and implement optimizations such as code minification, image compression, and efficient asset loading.",
-          "status": "pending"
-        },
-        {
-          "id": 3,
-          "title": "Create the required graphic resources (icons)",
-          "description": "Design and create the necessary graphic resources, such as extension icons, for the Chrome Web Store.",
-          "dependencies": [],
-          "details": "Ensure the icons follow the Chrome Web Store guidelines and create the required sizes (16x16, 32x32, 48x48, 128x128).",
-          "status": "pending"
-        },
-        {
-          "id": 4,
-          "title": "Package the extension for local installation",
-          "description": "Package the extension for local installation on the user's machine.",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "Create a ZIP or CRX file containing the extension's files, including the manifest.json and the optimized resources.",
-          "status": "pending"
-        },
-        {
-          "id": 5,
-          "title": "Prepare the resources for potential publication in the Chrome Web Store",
-          "description": "Gather and organize the necessary resources for publishing the extension in the Chrome Web Store.",
-          "dependencies": [
-            4
-          ],
-          "details": "Collect the extension's description, screenshots, and other metadata required for the Chrome Web Store submission process.",
-          "status": "pending"
-        }
-      ]
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [],
+      "test_strategy": "- Run `python main.py` from the terminal.\n- Test basic interaction:\n  - Enter a simple greeting or question that doesn't require function calling; verify a text response from Gemini.\n  - Enter a prompt designed to trigger a function call (e.g., \"Store a handoff for M0.S0 type handoff with content 'hello world'\"). Verify that:\n    - The `main.py` script calls `gemini_interaction.generate_llm_response()`.\n    - The interaction module processes the function call (as tested in CKA.5).\n    - `main.py` displays Gemini's final natural language response (e.g., \"Okay, I've stored the handoff...\").\n- Test the exit command.\n- Test basic error handling (e.g., if API keys are not set, does it fail gracefully during initialization?).\n- (If chat history is implemented) Test a short multi-turn conversation to see if context is maintained."
     },
     {
-      "id": 9,
-      "title": "FTR-7.9 Tests d'intégration du flux de travail complet",
-      "description": "Tester le flux de travail complet entre Google AI Studio (via extension Chrome), l'interface web et Cursor AI pour valider l'ensemble du système.",
-      "details": "# - Créer des scénarios de test couvrant les parcours utilisateurs complets:\n#   1. Création d'un handoff dans Google AI Studio et extraction via l'extension Chrome\n#   2. Récupération du template dans Cursor AI\n#   3. Soumission d'un résumé depuis Cursor AI\n#   4. Injection du résumé dans Google AI Studio via l'extension Chrome\n# - Vérifier la préservation du formatage markdown à chaque étape\n# - Mesurer le temps nécessaire pour chaque étape du processus\n# - Identifier et documenter les éventuels problèmes ou améliorations\n# - Tester le système avec des templates de différentes tailles et complexités",
-      "mockupDesignNeeded": "No",
-      "testStrategy": "# - Chronométrer le processus complet (objectif: réduction de 3-5 minutes à moins de 30 secondes comme mentionné dans la réponse HD #5)\n# - Vérifier l'absence d'erreurs de formatage dans les templates transférés\n# - Confirmer que 100% des templates sont correctement stockés et récupérables (critère de succès HD #5)\n# - Documenter les résultats des tests et les métriques de performance\n# - Tester la récupération après des erreurs réseau ou d'API",
-      "priority": "medium",
-      "dependencies": [
-        5,
-        6,
-        8
-      ],
+      "id": "CKA.7",
+      "title": "CKA.7 - Implement Context Loading Module",
+      "description": "Develop the `context_loader.py` module to read content from specified project files (e.g., SHIP documents, Bible sections, Task Master task details) and format it as context for Gemini prompts.\n\nDetails:\n- In `context_loader.py`:\n  - Implement `load_ship_document(session_id)` function:\n    - Takes a `session_id` (e.g., \"M5.S4\").\n    - Constructs the SHIP filename (e.g., `Session Handoff & Initialization Plan_M5.NavUX-S4.md`).\n    - Reads the content of the specified SHIP markdown file.\n    - Returns the file content as a string, or None/error if not found.\n  - Implement `load_task_master_task_details(task_id)` function:\n    - Takes a `task_id` (e.g., \"TM#205\").\n    - Option 1 (Simpler): Assume for now it could read from a pre-exported individual markdown task file (e.g., `tasks/TM-205.md`) if that's part of your workflow.\n    - Option 2 (More Robust): Parse `tasks.json` to find the task object by ID and extract its description, details, test strategy, etc., formatting them into a string. (This could be a later enhancement if too complex initially).\n    - Returns the formatted task details as a string, or None/error.\n  - Implement `load_bible_section(bible_ref)` function:\n    - Takes a `bible_ref` (e.g., \"B6.1\" or \"B3.8_Style_Guide_v2.md\").\n    - Constructs the Bible filename (e.g., `docs/B6.1_Budget_Calculations.md`).\n    - Reads the content of the specified Bible markdown file.\n    - Returns the file content as a string, or None/error.\n  - Implement `assemble_prompt_context(ship_content=None, task_details_content=None, bible_sections_content=None, user_query=\"\")` function:\n    - Takes various context strings and the user's direct query.\n    - Assembles them into a single formatted string suitable for a Gemini prompt (e.g., clearly demarcating sections: \"=== SHIP Context ===\\n{ship_content}\\n=== Task Details ===\\n{task_details_content}\\n=== User Query ===\\n{user_query}\").\n- The `main.py` script (from CKA.6) will need to be updated to:\n  - Call these context loading functions based on the user's request (e.g., if the user says \"Generate handoff for TM#205 for SHIP M5.S4 using B6.1\", it would parse these and call the loaders).\n  - Pass the assembled context to `gemini_interaction.generate_llm_response()`.\n- Implement error handling for file not found, read errors, etc.\n- Paths to documentation (SHIPs, Bible, tasks) might need to be configurable (e.g., via `config_loader.py` or relative to the project root).",
       "status": "pending",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Create test scenarios covering the complete user journeys",
-          "description": "Develop comprehensive test scenarios to cover the entire user workflow, including all possible interactions and edge cases.",
-          "dependencies": [],
-          "details": "Ensure the test scenarios cover the complete user journey from start to finish, including all steps and interactions with the Google AI Studio extension, web interface, and Cursor AI integration.",
-          "status": "pending"
-        },
-        {
-          "id": 2,
-          "title": "Verify the preservation of markdown formatting at each step",
-          "description": "Ensure that the markdown formatting is preserved throughout the user workflow.",
-          "dependencies": [
-            1
-          ],
-          "details": "Validate that the markdown formatting is correctly displayed and maintained at each step of the user journey, including in the web interface and Cursor AI integration.",
-          "status": "pending"
-        },
-        {
-          "id": 3,
-          "title": "Measure the time required for each step of the process",
-          "description": "Measure the performance of the user workflow by tracking the time required for each step.",
-          "dependencies": [
-            1,
-            2
-          ],
-          "details": "Implement a mechanism to measure the time taken for each step of the user journey, from the initial interaction with the Google AI Studio extension to the final output in the Cursor AI integration.",
-          "status": "pending"
-        },
-        {
-          "id": 4,
-          "title": "Identify and document any issues or improvements",
-          "description": "Identify and document any issues or potential improvements in the user workflow.",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "Analyze the test results, performance data, and user feedback to identify any issues or areas for improvement in the overall user workflow.",
-          "status": "pending"
-        }
-      ]
+      "priority": "medium",
+      "dependencies": [],
+      "subtasks": [],
+      "test_strategy": "- Create dummy SHIP, Task Master task, and Bible files in expected locations with known content.\n- Write test calls (e.g., in a test script or `main.py`) for each loading function:\n  - Verify `load_ship_document()` returns the correct content for a valid session ID.\n  - Verify `load_task_master_task_details()` returns correct content for a valid task ID.\n  - Verify `load_bible_section()` returns correct content for a valid Bible reference.\n  - Test error handling (e.g., what happens if a file is missing?).\n- Test `assemble_prompt_context()` to ensure it correctly combines different context parts into a well-formatted string.\n- Verify that `main.py` (after modification) can successfully use this module to build context and pass it to Gemini."
     },
     {
-      "id": 10,
-      "title": "FTR-7.10 Documentation utilisateur et mise à jour de la Bible",
-      "description": "Créer une documentation complète pour l'utilisation du système d'échange de templates et mettre à jour la Bible du projet.",
-      "details": "# - Rédiger un guide utilisateur complet expliquant:\n#   * Comment installer et utiliser l'extension Chrome avec Google AI Studio\n#   * Comment utiliser l'interface web pour gérer les templates\n#   * Comment utiliser les commandes Cursor AI\n#   * Comment consulter l'historique des templates\n# - Mettre à jour les sections Bible existantes mentionnées dans le contexte initial (B7.1, B7.2, B7.3)\n# - Créer les nouvelles sections Bible suggérées (B7.4, B7.5, B7.6, B7.7) pour les composants du système\n# - Inclure des exemples d'utilisation et des captures d'écran\n# - Ajouter des conseils sur les meilleures pratiques pour le formatage markdown dans les templates\n# - Documenter les erreurs courantes et leurs solutions",
-      "mockupDesignNeeded": "Yes - Captures d'écran annotées du système en fonctionnement",
-      "testStrategy": "# - Faire tester la documentation par un utilisateur non impliqué dans le développement\n# - Vérifier que tous les composants et fonctionnalités sont couverts dans le guide utilisateur\n# - Confirmer que la Bible est à jour avec toutes les nouvelles sections\n# - Valider que les instructions sont faciles à suivre et complètes",
-      "priority": "medium",
-      "dependencies": [
-        5,
-        6,
-        8
-      ],
+      "id": "CKA.8",
+      "title": "CKA.8 - CK Assistant Testing, Refinement, and Initial Prompt Engineering",
+      "description": "Conduct thorough testing of the entire CK Assistant application, refine its components based on test results, and perform initial prompt engineering for core CK tasks (e.g., generating handoffs).\n\nDetails:\n- Component Testing (Unit/Integration):\n  - Revisit and expand tests for `config_loader.py` (CKA.2), `template_exchange_client.py` (CKA.3), `gemini_interaction.py` (CKA.5), and `context_loader.py` (CKA.7).\n  - Use mocking frameworks (e.g., Python's `unittest.mock`) to isolate components and simulate API responses (both success and error cases for Gemini API and Template Exchange API).\n- End-to-End Flow Testing (via `main.py`):\n  - Test various user commands/prompts that trigger different functionalities:\n    - Storing a handoff.\n    - Storing a summary.\n    - Fetching a handoff.\n    - Fetching a summary.\n    - Interactions that don't require function calls (general Q&A with Gemini, if supported by base prompts).\n  - Verify that context (from SHIP, TM, Bible) is correctly loaded and seems to influence Gemini's responses when context loading is used.\n  - Verify that the final output (e.g., generated handoff text, retrieved summary) is accurate.\n  - Verify that data is correctly stored/retrieved from Firebase (manual check in console + API responses).\n- Prompt Engineering (Initial Pass):\n  - Develop initial \"system prompts\" or prompt templates that will be used by `main.py` or `gemini_interaction.py` to guide Gemini for specific CK tasks.\n  - Example for generating a handoff:\n    ```\n    System Prompt: \"You are a Context Keeper assistant for the KarmaCash project. Based on the provided SHIP document context, Task Master details, and relevant Bible sections, generate a detailed Handoff message for the Code Generator (CG) using the standard Handoff Template (SHIP Section 7). Ensure all sections of the Handoff template are addressed.\"\n    User Query (after context): \"Generate the handoff for task [TM_ID_HERE].\"\n    ```\n  - Experiment with prompt wording to achieve desired output quality and consistency for handoffs and summaries.\n  - Test how well Gemini uses the provided function declarations based on these prompts.\n- Refinement:\n  - Based on testing, refine:\n    - Function declarations (CKA.4) if Gemini is not understanding them well or if parameters need adjustment.\n    - Prompt templates for clarity and effectiveness.\n    - Error handling in all modules.\n    - User interaction flow in `main.py`.\n- Documentation (Internal): Add comments and docstrings to the Python code.",
       "status": "pending",
+      "priority": "high",
+      "dependencies": [],
       "subtasks": [
         {
-          "id": 1,
-          "title": "Write comprehensive user guide",
-          "description": "Create a detailed user guide covering all system components and functionality",
+          "id": "CKA.8.1",
+          "title": "Develop Unit and Integration Tests for Core Modules",
+          "description": "Create comprehensive unit and integration tests for each of the core modules (`config_loader.py`, `template_exchange_client.py`, `gemini_interaction.py`, and `context_loader.py`).\n\nDetails:\n- Set up a testing framework (e.g., `unittest` or `pytest`)\n- Create a `tests` directory with appropriate test files for each module\n- Implement unit tests for `config_loader.py`:\n  - Test loading of environment variables\n  - Test error handling for missing variables\n  - Test accessor functions for configuration values\n- Implement unit tests for `template_exchange_client.py`:\n  - Use mocks to simulate API responses for create/update template\n  - Use mocks to simulate API responses for get template\n  - Test error handling for various HTTP error codes\n  - Test handling of network issues\n- Implement unit tests for `gemini_interaction.py`:\n  - Test model initialization\n  - Test response generation with mocked Gemini API\n  - Test function call detection and extraction\n  - Test function execution with mocked API client\n  - Test function response handling\n- Implement unit tests for `context_loader.py`:\n  - Test loading of various document types (SHIP, TM, Bible)\n  - Test error handling for missing files\n  - Test context assembly\n- Implement integration tests that connect multiple modules",
+          "status": "pending",
+          "priority": "high",
           "dependencies": [],
-          "details": "The user guide should include step-by-step instructions, examples, screenshots, and troubleshooting information to help users effectively utilize the system",
-          "status": "pending"
+          "test_strategy": "- Verify that all tests pass successfully\n- Check code coverage to ensure all critical paths are tested\n- Ensure that edge cases and error conditions are properly tested\n- Confirm that mocks are used appropriately to isolate components"
         },
         {
-          "id": 2,
-          "title": "Update existing Bible sections",
-          "description": "Review and update the existing Bible sections mentioned in the initial context",
+          "id": "CKA.8.2",
+          "title": "Develop End-to-End Flow Tests",
+          "description": "Create end-to-end tests that verify the complete functionality of the CK Assistant from user input to final output.\n\nDetails:\n- Create test scripts that simulate user interactions with the CK Assistant\n- Test scenarios for storing handoffs:\n  - Create prompts that should trigger handoff storage\n  - Verify that the handoff is correctly stored in Firebase\n  - Check that the response to the user is appropriate\n- Test scenarios for storing summaries:\n  - Create prompts that should trigger summary storage\n  - Verify that the summary is correctly stored in Firebase\n  - Check that the response to the user is appropriate\n- Test scenarios for fetching handoffs:\n  - Create prompts that should trigger handoff retrieval\n  - Verify that the handoff is correctly retrieved from Firebase\n  - Check that the response to the user includes the handoff content\n- Test scenarios for fetching summaries:\n  - Create prompts that should trigger summary retrieval\n  - Verify that the summary is correctly retrieved from Firebase\n  - Check that the response to the user includes the summary content\n- Test scenarios for general Q&A:\n  - Create prompts that should trigger general Q&A (non-function calls)\n  - Verify that the responses are appropriate\n- Test context integration:\n  - Create prompts that include references to SHIP, TM, and Bible documents\n  - Verify that the context is correctly loaded and influences the responses",
+          "status": "pending",
+          "priority": "high",
           "dependencies": [],
-          "details": "Ensure the existing Bible sections are accurate, up-to-date, and aligned with the current system components",
-          "status": "pending"
+          "test_strategy": "- Execute each test scenario and verify the expected outcomes\n- Check that the end-to-end flow works correctly for each functionality\n- Verify that the integration of all components works as expected\n- Confirm that the user experience is smooth and intuitive"
         },
         {
-          "id": 3,
-          "title": "Create new Bible sections",
-          "description": "Develop new Bible sections for the system components as suggested",
-          "dependencies": [
-            2
-          ],
-          "details": "The new Bible sections should provide comprehensive information about the newly added system components",
-          "status": "pending"
+          "id": "CKA.8.3",
+          "title": "Develop Initial Prompt Templates and Conduct Prompt Engineering",
+          "description": "Create and refine prompt templates for the CK Assistant to effectively guide Gemini for specific tasks.\n\nDetails:\n- Develop initial system prompts for core CK tasks:\n  - Handoff generation prompt template\n  - Summary generation prompt template\n  - General assistance prompt template\n- Define placeholders for dynamic content (e.g., SHIP, TM, Bible references)\n- Experiment with different prompt wordings and structures to optimize Gemini's responses\n- Document the prompt templates and their intended use cases\n- Test how different prompt formulations affect Gemini's understanding and use of function declarations\n- Develop guidelines for constructing effective prompts for the CK Assistant",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "test_strategy": "- Test each prompt template with various inputs\n- Compare the quality and consistency of responses between different prompt formulations\n- Verify that the prompts effectively guide Gemini to use function declarations when appropriate\n- Ensure that the prompts result in well-structured, accurate, and helpful responses"
         },
         {
-          "id": 4,
-          "title": "Include examples, screenshots, and troubleshooting information",
-          "description": "Incorporate examples, screenshots, and troubleshooting information throughout the user guide and Bible sections",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
-          "details": "The examples, screenshots, and troubleshooting information should enhance the user's understanding and ability to effectively use the system",
-          "status": "pending"
+          "id": "CKA.8.4",
+          "title": "Refine Component Implementations Based on Test Results",
+          "description": "Analyze test results and refine the implementation of core components to improve robustness, performance, and user experience.\n\nDetails:\n- Review test results from unit, integration, and end-to-end tests\n- Identify and address issues in each component:\n  - `config_loader.py`: Refine error handling and configuration access\n  - `template_exchange_client.py`: Improve API interaction, error handling, and response processing\n  - `gemini_interaction.py`: Enhance function calling logic, response processing, and error recovery\n  - `context_loader.py`: Optimize context loading and assembly\n  - `main.py`: Refine user interaction flow and command processing\n- Implement fixes for identified issues\n- Optimize performance bottlenecks\n- Improve error messages and user feedback\n- Refine function declarations if Gemini is not understanding them well\n- Update tests to reflect the refinements",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "test_strategy": "- Re-run tests after each refinement to verify fixes\n- Ensure that refined components continue to pass all tests\n- Verify that identified issues are resolved\n- Confirm that the overall system is more robust and user-friendly"
+        },
+        {
+          "id": "CKA.8.5",
+          "title": "Document Module APIs and Usage Examples",
+          "description": "Create comprehensive internal documentation for all modules, including API references, usage examples, and best practices.\n\nDetails:\n- Add detailed docstrings to all functions, classes, and modules\n- Create API reference documentation that describes:\n  - Module purpose and functionality\n  - Function signatures, parameters, return values, and exceptions\n  - Class definitions and methods\n  - Usage examples and common patterns\n- Document how the components interact with each other\n- Create usage examples for common scenarios\n- Document known limitations and edge cases\n- Add inline comments for complex logic\n- Ensure documentation follows a consistent style and format",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [],
+          "test_strategy": "- Review documentation for clarity, accuracy, and completeness\n- Verify that the documentation matches the actual implementation\n- Ensure that all public APIs are properly documented\n- Check that usage examples are accurate and helpful"
+        },
+        {
+          "id": "CKA.8.6",
+          "title": "Create Basic User Guide for CK Assistant",
+          "description": "Develop a basic user guide for the CK Assistant that explains how to use it effectively for generating and retrieving handoffs and summaries.\n\nDetails:\n- Create a `README.md` file that includes:\n  - Overview of the CK Assistant and its purpose\n  - Installation and setup instructions\n  - Configuration requirements (API keys, etc.)\n  - Basic usage instructions\n  - Command examples for common tasks:\n    - Generating handoffs\n    - Generating summaries\n    - Retrieving handoffs\n    - Retrieving summaries\n    - Using context references (SHIP, TM, Bible)\n  - Troubleshooting tips\n  - Known limitations\n- Include screenshots or terminal examples where helpful\n- Add a FAQ section for common questions\n- Document best practices for effective use of the CK Assistant\n- Provide contact information for support or questions",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [],
+          "test_strategy": "- Review the user guide for clarity, accuracy, and completeness\n- Verify that all essential information is included\n- Ensure that the instructions are easy to follow\n- Check that the examples are accurate and helpful"
         }
-      ]
+      ],
+      "test_strategy": "- Define a checklist of test scenarios covering all core functionalities and edge cases.\n- Document test results, especially for prompt engineering experiments (which prompts work best for which tasks).\n- Ensure the application is reasonably robust before considering it \"v0.1 complete\".\n- Verify that the CK Assistant successfully uses the Template Exchange API to store and retrieve data without errors for common cases.",
+      "complexityScore": 8
     }
   ]
 }
