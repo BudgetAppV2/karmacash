@@ -4,7 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>KarmaCash</title>
+    <!-- Redirect script to ensure we're on the correct domain -->
+    <script>
+      // Check if we're on the template exchange domain but trying to access the main app
+      if (window.location.hostname === 'template-exchange-karmacash.web.app') {
+        // Redirect to the main KarmaCash app
+        window.location.href = 'https://karmacash-6e8f5.web.app' + window.location.pathname + window.location.search;
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

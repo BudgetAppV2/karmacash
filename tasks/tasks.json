@@ -1,299 +1,573 @@
 {
   "tasks": [
     {
-      "id": 201,
-      "title": "M5.1.1 - Amélioration du \"Reste à Allouer\" avec validation préventive",
-      "priority": "Haute",
+      "id": 1,
+      "title": "FTR-7.1 Définition du modèle de données pour les templates Firebase",
+      "description": "Concevoir et documenter la structure de données Firestore pour stocker les templates d'échange entre Google AI Studio et Cursor AI.",
+      "details": "# - Créer un schéma de données basé sur la structure suggérée dans la réponse HD #2 : { sessionId, type (handoff/summary), content, timestamp, status }\n# - Définir les règles de validation Firestore pour garantir l'intégrité des données\n# - Définir les index nécessaires pour les requêtes fréquentes (par sessionId, par type)\n# - Documenter les conventions de nommage pour les sessionId (ex: \"M5.S4\")\n# - Référencer la section Bible B5.2 pour maintenir la cohérence avec les structures de données existantes\n# - Créer une nouvelle section Bible (suggestion: B7.4) pour documenter cette nouvelle structure",
+      "mockupDesignNeeded": "Yes - Diagramme de la structure de données Firestore",
+      "testStrategy": "# - Confirmer que le schéma prend en charge tous les cas d'utilisation mentionnés dans les réponses HD #1 et #2\n# - Vérifier que la structure est optimisée pour les requêtes principales (récupération par sessionId)\n# - Mettre à jour la Bible avec la nouvelle section B7.4 documentant la structure de données des templates",
+      "priority": "high",
       "dependencies": [],
-      "description": "Implémenter une validation côté client pour empêcher que le \"Reste à Allouer\" ne devienne négatif lors de la saisie d'une allocation individuelle, avec un retour visuel approprié pour guider l'utilisateur.",
-      "details": "- Analyser le code existant de validation des entrées et de calcul du \"Reste à Allouer\"\n- Implémenter une logique de validation préventive qui empêche les entrées qui rendraient le \"Reste à Allouer\" négatif\n- Développer un mécanisme de plafonnement des valeurs d'entrée au maximum disponible\n- Créer des indicateurs visuels subtils (bordure rouge douce selon Bible [B3.8]) lorsqu'une entrée dépasse la limite\n- Implémenter des messages d'explication clairs et non alarmants (selon Bible [B3.4])\n- Ajouter des indices visuels lorsque le \"Reste à Allouer\" approche de zéro\n- Assurer que la validation se fait en temps réel pendant la saisie utilisateur\n- Prioriser la rigueur budgétaire tout en maintenant une expérience utilisateur fluide et non restrictive",
-      "mockupDesignNeeded": "Oui - Maquette simple pour les états visuels d'erreur et d'avertissement des champs de saisie, ainsi que pour l'indicateur de \"Reste à Allouer\" approchant zéro.",
-      "testStrategy": "- Tester la saisie de valeurs valides et invalides dans différentes catégories\n- Vérifier que le plafonnement fonctionne correctement sans permettre de dépasser le montant disponible\n- Confirmer que les retours visuels sont clairs mais non intrusifs\n- Tester différents scénarios de montants (petits, grands, décimaux)\n- Vérifier la réactivité de l'interface lors des validations en temps réel",
       "status": "done",
       "subtasks": [
         {
           "id": 1,
-          "title": "Analyze the existing code for input validation and \"Reste à Allouer\" calculation",
-          "description": "Review the existing codebase to understand the current implementation of input validation and \"Reste à Allouer\" calculation.",
+          "title": "Define the Firestore data schema based on the suggested structure",
+          "description": "Analyze the suggested data structure and define the appropriate Firestore data schema, including collections, documents, and fields.",
           "dependencies": [],
-          "details": "Identify the relevant code sections, understand the existing logic, and document any areas for improvement.",
+          "details": "Ensure the data schema aligns with the business requirements and can efficiently support the application's functionality.\n<info added on 2025-05-21T20:50:27.706Z>\nImplementation of the Firebase Firestore data model for templates exchange is complete. Key components include:\n\n1. Schema definition with validation in `models/template-exchange-schema.js`\n2. `TemplateModel` class with CRUD operations and optimized querying\n3. Firestore security rules in `firestore.rules` for schema validation and access control\n4. Index configuration in `firestore.indexes.json` for query optimization\n5. Firebase initialization and utility functions in `firebase/firebase.js`\n6. Documentation in `docs/template-exchange-data-model.md`\n7. Test suite in `tests/template-model.test.js`\n\nNotable features:\n- Schema fields: sessionId, type, content, timestamps, status, and metadata\n- Sharding strategy to mitigate 500 writes/second limitation\n- Comprehensive client and server-side validation\n- Optimized query methods with pagination support\n- Detailed documentation including examples and design decisions\n\nThe data model aligns with business requirements and supports efficient application functionality.\n</info added on 2025-05-21T20:50:27.706Z>",
           "status": "done"
         },
         {
           "id": 2,
-          "title": "Implement preventive validation logic to prevent negative \"Reste à Allouer\" values",
-          "description": "Develop new validation logic to ensure that the \"Reste à Allouer\" value never becomes negative.",
+          "title": "Implement the necessary Firestore validation rules",
+          "description": "Identify the required validation rules for the Firestore data schema and implement them to ensure data integrity.",
           "dependencies": [
             1
           ],
-          "details": "Design and implement the validation rules to prevent negative values, considering edge cases and user experience.",
+          "details": "Consider data types, field requirements, and any other necessary constraints to maintain the integrity of the data.\n<info added on 2025-05-21T20:55:07.565Z>\nThe project structure for the Template Exchange System has been established in `src/template-exchange/`. The structure includes:\n\n- Logical folders: models/, api/, utils/, services/, components/, tests/, and docs/\n- Configuration files: package.json, .gitignore, and .eslintrc.js\n- An index.js entry point\n- A comprehensive README.md\n\nThis organization facilitates development, improves modularity, and ensures proper separation of concerns. The models/ folder will be particularly relevant for implementing the Firestore data schema based on the defined structure.\n</info added on 2025-05-21T20:55:07.565Z>",
           "status": "done"
         },
         {
           "id": 3,
-          "title": "Develop a mechanism to cap input values at the maximum available",
-          "description": "Create a mechanism to limit the input values to the maximum available amount.",
-          "dependencies": [
-            1,
-            2
-          ],
-          "details": "Determine the appropriate capping logic and integrate it with the input fields.",
-          "status": "done"
-        },
-        {
-          "id": 4,
-          "title": "Create subtle visual indicators (soft red border per [B3.8]) when an input exceeds the limit",
-          "description": "Implement visual feedback to indicate when an input value exceeds the available limit.",
-          "dependencies": [
-            3
-          ],
-          "details": "Design and integrate the visual indicators, such as a soft red border, to provide clear feedback to the user.",
-          "status": "done"
-        },
-        {
-          "id": 5,
-          "title": "Implement clear and non-alarming explanation messages (per [B3.4])",
-          "description": "Develop explanatory messages to inform the user about the input validation and capping mechanisms.",
-          "dependencies": [
-            2,
-            3,
-            4
-          ],
-          "details": "Craft clear and non-alarming messages that provide helpful information to the user without being overly intrusive.",
-          "status": "done"
-        },
-        {
-          "id": 6,
-          "title": "Add visual cues when the \"Reste à Allouer\" approaches zero",
-          "description": "Implement visual indicators to alert the user when the \"Reste à Allouer\" value is approaching zero.",
-          "dependencies": [
-            1,
-            2
-          ],
-          "details": "Design and integrate subtle visual cues, such as color changes or icons, to provide feedback on the \"Reste à Allouer\" status.",
-          "status": "done"
-        }
-      ]
-    },
-    {
-      "id": 202,
-      "title": "M5.1.2 - Implémentation des curseurs d'allocation interactifs",
-      "priority": "Haute",
-      "dependencies": [
-        201
-      ],
-      "description": "Développer et intégrer des curseurs d'allocation qui complètent les champs de saisie numérique, permettant une allocation visuelle et intuitive du budget avec synchronisation bidirectionnelle.",
-      "details": "- Concevoir l'apparence visuelle des curseurs en accord avec le thème \"Zen/Tranquillité\" du Bible [B3.4]\n- Développer les composants de curseurs avec plage dynamique (0 à maximum disponible pour chaque catégorie)\n- Implémenter la logique de calcul du maximum disponible pour chaque catégorie en fonction du \"Reste à Allouer\"\n- Développer la synchronisation en temps réel entre curseurs et champs de saisie numérique\n- Assurer que les modifications par curseur ou par saisie directe sont parfaitement synchronisées\n- Implémenter la navigation au clavier (touches fléchées) pour l'accessibilité\n- Ajouter les attributs ARIA appropriés pour les lecteurs d'écran\n- Optimiser les cibles tactiles selon les directives du Bible [B3.4]\n- Configurer des incréments sensibles (1, 5, 10 unités monétaires) selon le contexte\n- S'inspirer de l'exemple de la Banque Nationale pour la fluidité et la réactivité",
-      "mockupDesignNeeded": "Oui - Maquettes détaillées pour l'apparence des curseurs, leurs états (repos, focus, actif, désactivé), et leur comportement lors des interactions.",
-      "testStrategy": "- Tester la synchronisation bidirectionnelle entre curseurs et champs de saisie\n- Vérifier l'accessibilité avec différents outils d'assistance (navigation clavier, lecteurs d'écran)\n- Confirmer que les curseurs respectent les contraintes de taille des cibles tactiles\n- Tester la fluidité et la réactivité sur différents appareils (desktop, mobile)\n- Vérifier que les incréments sont appropriés et que l'expérience utilisateur est intuitive",
-      "status": "done",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Design the visual appearance of the allocation sliders in line with the \"Zen/Tranquility\" theme per [B3.4]",
-          "description": "Create the visual design for the allocation sliders that aligns with the \"Zen/Tranquility\" theme as per the guidelines in [B3.4].",
-          "dependencies": [],
-          "details": "The visual design should incorporate calming and serene elements to match the overall theme. Ensure the sliders, labels, and other UI components are visually appealing and consistent with the brand identity.",
-          "status": "done"
-        },
-        {
-          "id": 2,
-          "title": "Develop the slider components with dynamic range (0 to maximum available for each category)",
-          "description": "Implement the slider components with a dynamic range that adjusts based on the maximum available value for each category.",
+          "title": "Determine the required indexes for frequent queries",
+          "description": "Analyze the application's query patterns and identify the necessary indexes to optimize the performance of frequent queries.",
           "dependencies": [
             1
           ],
-          "details": "The slider range should be from 0 to the maximum available value for each allocation category. The maximum available value should be determined based on the \"Reste à Allouer\" calculation.",
-          "status": "done"
-        },
-        {
-          "id": 3,
-          "title": "Implement the logic to calculate the maximum available for each category based on the \"Reste à Allouer\"",
-          "description": "Develop the logic to determine the maximum available value for each allocation category based on the \"Reste à Allouer\".",
-          "dependencies": [
-            2
-          ],
-          "details": "The maximum available value for each category should be calculated dynamically based on the remaining amount to allocate (\"Reste à Allouer\"). This value should be used to set the range of the sliders.",
+          "details": "Ensure the indexes are properly configured to support the application's data retrieval needs.\n<info added on 2025-05-21T20:55:50.429Z>\nThe Firestore indexes for the Template Exchange System have been implemented and configured in `firestore.indexes.json`. The following compound indexes were created for the templates collection:\n\n- `shard (ASC), sessionId (ASC), updatedAt (DESC)`\n- `shard (ASC), type (ASC), updatedAt (DESC)`\n- `shard (ASC), status (ASC), updatedAt (DESC)`\n- `shard (ASC), metadata.source (ASC), updatedAt (DESC)`\n- `shard (ASC), type (ASC), status (ASC), updatedAt (DESC)`\n\nThese indexes support the sharding approach to overcome Firestore's 500 writes/second limitation on collections with sequential timestamp fields. All queries in the `TemplateModel` class (in `models/template-exchange-schema.js`) have been optimized to use these indexes efficiently. The index configuration has been documented in `docs/template-exchange-data-model.md` for developer reference and to explain the query optimization approach. This setup ensures optimal performance for common query patterns in the Template Exchange System, even as the dataset grows.\n</info added on 2025-05-21T20:55:50.429Z>",
           "status": "done"
         },
         {
           "id": 4,
-          "title": "Develop real-time synchronization between sliders and numeric input fields",
-          "description": "Ensure that changes made to the sliders are immediately reflected in the corresponding numeric input fields, and vice versa.",
-          "dependencies": [
-            2,
-            3
-          ],
-          "details": "Implement the necessary logic to keep the sliders and numeric input fields in sync, so that any modifications made to one are instantly reflected in the other.",
-          "status": "done"
-        },
-        {
-          "id": 5,
-          "title": "Ensure that modifications via sliders or direct input are perfectly synchronized",
-          "description": "Guarantee that any changes made to the allocation values, whether through the sliders or direct input, are seamlessly synchronized across all UI elements.",
-          "dependencies": [
-            4
-          ],
-          "details": "Develop robust mechanisms to ensure that any updates to the allocation values, whether made through the sliders or by directly editing the numeric inputs, are instantly reflected across the entire interface.",
-          "status": "done"
-        },
-        {
-          "id": 6,
-          "title": "Implement keyboard navigation (arrow keys) for accessibility",
-          "description": "Provide keyboard navigation functionality using the arrow keys to allow users to adjust the allocation values.",
-          "dependencies": [
-            4,
-            5
-          ],
-          "details": "Ensure that users can navigate and adjust the allocation values using the keyboard, specifically the arrow keys, to improve accessibility and usability.",
-          "status": "done"
-        },
-        {
-          "id": 7,
-          "title": "Add appropriate ARIA attributes for screen readers",
-          "description": "Incorporate ARIA (Accessible Rich Internet Applications) attributes to enhance the accessibility of the allocation sliders for screen reader users.",
-          "dependencies": [
-            6
-          ],
-          "details": "Identify and add the necessary ARIA attributes to the slider components and related UI elements to ensure they are properly recognized and interpreted by screen readers, providing a seamless experience for users with visual impairments.",
-          "status": "done"
-        },
-        {
-          "id": 8,
-          "title": "Optimize touch targets according to [B3.4] guidelines",
-          "description": "Ensure the touch targets for the allocation sliders and related UI elements meet the guidelines specified in [B3.4].",
-          "dependencies": [
-            7
-          ],
-          "details": "Review the touch target sizes and spacing of the allocation sliders and related UI components to ensure they adhere to the guidelines outlined in [B3.4], providing an optimal touch-based experience.",
-          "status": "done"
-        }
-      ]
-    },
-    {
-      "id": 203,
-      "title": "M5.1.3 - Intégration et coordination des composants de budgétisation",
-      "priority": "Haute",
-      "dependencies": [
-        201,
-        202
-      ],
-      "description": "Assurer l'intégration harmonieuse entre la validation du \"Reste à Allouer\" et les curseurs d'allocation, garantissant une expérience utilisateur cohérente et fluide lors des interactions avec le budget.",
-      "details": "- Coordonner les validations du \"Reste à Allouer\" avec le comportement des curseurs d'allocation\n- Implémenter la mise à jour dynamique des plages maximales des curseurs en fonction du \"Reste à Allouer\" en temps réel\n- Assurer que les modifications d'une catégorie affectent correctement les plages disponibles pour les autres catégories\n- Développer une logique côté client pour garantir la cohérence des données entre tous les composants\n- Optimiser les calculs en temps réel pour éviter les ralentissements (debouncing/throttling si nécessaire)\n- Gérer les états intermédiaires lors des ajustements multiples pour une expérience fluide\n- Assurer que les validations et les contraintes s'appliquent de manière cohérente, que l'utilisateur interagisse via les curseurs ou les champs de saisie\n- Implémenter une gestion efficace des événements pour minimiser les recalculs inutiles",
-      "mockupDesignNeeded": "Non - Cette tâche concerne principalement l'intégration technique et le comportement dynamique.",
-      "testStrategy": "- Tester les interactions combinées entre curseurs et champs de saisie\n- Vérifier que les contraintes du \"Reste à Allouer\" sont correctement reflétées dans les plages des curseurs\n- Tester des scénarios d'allocation complexes impliquant plusieurs catégories\n- Évaluer les performances lors d'ajustements rapides et multiples\n- Confirmer que l'expérience utilisateur reste fluide et intuitive dans tous les scénarios d'utilisation",
-      "status": "done",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Coordinate the \"Reste à Allouer\" validations with the behavior of the allocation sliders",
-          "description": "Ensure that the \"Reste à Allouer\" validations are properly integrated with the allocation sliders, so that changes in one component are reflected in the other.",
-          "dependencies": [],
-          "details": "This includes implementing the necessary logic to synchronize the \"Reste à Allouer\" values with the slider positions and ranges.",
-          "status": "done"
-        },
-        {
-          "id": 2,
-          "title": "Implement the dynamic update of the slider maximum ranges based on the real-time \"Reste à Allouer\"",
-          "description": "Develop the functionality to dynamically update the maximum ranges of the allocation sliders based on the current \"Reste à Allouer\" values.",
-          "dependencies": [
-            1
-          ],
-          "details": "This will ensure that the sliders always reflect the available budget for each category.",
-          "status": "done"
-        },
-        {
-          "id": 3,
-          "title": "Ensure that changes in one category correctly affect the available ranges for other categories",
-          "description": "Implement the logic to propagate changes in one category's allocation to the available ranges for other categories.",
-          "dependencies": [
-            1,
-            2
-          ],
-          "details": "This will maintain data consistency and prevent invalid allocations across the different categories.",
-          "status": "done"
-        },
-        {
-          "id": 4,
-          "title": "Develop client-side logic to guarantee data consistency across all components",
-          "description": "Implement the necessary client-side logic to ensure that the data remains consistent across all the budgeting components.",
+          "title": "Document the naming conventions and integrate with the existing data structures",
+          "description": "Establish and document the naming conventions for the Firestore data schema, and integrate it with the existing data structures within the application.",
           "dependencies": [
             1,
             2,
             3
           ],
-          "details": "This includes handling edge cases, validating user inputs, and maintaining the integrity of the overall budgeting system.",
-          "status": "done"
-        },
-        {
-          "id": 5,
-          "title": "Optimize real-time calculations to avoid slowdowns (debouncing/throttling if necessary)",
-          "description": "Optimize the performance of the real-time calculations and updates to prevent slowdowns in the user experience.",
-          "dependencies": [
-            1,
-            2,
-            3,
-            4
-          ],
-          "details": "Implement techniques like debouncing or throttling to manage the frequency of updates and calculations.",
-          "status": "done"
-        },
-        {
-          "id": 6,
-          "title": "Manage intermediate states during multiple adjustments for a fluid experience",
-          "description": "Develop the logic to handle and manage the intermediate states during multiple adjustments to the budget allocations.",
-          "dependencies": [
-            1,
-            2,
-            3,
-            4,
-            5
-          ],
-          "details": "This will ensure a smooth and responsive user experience, even when the user is making multiple changes.",
-          "status": "done"
-        },
-        {
-          "id": 7,
-          "title": "Implement efficient event handling to minimize unnecessary recalculations",
-          "description": "Implement efficient event handling mechanisms to minimize the number of unnecessary recalculations and updates.",
-          "dependencies": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6
-          ],
-          "details": "This will further optimize the performance and responsiveness of the budgeting system.",
+          "details": "Ensure the new data schema and naming conventions are aligned with the overall system architecture and can be seamlessly integrated.\n<info added on 2025-05-21T20:56:14.602Z>\nThe new data schema and naming conventions have been successfully aligned with the overall system architecture and integrated seamlessly. Key accomplishments include:\n\n1. Established clear naming conventions for session IDs, collection name, field names, shard values, type values, and status values.\n\n2. Created comprehensive documentation in `src/template-exchange/docs/template-exchange-data-model.md`, covering schema description, validation rules, common operations, design decisions, and integration points.\n\n3. Ensured proper integration with existing data structures, including alignment with Firebase security model, consistent timestamp handling, and following established validation approaches.\n\n4. Added the documentation as a new section in the application Bible, providing a clear reference for developers working with the Template Exchange System.\n\n5. Organized all elements within the `src/template-exchange/` folder structure, maintaining consistency with established patterns while accommodating specific requirements of the Template Exchange System.\n</info added on 2025-05-21T20:56:14.602Z>",
           "status": "done"
         }
       ]
     },
     {
-      "id": 204,
-      "title": "M5.1.4 - Révision de la logique backend pour la sauvegarde des allocations",
-      "priority": "Moyenne",
+      "id": 2,
+      "title": "FTR-7.2 Configuration de la collection Firestore et des règles de sécurité",
+      "description": "Configurer la nouvelle collection 'templates' dans Firestore et mettre en place les règles de sécurité appropriées.",
+      "details": "# - Créer la nouvelle collection 'templates' dans Firestore basée sur le modèle défini dans FTR-7.1\n# - Configurer les règles de sécurité Firestore pour permettre l'accès via API key comme mentionné dans la réponse HD #3\n# - Implémenter la validation des données côté serveur pour garantir l'intégrité\n# - Configurer les paramètres de performance et de mise en cache appropriés\n# - Référencer la section Bible B5.2 pour les patterns d'accès aux données Firestore existants",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "# - Confirmer que la collection est correctement créée et accessible via les identifiants Firebase\n# - Vérifier que les règles de sécurité bloquent les accès non autorisés\n# - Tester l'insertion et la récupération de données d'exemple pour valider la configuration\n# - Mettre à jour la Bible B5.2 avec les détails de la nouvelle collection 'templates'",
+      "priority": "high",
       "dependencies": [
-        203
+        1
       ],
-      "description": "Examiner et améliorer la robustesse de la logique de sauvegarde des allocations budgétaires, en assurant l'intégrité des données et un retour visuel approprié pour l'utilisateur.",
-      "details": "- Auditer le code existant de sauvegarde des allocations\n- Identifier les points de vulnérabilité ou d'amélioration dans la logique actuelle\n- Renforcer les validations de structure et d'intégrité des données (valeurs numériques valides, IDs de catégories corrects)\n- Optimiser le processus de sauvegarde manuelle via le bouton \"Sauvegarder\"\n- Implémenter un mécanisme de vérification des données avant envoi au serveur\n- Développer un indicateur de chargement sur le bouton de sauvegarde pendant le processus\n- Implémenter des notifications Toast pour succès/échec selon Bible [B3.7] et [B3.11]\n- Documenter les améliorations apportées et les validations implémentées\n- Noter les considérations futures pour la gestion des conflits (pertinent pour la fonctionnalité \"Budgets Partagés\" post-MVP)",
-      "mockupDesignNeeded": "Non - Utiliser les styles existants pour les indicateurs de chargement et les notifications Toast définis dans le Bible [B3.7].",
-      "testStrategy": "- Tester le processus de sauvegarde avec différentes configurations d'allocations\n- Vérifier la robustesse face à des données mal formatées ou invalides\n- Confirmer que les retours visuels (chargement, succès, échec) fonctionnent correctement\n- Tester les scénarios d'erreur réseau et de timeout\n- Valider que les données sauvegardées correspondent exactement aux allocations définies par l'utilisateur",
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create the 'templates' collection in Firestore",
+          "description": "Create the 'templates' collection in Firestore based on the defined model",
+          "dependencies": [],
+          "details": "Ensure the collection structure and data model match the requirements",
+          "status": "done"
+        },
+        {
+          "id": 2,
+          "title": "Configure Firestore security rules",
+          "description": "Configure the Firestore security rules to allow access via API key",
+          "dependencies": [
+            1
+          ],
+          "details": "Set up the necessary security rules to restrict access to the 'templates' collection",
+          "status": "done"
+        },
+        {
+          "id": 3,
+          "title": "Implement server-side data validation",
+          "description": "Implement server-side data validation to ensure integrity",
+          "dependencies": [
+            1
+          ],
+          "details": "Implement validation logic to ensure the data integrity of the 'templates' collection",
+          "status": "done"
+        },
+        {
+          "id": 4,
+          "title": "Set up performance and caching parameters",
+          "description": "Set up the appropriate performance and caching parameters",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Configure the necessary performance and caching settings to optimize the 'templates' collection",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "FTR-7.3 Développement des Cloud Functions pour l'API de gestion des templates",
+      "description": "Créer les Cloud Functions Firebase nécessaires pour exposer une API REST permettant la gestion des templates.",
+      "details": "# - Développer les endpoints API suivants basés sur la réponse HD #3 et #4:\n#   * GET /api/templates/:sessionId - Récupérer un template par sessionId\n#   * POST /api/templates - Soumettre un nouveau template\n#   * GET /api/templates - Lister tous les templates (avec filtres optionnels)\n# - Implémenter l'authentification par API key comme mentionné dans la réponse HD #3\n# - Gérer les erreurs et les réponses appropriées (404, 401, etc.)\n# - Ajouter l'horodatage automatique mentionné dans la réponse HD #2\n# - Créer un nouveau fichier de service JavaScript conforme au pattern d'architecture mentionné dans la réponse HD #3",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "# - Tester chaque endpoint API avec Postman ou un outil similaire\n# - Vérifier que l'authentification par API key fonctionne correctement\n# - Confirmer que les réponses API sont formatées correctement et incluent toutes les données nécessaires\n# - Documenter les endpoints API dans une nouvelle section Bible (suggestion: B7.5)",
+      "priority": "high",
+      "dependencies": [
+        2
+      ],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Develop the API endpoints for retrieving, submitting, and listing templates",
+          "description": "Implement the necessary API endpoints to allow users to retrieve, submit, and list templates",
+          "dependencies": [],
+          "details": "This subtask should cover the development of the API endpoints for the core functionality of the Cloud Functions API, including endpoints for retrieving, submitting, and listing templates.",
+          "status": "done"
+        },
+        {
+          "id": 2,
+          "title": "Implement the API key-based authentication mechanism",
+          "description": "Develop the authentication mechanism for the API using API keys",
+          "dependencies": [
+            1
+          ],
+          "details": "This subtask should focus on implementing the API key-based authentication mechanism to secure the Cloud Functions API endpoints.",
+          "status": "done"
+        },
+        {
+          "id": 3,
+          "title": "Handle errors and provide appropriate responses",
+          "description": "Implement error handling and provide meaningful responses to API clients",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "This subtask should cover the implementation of error handling and the provision of appropriate responses to API clients, ensuring a robust and user-friendly API experience.",
+          "status": "done"
+        },
+        {
+          "id": 4,
+          "title": "Create a new service file following the recommended architecture pattern",
+          "description": "Organize the API implementation into a new service file following the recommended architecture pattern",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "This subtask should involve the creation of a new service file that follows the recommended architecture pattern, ensuring the API implementation is structured and maintainable.",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "FTR-7.4 Création de l'interface web minimaliste pour la gestion des templates",
+      "description": "Développer une interface web simple pour soumettre et consulter les templates, hébergée sur Firebase Hosting.",
+      "details": "# - Créer une page HTML/JS minimaliste comme décrit dans la réponse HD #4\n# - Implémenter les deux fonctionnalités principales:\n#   1. Formulaire pour soumettre un nouveau template (sessionId, type, contenu)\n#   2. Vue pour consulter les templates existants par sessionId\n# - Assurer la préservation du formatage markdown lors de la soumission et de l'affichage\n# - Utiliser un design simple mais professionnel, cohérent avec l'identité visuelle de KarmaCash\n# - Intégrer l'authentification par API key pour les appels à l'API\n# - Optimiser pour une utilisation rapide (moins de 3 clics par tâche, comme mentionné dans la réponse HD #5)",
+      "mockupDesignNeeded": "Yes - Wireframe simple de l'interface utilisateur",
+      "testStrategy": "# - Vérifier que l'interface permet de soumettre un template sans perte de formatage\n# - Confirmer que la consultation des templates est intuitive et rapide\n# - Tester sur différents navigateurs pour assurer la compatibilité\n# - Mesurer le nombre de clics nécessaires pour accomplir chaque tâche (objectif: moins de 3)",
+      "priority": "medium",
+      "dependencies": [
+        3
+      ],
       "status": "pending",
-      "subtasks": []
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create the HTML/JS-based web interface",
+          "description": "Develop the HTML and JavaScript-based web interface with the two main functionalities",
+          "dependencies": [],
+          "details": "The web interface should have a clean and intuitive design, allowing users to easily access the two main functionalities: submitting new templates and consulting existing templates by sessionId.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement the form for submitting new templates",
+          "description": "Develop the form for users to submit new templates",
+          "dependencies": [
+            1
+          ],
+          "details": "The form should allow users to input the necessary information for a new template, such as the template content (with support for Markdown formatting), a title, and any other relevant details. The form should also handle form validation and provide clear feedback to the user.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Develop the view for consulting existing templates by sessionId",
+          "description": "Create the view for users to search and view existing templates by sessionId",
+          "dependencies": [
+            1
+          ],
+          "details": "The view should allow users to search for and view existing templates by entering a sessionId. The templates should be displayed in a clear and organized manner, preserving the Markdown formatting.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Integrate the API key-based authentication and optimize the user experience",
+          "description": "Implement the API key-based authentication and optimize the overall user experience",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Integrate the API key-based authentication to ensure secure access to the application. Additionally, optimize the user experience by improving the overall design, responsiveness, and accessibility of the web interface.",
+          "status": "pending"
+        }
+      ]
     },
     {
-      "id": 205,
-      "title": "M5.1.5 - Clarification UI pour le calcul des \"Fonds Disponibles\"",
-      "priority": "Moyenne",
-      "dependencies": [],
-      "description": "Améliorer la clarté de l'interface concernant le calcul des \"Fonds Disponibles\", en particulier dans le contexte où la fonctionnalité de bascule des dépenses récurrentes pourrait être reportée.",
-      "details": "- Rédiger un contenu explicatif clair détaillant la formule de calcul : (Revenu total du mois) - (Somme des dépenses récurrentes) + (Report du mois précédent)\n- Concevoir une infobulle (tooltip) selon les directives du Bible [B3.8]\n- Ajouter une icône d'information (Heroicon) à côté de l'affichage des \"Fonds Disponibles\"\n- Implémenter l'interaction pour afficher l'infobulle au survol/clic sur l'icône\n- Assurer que l'explication est accessible et compréhensible pour tous les utilisateurs\n- Optimiser l'affichage de l'infobulle sur les appareils mobiles et desktop\n- Vérifier que l'explication reste valide même si la fonctionnalité de bascule des dépenses récurrentes est reportée\n- S'assurer que l'infobulle ne perturbe pas l'expérience utilisateur globale (taille appropriée, positionnement intelligent)",
-      "mockupDesignNeeded": "Oui - Design de l'infobulle et de son positionnement par rapport à l'affichage des \"Fonds Disponibles\".",
-      "testStrategy": "- Vérifier que l'infobulle s'affiche correctement au survol/clic sur l'icône d'information\n- Tester la lisibilité et la clarté du contenu explicatif\n- Confirmer l'accessibilité de l'infobulle (navigation clavier, lecteurs d'écran)\n- Tester l'affichage sur différentes tailles d'écran et orientations\n- Valider que l'explication correspond bien au calcul réel effectué par l'application",
+      "id": 5,
+      "title": "FTR-7.5 Développement du script d'intégration pour Cursor AI",
+      "description": "Créer un script JavaScript pour Cursor AI permettant de récupérer et soumettre des templates via l'API.",
+      "details": "# - Développer les commandes Cursor AI mentionnées dans la réponse HD #4:\n#   * `fetch-handoff <sessionId>` - Récupérer un template de handoff\n#   * `submit-summary <sessionId> <content>` - Soumettre un résumé d'implémentation\n# - Assurer l'intégration transparente avec l'environnement Cursor AI\n# - Gérer l'authentification par API key de manière sécurisée\n# - Préserver le formatage markdown lors des transferts\n# - Implémenter des messages de confirmation clairs pour l'utilisateur\n# - Gérer les erreurs de manière élégante (problèmes réseau, templates non trouvés, etc.)",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "# - Tester les commandes dans l'environnement Cursor AI avec des templates réels\n# - Vérifier que le formatage markdown est préservé dans les deux sens\n# - Mesurer le temps nécessaire pour un échange complet (objectif: moins de 30 secondes comme mentionné dans la réponse HD #5)\n# - Documenter l'utilisation des commandes dans une nouvelle section Bible (suggestion: B7.6)",
+      "priority": "high",
+      "dependencies": [
+        3
+      ],
       "status": "pending",
-      "subtasks": []
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Develop Cursor AI commands for fetching handoffs and submitting summaries",
+          "description": "Implement the necessary commands to fetch handoff data and submit summary information to the Cursor AI system.",
+          "dependencies": [],
+          "details": "Ensure the commands are intuitive and provide a seamless user experience. Implement error handling and provide clear feedback to the user.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Integrate with the Cursor AI environment",
+          "description": "Ensure the developed commands and functionality integrate smoothly with the Cursor AI system.",
+          "dependencies": [
+            1
+          ],
+          "details": "Collaborate with the Cursor AI team to understand the integration requirements and implement the necessary connectivity.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Implement secure API key-based authentication",
+          "description": "Develop a secure mechanism to handle API key-based authentication for accessing the Cursor AI system.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Ensure the API key is stored and transmitted securely. Implement measures to prevent unauthorized access.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Preserve markdown formatting during data transfers",
+          "description": "Ensure that the markdown formatting is preserved when transferring data between the application and the Cursor AI system.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Implement necessary parsing and formatting logic to maintain the integrity of the markdown content.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "FTR-7.6 Configuration du déploiement Firebase pour l'interface web",
+      "description": "Configurer et déployer l'interface web sur Firebase Hosting pour un accès facile et sécurisé.",
+      "details": "# - Configurer le projet Firebase Hosting pour héberger l'interface web\n# - Mettre en place un processus de déploiement simple (manuel ou automatisé)\n# - Configurer les paramètres de cache appropriés pour optimiser les performances\n# - Assurer la sécurité de l'accès à l'interface (authentification simple si nécessaire)\n# - Référencer les sections Bible existantes sur le déploiement Firebase",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "# - Vérifier que l'interface est correctement déployée et accessible via l'URL Firebase\n# - Tester les performances de chargement de la page\n# - Confirmer que toutes les fonctionnalités fonctionnent comme prévu dans l'environnement de production\n# - Documenter l'URL et les procédures de déploiement dans la Bible",
+      "priority": "medium",
+      "dependencies": [
+        4
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Configure Firebase Hosting project",
+          "description": "Set up the Firebase Hosting project to host the web interface",
+          "dependencies": [],
+          "details": "1. Create a new Firebase project\n2. Initialize Firebase Hosting for the project\n3. Configure the hosting settings (e.g., site name, default document)",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Establish deployment process",
+          "description": "Set up a simple deployment process (manual or automated) for the web interface",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Determine the deployment workflow (manual or automated)\n2. Configure the necessary scripts or tools for deployment\n3. Document the deployment process",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Configure caching parameters",
+          "description": "Set up appropriate caching parameters for performance optimization",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "1. Analyze the web interface assets and determine the appropriate caching strategy\n2. Configure the caching settings in the Firebase Hosting configuration\n3. Verify the caching behavior and performance improvements",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Implement secure access",
+          "description": "Ensure secure access to the web interface (simple authentication if needed)",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "1. Determine the authentication requirements (e.g., public access, simple user authentication)\n2. Integrate the appropriate authentication mechanism (e.g., Firebase Authentication)\n3. Test the secure access to the web interface",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "FTR-7.7 Développement de l'extension Chrome pour Google AI Studio",
+      "description": "Créer une extension Chrome pour injecter et extraire des templates depuis Google AI Studio.",
+      "details": "# - Configurer la structure du projet d'extension Chrome (manifeste v3)\n# - Développer un script de contenu (content script) pour interagir avec l'interface de Google AI Studio\n# - Créer un script d'arrière-plan (background script) pour la communication avec Firebase\n# - Développer une interface popup simple pour l'extension avec les fonctionnalités suivantes:\n#   * Sélection d'un template existant à injecter dans Google AI Studio\n#   * Bouton pour extraire le contenu actuel de Google AI Studio et le sauvegarder dans Firebase\n# - Implémenter l'authentification sécurisée avec l'API Firebase\n# - Gérer la préservation du formatage markdown lors des transferts\n# - Ajouter des indicateurs visuels de succès/échec des opérations",
+      "mockupDesignNeeded": "Yes - Wireframe de l'interface popup de l'extension",
+      "testStrategy": "# - Tester la détection correcte de l'interface Google AI Studio\n# - Vérifier l'injection correcte des templates dans l'entrée de Google AI Studio\n# - Confirmer l'extraction et le stockage des données depuis Google AI Studio vers Firebase\n# - Mesurer le temps nécessaire pour un échange complet (objectif: moins de 30 secondes)\n# - Tester le comportement de l'extension sur différentes versions de Chrome\n# - Documenter l'installation et l'utilisation de l'extension",
+      "priority": "high",
+      "dependencies": [
+        3
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Set up the Chrome extension project structure (manifest v3)",
+          "description": "Create the necessary directory structure and files for the Chrome extension, including the manifest.json file for manifest v3.",
+          "dependencies": [],
+          "details": "Ensure the project structure follows best practices for a Chrome extension, including the use of manifest v3.",
+          "status": "done"
+        },
+        {
+          "id": 2,
+          "title": "Develop the content script to interact with the Google AI Studio interface",
+          "description": "Create the content script that will interact with the Google AI Studio interface, handling user interactions and data retrieval.",
+          "dependencies": [
+            1
+          ],
+          "details": "Analyze the Google AI Studio interface and implement the necessary functionality in the content script.",
+          "status": "done"
+        },
+        {
+          "id": 3,
+          "title": "Create the background script for communication with Firebase",
+          "description": "Develop the background script that will handle communication with the Firebase API, including authentication and data management.",
+          "dependencies": [
+            1
+          ],
+          "details": "Ensure the background script is properly integrated with the Firebase API and can securely handle data and authentication.",
+          "status": "done"
+        },
+        {
+          "id": 4,
+          "title": "Implement the popup interface with the required functionalities",
+          "description": "Design and implement the popup interface for the Chrome extension, providing the necessary functionalities to the user.",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Ensure the popup interface is intuitive and provides a seamless user experience.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Integrate secure authentication with the Firebase API",
+          "description": "Implement secure authentication mechanisms to allow users to authenticate with the Firebase API through the Chrome extension.",
+          "dependencies": [
+            3
+          ],
+          "details": "Ensure the authentication process is secure and follows best practices for Firebase authentication.",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "FTR-7.8 Empaquetage et déploiement de l'extension Chrome",
+      "description": "Préparer l'extension Chrome pour le déploiement et la distribution.",
+      "details": "# - Finaliser le manifeste de l'extension avec toutes les autorisations nécessaires\n# - Optimiser le code et les ressources de l'extension\n# - Créer les ressources graphiques nécessaires (icônes en différentes tailles)\n# - Empaqueter l'extension pour une installation locale\n# - Préparer les ressources nécessaires pour une éventuelle publication dans le Chrome Web Store\n# - Créer un guide d'installation détaillé pour les utilisateurs\n# - Définir un processus de mise à jour simplifié",
+      "mockupDesignNeeded": "Partially - Icônes et assets visuels pour l'extension",
+      "testStrategy": "# - Vérifier que l'extension s'installe correctement à partir du package\n# - Tester toutes les fonctionnalités après l'installation du package\n# - Confirmer que les permissions demandées sont minimales et nécessaires\n# - Valider le fonctionnement sur différentes plateformes (Windows, macOS, Linux)\n# - S'assurer que le guide d'installation est clair et précis",
+      "priority": "medium",
+      "dependencies": [
+        7
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Finalize the extension manifest with all necessary permissions",
+          "description": "Review the extension's functionality and ensure the manifest.json file includes all the required permissions.",
+          "dependencies": [],
+          "details": "Identify the necessary permissions based on the extension's features and update the manifest.json file accordingly.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Optimize the extension code and resources",
+          "description": "Optimize the extension's code and resources for better performance and efficiency.",
+          "dependencies": [],
+          "details": "Analyze the code and resources, and implement optimizations such as code minification, image compression, and efficient asset loading.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Create the required graphic resources (icons)",
+          "description": "Design and create the necessary graphic resources, such as extension icons, for the Chrome Web Store.",
+          "dependencies": [],
+          "details": "Ensure the icons follow the Chrome Web Store guidelines and create the required sizes (16x16, 32x32, 48x48, 128x128).",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Package the extension for local installation",
+          "description": "Package the extension for local installation on the user's machine.",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Create a ZIP or CRX file containing the extension's files, including the manifest.json and the optimized resources.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Prepare the resources for potential publication in the Chrome Web Store",
+          "description": "Gather and organize the necessary resources for publishing the extension in the Chrome Web Store.",
+          "dependencies": [
+            4
+          ],
+          "details": "Collect the extension's description, screenshots, and other metadata required for the Chrome Web Store submission process.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "FTR-7.9 Tests d'intégration du flux de travail complet",
+      "description": "Tester le flux de travail complet entre Google AI Studio (via extension Chrome), l'interface web et Cursor AI pour valider l'ensemble du système.",
+      "details": "# - Créer des scénarios de test couvrant les parcours utilisateurs complets:\n#   1. Création d'un handoff dans Google AI Studio et extraction via l'extension Chrome\n#   2. Récupération du template dans Cursor AI\n#   3. Soumission d'un résumé depuis Cursor AI\n#   4. Injection du résumé dans Google AI Studio via l'extension Chrome\n# - Vérifier la préservation du formatage markdown à chaque étape\n# - Mesurer le temps nécessaire pour chaque étape du processus\n# - Identifier et documenter les éventuels problèmes ou améliorations\n# - Tester le système avec des templates de différentes tailles et complexités",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "# - Chronométrer le processus complet (objectif: réduction de 3-5 minutes à moins de 30 secondes comme mentionné dans la réponse HD #5)\n# - Vérifier l'absence d'erreurs de formatage dans les templates transférés\n# - Confirmer que 100% des templates sont correctement stockés et récupérables (critère de succès HD #5)\n# - Documenter les résultats des tests et les métriques de performance\n# - Tester la récupération après des erreurs réseau ou d'API",
+      "priority": "medium",
+      "dependencies": [
+        5,
+        6,
+        8
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create test scenarios covering the complete user journeys",
+          "description": "Develop comprehensive test scenarios to cover the entire user workflow, including all possible interactions and edge cases.",
+          "dependencies": [],
+          "details": "Ensure the test scenarios cover the complete user journey from start to finish, including all steps and interactions with the Google AI Studio extension, web interface, and Cursor AI integration.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Verify the preservation of markdown formatting at each step",
+          "description": "Ensure that the markdown formatting is preserved throughout the user workflow.",
+          "dependencies": [
+            1
+          ],
+          "details": "Validate that the markdown formatting is correctly displayed and maintained at each step of the user journey, including in the web interface and Cursor AI integration.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Measure the time required for each step of the process",
+          "description": "Measure the performance of the user workflow by tracking the time required for each step.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Implement a mechanism to measure the time taken for each step of the user journey, from the initial interaction with the Google AI Studio extension to the final output in the Cursor AI integration.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Identify and document any issues or improvements",
+          "description": "Identify and document any issues or potential improvements in the user workflow.",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Analyze the test results, performance data, and user feedback to identify any issues or areas for improvement in the overall user workflow.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "FTR-7.10 Documentation utilisateur et mise à jour de la Bible",
+      "description": "Créer une documentation complète pour l'utilisation du système d'échange de templates et mettre à jour la Bible du projet.",
+      "details": "# - Rédiger un guide utilisateur complet expliquant:\n#   * Comment installer et utiliser l'extension Chrome avec Google AI Studio\n#   * Comment utiliser l'interface web pour gérer les templates\n#   * Comment utiliser les commandes Cursor AI\n#   * Comment consulter l'historique des templates\n# - Mettre à jour les sections Bible existantes mentionnées dans le contexte initial (B7.1, B7.2, B7.3)\n# - Créer les nouvelles sections Bible suggérées (B7.4, B7.5, B7.6, B7.7) pour les composants du système\n# - Inclure des exemples d'utilisation et des captures d'écran\n# - Ajouter des conseils sur les meilleures pratiques pour le formatage markdown dans les templates\n# - Documenter les erreurs courantes et leurs solutions",
+      "mockupDesignNeeded": "Yes - Captures d'écran annotées du système en fonctionnement",
+      "testStrategy": "# - Faire tester la documentation par un utilisateur non impliqué dans le développement\n# - Vérifier que tous les composants et fonctionnalités sont couverts dans le guide utilisateur\n# - Confirmer que la Bible est à jour avec toutes les nouvelles sections\n# - Valider que les instructions sont faciles à suivre et complètes",
+      "priority": "medium",
+      "dependencies": [
+        5,
+        6,
+        8
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Write comprehensive user guide",
+          "description": "Create a detailed user guide covering all system components and functionality",
+          "dependencies": [],
+          "details": "The user guide should include step-by-step instructions, examples, screenshots, and troubleshooting information to help users effectively utilize the system",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Update existing Bible sections",
+          "description": "Review and update the existing Bible sections mentioned in the initial context",
+          "dependencies": [],
+          "details": "Ensure the existing Bible sections are accurate, up-to-date, and aligned with the current system components",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Create new Bible sections",
+          "description": "Develop new Bible sections for the system components as suggested",
+          "dependencies": [
+            2
+          ],
+          "details": "The new Bible sections should provide comprehensive information about the newly added system components",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Include examples, screenshots, and troubleshooting information",
+          "description": "Incorporate examples, screenshots, and troubleshooting information throughout the user guide and Bible sections",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "The examples, screenshots, and troubleshooting information should enhance the user's understanding and ability to effectively use the system",
+          "status": "pending"
+        }
+      ]
     }
   ]
 }

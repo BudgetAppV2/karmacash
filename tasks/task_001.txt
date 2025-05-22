@@ -1,22 +1,98 @@
 # Task ID: 1
-# Title: M5.1.1: Implement Input Validation for Category Allocations to Prevent Negative "Reste à Allouer"
-# Status: pending
+# Title: FTR-7.1 Définition du modèle de données pour les templates Firebase
+# Status: done
 # Dependencies: None
 # Priority: high
-# Description: Modify category allocation inputs to prevent users from entering values that cause "Reste à Allouer" to become negative relative to "AvailableFunds".
+# Description: Concevoir et documenter la structure de données Firestore pour stocker les templates d'échange entre Google AI Studio et Cursor AI.
 # Details:
-- Modify `BudgetCategoryRow.tsx` (ref B3.7 - 4.1) to cap input values or display clear validation messages if an entered allocation would make "Reste à Allouer" negative.
-- Ensure client-side logic prevents `TotalAllocated` from exceeding `AvailableFunds` (ref B6.1 - 3.6) through direct input in a single category field.
-- Validation messages should be contextual, clear (e.g., "Allocation cannot exceed available funds"), and non-disruptive, adhering to B3.4 UI Guidelines and B3.7 - 8.2.
-- The `RemainingToAllocateIndicator.tsx` (ref B3.7 - 4.2) must update in real-time and should not display a negative value as a direct result of a user typing an excessive amount in one category's allocation field.
-- Interaction should feel helpful, guiding the user to a balanced budget (ref B3.4 UI Guidelines).
+# - Créer un schéma de données basé sur la structure suggérée dans la réponse HD #2 : { sessionId, type (handoff/summary), content, timestamp, status }
+# - Définir les règles de validation Firestore pour garantir l'intégrité des données
+# - Définir les index nécessaires pour les requêtes fréquentes (par sessionId, par type)
+# - Documenter les conventions de nommage pour les sessionId (ex: "M5.S4")
+# - Référencer la section Bible B5.2 pour maintenir la cohérence avec les structures de données existantes
+# - Créer une nouvelle section Bible (suggestion: B7.4) pour documenter cette nouvelle structure
 
 # Test Strategy:
-- Unit test the input capping logic and validation message triggering.
-- UI test: enter allocation amounts less than, equal to, and greater than the permissible limit. Verify input capping/validation message and that `RemainingToAllocate` does not go below zero due to this action.
-- Test with `AvailableFunds` being positive. Test with `AvailableFunds` being negative (due to rollover, ref B6.1 - 4.2) – in this case, any positive allocation will further increase the negative `RemainingToAllocate`, but the principle is about not allocating *more* than `AvailableFunds` if `AvailableFunds` is positive.
-- Ensure `RemainingToAllocateIndicator` updates correctly in real-time during input.
-- Accessibility testing for validation messages (e.g., ARIA attributes).
-- Required Bible Updates:
-  - B6.1 (Budget Calculations): Update section 3.6 (Monthly Remaining to Allocate Calculation) with an implementation note on client-side input controls preventing `TotalAllocated` from exceeding `AvailableFunds`. Update section 9 (Validation Rules) with a new rule for this client-side validation.
-  - B3.7 (UI Component Specs): Update `BudgetCategoryRow` (4.1) to detail the input validation behavior, capping mechanism, and interaction with validation messages.
+# - Confirmer que le schéma prend en charge tous les cas d'utilisation mentionnés dans les réponses HD #1 et #2
+# - Vérifier que la structure est optimisée pour les requêtes principales (récupération par sessionId)
+# - Mettre à jour la Bible avec la nouvelle section B7.4 documentant la structure de données des templates
+
+# Subtasks:
+## 1. Define the Firestore data schema based on the suggested structure [done]
+### Dependencies: None
+### Description: Analyze the suggested data structure and define the appropriate Firestore data schema, including collections, documents, and fields.
+### Details:
+Ensure the data schema aligns with the business requirements and can efficiently support the application's functionality.
+<info added on 2025-05-21T20:50:27.706Z>
+Implementation of the Firebase Firestore data model for templates exchange is complete. Key components include:
+
+1. Schema definition with validation in `models/template-exchange-schema.js`
+2. `TemplateModel` class with CRUD operations and optimized querying
+3. Firestore security rules in `firestore.rules` for schema validation and access control
+4. Index configuration in `firestore.indexes.json` for query optimization
+5. Firebase initialization and utility functions in `firebase/firebase.js`
+6. Documentation in `docs/template-exchange-data-model.md`
+7. Test suite in `tests/template-model.test.js`
+
+Notable features:
+- Schema fields: sessionId, type, content, timestamps, status, and metadata
+- Sharding strategy to mitigate 500 writes/second limitation
+- Comprehensive client and server-side validation
+- Optimized query methods with pagination support
+- Detailed documentation including examples and design decisions
+
+The data model aligns with business requirements and supports efficient application functionality.
+</info added on 2025-05-21T20:50:27.706Z>
+
+## 2. Implement the necessary Firestore validation rules [done]
+### Dependencies: 1.1
+### Description: Identify the required validation rules for the Firestore data schema and implement them to ensure data integrity.
+### Details:
+Consider data types, field requirements, and any other necessary constraints to maintain the integrity of the data.
+<info added on 2025-05-21T20:55:07.565Z>
+The project structure for the Template Exchange System has been established in `src/template-exchange/`. The structure includes:
+
+- Logical folders: models/, api/, utils/, services/, components/, tests/, and docs/
+- Configuration files: package.json, .gitignore, and .eslintrc.js
+- An index.js entry point
+- A comprehensive README.md
+
+This organization facilitates development, improves modularity, and ensures proper separation of concerns. The models/ folder will be particularly relevant for implementing the Firestore data schema based on the defined structure.
+</info added on 2025-05-21T20:55:07.565Z>
+
+## 3. Determine the required indexes for frequent queries [done]
+### Dependencies: 1.1
+### Description: Analyze the application's query patterns and identify the necessary indexes to optimize the performance of frequent queries.
+### Details:
+Ensure the indexes are properly configured to support the application's data retrieval needs.
+<info added on 2025-05-21T20:55:50.429Z>
+The Firestore indexes for the Template Exchange System have been implemented and configured in `firestore.indexes.json`. The following compound indexes were created for the templates collection:
+
+- `shard (ASC), sessionId (ASC), updatedAt (DESC)`
+- `shard (ASC), type (ASC), updatedAt (DESC)`
+- `shard (ASC), status (ASC), updatedAt (DESC)`
+- `shard (ASC), metadata.source (ASC), updatedAt (DESC)`
+- `shard (ASC), type (ASC), status (ASC), updatedAt (DESC)`
+
+These indexes support the sharding approach to overcome Firestore's 500 writes/second limitation on collections with sequential timestamp fields. All queries in the `TemplateModel` class (in `models/template-exchange-schema.js`) have been optimized to use these indexes efficiently. The index configuration has been documented in `docs/template-exchange-data-model.md` for developer reference and to explain the query optimization approach. This setup ensures optimal performance for common query patterns in the Template Exchange System, even as the dataset grows.
+</info added on 2025-05-21T20:55:50.429Z>
+
+## 4. Document the naming conventions and integrate with the existing data structures [done]
+### Dependencies: 1.1, 1.2, 1.3
+### Description: Establish and document the naming conventions for the Firestore data schema, and integrate it with the existing data structures within the application.
+### Details:
+Ensure the new data schema and naming conventions are aligned with the overall system architecture and can be seamlessly integrated.
+<info added on 2025-05-21T20:56:14.602Z>
+The new data schema and naming conventions have been successfully aligned with the overall system architecture and integrated seamlessly. Key accomplishments include:
+
+1. Established clear naming conventions for session IDs, collection name, field names, shard values, type values, and status values.
+
+2. Created comprehensive documentation in `src/template-exchange/docs/template-exchange-data-model.md`, covering schema description, validation rules, common operations, design decisions, and integration points.
+
+3. Ensured proper integration with existing data structures, including alignment with Firebase security model, consistent timestamp handling, and following established validation approaches.
+
+4. Added the documentation as a new section in the application Bible, providing a clear reference for developers working with the Template Exchange System.
+
+5. Organized all elements within the `src/template-exchange/` folder structure, maintaining consistency with established patterns while accommodating specific requirements of the Template Exchange System.
+</info added on 2025-05-21T20:56:14.602Z>
+

@@ -1,20 +1,47 @@
 # Task ID: 4
-# Title: M5.1.4: Review and Update Backend for Saving Allocations
+# Title: FTR-7.4 Création de l'interface web minimaliste pour la gestion des templates
 # Status: pending
-# Dependencies: 1, 3
+# Dependencies: 3
 # Priority: medium
-# Description: Review and, if necessary, update the backend mechanism (e.g., Firebase Callable Function as per B4.3) responsible for saving the user's budget allocations. Ensure it correctly persists the allocations set by the user via the improved UI (direct input or sliders) and reliably stores the client-validated data.
+# Description: Développer une interface web simple pour soumettre et consulter les templates, hébergée sur Firebase Hosting.
 # Details:
-- Review the Firebase Callable Function (or other server-side endpoint, ref B4.3 Backend Functions) that receives the `allocations` map and updates the budget document in Firestore.
-- The server-side `recalculateBudget` function (ref B6.1) will likely be triggered after updating allocations to ensure all `calculated.*` fields in the budget document are accurate.
-- Decision Point: For M5.1, primarily rely on the strengthened client-side validation for the "Reste à Allouer" constraint. The server saves what the client sends. Server-side re-validation for this specific constraint could be added for extra robustness but increases complexity.
-- Ensure the user receives clear feedback upon saving (success or failure), typically via a Toast Notification (ref B3.7 - 8.1, B3.11 Animations & Interactions for gentle feedback).
+# - Créer une page HTML/JS minimaliste comme décrit dans la réponse HD #4
+# - Implémenter les deux fonctionnalités principales:
+#   1. Formulaire pour soumettre un nouveau template (sessionId, type, contenu)
+#   2. Vue pour consulter les templates existants par sessionId
+# - Assurer la préservation du formatage markdown lors de la soumission et de l'affichage
+# - Utiliser un design simple mais professionnel, cohérent avec l'identité visuelle de KarmaCash
+# - Intégrer l'authentification par API key pour les appels à l'API
+# - Optimiser pour une utilisation rapide (moins de 3 clics par tâche, comme mentionné dans la réponse HD #5)
 
 # Test Strategy:
-- Integration test: After making valid allocations on the client (respecting all new constraints), trigger the save operation.
-- Data validation: Verify that the budget data, when re-fetched or viewed after save, shows the correct allocations and a `RemainingToAllocate` value consistent with the client-side display before saving.
-- Backend error handling test: If the save operation fails for any reason (e.g., network issue, Firestore permissions), ensure the client UI provides appropriate feedback (e.g., error toast).
-- (Optional, if server-side validation for this constraint is added): Use a tool to attempt to save allocations that violate the constraint directly to the backend and verify the backend's response (e.g., rejection with an error code).
-- Required Bible Updates:
-  - B4.3 (Backend Functions): Document any changes to the save allocation function. Specifically, note its reliance on client-validated allocations for the "Reste à Allouer" constraint, or detail any server-side checks if implemented.
-  - B6.1 (Budget Calculations): Update Section 6 (Recalculation Triggers) to clarify the interaction between client-side validated allocations and the server-side save/recalculation process. Specify the server's behavior if, hypothetically, it received allocations that would make `RemainingToAllocate` negative (relative to positive `AvailableFunds`).
+# - Vérifier que l'interface permet de soumettre un template sans perte de formatage
+# - Confirmer que la consultation des templates est intuitive et rapide
+# - Tester sur différents navigateurs pour assurer la compatibilité
+# - Mesurer le nombre de clics nécessaires pour accomplir chaque tâche (objectif: moins de 3)
+
+# Subtasks:
+## 1. Create the HTML/JS-based web interface [pending]
+### Dependencies: None
+### Description: Develop the HTML and JavaScript-based web interface with the two main functionalities
+### Details:
+The web interface should have a clean and intuitive design, allowing users to easily access the two main functionalities: submitting new templates and consulting existing templates by sessionId.
+
+## 2. Implement the form for submitting new templates [pending]
+### Dependencies: 4.1
+### Description: Develop the form for users to submit new templates
+### Details:
+The form should allow users to input the necessary information for a new template, such as the template content (with support for Markdown formatting), a title, and any other relevant details. The form should also handle form validation and provide clear feedback to the user.
+
+## 3. Develop the view for consulting existing templates by sessionId [pending]
+### Dependencies: 4.1
+### Description: Create the view for users to search and view existing templates by sessionId
+### Details:
+The view should allow users to search for and view existing templates by entering a sessionId. The templates should be displayed in a clear and organized manner, preserving the Markdown formatting.
+
+## 4. Integrate the API key-based authentication and optimize the user experience [pending]
+### Dependencies: 4.1, 4.2, 4.3
+### Description: Implement the API key-based authentication and optimize the overall user experience
+### Details:
+Integrate the API key-based authentication to ensure secure access to the application. Additionally, optimize the user experience by improving the overall design, responsiveness, and accessibility of the web interface.
+

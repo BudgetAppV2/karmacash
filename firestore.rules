@@ -5,9 +5,85 @@ service cloud.firestore {
 
     // --- Helper Functions ---
     
+    // Check if a timestamp field is valid (either server timestamp or exists)
+    function isValidTimestamp(timestamp) {
+      return timestamp is timestamp;
+    }
+    
+    // Check if request has API key
+    function hasApiKey() {
+      return request.auth != null && 
+             request.auth.token != null && 
+             request.auth.token.api_key != null;
+    }
+    
     // Check if user is authenticated
-    function isAuth() {
-      return request.auth != null;
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+    
+    // Validate template fields based on schema
+    function isValidTemplate(data) {
+      // Required fields
+      let hasRequiredFields = data.keys().hasAll([
+        'sessionId', 'type', 'content', 'createdAt', 'updatedAt', 'status'
+      ]);
+      
+      // Session ID format validation
+      let isValidSessionId = data.sessionId is string && 
+                             data.sessionId.matches('^[A-Z][0-9]+\\.[A-Z][0-9]+$');
+      
+      // Type validation
+      let isValidType = data.type is string && 
+                        (data.type == 'handoff' || data.type == 'summary');
+      
+      // Content validation
+      let isValidContent = data.content is string && 
+                           data.content.size() <= 50000;
+      
+      // Status validation
+      let isValidStatus = data.status is string && 
+                          (data.status == 'draft' || data.status == 'active' || data.status == 'archived');
+      
+      // Timestamp validation
+      let hasValidTimestamps = isValidTimestamp(data.createdAt) && isValidTimestamp(data.updatedAt);
+      
+      // Metadata validation (optional field)
+      let hasValidMetadata = !('metadata' in data) || (
+        data.metadata is map && (
+          !('source' in data.metadata) || (
+            data.metadata.source is string && 
+            (data.metadata.source == 'google_ai_studio' || data.metadata.source == 'cursor')
+          )
+        ) && (
+          !('tags' in data.metadata) || data.metadata.tags is list
+        ) && (
+          !('version' in data.metadata) || data.metadata.version is number
+        )
+      );
+      
+      // Shard validation
+      let hasValidShard = data.shard is string && 
+                         (data.shard == 'a' || data.shard == 'b' || data.shard == 'c');
+      
+      return hasRequiredFields && 
+             isValidSessionId && 
+             isValidType && 
+             isValidContent && 
+             isValidStatus && 
+             hasValidTimestamps && 
+             hasValidMetadata &&
+             hasValidShard;
+    }
+    
+    // Only allow creation if the createdAt and updatedAt match with the request time
+    function hasValidTimestampFields(data) {
+      return (request.method == "create" && 
+              data.createdAt == request.time && 
+              data.updatedAt == request.time) || 
+             (request.method == "update" && 
+              data.createdAt == resource.data.createdAt && 
+              data.updatedAt == request.time);
     }
     
     // Get the budget document (use cautiously due to read costs)
@@ -18,7 +94,7 @@ service cloud.firestore {
     // Check if current user is a member of the budget (optimized for list operations)
     function isBudgetMember(budgetId) {
       // First try to check if the user is authenticated
-      return isAuth() && (
+      return isAuthenticated() && (
         // Primary check: Use denormalized membership data (efficient)
         exists(/databases/$(database)/documents/users/$(request.auth.uid)/budgetMemberships/$(budgetId)) ||
         // Fallback check: Direct budget document check (less efficient but reliable)
@@ -31,7 +107,7 @@ service cloud.firestore {
     
     // Alternative member check using budget document (for get operations where it's already loaded)
     function isBudgetMemberFromDoc(budgetId) {
-      return isAuth() && 
+      return isAuthenticated() && 
         exists(/databases/$(database)/documents/budgets/$(budgetId)) && 
         request.auth.uid in getBudget(budgetId).data.members;
     }
@@ -79,11 +155,11 @@ service cloud.firestore {
       // Read: Any authenticated member of the budget
       allow get: if isBudgetMemberFromDoc(budgetId);
       // For listing budgets, allow if user has any budget memberships
-      allow list: if isAuth() && exists(/databases/$(database)/documents/users/$(request.auth.uid)/budgetMemberships);
+      allow list: if isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)/budgetMemberships);
       
       // Create: Any authenticated user can create a budget
       allow create: if 
-        isAuth() 
+        isAuthenticated() 
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.members[request.auth.uid].role == 'owner'
         && hasRequiredFields(request.resource.data, ['name', 'ownerId', 'members', 'currency', 'version', 'createdAt', 'updatedAt'])
@@ -103,7 +179,7 @@ service cloud.firestore {
         && request.resource.data.members[request.auth.uid].joinedAt is timestamp;
 
       // Update: Based on role and fields being modified
-      allow update: if isAuth() && (
+      allow update: if isAuthenticated() && (
         isBudgetOwner(budgetId) || 
         (isBudgetEditorOrOwner(budgetId) && 
           !request.resource.data.diff(resource.data).affectedKeys().hasAny(['members', 'ownerId'])
@@ -119,7 +195,7 @@ service cloud.firestore {
       match /categories/{categoryId} {
         // Read rules
         allow get: if isBudgetMember(budgetId);
-        allow list: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
+        allow list: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
         
         // Create: Editors and owners can create
         allow create: if isBudgetEditorOrOwner(budgetId)
@@ -161,7 +237,7 @@ service cloud.firestore {
       match /transactions/{transactionId} {
         // Read rules
         allow get: if isBudgetMember(budgetId);
-        allow list: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
+        allow list: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
         
         // Create: Editors and owners can create with validation
         allow create: if isBudgetEditorOrOwner(budgetId)
@@ -210,7 +286,7 @@ service cloud.firestore {
       match /recurringRules/{ruleId} {
         // Read rules
         allow get: if isBudgetMember(budgetId);
-        allow list: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
+        allow list: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
         
         // Create: Editors and owners can create with validation
         allow create: if isBudgetEditorOrOwner(budgetId)
@@ -265,7 +341,7 @@ service cloud.firestore {
       match /monthlyData/{monthId} {
         // Remove temporary debug rules and restore secure rules
         allow get: if isBudgetMember(budgetId);
-        allow list: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
+        allow list: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/budgets/$(budgetId)).data.members;
         
         // Write: Editors and owners can manage monthly data
         allow create, update, delete: if isBudgetEditorOrOwner(budgetId)
@@ -276,11 +352,11 @@ service cloud.firestore {
     // --- User Profiles ---
     match /users/{userId} {
       // Allow users to read and write their own profile document
-      allow get: if isAuth() && request.auth.uid == userId;
+      allow get: if isAuthenticated() && request.auth.uid == userId;
       allow list: if false; // Users should not be listable
       
       // Allow users to create their own document
-      allow create: if isAuth() 
+      allow create: if isAuthenticated() 
                     && request.auth.uid == userId
                     && request.resource.data.keys().hasAll(['email', 'displayName', 'createdAt'])
                     && request.resource.data.email is string
@@ -290,10 +366,10 @@ service cloud.firestore {
       // Budget Memberships Subcollection
       match /budgetMemberships/{budgetId} {
         // Allow user to read their own memberships
-        allow get, list: if isAuth() && request.auth.uid == userId;
+        allow get, list: if isAuthenticated() && request.auth.uid == userId;
         
         // Allow user to create their own budget membership during initial budget creation
-        allow create: if isAuth() 
+        allow create: if isAuthenticated() 
                       && request.auth.uid == userId
                       && request.resource.data.budgetId == budgetId
                       && request.resource.data.role == 'owner'
@@ -307,8 +383,29 @@ service cloud.firestore {
         allow update: if false;
         
         // Allow user to remove themselves from a budget (leave)
-        allow delete: if isAuth() && request.auth.uid == userId;
+        allow delete: if isAuthenticated() && request.auth.uid == userId;
       }
+    }
+    
+    // --- Templates Collection ---
+    match /templates/{templateId} {
+      // Allow read with authentication or API key
+      allow read: if isAuthenticated() || hasApiKey();
+      
+      // Allow create with validation
+      allow create: if (isAuthenticated() || hasApiKey()) && 
+                     isValidTemplate(request.resource.data) && 
+                     hasValidTimestampFields(request.resource.data);
+      
+      // Allow update with validation (preserving createdAt and shard fields)
+      allow update: if (isAuthenticated() || hasApiKey()) && 
+                     isValidTemplate(request.resource.data) && 
+                     hasValidTimestampFields(request.resource.data) && 
+                     request.resource.data.createdAt == resource.data.createdAt &&
+                     request.resource.data.shard == resource.data.shard;
+      
+      // Allow delete with authentication
+      allow delete: if isAuthenticated() || hasApiKey();
     }
     
     // --- Deny access to all other collections by default ---

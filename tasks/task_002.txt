@@ -1,26 +1,44 @@
 # Task ID: 2
-# Title: M5.1.2: Design and Implement "Allocation Sliders" UI Component
-# Status: pending
-# Dependencies: None
+# Title: FTR-7.2 Configuration de la collection Firestore et des règles de sécurité
+# Status: done
+# Dependencies: 1
 # Priority: high
-# Description: Create a new reusable "Allocation Slider" UI component, or significantly enhance the `BudgetCategoryRow` (ref B3.7 - 4.1) to include a slider for setting category budget allocations.
+# Description: Configurer la nouvelle collection 'templates' dans Firestore et mettre en place les règles de sécurité appropriées.
 # Details:
-- Create a new component: `AllocationSlider.tsx` or enhance `BudgetCategoryRow.tsx`.
-- Visual design must align with the KarmaCash Zen/Tranquility theme (ref B3.4 UI Guidelines, B3.8 Style Guide v2). Sliders should be visually clean, with adequate touch targets.
-- Slider minimum value is 0. Maximum value will be dynamic (handled in M5.1.3). Consider appropriate step increments (e.g., 1, 5, 10 currency units) or continuous sliding.
-- The current allocated value set by the slider must be clearly visible, either on the slider itself or alongside it.
-- If a numerical input field co-exists with the slider for the same category allocation, they must be synchronized.
-- Ensure smooth and responsive slider movement. Implement gentle animations for interaction feedback (ref B3.11 Animations & Interactions).
-- Sliders must be keyboard accessible (e.g., arrow keys to adjust) and provide appropriate ARIA attributes for screen readers.
+# - Créer la nouvelle collection 'templates' dans Firestore basée sur le modèle défini dans FTR-7.1
+# - Configurer les règles de sécurité Firestore pour permettre l'accès via API key comme mentionné dans la réponse HD #3
+# - Implémenter la validation des données côté serveur pour garantir l'intégrité
+# - Configurer les paramètres de performance et de mise en cache appropriés
+# - Référencer la section Bible B5.2 pour les patterns d'accès aux données Firestore existants
 
 # Test Strategy:
-- Component test: render the slider with various initial values, min, and max settings.
-- Interaction test: verify dragging the slider handle updates the associated allocated value correctly in the component's state and visually.
-- Keyboard navigation test: ensure slider value can be adjusted using keyboard controls.
-- Accessibility test: verify with screen reader and keyboard-only operation.
-- Visual test: ensure alignment with style guide (B3.8) and theme (B3.4).
-- If synchronized with a numerical input, verify changes in one reflect correctly in the other.
-- Required Bible Updates:
-  - B3.7 (UI Component Specs): Add a new component specification (e.g., Section 4.X `AllocationSlider`). This spec should detail purpose, visual appearance (referencing B3.8 v2), props (value, min, max, step, onChange, disabled), interaction model, and accessibility considerations. Update `BudgetCategoryRow` (4.1) to describe its integration of the `AllocationSlider`.
-  - B3.8 (Style Guide v2): Add specific styling guidelines for sliders if not already covered.
-  - B3.11 (Animations & Interactions): Define any subtle animations for slider handle interaction or value change feedback.
+# - Confirmer que la collection est correctement créée et accessible via les identifiants Firebase
+# - Vérifier que les règles de sécurité bloquent les accès non autorisés
+# - Tester l'insertion et la récupération de données d'exemple pour valider la configuration
+# - Mettre à jour la Bible B5.2 avec les détails de la nouvelle collection 'templates'
+
+# Subtasks:
+## 1. Create the 'templates' collection in Firestore [done]
+### Dependencies: None
+### Description: Create the 'templates' collection in Firestore based on the defined model
+### Details:
+Ensure the collection structure and data model match the requirements
+
+## 2. Configure Firestore security rules [done]
+### Dependencies: 2.1
+### Description: Configure the Firestore security rules to allow access via API key
+### Details:
+Set up the necessary security rules to restrict access to the 'templates' collection
+
+## 3. Implement server-side data validation [done]
+### Dependencies: 2.1
+### Description: Implement server-side data validation to ensure integrity
+### Details:
+Implement validation logic to ensure the data integrity of the 'templates' collection
+
+## 4. Set up performance and caching parameters [done]
+### Dependencies: 2.1, 2.2, 2.3
+### Description: Set up the appropriate performance and caching parameters
+### Details:
+Configure the necessary performance and caching settings to optimize the 'templates' collection
+

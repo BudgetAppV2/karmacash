@@ -1,16 +1,49 @@
 # Task ID: 9
-# Title: PT-B1.3-FIN-01: Finalize and Review Updated B1.3 Roadmap & Milestones Document
+# Title: FTR-7.9 Tests d'intégration du flux de travail complet
 # Status: pending
-# Dependencies: 8
-# Priority: high
-# Description: Compile all drafted sections (M5, M6, Post-MVP) into the [B1.3 Roadmap & Milestones] document. Conduct a comprehensive review for consistency, clarity, completeness, and accuracy.
+# Dependencies: 5, 6, 8
+# Priority: medium
+# Description: Tester le flux de travail complet entre Google AI Studio (via extension Chrome), l'interface web et Cursor AI pour valider l'ensemble du système.
 # Details:
-- Integrate the drafted M5, M6, and Post-MVP sections into the existing B1.3 structure.
-- Review all dependencies, timelines (if any mentioned), and references to other Bible documents for correctness.
-- Ensure overall document flow and readability.
+# - Créer des scénarios de test couvrant les parcours utilisateurs complets:
+#   1. Création d'un handoff dans Google AI Studio et extraction via l'extension Chrome
+#   2. Récupération du template dans Cursor AI
+#   3. Soumission d'un résumé depuis Cursor AI
+#   4. Injection du résumé dans Google AI Studio via l'extension Chrome
+# - Vérifier la préservation du formatage markdown à chaque étape
+# - Mesurer le temps nécessaire pour chaque étape du processus
+# - Identifier et documenter les éventuels problèmes ou améliorations
+# - Tester le système avec des templates de différentes tailles et complexités
 
 # Test Strategy:
-- Perform a full read-through of the updated B1.3 document.
-- Check for any unresolved comments or placeholders.
-- Confirm all instructions from the initial prompt regarding B1.3 update have been met.
-- Required Bible Updates: Final draft of B1.3 Roadmap & Milestones document ready for validation by HD.
+# - Chronométrer le processus complet (objectif: réduction de 3-5 minutes à moins de 30 secondes comme mentionné dans la réponse HD #5)
+# - Vérifier l'absence d'erreurs de formatage dans les templates transférés
+# - Confirmer que 100% des templates sont correctement stockés et récupérables (critère de succès HD #5)
+# - Documenter les résultats des tests et les métriques de performance
+# - Tester la récupération après des erreurs réseau ou d'API
+
+# Subtasks:
+## 1. Create test scenarios covering the complete user journeys [pending]
+### Dependencies: None
+### Description: Develop comprehensive test scenarios to cover the entire user workflow, including all possible interactions and edge cases.
+### Details:
+Ensure the test scenarios cover the complete user journey from start to finish, including all steps and interactions with the Google AI Studio extension, web interface, and Cursor AI integration.
+
+## 2. Verify the preservation of markdown formatting at each step [pending]
+### Dependencies: 9.1
+### Description: Ensure that the markdown formatting is preserved throughout the user workflow.
+### Details:
+Validate that the markdown formatting is correctly displayed and maintained at each step of the user journey, including in the web interface and Cursor AI integration.
+
+## 3. Measure the time required for each step of the process [pending]
+### Dependencies: 9.1, 9.2
+### Description: Measure the performance of the user workflow by tracking the time required for each step.
+### Details:
+Implement a mechanism to measure the time taken for each step of the user journey, from the initial interaction with the Google AI Studio extension to the final output in the Cursor AI integration.
+
+## 4. Identify and document any issues or improvements [pending]
+### Dependencies: 9.1, 9.2, 9.3
+### Description: Identify and document any issues or potential improvements in the user workflow.
+### Details:
+Analyze the test results, performance data, and user feedback to identify any issues or areas for improvement in the overall user workflow.
+

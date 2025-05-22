@@ -1,43 +1,52 @@
 # Task ID: 6
-# Title: PT-B1.3-M5-01: Decide and Draft M5 Core Objectives and Key Tasks for B1.3
-# Status: done
-# Dependencies: 5
-# Priority: high
-# Description: Based on the analysis of M4PLAN-derived plan, decide on the core objectives and key tasks for Milestone 5 (M5) and draft this section for the [B1.3 Roadmap & Milestones] document.
+# Title: FTR-7.6 Configuration du déploiement Firebase pour l'interface web
+# Status: pending
+# Dependencies: 4
+# Priority: medium
+# Description: Configurer et déployer l'interface web sur Firebase Hosting pour un accès facile et sécurisé.
 # Details:
-- Review summarized M5 tasks from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md`.
-- Incorporate the pre-defined M5.1 tasks (#1-4 from `tasks.json` / initial `pasted_content.txt`) into the M5 plan.
-- Address key M5 discussion points from M4PLAN-derived plan (e.g., category deletion logic, navigation UI, dashboard concept, login/signup polish, onboarding prep, persistent notes strategy, `recalculateBudget` review, UI clarifications, "Fonds Disponibles" UI if recurring expense toggle is deferred, commercialization model, task manager integration exploration).
-- Draft the M5 section for B1.3, outlining objectives, key tasks, and references to relevant Bible documents (e.g., B6.1, B3.7).
+# - Configurer le projet Firebase Hosting pour héberger l'interface web
+# - Mettre en place un processus de déploiement simple (manuel ou automatisé)
+# - Configurer les paramètres de cache appropriés pour optimiser les performances
+# - Assurer la sécurité de l'accès à l'interface (authentification simple si nécessaire)
+# - Référencer les sections Bible existantes sur le déploiement Firebase
 
 # Test Strategy:
-- Confirm all relevant M5 points from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` are addressed in the B1.3 M5 draft.
-- Verify M5.1 tasks (#1-4) are correctly integrated.
-- Ensure the drafted M5 section in B1.3 is clear, concise, and actionable.
-- Required Bible Updates: Draft of M5 section for B1.3 created.
+# - Vérifier que l'interface est correctement déployée et accessible via l'URL Firebase
+# - Tester les performances de chargement de la page
+# - Confirmer que toutes les fonctionnalités fonctionnent comme prévu dans l'environnement de production
+# - Documenter l'URL et les procédures de déploiement dans la Bible
 
 # Subtasks:
-## 1. Consolidate M5 Inputs and Discussion Points [done]
+## 1. Configure Firebase Hosting project [pending]
 ### Dependencies: None
-### Description: Gather and organize all relevant M5 inputs, discussion points, and existing plans from various sources.
+### Description: Set up the Firebase Hosting project to host the web interface
 ### Details:
-Review meeting notes, emails, and existing documents related to M5. Create a comprehensive list of all potential objectives and tasks. Identify any conflicting ideas or overlapping concepts.
+1. Create a new Firebase project
+2. Initialize Firebase Hosting for the project
+3. Configure the hosting settings (e.g., site name, default document)
 
-## 2. Strategic Decision-Making for M5 Objectives [done]
+## 2. Establish deployment process [pending]
 ### Dependencies: 6.1
-### Description: Analyze consolidated inputs and make strategic decisions on M5 objectives, including prioritization.
+### Description: Set up a simple deployment process (manual or automated) for the web interface
 ### Details:
-Evaluate each potential objective based on strategic importance, feasibility, and alignment with overall goals. Prioritize objectives and create a shortlist of key M5 objectives. Ensure alignment with higher-level strategies and stakeholder expectations.
+1. Determine the deployment workflow (manual or automated)
+2. Configure the necessary scripts or tools for deployment
+3. Document the deployment process
 
-## 3. Define Key Tasks for M5 Objectives [done]
-### Dependencies: 6.2
-### Description: Develop a detailed list of key tasks for each prioritized M5 objective, ensuring integration of M5.1 tasks.
+## 3. Configure caching parameters [pending]
+### Dependencies: 6.1, 6.2
+### Description: Set up appropriate caching parameters for performance optimization
 ### Details:
-Break down each M5 objective into specific, actionable tasks. Ensure M5.1 tasks are fully integrated and aligned with the overall M5 structure. Identify dependencies between tasks and potential resource requirements.
+1. Analyze the web interface assets and determine the appropriate caching strategy
+2. Configure the caching settings in the Firebase Hosting configuration
+3. Verify the caching behavior and performance improvements
 
-## 4. Draft and Review M5 Section for B1.3 Document [done]
-### Dependencies: 6.3
-### Description: Create the M5 section draft for the B1.3 document and conduct a thorough review.
+## 4. Implement secure access [pending]
+### Dependencies: 6.1, 6.2, 6.3
+### Description: Ensure secure access to the web interface (simple authentication if needed)
 ### Details:
-Write a clear and concise draft of the M5 section, including objectives and key tasks. Ensure proper formatting and consistency with other sections of the B1.3 document. Review the draft for completeness, clarity, and alignment with strategic goals. Make necessary revisions based on feedback.
+1. Determine the authentication requirements (e.g., public access, simple user authentication)
+2. Integrate the appropriate authentication mechanism (e.g., Firebase Authentication)
+3. Test the secure access to the web interface
 

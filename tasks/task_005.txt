@@ -1,17 +1,47 @@
 # Task ID: 5
-# Title: PT-INPUT-01: Review and Analyze Core Planning Inputs for Roadmap Update
-# Status: done
-# Dependencies: None
+# Title: FTR-7.5 Développement du script d'intégration pour Cursor AI
+# Status: pending
+# Dependencies: 3
 # Priority: high
-# Description: Thoroughly review and synthesize key information from provided planning documents to inform the update of the KarmaCash Roadmap [B1.3] and Post-MVP Features [B1.4].
+# Description: Créer un script JavaScript pour Cursor AI permettant de récupérer et soumettre des templates via l'API.
 # Details:
-- Analyze `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` (referred to as M4PLAN-derived plan) to extract all decisions, discussion points, and proposed tasks for M5, M6, and Post-MVP features.
-- Cross-reference with the current `B1.3_Roadmap_Milestones.md` to identify discrepancies and areas needing updates.
-- Review `B1.4_PostMVP_Features.md` against M4PLAN-derived plan for consistency and necessary refinements.
-- Note the existing M5.1 tasks (#1-4 from `tasks.json` / initial `pasted_content.txt`) that must be incorporated into the M5 plan within B1.3.
-- Consult `B0_README_TOC.md` for overall Bible structure and context.
+# - Développer les commandes Cursor AI mentionnées dans la réponse HD #4:
+#   * `fetch-handoff <sessionId>` - Récupérer un template de handoff
+#   * `submit-summary <sessionId> <content>` - Soumettre un résumé d'implémentation
+# - Assurer l'intégration transparente avec l'environnement Cursor AI
+# - Gérer l'authentification par API key de manière sécurisée
+# - Préserver le formatage markdown lors des transferts
+# - Implémenter des messages de confirmation clairs pour l'utilisateur
+# - Gérer les erreurs de manière élégante (problèmes réseau, templates non trouvés, etc.)
 
 # Test Strategy:
-- Confirm all sections of `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` relevant to M5, M6, and Post-MVP have been reviewed.
-- Create a summary of key decisions and task items to be integrated into B1.3 and B1.4.
-- Required Bible Updates: None directly from this step, but this task produces inputs for B1.3 and B1.4 updates.
+# - Tester les commandes dans l'environnement Cursor AI avec des templates réels
+# - Vérifier que le formatage markdown est préservé dans les deux sens
+# - Mesurer le temps nécessaire pour un échange complet (objectif: moins de 30 secondes comme mentionné dans la réponse HD #5)
+# - Documenter l'utilisation des commandes dans une nouvelle section Bible (suggestion: B7.6)
+
+# Subtasks:
+## 1. Develop Cursor AI commands for fetching handoffs and submitting summaries [pending]
+### Dependencies: None
+### Description: Implement the necessary commands to fetch handoff data and submit summary information to the Cursor AI system.
+### Details:
+Ensure the commands are intuitive and provide a seamless user experience. Implement error handling and provide clear feedback to the user.
+
+## 2. Integrate with the Cursor AI environment [pending]
+### Dependencies: 5.1
+### Description: Ensure the developed commands and functionality integrate smoothly with the Cursor AI system.
+### Details:
+Collaborate with the Cursor AI team to understand the integration requirements and implement the necessary connectivity.
+
+## 3. Implement secure API key-based authentication [pending]
+### Dependencies: 5.1, 5.2
+### Description: Develop a secure mechanism to handle API key-based authentication for accessing the Cursor AI system.
+### Details:
+Ensure the API key is stored and transmitted securely. Implement measures to prevent unauthorized access.
+
+## 4. Preserve markdown formatting during data transfers [pending]
+### Dependencies: 5.1, 5.2
+### Description: Ensure that the markdown formatting is preserved when transferring data between the application and the Cursor AI system.
+### Details:
+Implement necessary parsing and formatting logic to maintain the integrity of the markdown content.
+

@@ -1,16 +1,53 @@
 # Task ID: 8
-# Title: PT-B1.3-PMVP-01: Refine and Draft Post-MVP Features List for B1.3 and B1.4
+# Title: FTR-7.8 Empaquetage et déploiement de l'extension Chrome
 # Status: pending
 # Dependencies: 7
-# Priority: high
-# Description: Update and refine the list of Post-MVP features in both the [B1.3 Roadmap & Milestones] document and the [B1.4 PostMVP Features] document, based on the M4PLAN-derived plan and the current B1.4 content.
+# Priority: medium
+# Description: Préparer l'extension Chrome pour le déploiement et la distribution.
 # Details:
-- Review Post-MVP suggestions from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` (e.g., recurring expense toggle, shared budget transaction comparison graph, full dashboard development).
-- Cross-reference with `B1.4_PostMVP_Features.md` (Shared Budgets, Goal Setting, Push Notifications, Basic Reporting, CSV Import/Reconciliation).
-- Consolidate and prioritize the Post-MVP feature list.
-- Draft the Post-MVP section for B1.3 and update B1.4 accordingly.
+# - Finaliser le manifeste de l'extension avec toutes les autorisations nécessaires
+# - Optimiser le code et les ressources de l'extension
+# - Créer les ressources graphiques nécessaires (icônes en différentes tailles)
+# - Empaqueter l'extension pour une installation locale
+# - Préparer les ressources nécessaires pour une éventuelle publication dans le Chrome Web Store
+# - Créer un guide d'installation détaillé pour les utilisateurs
+# - Définir un processus de mise à jour simplifié
 
 # Test Strategy:
-- Confirm consistency between the Post-MVP sections in the updated B1.3 and B1.4.
-- Verify that all key Post-MVP features from input documents are considered and appropriately listed.
-- Required Bible Updates: Draft of Post-MVP section for B1.3 created; Updated version of B1.4 PostMVP Features document drafted.
+# - Vérifier que l'extension s'installe correctement à partir du package
+# - Tester toutes les fonctionnalités après l'installation du package
+# - Confirmer que les permissions demandées sont minimales et nécessaires
+# - Valider le fonctionnement sur différentes plateformes (Windows, macOS, Linux)
+# - S'assurer que le guide d'installation est clair et précis
+
+# Subtasks:
+## 1. Finalize the extension manifest with all necessary permissions [pending]
+### Dependencies: None
+### Description: Review the extension's functionality and ensure the manifest.json file includes all the required permissions.
+### Details:
+Identify the necessary permissions based on the extension's features and update the manifest.json file accordingly.
+
+## 2. Optimize the extension code and resources [pending]
+### Dependencies: None
+### Description: Optimize the extension's code and resources for better performance and efficiency.
+### Details:
+Analyze the code and resources, and implement optimizations such as code minification, image compression, and efficient asset loading.
+
+## 3. Create the required graphic resources (icons) [pending]
+### Dependencies: None
+### Description: Design and create the necessary graphic resources, such as extension icons, for the Chrome Web Store.
+### Details:
+Ensure the icons follow the Chrome Web Store guidelines and create the required sizes (16x16, 32x32, 48x48, 128x128).
+
+## 4. Package the extension for local installation [pending]
+### Dependencies: 8.1, 8.2, 8.3
+### Description: Package the extension for local installation on the user's machine.
+### Details:
+Create a ZIP or CRX file containing the extension's files, including the manifest.json and the optimized resources.
+
+## 5. Prepare the resources for potential publication in the Chrome Web Store [pending]
+### Dependencies: 8.4
+### Description: Gather and organize the necessary resources for publishing the extension in the Chrome Web Store.
+### Details:
+Collect the extension's description, screenshots, and other metadata required for the Chrome Web Store submission process.
+

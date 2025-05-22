@@ -1,20 +1,49 @@
 # Task ID: 10
-# Title: PT-B7X-INPUT-01: Review and Analyze Workflow Integration Document for B7.X
+# Title: FTR-7.10 Documentation utilisateur et mise à jour de la Bible
 # Status: pending
-# Dependencies: None
-# Priority: high
-# Description: Thoroughly review and analyze the `Workflow_Integration_Manus_TaskMaster_v1.md` content (provided via pasted_content.txt) to extract all necessary information for drafting the new [B7.X AI Workflow] document.
+# Dependencies: 5, 6, 8
+# Priority: medium
+# Description: Créer une documentation complète pour l'utilisation du système d'échange de templates et mettre à jour la Bible du projet.
 # Details:
-- Identify and list all core tools and their roles (KarmaCash Bible, SHIP, CK, Manus AI, Claude Task Master, Cursor AI, HD).
-- Detail each step of "The Optimized Workflow: From Manus Planning to Task Master Execution".
-- Extract the precise "Manus AI Output Template".
-- Document the JSON transformation process and the example prompt.
-- Capture the `tasks.json` schema.
-- List all "SHIP Template Integration Points".
-- Summarize the "CK Role & Responsibilities (New Workflow)".
-- Note any "Key Workflow Decisions & Rationale".
+# - Rédiger un guide utilisateur complet expliquant:
+#   * Comment installer et utiliser l'extension Chrome avec Google AI Studio
+#   * Comment utiliser l'interface web pour gérer les templates
+#   * Comment utiliser les commandes Cursor AI
+#   * Comment consulter l'historique des templates
+# - Mettre à jour les sections Bible existantes mentionnées dans le contexte initial (B7.1, B7.2, B7.3)
+# - Créer les nouvelles sections Bible suggérées (B7.4, B7.5, B7.6, B7.7) pour les composants du système
+# - Inclure des exemples d'utilisation et des captures d'écran
+# - Ajouter des conseils sur les meilleures pratiques pour le formatage markdown dans les templates
+# - Documenter les erreurs courantes et leurs solutions
 
 # Test Strategy:
-- Create a checklist or summary of all key components from `Workflow_Integration_Manus_TaskMaster_v1.md` that must be included in B7.X.
-- Confirm all sections of the source document have been processed.
-- Required Bible Updates: None directly, this task produces inputs for B7.X drafting tasks.
+# - Faire tester la documentation par un utilisateur non impliqué dans le développement
+# - Vérifier que tous les composants et fonctionnalités sont couverts dans le guide utilisateur
+# - Confirmer que la Bible est à jour avec toutes les nouvelles sections
+# - Valider que les instructions sont faciles à suivre et complètes
+
+# Subtasks:
+## 1. Write comprehensive user guide [pending]
+### Dependencies: None
+### Description: Create a detailed user guide covering all system components and functionality
+### Details:
+The user guide should include step-by-step instructions, examples, screenshots, and troubleshooting information to help users effectively utilize the system
+
+## 2. Update existing Bible sections [pending]
+### Dependencies: None
+### Description: Review and update the existing Bible sections mentioned in the initial context
+### Details:
+Ensure the existing Bible sections are accurate, up-to-date, and aligned with the current system components
+
+## 3. Create new Bible sections [pending]
+### Dependencies: 10.2
+### Description: Develop new Bible sections for the system components as suggested
+### Details:
+The new Bible sections should provide comprehensive information about the newly added system components
+
+## 4. Include examples, screenshots, and troubleshooting information [pending]
+### Dependencies: 10.1, 10.2, 10.3
+### Description: Incorporate examples, screenshots, and troubleshooting information throughout the user guide and Bible sections
+### Details:
+The examples, screenshots, and troubleshooting information should enhance the user's understanding and ability to effectively use the system
+

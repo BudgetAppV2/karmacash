@@ -1,23 +1,47 @@
 # Task ID: 3
-# Title: M5.1.3: Integrate Allocation Sliders with Budget Logic and "Reste à Allouer" Constraint
-# Status: pending
-# Dependencies: 1, 2
+# Title: FTR-7.3 Développement des Cloud Functions pour l'API de gestion des templates
+# Status: done
+# Dependencies: 2
 # Priority: high
-# Description: Connect the Allocation Slider components to the application's budget state management. Ensure that adjusting a slider updates the corresponding category's allocated amount, which in turn updates `TotalAllocated` and `RemainingToAllocate` in real-time. The collective adjustment of sliders must adhere to the constraint that `TotalAllocated` does not exceed `AvailableFunds`.
+# Description: Créer les Cloud Functions Firebase nécessaires pour exposer une API REST permettant la gestion des templates.
 # Details:
-- Modify `AllocationSlider.tsx`, `BudgetCategoryRow.tsx`, and the main Budget page/view for central state management of all allocations, `AvailableFunds`, and `RemainingToAllocate`.
-- The `recalculateBudget` logic (ref B6.1) will be invoked frequently as sliders are manipulated. Client-side performance for these recalculations is important.
-- The dynamic `max` value of each category's slider must be calculated such that `slider.value <= category.currentAllocation + RemainingToAllocate_overall` (where `RemainingToAllocate_overall` is the total remaining based on `AvailableFunds`).
-- If `RemainingToAllocate_overall` is zero or negative (e.g., because `AvailableFunds` is negative), sliders should not allow further increases in allocation (their max should be their current value or they should appear disabled for increase).
-- If `AvailableFunds` is zero or negative, all allocation sliders should effectively have a max of 0 (or be disabled for increase), as there are no funds to allocate.
-- The `RemainingToAllocateIndicator` (ref B3.7 - 4.2) must update instantly as any slider is adjusted. Other sliders' effective ranges might also need to update visually.
+# - Développer les endpoints API suivants basés sur la réponse HD #3 et #4:
+#   * GET /api/templates/:sessionId - Récupérer un template par sessionId
+#   * POST /api/templates - Soumettre un nouveau template
+#   * GET /api/templates - Lister tous les templates (avec filtres optionnels)
+# - Implémenter l'authentification par API key comme mentionné dans la réponse HD #3
+# - Gérer les erreurs et les réponses appropriées (404, 401, etc.)
+# - Ajouter l'horodatage automatique mentionné dans la réponse HD #2
+# - Créer un nouveau fichier de service JavaScript conforme au pattern d'architecture mentionné dans la réponse HD #3
 
 # Test Strategy:
-- Integration test: Adjust one slider and verify `RemainingToAllocate` updates correctly. Verify other sliders' potential max values update if applicable.
-- Scenario test: With positive `RemainingToAllocate`, adjust a slider to consume all of it. `RemainingToAllocate` should become 0. Attempting to increase any slider further should be prevented.
-- Scenario test: If `AvailableFunds` is 0 or negative, verify sliders are appropriately constrained (e.g., max 0 or disabled for increase).
-- Test with multiple categories and sliders, ensuring the sum of allocations never exceeds `AvailableFunds` through slider use.
-- UI test: Responsiveness of the `RemainingToAllocateIndicator` and sliders during adjustments.
-- Required Bible Updates:
-  - B6.1 (Budget Calculations): Update section 3.6 (Monthly Remaining to Allocate Calculation) with a note: "When using interactive allocation tools like sliders, client-side logic must dynamically adjust slider ranges to ensure that the sum of all allocations does not exceed `AvailableFunds`." Consider adding a sub-section under Section 5 (User Interface Calculations) detailing the logic for calculating dynamic maximums for allocation sliders.
-  - B3.7 (UI Component Specs): Update the `AllocationSlider` spec (from M5.1.2) to thoroughly document how its `max` prop is dynamically calculated and how it behaves when `AvailableFunds` or `RemainingToAllocate` are zero or negative.
+# - Tester chaque endpoint API avec Postman ou un outil similaire
+# - Vérifier que l'authentification par API key fonctionne correctement
+# - Confirmer que les réponses API sont formatées correctement et incluent toutes les données nécessaires
+# - Documenter les endpoints API dans une nouvelle section Bible (suggestion: B7.5)
+
+# Subtasks:
+## 1. Develop the API endpoints for retrieving, submitting, and listing templates [done]
+### Dependencies: None
+### Description: Implement the necessary API endpoints to allow users to retrieve, submit, and list templates
+### Details:
+This subtask should cover the development of the API endpoints for the core functionality of the Cloud Functions API, including endpoints for retrieving, submitting, and listing templates.
+
+## 2. Implement the API key-based authentication mechanism [done]
+### Dependencies: 3.1
+### Description: Develop the authentication mechanism for the API using API keys
+### Details:
+This subtask should focus on implementing the API key-based authentication mechanism to secure the Cloud Functions API endpoints.
+
+## 3. Handle errors and provide appropriate responses [done]
+### Dependencies: 3.1, 3.2
+### Description: Implement error handling and provide meaningful responses to API clients
+### Details:
+This subtask should cover the implementation of error handling and the provision of appropriate responses to API clients, ensuring a robust and user-friendly API experience.
+
+## 4. Create a new service file following the recommended architecture pattern [done]
+### Dependencies: 3.1, 3.2, 3.3
+### Description: Organize the API implementation into a new service file following the recommended architecture pattern
+### Details:
+This subtask should involve the creation of a new service file that follows the recommended architecture pattern, ensuring the API implementation is structured and maintainable.
+

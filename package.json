@@ -14,22 +14,32 @@
     "test:rules:win": "set FIRESTORE_EMULATOR_HOST=localhost:8085 && firebase emulators:exec --only firestore \"vitest run tests/firestore.rules.test.js\"",
     "test:basic": "vitest run tests/basic-rules.test.js",
     "test:validate": "vitest run tests/firestore-validation.test.js",
+    "test:api": "node src/template-exchange/scripts/test-api.js",
+    "deploy": "node scripts/deploy.mjs --all",
+    "deploy:rules": "node scripts/deploy.mjs --rules",
+    "deploy:indexes": "node scripts/deploy.mjs --indexes",
+    "deploy:functions": "node scripts/deploy.mjs --functions",
+    "create-api-key": "node src/template-exchange/scripts/create-api-key.js",
     "check-ports": "node tests/check-ports.js",
     "emulators": "export FIREBASE_AUTH_EMULATOR_HOST='127.0.0.1:9099' && firebase emulators:start",
     "dev:emulators": "export FIREBASE_AUTH_EMULATOR_HOST='127.0.0.1:9099' && firebase emulators:start & vite"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "axios": "^1.6.7",
+    "chalk": "^4.1.2",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "firebase": "^11.6.0",
     "framer-motion": "^12.8.0",
     "google-auth-library": "^9.15.1",
     "lodash": "^4.17.21",
+    "prompt-sync": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.0",
-    "task-master-ai": "^0.13.2"
+    "task-master-ai": "^0.13.2",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

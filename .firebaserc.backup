@@ -1,8 +1,0 @@
-{
-  "projects": {
-    "default": "karmacash-test",
-    "dev": "karmacash-test"
-  },
-  "targets": {},
-  "etags": {}
-}

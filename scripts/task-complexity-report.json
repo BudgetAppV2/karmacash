@@ -1,51 +1,91 @@
 {
   "meta": {
-    "generatedAt": "2025-05-18T01:59:38.842Z",
-    "tasksAnalyzed": 5,
+    "generatedAt": "2025-05-21T20:20:09.180Z",
+    "tasksAnalyzed": 10,
     "thresholdScore": 5,
     "projectName": "KarmaCash",
     "usedResearch": true
   },
   "complexityAnalysis": [
     {
-      "taskId": 201,
-      "taskTitle": "M5.1.1 - Amélioration du \"Reste à Allouer\" avec validation préventive",
+      "taskId": 1,
+      "taskTitle": "FTR-7.1 Définition du modèle de données pour les templates Firebase",
       "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Break down the task into the following subtasks:\n1. Analyze the existing code for input validation and \"Reste à Allouer\" calculation\n2. Implement preventive validation logic to prevent negative \"Reste à Allouer\" values\n3. Develop a mechanism to cap input values at the maximum available\n4. Create subtle visual indicators (soft red border per [B3.8]) when an input exceeds the limit\n5. Implement clear and non-alarming explanation messages (per [B3.4])\n6. Add visual cues when the \"Reste à Allouer\" approaches zero",
-      "reasoning": "This task involves implementing complex client-side validation and visual feedback mechanisms, which requires analyzing existing code, designing new logic, and integrating multiple UI components. The level of detail in the requirements and the need for a cohesive user experience contribute to the moderate complexity."
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Define the Firestore data schema based on the suggested structure\n2. Implement the necessary Firestore validation rules\n3. Determine the required indexes for frequent queries\n4. Document the naming conventions and integrate with the existing data structures",
+      "reasoning": "This task involves designing a complex data model and requires careful consideration of various aspects such as data schema, validation, indexing, and integration with existing systems. The level of detail and the need for documentation make this a moderately complex task."
     },
     {
-      "taskId": 202,
-      "taskTitle": "M5.1.2 - Implémentation des curseurs d'allocation interactifs",
-      "complexityScore": 8,
-      "recommendedSubtasks": 8,
-      "expansionPrompt": "Break down the task into the following subtasks:\n1. Design the visual appearance of the allocation sliders in line with the \"Zen/Tranquility\" theme per [B3.4]\n2. Develop the slider components with dynamic range (0 to maximum available for each category)\n3. Implement the logic to calculate the maximum available for each category based on the \"Reste à Allouer\"\n4. Develop real-time synchronization between sliders and numeric input fields\n5. Ensure that modifications via sliders or direct input are perfectly synchronized\n6. Implement keyboard navigation (arrow keys) for accessibility\n7. Add appropriate ARIA attributes for screen readers\n8. Optimize touch targets according to [B3.4] guidelines",
-      "reasoning": "This task involves designing and implementing interactive allocation sliders with complex logic, including dynamic range calculations, real-time synchronization, and accessibility features. The need for a cohesive user experience, visual design, and technical integration contribute to the high complexity."
-    },
-    {
-      "taskId": 203,
-      "taskTitle": "M5.1.3 - Intégration et coordination des composants de budgétisation",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down the task into the following subtasks:\n1. Coordinate the \"Reste à Allouer\" validations with the behavior of the allocation sliders\n2. Implement the dynamic update of the slider maximum ranges based on the real-time \"Reste à Allouer\"\n3. Ensure that changes in one category correctly affect the available ranges for other categories\n4. Develop client-side logic to guarantee data consistency across all components\n5. Optimize real-time calculations to avoid slowdowns (debouncing/throttling if necessary)\n6. Manage intermediate states during multiple adjustments for a fluid experience\n7. Implement efficient event handling to minimize unnecessary recalculations",
-      "reasoning": "This task focuses on the technical integration and coordination between the various budgeting components, including the validation logic and the interactive sliders. The need to ensure a cohesive and responsive user experience, while maintaining data integrity and performance, contributes to the high complexity."
-    },
-    {
-      "taskId": 204,
-      "taskTitle": "M5.1.4 - Révision de la logique backend pour la sauvegarde des allocations",
+      "taskId": 2,
+      "taskTitle": "FTR-7.2 Configuration de la collection Firestore et des règles de sécurité",
       "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down the task into the following subtasks:\n1. Audit the existing code for allocation saving\n2. Identify vulnerabilities or areas for improvement in the current logic\n3. Strengthen data structure and integrity validations (valid numeric values, correct category IDs)\n4. Optimize the manual save process via the \"Sauvegarder\" button\n5. Implement a data verification mechanism before sending to the server",
-      "reasoning": "This task involves reviewing and improving the backend logic for saving budget allocations, which is a relatively straightforward task compared to the previous ones. The main focus is on reinforcing data integrity and providing appropriate user feedback, which contributes to a moderate complexity level."
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Create the 'templates' collection in Firestore based on the defined model\n2. Configure the Firestore security rules to allow access via API key\n3. Implement server-side data validation to ensure integrity\n4. Set up the appropriate performance and caching parameters",
+      "reasoning": "This task is focused on the technical implementation of the Firestore collection and security rules. While it requires some configuration and integration work, it is relatively straightforward compared to the data modeling task."
     },
     {
-      "taskId": 205,
-      "taskTitle": "M5.1.5 - Clarification UI pour le calcul des \"Fonds Disponibles\"",
+      "taskId": 3,
+      "taskTitle": "FTR-7.3 Développement des Cloud Functions pour l'API de gestion des templates",
+      "complexityScore": 8,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Develop the API endpoints for retrieving, submitting, and listing templates\n2. Implement the API key-based authentication mechanism\n3. Handle errors and provide appropriate responses\n4. Create a new service file following the recommended architecture pattern",
+      "reasoning": "The development of the Cloud Functions API is a complex task as it involves implementing multiple endpoints, handling authentication, and ensuring proper error handling. The need to follow a specific architecture pattern adds to the complexity."
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "FTR-7.4 Création de l'interface web minimaliste pour la gestion des templates",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Create the HTML/JS-based web interface with the two main functionalities\n2. Implement the form for submitting new templates\n3. Develop the view for consulting existing templates by sessionId\n4. Integrate the API key-based authentication and optimize the user experience",
+      "reasoning": "The web interface is relatively straightforward, as it involves a simple design and implementation. However, the need to integrate with the API, preserve markdown formatting, and optimize the user experience add some complexity to the task."
+    },
+    {
+      "taskId": 5,
+      "taskTitle": "FTR-7.5 Développement du script d'intégration pour Cursor AI",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Develop the Cursor AI commands for fetching handoffs and submitting summaries\n2. Ensure seamless integration with the Cursor AI environment\n3. Handle the API key-based authentication securely\n4. Preserve markdown formatting during the data transfers",
+      "reasoning": "The integration with Cursor AI requires careful development to ensure a smooth user experience, secure authentication, and proper handling of the markdown formatting. The need to develop specific commands and integrate with an external system adds to the complexity."
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "FTR-7.6 Configuration du déploiement Firebase pour l'interface web",
       "complexityScore": 5,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down the task into the following subtasks:\n1. Craft clear explanatory content detailing the calculation formula: (Total monthly income) - (Sum of recurring expenses) + (Previous month's carry-over)\n2. Design a tooltip (infobulle) according to [B3.8] guidelines\n3. Add an information icon (Heroicon) next to the \"Fonds Disponibles\" display\n4. Implement the interaction to show the tooltip on hover/click on the icon",
-      "reasoning": "This task focuses on improving the UI clarity around the calculation of \"Fonds Disponibles\", which primarily involves adding an explanatory tooltip. The complexity is relatively lower as it does not require significant technical integration or complex logic, but rather a thoughtful UI design and content creation."
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Configure the Firebase Hosting project to host the web interface\n2. Establish a simple deployment process (manual or automated)\n3. Set up the appropriate caching parameters for performance optimization\n4. Ensure secure access to the interface (simple authentication if needed)",
+      "reasoning": "The deployment of the web interface on Firebase Hosting is a relatively straightforward task, as it involves standard Firebase configuration and deployment practices. The main complexity lies in ensuring secure access and optimizing performance."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "FTR-7.7 Développement de l'extension Chrome pour Google AI Studio",
+      "complexityScore": 8,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Set up the Chrome extension project structure (manifest v3)\n2. Develop the content script to interact with the Google AI Studio interface\n3. Create the background script for communication with Firebase\n4. Implement the popup interface with the required functionalities\n5. Integrate secure authentication with the Firebase API",
+      "reasoning": "The development of the Chrome extension is a complex task, as it involves multiple components (content script, background script, popup interface) and the need to integrate with both the Google AI Studio interface and the Firebase API. The complexity is further increased by the requirement for secure authentication."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "FTR-7.8 Empaquetage et déploiement de l'extension Chrome",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Finalize the extension manifest with all necessary permissions\n2. Optimize the extension code and resources\n3. Create the required graphic resources (icons)\n4. Package the extension for local installation\n5. Prepare the resources for potential publication in the Chrome Web Store",
+      "reasoning": "The packaging and deployment of the Chrome extension involves several technical tasks, such as optimizing the code, creating assets, and preparing the extension for distribution. While not overly complex, it requires attention to detail and following best practices."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "FTR-7.9 Tests d'intégration du flux de travail complet",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Create test scenarios covering the complete user journeys\n2. Verify the preservation of markdown formatting at each step\n3. Measure the time required for each step of the process\n4. Identify and document any issues or improvements",
+      "reasoning": "The integration testing of the complete workflow is a complex task, as it requires coordinating the various components (Google AI Studio extension, web interface, Cursor AI integration) and verifying the end-to-end functionality. The need to measure performance and identify potential issues adds to the complexity."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "FTR-7.10 Documentation utilisateur et mise à jour de la Bible",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand this task into subtasks to cover the following areas:\n1. Write a comprehensive user guide covering all system components\n2. Update the existing Bible sections mentioned in the initial context\n3. Create the new Bible sections suggested for the system components\n4. Include examples, screenshots, and troubleshooting information",
+      "reasoning": "The documentation and Bible updates are important tasks, but they are relatively straightforward compared to the technical implementation tasks. The main complexity lies in ensuring the documentation is comprehensive and easy to follow for users."
     }
   ]
 }

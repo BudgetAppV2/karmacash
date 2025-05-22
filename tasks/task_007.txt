@@ -1,15 +1,56 @@
 # Task ID: 7
-# Title: PT-B1.3-M6-01: Decide and Draft M6 Core Objectives and Key Tasks for B1.3
+# Title: FTR-7.7 Développement de l'extension Chrome pour Google AI Studio
 # Status: pending
-# Dependencies: 6
+# Dependencies: 3
 # Priority: high
-# Description: Define the core objectives and key tasks for Milestone 6 (M6) based on the M4PLAN-derived plan and decisions made for M5 (e.g., onboarding implementation). Draft this section for the [B1.3 Roadmap & Milestones] document.
+# Description: Créer une extension Chrome pour injecter et extraire des templates depuis Google AI Studio.
 # Details:
-- Review summarized M6 tasks from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md`.
-- Incorporate tasks such as: Onboarding implementation (if decided in M5), complete validation of budget calculations, integration and non-regression testing, UX testing and feedback incorporation, performance optimization, security review, deployment preparation, and final user documentation.
-- Draft the M6 section for B1.3, outlining objectives, key tasks, and references to relevant Bible documents.
+# - Configurer la structure du projet d'extension Chrome (manifeste v3)
+# - Développer un script de contenu (content script) pour interagir avec l'interface de Google AI Studio
+# - Créer un script d'arrière-plan (background script) pour la communication avec Firebase
+# - Développer une interface popup simple pour l'extension avec les fonctionnalités suivantes:
+#   * Sélection d'un template existant à injecter dans Google AI Studio
+#   * Bouton pour extraire le contenu actuel de Google AI Studio et le sauvegarder dans Firebase
+# - Implémenter l'authentification sécurisée avec l'API Firebase
+# - Gérer la préservation du formatage markdown lors des transferts
+# - Ajouter des indicateurs visuels de succès/échec des opérations
 
 # Test Strategy:
-- Confirm all relevant M6 points from `Plan de Développement et Intégration au Workflow AI pour KarmaCash.md` are addressed in the B1.3 M6 draft.
-- Ensure the drafted M6 section in B1.3 is clear, concise, and actionable.
-- Required Bible Updates: Draft of M6 section for B1.3 created.
+# - Tester la détection correcte de l'interface Google AI Studio
+# - Vérifier l'injection correcte des templates dans l'entrée de Google AI Studio
+# - Confirmer l'extraction et le stockage des données depuis Google AI Studio vers Firebase
+# - Mesurer le temps nécessaire pour un échange complet (objectif: moins de 30 secondes)
+# - Tester le comportement de l'extension sur différentes versions de Chrome
+# - Documenter l'installation et l'utilisation de l'extension
+
+# Subtasks:
+## 1. Set up the Chrome extension project structure (manifest v3) [done]
+### Dependencies: None
+### Description: Create the necessary directory structure and files for the Chrome extension, including the manifest.json file for manifest v3.
+### Details:
+Ensure the project structure follows best practices for a Chrome extension, including the use of manifest v3.
+
+## 2. Develop the content script to interact with the Google AI Studio interface [done]
+### Dependencies: 7.1
+### Description: Create the content script that will interact with the Google AI Studio interface, handling user interactions and data retrieval.
+### Details:
+Analyze the Google AI Studio interface and implement the necessary functionality in the content script.
+
+## 3. Create the background script for communication with Firebase [done]
+### Dependencies: 7.1
+### Description: Develop the background script that will handle communication with the Firebase API, including authentication and data management.
+### Details:
+Ensure the background script is properly integrated with the Firebase API and can securely handle data and authentication.
+
+## 4. Implement the popup interface with the required functionalities [pending]
+### Dependencies: 7.1, 7.2, 7.3
+### Description: Design and implement the popup interface for the Chrome extension, providing the necessary functionalities to the user.
+### Details:
+Ensure the popup interface is intuitive and provides a seamless user experience.
+
+## 5. Integrate secure authentication with the Firebase API [done]
+### Dependencies: 7.3
+### Description: Implement secure authentication mechanisms to allow users to authenticate with the Firebase API through the Chrome extension.
+### Details:
+Ensure the authentication process is secure and follows best practices for Firebase authentication.
+
