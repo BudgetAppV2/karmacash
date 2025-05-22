@@ -35,8 +35,11 @@ node_modules/
 # Environment variables
 .env
 .vscode
-# OS specific
-# Task files
-tasks.json
-tasks/ 
 firebase-credentials.json
+
+# Allow tracking task markdown files while ignoring backup/temporary files
+tasks/*.txt
+!tasks/task_CKA*.md
+tasks/tasks_Exchange.json
+tasks/tasksV2.json
+tasks/tasks(210525).json
