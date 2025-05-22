@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Template Exchange System</title>
+  <!-- Cache busting meta tags -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <!-- Template exchange specific identifier -->
+  <meta name="application-name" content="Template-Exchange-System">
+  <!-- Redirect script to ensure we're on the correct domain -->
+  <script>
+    // Check if we're on the correct domain for the template exchange
+    if (window.location.hostname === 'karmacash-6e8f5.web.app') {
+      // If we're on the main KarmaCash domain, redirect to the template exchange domain
+      window.location.href = 'https://template-exchange-karmacash.web.app' + window.location.pathname + window.location.search;
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Firebase SDK - Modular approach -->
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Template Exchange System</h1>
+      <p class="subtitle">Streamline template sharing between Google AI Studio and Cursor AI</p>
+    </header>
+    
+    <main>
+      <section class="form-section">
+        <h2>Submit Template</h2>
+        <form id="templateForm">
+          <div class="form-group">
+            <label for="sessionId">Session ID:</label>
+            <input type="text" id="sessionId" required placeholder="e.g., M5.S4">
+            <div class="help-text">Format: M[Milestone#].S[Session#] (e.g., M5.S4)</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="templateType">Template Type:</label>
+            <select id="templateType" required>
+              <option value="handoff">Handoff</option>
+              <option value="summary">Summary</option>
+            </select>
+            <div class="help-text">Handoff: Task instructions for Cursor AI<br>Summary: Implementation summary from Cursor AI</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="templateContent">Content:</label>
+            <textarea id="templateContent" required rows="10" placeholder="Paste template content here..."></textarea>
+          </div>
+          
+          <button type="submit" id="submitButton">Submit Template</button>
+          <div id="formStatus" class="status"></div>
+        </form>
+      </section>
+      
+      <section class="templates-section">
+        <h2>Templates</h2>
+        
+        <div class="templates-header">
+          <div class="filter-group">
+            <label for="typeFilter">Filter by type:</label>
+            <select id="typeFilter">
+              <option value="all">All Types</option>
+              <option value="handoff">Handoff</option>
+              <option value="summary">Summary</option>
+            </select>
+          </div>
+          
+          <button id="refreshButton">Refresh</button>
+        </div>
+        
+        <div class="templates-table-container">
+          <table class="templates-table">
+            <thead>
+              <tr>
+                <th>Session ID</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="templatesList">
+              <tr>
+                <td colspan="4" class="loading-message">Loading templates...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="pagination">
+          <button id="loadMoreButton" style="display: none;">Load More</button>
+        </div>
+      </section>
+    </main>
+    
+    <!-- Template View Modal -->
+    <div id="templateModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle"></h2>
+        <div class="template-metadata">
+          <p><strong>Created:</strong> <span id="modalCreated"></span></p>
+          <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+        </div>
+        <div class="template-content">
+          <pre id="modalContent"></pre>
+        </div>
+        <div class="modal-actions">
+          <button id="copyBtn">Copy to Clipboard</button>
+          <button id="deleteBtn" class="delete-btn">Delete Template</button>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>&copy; 2025 KarmaCash - Template Exchange System</p>
+    </footer>
+  </div>
+</body>
+</html> 

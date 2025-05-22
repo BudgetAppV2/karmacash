@@ -1,0 +1,235 @@
+{
+  "config": {
+    "apiUrl": "https://us-central1-karmacash-6e8f5.cloudfunctions.net",
+    "timeout": 10000
+  },
+  "summary": {
+    "total": 15,
+    "passed": 0,
+    "failed": 10,
+    "skipped": 5,
+    "timestamp": "2025-05-22T01:06:44.342Z"
+  },
+  "tests": [
+    {
+      "name": "Health Check",
+      "status": "failed",
+      "duration": 313,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:43 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "306",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/healthCheck</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "API Key Validation - Invalid Key",
+      "status": "failed",
+      "duration": 193,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:43 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "304",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "Create Template - Handoff",
+      "status": "failed",
+      "duration": 101,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:43 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "304",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "Create Template - Summary",
+      "status": "failed",
+      "duration": 101,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:44 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "304",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "Get Template by Session ID",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "Create template test failed"
+    },
+    {
+      "name": "Get Template by ID",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "No template ID available"
+    },
+    {
+      "name": "List Templates",
+      "status": "failed",
+      "duration": 77,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:44 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "304",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "List Templates with Filter",
+      "status": "failed",
+      "duration": 69,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:44 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "329",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates?type=handoff&amp;limit=5</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "Update Template",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "No template ID available"
+    },
+    {
+      "name": "Validation - Invalid Session ID",
+      "status": "failed",
+      "duration": 77,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:44 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "304",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "Validation - Invalid Type",
+      "status": "failed",
+      "duration": 86,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:44 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "304",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "Pagination",
+      "status": "failed",
+      "duration": 76,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:44 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "312",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates?limit=2</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    },
+    {
+      "name": "Delete Template",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "No template ID available"
+    },
+    {
+      "name": "Verify Deletion",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "No template ID available"
+    },
+    {
+      "name": "Sharding Strategy Verification",
+      "status": "failed",
+      "duration": 66,
+      "error": "Request failed with status code 403",
+      "response": {
+        "status": 403,
+        "statusText": "Forbidden",
+        "headers": {
+          "date": "Thu, 22 May 2025 01:06:44 GMT",
+          "content-type": "text/html; charset=UTF-8",
+          "server": "Google Frontend",
+          "content-length": "304",
+          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+        },
+        "data": "\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>403 Forbidden</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Forbidden</h1>\n<h2>Your client does not have permission to get URL <code>/templates</code> from this server.</h2>\n<h2></h2>\n</body></html>\n"
+      }
+    }
+  ]
+}

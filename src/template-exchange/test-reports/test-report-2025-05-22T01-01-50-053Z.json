@@ -1,0 +1,146 @@
+{
+  "config": {
+    "apiUrl": "https://karmacash-6e8f5.web.app/api",
+    "timeout": 10000
+  },
+  "summary": {
+    "total": 15,
+    "passed": 1,
+    "failed": 9,
+    "skipped": 5,
+    "timestamp": "2025-05-22T01:01:50.054Z"
+  },
+  "tests": [
+    {
+      "name": "Health Check",
+      "status": "passed",
+      "duration": 391,
+      "error": null,
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "connection": "keep-alive",
+          "content-length": "229",
+          "cache-control": "max-age=3600",
+          "content-type": "text/html; charset=utf-8",
+          "etag": "\"df70a0d89c944fe32ac8b020bbef4dcc2f525b98acad391f70c8e4f080b22d6f-br\"",
+          "last-modified": "Sun, 27 Apr 2025 19:25:03 GMT",
+          "strict-transport-security": "max-age=31556926; includeSubDomains; preload",
+          "accept-ranges": "bytes",
+          "date": "Thu, 22 May 2025 01:01:48 GMT",
+          "x-served-by": "cache-yul1970047-YUL",
+          "x-cache": "MISS",
+          "x-cache-hits": "0",
+          "x-timer": "S1747875709.809339,VS0,VE164",
+          "vary": "x-fh-requested-host, accept-encoding",
+          "alt-svc": "h3=\":443\";ma=86400,h3-29=\":443\";ma=86400,h3-27=\":443\";ma=86400"
+        },
+        "data": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <link rel=\"icon\" type=\"image/svg+xml\" href=\"/vite.svg\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Vite + React</title>\n    <script type=\"module\" crossorigin src=\"/assets/index-Beinl6xT.js\"></script>\n    <link rel=\"stylesheet\" crossorigin href=\"/assets/index-CuhTwZdt.css\">\n  <link rel=\"manifest\" href=\"/manifest.webmanifest\"><script id=\"vite-plugin-pwa:register-sw\" src=\"/registerSW.js\"></script></head>\n  <body>\n    <div id=\"root\"></div>\n  </body>\n</html>\n"
+      }
+    },
+    {
+      "name": "API Key Validation - Invalid Key",
+      "status": "failed",
+      "duration": 65,
+      "error": "Expected authentication to fail, but it succeeded",
+      "response": null
+    },
+    {
+      "name": "Create Template - Handoff",
+      "status": "failed",
+      "duration": 111,
+      "error": "Failed to create template",
+      "response": null
+    },
+    {
+      "name": "Create Template - Summary",
+      "status": "failed",
+      "duration": 83,
+      "error": "Failed to create summary template",
+      "response": null
+    },
+    {
+      "name": "Get Template by Session ID",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "Create template test failed"
+    },
+    {
+      "name": "Get Template by ID",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "No template ID available"
+    },
+    {
+      "name": "List Templates",
+      "status": "failed",
+      "duration": 24,
+      "error": "Failed to list templates",
+      "response": null
+    },
+    {
+      "name": "List Templates with Filter",
+      "status": "failed",
+      "duration": 87,
+      "error": "Failed to list templates with filter",
+      "response": null
+    },
+    {
+      "name": "Update Template",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "No template ID available"
+    },
+    {
+      "name": "Validation - Invalid Session ID",
+      "status": "failed",
+      "duration": 104,
+      "error": "Expected validation to fail, but it succeeded",
+      "response": null
+    },
+    {
+      "name": "Validation - Invalid Type",
+      "status": "failed",
+      "duration": 77,
+      "error": "Expected validation to fail, but it succeeded",
+      "response": null
+    },
+    {
+      "name": "Pagination",
+      "status": "failed",
+      "duration": 83,
+      "error": "Failed to get first page",
+      "response": null
+    },
+    {
+      "name": "Delete Template",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "No template ID available"
+    },
+    {
+      "name": "Verify Deletion",
+      "status": "skipped",
+      "duration": 0,
+      "error": null,
+      "response": null,
+      "skipReason": "No template ID available"
+    },
+    {
+      "name": "Sharding Strategy Verification",
+      "status": "failed",
+      "duration": 478,
+      "error": "Cannot read properties of undefined (reading 'filter')",
+      "response": null
+    }
+  ]
+}

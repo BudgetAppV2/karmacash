@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Function to validate API key
+    function isValidApiKey() {
+      return request.auth != null || (
+        request.headers.hasAll(['x-api-key']) && 
+        request.headers['x-api-key'] == get(/databases/$(database)/documents/config/api_keys).data.key
+      );
+    }
+
+    // Function to validate session ID format
+    function isValidSessionId(sessionId) {
+      return sessionId.matches('^[A-Z][0-9]+\\.[A-Z][0-9]+$');
+    }
+
+    // Function to validate template type
+    function isValidTemplateType(type) {
+      return type in ['handoff', 'summary'];
+    }
+
+    // Function to validate template status
+    function isValidStatus(status) {
+      return status in ['draft', 'active', 'archived'];
+    }
+
+    // Template collection rules
+    match /templates/{templateId} {
+      // Allow read if user is authenticated or has valid API key
+      allow read: if isValidApiKey();
+      
+      // Allow write if user is authenticated or has valid API key and data is valid
+      allow create: if 
+        isValidApiKey() &&
+        isValidSessionId(request.resource.data.sessionId) &&
+        isValidTemplateType(request.resource.data.type) &&
+        isValidStatus(request.resource.data.status) &&
+        request.resource.data.content is string &&
+        request.resource.data.content.size() <= 50000 &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.updatedAt is timestamp &&
+        request.resource.data.shard in ['a', 'b', 'c'];
+      
+      // Allow update with similar validation, but protect immutable fields
+      allow update: if
+        isValidApiKey() &&
+        isValidSessionId(request.resource.data.sessionId) &&
+        isValidTemplateType(request.resource.data.type) &&
+        isValidStatus(request.resource.data.status) &&
+        request.resource.data.content is string &&
+        request.resource.data.content.size() <= 50000 &&
+        request.resource.data.updatedAt is timestamp &&
+        request.resource.data.shard == resource.data.shard && // Shard can't change
+        request.resource.data.createdAt == resource.data.createdAt; // createdAt can't change
+        
+      // Allow delete if user is authenticated or has valid API key
+      allow delete: if isValidApiKey();
+    }
+
+    // Configuration document for storing API keys
+    match /config/api_keys {
+      // Only allow authenticated admin users to read/write API keys
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+  }
+} 
