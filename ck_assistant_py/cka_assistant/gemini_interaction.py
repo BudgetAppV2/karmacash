@@ -1,6 +1,8 @@
-from google.generativeai.types import FunctionDeclaration, Tool, Part, FunctionCall, FunctionResponse
-from google.generativeai.protos import Schema, Type # May also need protos for schema definition
+from google.generativeai.types import FunctionDeclaration, Tool
+# from google.generativeai.protos import Schema, Type # No longer needed for main parameters
 import google.generativeai as genai
+from google.ai.generativelanguage_v1beta.types.content import Part, FunctionResponse
+from google.ai.generativelanguage_v1beta.types import FunctionCall
 from cka_assistant.config_loader import GEMINI_API_KEY
 from cka_assistant import template_exchange_client # To call our actual functions
 
@@ -11,52 +13,53 @@ genai.configure(api_key=GEMINI_API_KEY)
 GET_TEMPLATE_FUNC_DECL = FunctionDeclaration(
     name="get_template",
     description="Retrieves a template (e.g., handoff or summary) for a specific session ID and type from the Template Exchange API.",
-    parameters=Schema(
-        type=Type.OBJECT,
-        properties={
-            "session_id": Schema(
-                type=Type.STRING,
-                description="The unique identifier for the session (e.g., 'M5.S4').",
-            ),
-            "template_type": Schema(
-                type=Type.STRING,
-                description="The type of the template, either 'handoff' or 'summary'. Defaults to 'handoff'.",
-            ),
+    parameters={
+        "type": "OBJECT", # Using string "OBJECT"
+        "properties": {
+            "session_id": {
+                "type": "STRING", # Using string "STRING"
+                "description": "The unique identifier for the session (e.g., 'M5.S4')."
+            },
+            "template_type": {
+                "type": "STRING",
+                "description": "The type of the template, either 'handoff' or 'summary'. Defaults to 'handoff'."
+            }
         },
-        required=["session_id"],
-    ),
+        "required": ["session_id"]
+    }
 )
 
 # Function Declaration for create_template
 CREATE_TEMPLATE_FUNC_DECL = FunctionDeclaration(
     name="create_template",
     description="Creates a new template or updates an existing one in the Template Exchange API. Stores session handoffs or summaries.",
-    parameters=Schema(
-        type=Type.OBJECT,
-        properties={
-            "session_id": Schema(
-                type=Type.STRING,
-                description="The session ID for the template (e.g., 'M5.S4')."
-            ),
-            "template_type": Schema(
-                type=Type.STRING,
-                description="The type of template, either 'handoff' or 'summary'."
-            ),
-            "content": Schema(
-                type=Type.STRING,
-                description="The markdown content of the template."
-            ),
-            "status": Schema(
-                type=Type.STRING,
-                description="The status of the template (e.g., 'draft', 'active'). Defaults to 'draft' if not provided."
-            ),
-            "metadata": Schema(
-                type=Type.OBJECT,
-                description="Optional dictionary for additional metadata (e.g., {'source': 'ai_studio', 'tags': ['feature']}). If type is OBJECT, this allows a nested JSON structure. If type is STRING, a JSON string is expected."
-            )
+    parameters={
+        "type": "OBJECT",
+        "properties": {
+            "session_id": {
+                "type": "STRING",
+                "description": "The session ID for the template (e.g., 'M5.S4')."
+            },
+            "template_type": {
+                "type": "STRING",
+                "description": "The type of template, either 'handoff' or 'summary'."
+            },
+            "content": {
+                "type": "STRING",
+                "description": "The markdown content of the template."
+            },
+            "status": {
+                "type": "STRING",
+                "description": "The status of the template (e.g., 'draft', 'active'). Defaults to 'draft' if not provided."
+            },
+            "metadata": {
+                "type": "OBJECT", # This indicates Gemini can pass a JSON-like object
+                "description": "Optional dictionary for additional metadata (e.g., {'source': 'ai_studio', 'tags': ['feature']})."
+                # No need to define properties for metadata if it's a flexible object.
+            }
         },
-        required=["session_id", "template_type", "content"]
-    )
+        "required": ["session_id", "template_type", "content"]
+    }
 )
 
 # Create the Tool
