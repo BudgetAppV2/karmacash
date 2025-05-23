@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Connection Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .success {
+      color: #2ecc71;
+    }
+    .error {
+      color: #e74c3c;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Firebase Connection Test</h1>
+  
+  <div class="card">
+    <h2>Status</h2>
+    <div id="status">Testing connection...</div>
+  </div>
+  
+  <div class="card">
+    <h2>Environment Variables</h2>
+    <div id="env-vars">Loading...</div>
+  </div>
+  
+  <div class="card">
+    <h2>Firebase Logs</h2>
+    <pre id="logs"></pre>
+  </div>
+  
+  <!-- Firebase App SDK -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+    import { getAuth, connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import { getFirestore, connectFirestoreEmulator, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+    
+    // Function to append log messages
+    function log(message) {
+      const logsElement = document.getElementById('logs');
+      logsElement.textContent += message + '\n';
+    }
+    
+    // Function to set status
+    function setStatus(message, isError = false) {
+      const statusElement = document.getElementById('status');
+      statusElement.textContent = message;
+      statusElement.className = isError ? 'error' : 'success';
+    }
+    
+    async function testFirebase() {
+      try {
+        log('Starting Firebase connection test...');
+        
+        // Get env variables directly from the current URL's search params
+        // Just for this test page! Not a recommended approach for production
+        const envValues = {
+          API_KEY: "AIzaSyB5r3vWIiMlBNf2VlgLEVDRUXlMHUB6AHA",
+          AUTH_DOMAIN: "karmacash-6e8f5.firebaseapp.com",
+          PROJECT_ID: "karmacash-6e8f5",
+          STORAGE_BUCKET: "karmacash-6e8f5.appspot.com",
+          MESSAGING_SENDER_ID: "693432123271",
+          APP_ID: "1:693432123271:web:86dcce04d59ab3e6fb7584",
+          MEASUREMENT_ID: "G-R4H8C7BQW5"
+        };
+        
+        // Display env variables
+        document.getElementById('env-vars').innerHTML = `<pre>${JSON.stringify(envValues, null, 2)}</pre>`;
+        
+        // Configure Firebase
+        const firebaseConfig = {
+          apiKey: envValues.API_KEY,
+          authDomain: envValues.AUTH_DOMAIN,
+          projectId: envValues.PROJECT_ID,
+          storageBucket: envValues.STORAGE_BUCKET,
+          messagingSenderId: envValues.MESSAGING_SENDER_ID,
+          appId: envValues.APP_ID,
+          measurementId: envValues.MEASUREMENT_ID
+        };
+        
+        log(`Firebase config: ${JSON.stringify({
+          apiKey: firebaseConfig.apiKey ? '(Present)' : '(Missing)',
+          projectId: firebaseConfig.projectId,
+          authDomain: firebaseConfig.authDomain
+        })}`);
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        log('Firebase app initialized successfully');
+        
+        // Initialize services
+        const auth = getAuth(app);
+        log('Auth service initialized');
+        
+        const db = getFirestore(app);
+        log('Firestore service initialized');
+        
+        // Connect to emulators
+        try {
+          connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+          log('Connected to Auth emulator on port 9099');
+          
+          connectFirestoreEmulator(db, '127.0.0.1', 8080);
+          log('Connected to Firestore emulator on port 8080');
+          
+          // Test the connection by fetching users collection
+          try {
+            const usersCollection = collection(db, 'users');
+            const usersSnapshot = await getDocs(usersCollection);
+            log(`Successfully queried users collection. Found ${usersSnapshot.size} documents.`);
+            setStatus(`Connection successful. Found ${usersSnapshot.size} users.`);
+          } catch (firestoreError) {
+            log(`Firestore query error: ${firestoreError.message}`);
+            setStatus(`Firestore query failed: ${firestoreError.message}`, true);
+          }
+        } catch (emulatorError) {
+          log(`Emulator connection error: ${emulatorError.message}`);
+          setStatus(`Failed to connect to emulators: ${emulatorError.message}`, true);
+        }
+      } catch (error) {
+        log(`Firebase initialization error: ${error.message}`);
+        setStatus(`Firebase initialization failed: ${error.message}`, true);
+      }
+    }
+    
+    // Run the test
+    testFirebase();
+  </script>
+</body>
+</html> 

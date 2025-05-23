@@ -6,8 +6,8 @@ service cloud.firestore {
     // --- Helper Functions ---
     
     // Check if a timestamp field is valid (either server timestamp or exists)
-    function isValidTimestamp(timestamp) {
-      return timestamp is timestamp;
+    function isValidTimestamp(ts) {
+      return ts is timestamp;
     }
     
     // Check if request has API key

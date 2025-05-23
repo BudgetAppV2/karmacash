@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Template Exchange</title>
+  <style>
+    :root {
+      --primary: #4285f4;
+      --primary-dark: #3367d6;
+      --success: #34a853;
+      --error: #ea4335;
+      --warning: #fbbc05;
+      --text: #202124;
+      --text-secondary: #5f6368;
+      --border: #dadce0;
+      --background: #ffffff;
+      --background-hover: #f8f9fa;
+      --box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+      --transition: all 0.2s ease;
+      --border-radius: 8px;
+      --font: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    body {
+      width: 340px;
+      min-height: 300px;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background-color: var(--background);
+    }
+    
+    .header {
+      background-color: var(--primary);
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+    }
+    
+    .content {
+      padding: 16px;
+    }
+    
+    .section {
+      margin-bottom: 20px;
+    }
+    
+    .section h2 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .form-group {
+      margin-bottom: 12px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius);
+      font-family: var(--font);
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+    }
+    
+    button {
+      width: 100%;
+      padding: 10px 16px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    button:disabled {
+      background-color: var(--border);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+    
+    .status {
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: var(--border-radius);
+      font-size: 14px;
+      display: none;
+    }
+    
+    .status.error {
+      display: block;
+      background-color: rgba(234, 67, 53, 0.1);
+      color: var(--error);
+    }
+    
+    .status.success {
+      display: block;
+      background-color: rgba(52, 168, 83, 0.1);
+      color: var(--success);
+    }
+    
+    .info {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 16px;
+      text-align: center;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition);
+    }
+    
+    .tab.active {
+      color: var(--primary);
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--primary);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #202124;
+        --background-hover: #28292c;
+        --text: #e8eaed;
+        --text-secondary: #9aa0a6;
+        --border: #3c4043;
+        --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Template Exchange</h1>
+  </div>
+  
+  <div class="content">
+    <!-- Authentication Form (initially hidden) -->
+    <div id="auth-section" style="display: none;">
+      <div class="section">
+        <h2>Authentication Required</h2>
+        <div class="form-group">
+          <label for="api-key">API Key</label>
+          <input type="password" id="api-key" placeholder="Enter your API key">
+        </div>
+        <button id="auth-button">Authenticate</button>
+        <div id="auth-status" class="status"></div>
+      </div>
+    </div>
+    
+    <!-- Main Content (initially hidden) -->
+    <div id="main-section" style="display: none;">
+      <div class="tabs">
+        <div class="tab active" data-tab="fetch">Fetch Handoff</div>
+        <div class="tab" data-tab="submit">Submit Summary</div>
+      </div>
+      
+      <!-- Fetch Handoff Tab -->
+      <div id="fetch-tab" class="tab-content active">
+        <div class="section">
+          <h2>Fetch Handoff Template</h2>
+          <div class="form-group">
+            <label for="fetch-session-id">Session ID</label>
+            <input type="text" id="fetch-session-id" placeholder="E.g., M7.S6">
+          </div>
+          <button id="fetch-button">Fetch Handoff</button>
+          <div id="fetch-status" class="status"></div>
+        </div>
+      </div>
+      
+      <!-- Submit Summary Tab -->
+      <div id="submit-tab" class="tab-content">
+        <div class="section">
+          <h2>Submit Implementation Summary</h2>
+          <div class="form-group">
+            <label for="submit-session-id">Session ID</label>
+            <input type="text" id="submit-session-id" placeholder="E.g., M7.S6">
+          </div>
+          <div class="form-group">
+            <label for="submit-content">Summary Content</label>
+            <textarea id="submit-content" placeholder="Enter your implementation summary here..."></textarea>
+          </div>
+          <button id="submit-button">Submit Summary</button>
+          <div id="submit-status" class="status"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="info">
+      Visit <a href="https://ai.google.dev" target="_blank">Google AI Studio</a> to use the sidebar integration.
+    </div>
+  </div>
+  
+  <script src="js/popup.js"></script>
+</body>
+</html> 

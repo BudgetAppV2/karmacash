@@ -21,7 +21,7 @@ fi
 echo -e "${BLUE}Starting Firebase emulators...${NC}"
 echo -e "${YELLOW}Emulator UI will be available at: ${NC}http://localhost:4055"
 echo -e "${YELLOW}Auth Emulator: ${NC}http://localhost:9099"
-echo -e "${YELLOW}Firestore Emulator: ${NC}http://localhost:8085"
+echo -e "${YELLOW}Firestore Emulator: ${NC}http://localhost:8080"
 echo -e "${YELLOW}Functions Emulator: ${NC}http://localhost:5001"
 echo
 echo -e "${BLUE}Press Ctrl+C to stop the emulators when done.${NC}"

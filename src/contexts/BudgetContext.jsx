@@ -110,9 +110,11 @@ export const BudgetProvider = ({ children }) => {
 
   // Function to create a new budget and update the context
   const createBudgetAndUpdateContext = useCallback(async (budgetData) => {
-    if (!currentUser) {
-      logger.error('BudgetContext', 'createBudgetAndUpdateContext', 'User not authenticated');
-      throw new Error("User not authenticated");
+    console.log('BudgetContext: Attempting to create budget', { budgetData, currentUser });
+    
+    if (!currentUser || !currentUser.uid) {
+      console.error('BudgetContext: Cannot create budget - No authenticated user found', { currentUser });
+      throw new Error('You must be logged in to create a budget');
     }
     
     // Prepare owner user details from currentUser
@@ -155,9 +157,11 @@ export const BudgetProvider = ({ children }) => {
       // Automatically select the newly created budget
       selectBudget(newBudgetId);
       
+      console.log('BudgetContext: Budget creation successful', { newBudgetId, budgetData });
+      
       return newBudgetId;
     } catch (error) {
-      console.error(">>> BUDGET CONTEXT ERROR: Failed to create budget:", error.message);
+      console.error('BudgetContext: Budget creation failed', { error: error.message, code: error.code, stack: error.stack });
       
       logger.error('BudgetContext', 'createBudgetAndUpdateContext', 'Failed to create budget', {
         error: error.message,

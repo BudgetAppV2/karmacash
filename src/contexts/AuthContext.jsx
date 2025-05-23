@@ -114,8 +114,16 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const operation = 'authStateChange';
     setIsLoading(true);
+    console.log('AuthContext: Setting up auth state listener');
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('AuthContext: Auth state changed', { 
+        authenticated: !!user, 
+        userId: user?.uid,
+        emailVerified: user?.emailVerified,
+        providerData: user?.providerData
+      });
+      
       if (user) {
         logger.info('AuthContext', operation, 'User authenticated, fetching profile', { userId: user.uid });
         const userDocRef = doc(db, 'users', user.uid);
@@ -125,11 +133,23 @@ export function AuthProvider({ children }) {
           const docSnap = await getDoc(userDocRef);
           if (docSnap.exists()) {
             firestoreData = docSnap.data();
+            console.log('AuthContext: Firestore profile data fetched successfully', { 
+              userId: user.uid, 
+              dataFields: Object.keys(firestoreData),
+              settings: firestoreData.settings
+            });
             logger.debug('AuthContext', operation, 'Firestore profile data fetched', { userId: user.uid, dataKeys: Object.keys(firestoreData) });
           } else {
+            console.warn('AuthContext: Firestore user document not found!', { userId: user.uid });
             logger.warn('AuthContext', operation, 'Firestore user document not found!', { userId: user.uid });
           }
         } catch (firestoreError) {
+          console.error('AuthContext: Error fetching Firestore user document', {
+            userId: user.uid,
+            error: firestoreError.message,
+            code: firestoreError.code,
+            stack: firestoreError.stack,
+          });
           logger.error('AuthContext', operation, 'Error fetching Firestore user document', {
             userId: user.uid,
             error: firestoreError.message,
@@ -146,10 +166,16 @@ export function AuthProvider({ children }) {
           settings: firestoreData.settings || { currency: 'CAD', lastAccessedBudgetId: null }
         };
 
+        console.log('AuthContext: Setting merged currentUser state', { 
+          userId: user.uid, 
+          mergedKeys: Object.keys(mergedUser),
+          settings: mergedUser.settings
+        });
         logger.debug('AuthContext', operation, 'Setting merged currentUser state', { userId: user.uid, mergedKeys: Object.keys(mergedUser) });
         setCurrentUser(mergedUser);
 
       } else {
+        console.log('AuthContext: User not authenticated, clearing current user');
         logger.info('AuthContext', operation, 'User not authenticated');
         setCurrentUser(null);
       }
@@ -157,6 +183,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => {
+        console.log('AuthContext: Unsubscribing from auth state changes');
         logger.debug('AuthContext', 'cleanup', 'Unsubscribing from auth state changes');
         unsubscribe();
     }

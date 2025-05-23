@@ -2,7 +2,7 @@
   "hosting": [
     {
       "target": "app",
-      "public": "public",
+      "public": "dist",
       "ignore": [
         "firebase.json",
         "**/.*",
@@ -101,7 +101,13 @@
     ],
     "ui": {
       "enabled": true,
-      "port": 4000
+      "port": 4055
+    },
+    "hub": {
+      "port": 4455
+    },
+    "logging": {
+      "port": 4555
     }
   }
 } 

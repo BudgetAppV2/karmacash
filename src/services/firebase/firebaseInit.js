@@ -35,8 +35,31 @@ let auth;
 let db;
 let functions;
 
+// Helper to save connection status for error recovery
+const saveConnectionStatus = (status, details = {}) => {
+  try {
+    const timestamp = new Date().toISOString();
+    const statusInfo = { status, timestamp, ...details };
+    localStorage.setItem('firebase_connection_status', JSON.stringify(statusInfo));
+    console.log(`Firebase connection status saved: ${status}`, details);
+  } catch (e) {
+    console.error('Failed to save connection status:', e);
+  }
+};
+
 try {
-  console.log('FIREBASE INIT: Starting Firebase initialization');
+  console.log('FIREBASE INIT: Starting Firebase initialization with config', {
+    projectId: firebaseConfig.projectId,
+    authDomain: firebaseConfig.authDomain,
+    apiKeyPresent: !!firebaseConfig.apiKey,
+    emulatorMode: isEmulatorMode
+  });
+  
+  saveConnectionStatus('initializing', { 
+    projectId: firebaseConfig.projectId,
+    emulatorMode: isEmulatorMode 
+  });
+  
   app = initializeApp(firebaseConfig);
   console.log('FIREBASE INIT: App initialized successfully');
   
@@ -60,13 +83,14 @@ try {
   if (isEmulatorMode) {
     try {
       console.log('FIREBASE INIT: Connecting to Firebase emulators with project:', firebaseConfig.projectId);
+      saveConnectionStatus('connecting_to_emulators');
       
       // Connect to Auth emulator with explicit project ID reference
       connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
       console.log('FIREBASE INIT: Auth emulator connected successfully');
       
       // Connect to Firestore emulator
-      connectFirestoreEmulator(db, '127.0.0.1', 8085);
+      connectFirestoreEmulator(db, '127.0.0.1', 8080);
       console.log('FIREBASE INIT: Firestore emulator connected successfully');
       
       // Connect to Functions emulator with explicit project ID
@@ -74,21 +98,40 @@ try {
       console.log('FIREBASE INIT: Functions emulator connected successfully');
       
       console.log('FIREBASE INIT: Successfully connected to all Firebase emulators');
+      saveConnectionStatus('emulators_connected');
     } catch (emulatorError) {
       console.error('FIREBASE INIT: Failed to connect to Firebase emulators:', {
         message: emulatorError.message,
         code: emulatorError.code || 'unknown',
-        name: emulatorError.name
+        name: emulatorError.name,
+        stack: emulatorError.stack
+      });
+      saveConnectionStatus('emulator_connection_failed', { 
+        error: emulatorError.message,
+        code: emulatorError.code || 'unknown'  
       });
     }
   }
   
-  console.log('FIREBASE INIT: Firebase initialized successfully');
+  console.log('FIREBASE INIT: Firebase initialized successfully, auth state:', {
+    currentUser: auth?.currentUser ? {
+      uid: auth.currentUser.uid,
+      email: auth.currentUser.email,
+      verified: auth.currentUser.emailVerified
+    } : 'No user signed in'
+  });
+  
+  saveConnectionStatus('initialized_successfully');
 } catch (error) {
   console.error('FIREBASE INIT: Firebase initialization failed:', {
     message: error.message,
     code: error.code,
     stack: error.stack
+  });
+  
+  saveConnectionStatus('initialization_failed', { 
+    error: error.message,
+    code: error.code || 'unknown'
   });
   // Handle initialization error appropriately, maybe show an error message to the user
 }

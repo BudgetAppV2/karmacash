@@ -2,6 +2,11 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ToastProvider } from '../contexts/ToastContext';
 
+// Test component
+import TestConnection from '../TestConnection';
+// Replace FirebaseTest with the test component we created
+// import FirebaseTest from '../FirebaseTest';
+
 // Layout
 import MainLayout from '../components/navigation/MainLayout';
 
@@ -50,47 +55,66 @@ function ProtectedRoute({ children }) {
 }
 
 function AppRoutes() {
+  const { currentUser, isLoading } = useAuth();
+
+  // Display a direct connection test at /test-connection
+  // Create a blank protection for other routes
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<AuthContainer initialView="login" />} />
-      <Route path="/signup" element={<AuthContainer initialView="signup" />} />
-      <Route path="/test" element={<TestPage />} />
-      <Route path="/forgot-password" element={<PasswordResetPage />} />
+      {/* Firebase Connection Test Route - No Auth Required */}
+      <Route path="/test-connection" element={<TestConnection />} />
+      
+      {/* Original routes below */}
+      <Route path="/firebase-test" element={<TestConnection />} />
+      
+      {/* Public Routes */}
+      <Route 
+        path="/auth/*" 
+        element={
+          !currentUser ? (
+            <ToastProvider>
+              <AuthContainer />
+            </ToastProvider>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        } 
+      />
+      
+      <Route path="/password-reset" element={<PasswordResetPage />} />
+      <Route path="/test-page" element={<TestPage />} />
       <Route path="/test-auth" element={<TestAuthComponent />} />
-      
-      {/* Demo routes - for development/testing purposes */}
-      <Route path="/demo/infocard" element={<InfoCardDemo />} />
-      <Route path="/demo/categories" element={<CategoryDisplayDemo />} />
-      <Route path="/demo/action-confirm" element={<ActionConfirmDemo />} />
-      <Route path="/demo/confirmation-dialog" element={<ConfirmationDialogDemo />} />
-      {/* Use ToastProvider directly to allow access without authentication */}
-      <Route path="/demo/toast" element={
-        <ToastProvider>
-          <ToastDemo />
-        </ToastProvider>
-      } />
-      <Route path="/test-categories" element={<TestCategoryInit />} />
-      
-      {/* Protected routes */}
-      <Route path="/" element={
-        <ProtectedRoute>
-          <MainLayout />
-        </ProtectedRoute>
-      }>
-        <Route index element={<TransactionsPage />} />
-        <Route path="transactions" element={<TransactionsPage />} />
+  
+      {/* Protected Routes - Main application layout */}
+      <Route 
+        path="/*" 
+        element={
+          <ProtectedRoute>
+            <ToastProvider>
+              <MainLayout />
+            </ToastProvider>
+          </ProtectedRoute>
+        }
+      >
+        {/* Nested routes that will render inside MainLayout's <Outlet /> */}
+        <Route index element={<BudgetPage />} /> {/* Default for / */}
         <Route path="budget" element={<BudgetPage />} />
+        <Route path="transactions" element={<TransactionsPage />} />
         <Route path="categories" element={<CategoriesPage />} />
-        <Route path="recurring" element={<RecurringRulesPage />} />
         <Route path="graphs" element={<GraphsPage />} />
-        <Route path="add" element={<AddTransactionPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="recurring" element={<RecurringRulesPage />} />
+        {/* Demos - consider removing or placing under a /dev route */}
+        <Route path="demo-info-card" element={<InfoCardDemo />} />
+        <Route path="demo-category-display" element={<CategoryDisplayDemo />} />
+        <Route path="demo-action-confirm" element={<ActionConfirmDemo />} />
+        <Route path="test-category-init" element={<TestCategoryInit />} />
+        <Route path="demo-toast" element={<ToastDemo />} />
+        <Route path="demo-confirmation-dialog" element={<ConfirmationDialogDemo />} />
+        {/* Fallback for any other protected path */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
-      
-      {/* Fallback route */}
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

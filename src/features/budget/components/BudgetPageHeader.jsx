@@ -2,6 +2,8 @@ import React from 'react';
 import { formatCurrency } from '../../../utils/formatters';
 import styles from './BudgetPageHeader.module.css';
 import cn from '../../../utils/cn';
+import Tooltip from '../../../components/ui/Tooltip';
+import InfoIconUI from '../../../components/ui/InfoIcon';
 
 // Simple Card component
 const Card = React.forwardRef(({ className, children, ...props }, ref) => (
@@ -89,11 +91,23 @@ function BudgetPageHeader({
     return 'text-gray-800';
   };
 
+  // Content for the Disponible à Allouer tooltip
+  const disponibleTooltipContent = (
+    <div className={styles.tooltipContent}>
+      <p className="mb-2 font-semibold">Formule de calcul:</p>
+      <p className="mb-1">Revenu Total - Dépenses Fixes + Report du mois précédent</p>
+      <p className="text-xs text-gray-600 mt-2">
+        Cette valeur représente le montant total disponible pour allocation aux catégories de dépenses variables.
+      </p>
+    </div>
+  );
+
   // Function to render a metric item with consistent styling
-  const renderMetricItem = (label, value, isRAA = false, extraContent = null, additionalClasses = {}) => (
+  const renderMetricItem = (label, value, isRAA = false, extraContent = null, additionalClasses = {}, tooltipComponent = null) => (
     <div className={cn("flex flex-col items-center", additionalClasses.container)}>
-      <span className="text-xs sm:text-sm font-medium text-gray-500 mb-1 font-serif">
+      <span className="text-xs sm:text-sm font-medium text-gray-500 mb-1 font-serif flex items-center gap-1">
         {label}
+        {tooltipComponent}
       </span>
       <div className="bg-gray-50/90 border border-gray-100 px-2.5 py-0.5 sm:py-1 rounded-full shadow-sm w-full text-center">
         <span className={cn(
@@ -153,7 +167,7 @@ function BudgetPageHeader({
           {/* Total Dépenses Fixes */}
           {renderMetricItem("Total Dépenses Fixes", formatCurrency(totalDepensesFixes))}
           
-          {/* Disponible à Allouer */}
+          {/* Disponible à Allouer with Tooltip */}
           {renderMetricItem(
             "Disponible à Allouer", 
             formatCurrency(disponibleAAllouer),
@@ -162,7 +176,15 @@ function BudgetPageHeader({
               <span className="text-xs text-gray-400 mt-0.5 font-serif">
                 (Dont report: {formatCurrency(rolloverAmount)})
               </span>
-            )
+            ),
+            {},
+            <Tooltip 
+              content={disponibleTooltipContent}
+              position="top"
+              className={styles.infoIconWrapper}
+            >
+              <InfoIconUI className={styles.infoIcon} size={16} />
+            </Tooltip>
           )}
           
           {/* Total Alloué */}

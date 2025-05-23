@@ -14,7 +14,7 @@ import CategoryProgressDisplay from '../../components/budget/CategoryProgressDis
 import BudgetPageHeader from './components/BudgetPageHeader';
 
 // Icons (assuming you have an icon library or SVGs)
-const InfoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>;
+const LocalInfoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="18" height="18"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>;
 const PlusCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 
 // Define threshold as a constant
@@ -353,7 +353,7 @@ function BudgetPage() {
   if (!budgetId) {
     return (
       <div className={`${styles.emptyState} ${styles.budgetPage}`}>
-        <InfoIcon />
+        <LocalInfoIcon />
         <h2 className={styles.emptyStateTitle}>Aucun Budget Sélectionné</h2>
         <p className={styles.emptyStateText}>Veuillez sélectionner un budget ou en créer un nouveau pour commencer.</p>
         {/* Add a button to navigate to budget creation/selection if applicable */}
@@ -406,7 +406,7 @@ function BudgetPage() {
           role={activeFeedback.type === 'error' ? 'alert' : 'status'}
           aria-live="polite"
         >
-          <InfoIcon /> {/* Consider making icon conditional or type-specific */}
+          <LocalInfoIcon /> {/* Consider making icon conditional or type-specific */}
           <span>{activeFeedback.text}</span>
         </div>
       )}

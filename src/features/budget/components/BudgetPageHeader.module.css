@@ -47,6 +47,29 @@
   width: 100%;
 }
 
+/* Info icon and tooltip styling */
+.infoIconWrapper {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.infoIcon {
+  color: #919A7F; /* Primary brand color */
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+  cursor: help;
+}
+
+.infoIcon:hover, .infoIcon:focus {
+  opacity: 1;
+}
+
+.tooltipContent {
+  max-width: 280px;
+  text-align: left;
+}
+
 /* Responsive adjustments */
 @media (min-width: 640px) {
   .metricsGrid {
@@ -72,6 +95,10 @@
   .savingsMetric {
     grid-column: span 3;
     margin-top: 0.25rem;
+  }
+  
+  .tooltipContent {
+    max-width: 320px;
   }
 }
 

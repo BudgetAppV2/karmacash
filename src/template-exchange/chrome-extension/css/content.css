@@ -1,0 +1,332 @@
+/**
+ * Template Exchange - Content Styles
+ * 
+ * Styles for the Template Exchange UI elements injected into Google AI Studio.
+ * These styles are designed to be compatible with Google AI Studio's design system.
+ */
+
+/* Container for all Template Exchange UI elements */
+.template-exchange-container {
+  --template-exchange-primary: #4285f4;
+  --template-exchange-primary-dark: #3367d6;
+  --template-exchange-success: #34a853;
+  --template-exchange-error: #ea4335;
+  --template-exchange-warning: #fbbc05;
+  --template-exchange-text: #202124;
+  --template-exchange-text-secondary: #5f6368;
+  --template-exchange-border: #dadce0;
+  --template-exchange-background: #ffffff;
+  --template-exchange-background-hover: #f8f9fa;
+  --template-exchange-box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+  --template-exchange-transition: all 0.2s ease;
+  --template-exchange-border-radius: 8px;
+  --template-exchange-font: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  
+  position: fixed;
+  z-index: 9999;
+  font-family: var(--template-exchange-font);
+  color: var(--template-exchange-text);
+}
+
+/* Button to open the sidebar */
+.template-exchange-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--template-exchange-primary);
+  color: white;
+  border: none;
+  box-shadow: var(--template-exchange-box-shadow);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--template-exchange-transition);
+  z-index: 10000;
+}
+
+.template-exchange-button:hover {
+  background-color: var(--template-exchange-primary-dark);
+  transform: translateY(-2px);
+}
+
+.template-exchange-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Sidebar */
+.template-exchange-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 360px;
+  height: 100vh;
+  background-color: var(--template-exchange-background);
+  box-shadow: var(--template-exchange-box-shadow);
+  transition: var(--template-exchange-transition);
+  display: flex;
+  flex-direction: column;
+  z-index: 10001;
+  overflow: hidden;
+}
+
+.template-exchange-sidebar.hidden {
+  transform: translateX(100%);
+}
+
+/* Sidebar header */
+.template-exchange-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: var(--template-exchange-primary);
+  color: white;
+}
+
+.template-exchange-sidebar-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.template-exchange-sidebar-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: var(--template-exchange-transition);
+}
+
+.template-exchange-sidebar-header button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Tabs */
+.template-exchange-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--template-exchange-border);
+}
+
+.template-exchange-tabs button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--template-exchange-text-secondary);
+  cursor: pointer;
+  transition: var(--template-exchange-transition);
+  position: relative;
+}
+
+.template-exchange-tabs button.active {
+  color: var(--template-exchange-primary);
+}
+
+.template-exchange-tabs button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--template-exchange-primary);
+}
+
+.template-exchange-tabs button:hover {
+  background-color: var(--template-exchange-background-hover);
+}
+
+/* Tab content */
+.template-exchange-tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.template-exchange-tab-content > div {
+  display: none;
+}
+
+.template-exchange-tab-content > div.active {
+  display: block;
+}
+
+/* Sections */
+.template-exchange-section {
+  margin-bottom: 24px;
+}
+
+.template-exchange-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--template-exchange-text);
+}
+
+/* Forms */
+.template-exchange-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.template-exchange-form input,
+.template-exchange-form textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--template-exchange-border);
+  border-radius: var(--template-exchange-border-radius);
+  font-family: var(--template-exchange-font);
+  font-size: 14px;
+  color: var(--template-exchange-text);
+  transition: var(--template-exchange-transition);
+}
+
+.template-exchange-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.template-exchange-form input:focus,
+.template-exchange-form textarea:focus {
+  outline: none;
+  border-color: var(--template-exchange-primary);
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+.template-exchange-form button,
+.template-exchange-actions button {
+  padding: 10px 16px;
+  background-color: var(--template-exchange-primary);
+  color: white;
+  border: none;
+  border-radius: var(--template-exchange-border-radius);
+  font-family: var(--template-exchange-font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--template-exchange-transition);
+  text-align: center;
+}
+
+.template-exchange-form button:hover,
+.template-exchange-actions button:hover {
+  background-color: var(--template-exchange-primary-dark);
+}
+
+.template-exchange-form button:disabled,
+.template-exchange-actions button:disabled {
+  background-color: var(--template-exchange-border);
+  color: var(--template-exchange-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Current session */
+.template-exchange-current-session {
+  background-color: var(--template-exchange-background-hover);
+  padding: 12px;
+  border-radius: var(--template-exchange-border-radius);
+  border: 1px solid var(--template-exchange-border);
+  margin-bottom: 16px;
+}
+
+#template-exchange-current-session-id {
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.template-exchange-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Status messages */
+#template-exchange-status,
+#template-exchange-auth-status {
+  padding: 12px;
+  margin-top: 16px;
+  border-radius: var(--template-exchange-border-radius);
+  font-size: 14px;
+  transition: var(--template-exchange-transition);
+}
+
+#template-exchange-status.error,
+#template-exchange-auth-status.error {
+  background-color: rgba(234, 67, 53, 0.1);
+  color: var(--template-exchange-error);
+}
+
+#template-exchange-status.success,
+#template-exchange-auth-status.success {
+  background-color: rgba(52, 168, 83, 0.1);
+  color: var(--template-exchange-success);
+}
+
+/* Authentication dialog */
+.template-exchange-auth {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--template-exchange-background);
+  border-radius: var(--template-exchange-border-radius);
+  box-shadow: var(--template-exchange-box-shadow);
+  padding: 24px;
+  width: 360px;
+  z-index: 10002;
+}
+
+.template-exchange-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.template-exchange-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.template-exchange-header p {
+  margin: 0;
+  color: var(--template-exchange-text-secondary);
+  font-size: 14px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .template-exchange-container {
+    --template-exchange-background: #202124;
+    --template-exchange-background-hover: #28292c;
+    --template-exchange-text: #e8eaed;
+    --template-exchange-text-secondary: #9aa0a6;
+    --template-exchange-border: #3c4043;
+    --template-exchange-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .template-exchange-sidebar {
+    width: 100%;
+  }
+  
+  .template-exchange-auth {
+    width: calc(100% - 48px);
+    max-width: 360px;
+  }
+} 
