@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import styles from './CategoryProgressDisplay.module.css';
 import AllocationSlider from './AllocationSlider';
+import debounce from 'lodash/debounce'; // Import debounce
 
 function formatCurrency(amount) {
   return amount?.toLocaleString('fr-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2 });
@@ -50,6 +51,16 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isApproachingMax, setIsApproachingMax] = useState(false);
 
+  // Debounced save function
+  const debouncedSaveAllocation = useCallback(
+    debounce((catId, valueToSave) => {
+      // This function will be called after the debounce period
+      // It calls the baseOnAllocationSave passed from BudgetPage
+      baseOnAllocationSave(catId, valueToSave);
+    }, 750), // 750ms delay
+    [baseOnAllocationSave] // Dependency: the save function from props
+  );
+
   useEffect(() => {
     if (maxAllowedValue !== undefined && currentAllocation !== undefined) {
       const numericCurrentAllocation = parseFloat(currentAllocation);
@@ -93,8 +104,11 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
 
   // Create specific handlers using useCallback, bound to categoryId
   const handleLocalNumericInputChange = useCallback((value) => {
+    // Call for immediate validation and state update in BudgetPage
     baseOnNumericInputChange(categoryId, value);
-  }, [baseOnNumericInputChange, categoryId]);
+    // Trigger the debounced save
+    debouncedSaveAllocation(categoryId, value);
+  }, [baseOnNumericInputChange, categoryId, debouncedSaveAllocation]);
 
   const handleLocalSliderChange = useCallback((value) => {
     baseOnSliderChange(categoryId, value);
@@ -103,16 +117,24 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
   const handleLocalAllocationSave = useCallback(() => {
     // baseOnAllocationSave expects categoryId and the *current value string*
     // The current value string for saving should be what's in editingAllocation (which is currentAllocation prop here)
+    debouncedSaveAllocation.cancel(); // Cancel any pending debounced save
     baseOnAllocationSave(categoryId, currentAllocation);
-  }, [baseOnAllocationSave, categoryId, currentAllocation]);
+  }, [baseOnAllocationSave, categoryId, currentAllocation, debouncedSaveAllocation]);
 
   const handleLocalSliderInteractionStart = useCallback(() => {
     baseOnSliderInteractionStart(categoryId);
   }, [baseOnSliderInteractionStart, categoryId]);
 
-  // baseOnSliderInteractionEnd does not need categoryId from child, so it can be passed directly if preferred,
-  // or wrapped if consistency is desired or if it might need categoryId later.
-  // For now, passing directly as BudgetPage's handleSliderInteractionEnd doesn't take categoryId.
+  // Modified to trigger debounced save on slider interaction end
+  const handleLocalSliderInteractionEnd = useCallback(() => {
+    // Call the original baseOnSliderInteractionEnd from BudgetPage (if it does anything beyond RAA update)
+    if (typeof baseOnSliderInteractionEnd === 'function') {
+      baseOnSliderInteractionEnd(); // It's expected this primarily handles RAA state in BudgetPage
+    }
+    // Now, trigger the debounced save for the current slider value
+    // currentAllocation prop should reflect the latest slider value via editingAllocation in BudgetPage
+    debouncedSaveAllocation(categoryId, currentAllocation);
+  }, [baseOnSliderInteractionEnd, categoryId, currentAllocation, debouncedSaveAllocation]);
 
   // Visual setup for progress circle - memoize these calculations
   const circleProps = useMemo(() => {
@@ -165,7 +187,7 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
       </div>
       <div className={styles.bottomControlsRow}>
         <div className={styles.allocationControls}>
-          <form className={styles.allocationForm} onSubmit={e => { e.preventDefault(); handleLocalAllocationSave(); }}>
+          <form className={styles.allocationForm} onSubmit={e => { e.preventDefault(); /* No action as button is removed */ }}>
             <label htmlFor={`allocation-input-${categoryName}`} className={styles.inputLabel}>
               Modifier l'allocation
             </label>
@@ -178,7 +200,7 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
               ariaLabel={`Modifier l'allocation pour ${categoryName}`}
               disabled={isSavingAllocation} 
               onInteractionStart={handleLocalSliderInteractionStart} 
-              onInteractionEnd={baseOnSliderInteractionEnd} // Passed directly
+              onInteractionEnd={handleLocalSliderInteractionEnd} // Changed to use the new local handler
               categoryColor={categoryColor} // Pass the category color to the slider     
             />
             <div className={styles.inputRow}>
@@ -194,20 +216,18 @@ const CategoryProgressDisplayComponent = function CategoryProgressDisplay({
                 disabled={isSavingAllocation}
                 max={maxAllowedValue !== undefined ? maxAllowedValue.toFixed(2) : undefined}
                 onFocus={() => setIsInputFocused(true)}
-                onBlur={() => setIsInputFocused(false)}
+                onBlur={() => {
+                  setIsInputFocused(false);
+                  // On blur, cancel pending debounce and trigger save immediately
+                  // This ensures the very last input is saved if user clicks away quickly
+                  debouncedSaveAllocation.cancel();
+                  baseOnAllocationSave(categoryId, currentAllocation); // currentAllocation should reflect the latest input via BudgetPage's editingAllocation state
+                }}
               />
               {isInputFocused && maxAllowedValue !== undefined && (
                 <span className={styles.maxValueHint}>(Max: {formatCurrency(maxAllowedValue)})</span>
               )}
             </div>
-            <button
-              className={styles.saveButton}
-              type="submit"
-              disabled={isSavingAllocation || isInputInvalid} 
-              aria-busy={isSavingAllocation}
-            >
-              {isSavingAllocation ? 'Enregistrement...' : 'Sauvegarder'}
-            </button>
           </form>
         </div>
         <div className={styles.progressIndicatorWrapper}>

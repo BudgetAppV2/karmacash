@@ -1,0 +1,18 @@
+# Task ID: 306
+# Title: WF_MCP_Research.1 - Investigate Firebase MCP HTTP & Direct Write Capabilities
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Research and document the capabilities of Firebase MCP servers used by Claude Desktop and Cursor AI for making HTTP requests and performing direct Firestore writes, informing the strategy for template storage.
+# Details:
+- Based on HD Answer #2 (Firebase MCP Usage):
+  - Thoroughly investigate if `firebase-tools experimental:mcp` (for Claude) and `@gannonh/firebase-mcp` (for Cursor) provide robust, generic HTTP POST/GET MCP tools.
+  - If HTTP tools exist, document how to use them to call the existing Template Exchange API (URL, headers, body construction via prompts).
+  - If HTTP tools are problematic or unavailable, document best practices for direct Firestore writes (`firestore_set_document` or similar) via MCP for both agents. This must include how to prompt AIs to handle all necessary fields: `sessionId` (predictable format), `type`, `content`, `status`, `metadata`, `createdAt`/`updatedAt` (as ISO strings if server timestamps aren't supported by MCP tool), and `shard` values.
+  - Research advanced Firestore querying patterns via MCP (e.g., flexible filtering for `listTemplates` equivalent).
+  - Document security best practices for the service account keys used by both MCP servers (least privilege principle).
+- Output: Detailed notes and findings, contributing to the [B7.1] update.
+
+# Test Strategy:
+- HD reviews research notes for completeness on HTTP vs. direct write capabilities and security.
+- Determine a clear primary strategy (and fallback) for template storage via MCP.

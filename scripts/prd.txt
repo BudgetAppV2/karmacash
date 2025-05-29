@@ -1,0 +1,140 @@
+# Bible B1 Section AI Optimization - Product Requirements Document
+
+## Overview
+Implement AI-optimized bible document system starting with B1 section as pilot, enabling CK autonomous access to foundational PWA documentation with automated cross-referencing.
+
+## Current State
+- **Bible Documents**: 36 foundational documents in `bible` Firestore collection
+- **Bible Subdivisions**: ~350 chunks in `bible_subdivisions` Firestore collection  
+- **Local Files**: All documents available in local folder
+- **TOC**: B0_README_TOC.md contains table of contents
+- **Test Section**: B1 section selected for pilot implementation
+- **CK Access**: Currently cannot fetch document content autonomously
+
+## Target Architecture
+
+### Firebase Storage Structure
+```
+bible/
+├── B0_README_TOC.md           # Master table of contents
+├── sections/
+│   ├── B1/                    # Pilot section
+│   │   ├── raw/               # Original documents
+│   │   ├── optimized/         # AI-processed versions
+│   │   └── chunks/            # Semantic chunks
+│   ├── B2/                    # Future sections
+│   └── B3/                    # Future sections
+└── cross_references/          # Generated cross-reference maps
+```
+
+### Firestore Collections
+```
+bible_storage_metadata/        # Document metadata and indexing
+├── {document_id}
+│   ├── section: "B1"
+│   ├── title: "Document Title"
+│   ├── storage_path: "bible/sections/B1/raw/document.md"
+│   ├── optimized_path: "bible/sections/B1/optimized/document.md"
+│   ├── chunks: ["chunk_id_1", "chunk_id_2"]
+│   ├── cross_references: ["ref_1", "ref_2"]
+│   └── metadata: {tags, topics, relationships}
+
+bible_cross_references/        # Cross-reference relationship mapping
+├── {reference_id}
+│   ├── source_document: "doc_id"
+│   ├── target_document: "doc_id"
+│   ├── reference_type: "dependency|concept|workflow"
+│   ├── context: "surrounding text"
+│   └── confidence: 0.95
+```
+
+## Required MCP Server Extensions
+
+### New Storage Functions
+```javascript
+storage_get_document_content(filePath)     // Fetch document content
+storage_upload_document(filePath, content) // Upload with metadata
+storage_list_section_documents(section)    // List B1, B2, etc.
+storage_batch_process_section(section)     // Process entire section
+```
+
+### New Bible-Specific Functions  
+```javascript
+bible_get_section_toc(section)            // Get section table of contents
+bible_search_content(query, section)      // Semantic search within section
+bible_get_cross_references(documentId)    // Get related documents
+bible_update_cross_references(documentId) // Regenerate cross-refs
+```
+
+## Implementation Requirements
+
+### Phase 1: MCP Server Enhancement
+- Extend custom-firebase MCP server with storage functions
+- Add bible-specific helper functions
+- Test document content retrieval with CK
+- Implement error handling for large files
+
+### Phase 2: B1 Section Migration
+- Upload B1 section documents to Firebase Storage `/bible/sections/B1/raw/`
+- Create metadata records in `bible_storage_metadata` collection
+- Generate initial cross-reference mapping
+- Upload B0_README_TOC.md as master index
+
+### Phase 3: AI Processing Pipeline
+- Analyze B1 documents for structure and content patterns
+- Generate semantic chunks optimized for AI consumption
+- Create automated cross-reference detection and mapping
+- Store optimized versions in `/bible/sections/B1/optimized/`
+
+### Phase 4: CK Integration
+- Add bible access module to CK_Priming_v11 system
+- Enable CK to search and retrieve B1 section content
+- Test cross-reference following and context building
+- Validate improved PWA development guidance
+
+### Phase 5: Scale-Up Blueprint
+- Document proven methodology from B1 pilot
+- Create automation tools for remaining sections (B2, B3, etc.)
+- Establish quality assurance process
+- Plan incremental rollout strategy
+
+## Success Criteria
+
+### Technical Success
+- CK can autonomously fetch any B1 document content
+- Cross-reference accuracy >90% (human validated)
+- Document retrieval speed <3 seconds
+- Zero data loss during migration/processing
+
+### User Experience Success
+- CK provides more accurate PWA development guidance using B1 content
+- Cross-references enable contextual document discovery
+- Search functionality returns relevant results
+- System maintainable and scalable to remaining sections
+
+### Business Success
+- Reduced time to find relevant bible documentation
+- Improved consistency in PWA development decisions
+- Foundation for scaling to full 350-document collection
+- Enhanced CK capabilities for main project work
+
+## Dependencies
+- Custom-firebase MCP server functionality
+- Firebase Storage and Firestore quotas
+- Local access to bible document folder
+- CK_Priming_v11 system for integration
+
+## Constraints
+- Must maintain backward compatibility with existing bible collections
+- No data loss during migration
+- Performance must not degrade CK response times
+- Cross-references must be contextually accurate
+
+## Acceptance Criteria
+- [ ] CK can fetch B1 section documents via MCP commands
+- [ ] Automated cross-references generated for B1 section
+- [ ] Search functionality works within B1 section
+- [ ] Performance meets speed requirements
+- [ ] Documentation complete for scaling to other sections
+- [ ] Quality assurance process established
+- [ ] B0_README_TOC.md accessible and updated

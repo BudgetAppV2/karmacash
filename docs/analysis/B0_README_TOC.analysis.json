@@ -1,0 +1,29 @@
+{
+  "original_document_id": "B0_README_TOC",
+  "title": "KarmaCash Bible - Table of Contents",
+  "analysis_date": "2025-05-30T12:00:00Z",
+  "structural_summary": "H1 title, introductory paragraph, then H2 headings for each major Bible section (B1-B8). Under each H2, there's a bulleted list of H3-level document titles with their corresponding B#.# IDs and Markdown links.",
+  "dominant_content_types": [
+    "Table of Contents/Index",
+    "Hierarchical List of Documents (Section -> Document)",
+    "Navigational Links"
+  ],
+  "key_structural_patterns_observed": [
+    "Clear, hierarchical table of contents structure (B# sections with B#.# documents).",
+    "Consistent use of Markdown links `[Title (B#.#)](./B#.#_Document_Title.md)`.",
+    "Brief descriptive text for each major section (B1-B8) under its H2 heading."
+  ],
+  "examples_of_key_entities": [
+    "KarmaCash Bible",
+    "B1: Project Foundation",
+    "B1.1 Project Vision & Goals",
+    "B2: Technical Architecture",
+    "B3: Core Modules",
+    "B4: UX/UI Design",
+    "B5: Data Management",
+    "B6: Development & Operations",
+    "B7: Testing & Quality Assurance",
+    "B8: Project Management & Collaboration"
+  ],
+  "notes_for_ai_consumption": "This document is primarily a navigational aid. The key value is the structured list of all Bible documents and their paths, which can be parsed to understand the overall Bible structure and validate document IDs. The explicit links are crucial for maintaining referential integrity."
+} 

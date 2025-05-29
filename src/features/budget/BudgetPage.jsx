@@ -31,10 +31,17 @@ function BudgetPage() {
   const [recalculationError, setRecalculationError] = useState(null);
   const [calculationStatus, setCalculationStatus] = useState(null); // 'pending', 'complete', 'error'
   const [editingAllocation, setEditingAllocation] = useState({}); // { categoryId: newAmountStr }
+  const [isSavingAllocationStates, setIsSavingAllocationStates] = useState({}); // New: { categoryId: true/false }
   const [invalidInputCategoryId, setInvalidInputCategoryId] = useState(null); // New state for validation
   const [allocationAdjustmentInfo, setAllocationAdjustmentInfo] = useState(null); // New state for capping info
 
-  const [activeFeedback, setActiveFeedback] = useState({ text: null, type: null, categoryName: null });
+  const [activeFeedback, setActiveFeedback] = useState({
+    text: null, 
+    type: null, 
+    categoryName: null, 
+    isRetryable: false, 
+    retryAction: null 
+  });
   const feedbackTimeoutRef = useRef(null);
 
   const debouncedTriggerRecalculationRef = useRef(null);
@@ -70,10 +77,10 @@ function BudgetPage() {
     if (allocationAdjustmentInfo && allocationAdjustmentInfo.categoryId) {
       const categoryName = categories.find(c => c.id === allocationAdjustmentInfo.categoryId)?.name || 'cette catégorie';
       const messageText = `Le montant pour ${categoryName} a été ajusté à ${formatCurrency(allocationAdjustmentInfo.cappedAmount)} pour respecter les fonds disponibles.`;
-      setActiveFeedback({ text: messageText, type: 'info', categoryName });
+      setActiveFeedback({ text: messageText, type: 'info', categoryName, isRetryable: false, retryAction: null });
 
       feedbackTimeoutRef.current = setTimeout(() => {
-        setActiveFeedback({ text: null, type: null, categoryName: null });
+        setActiveFeedback(prev => (prev.type === 'info' && prev.text === messageText) ? { text: null, type: null, categoryName: null, isRetryable: false, retryAction: null } : prev);
       }, 5000);
     }
      // Cleanup function
@@ -88,27 +95,59 @@ function BudgetPage() {
   useEffect(() => {
     // Clear previous error-type feedback if conditions are no longer met
     if (!updateError && !invalidInputCategoryId && activeFeedback.type === 'error') {
-      setActiveFeedback({ text: null, type: null, categoryName: null });
+      setActiveFeedback({ text: null, type: null, categoryName: null, isRetryable: false, retryAction: null });
     }
 
-    if (updateError) {
-      let messageText = updateError; // Use the raw error first
-      let errorCategoryName = null;
+    if (updateError) { // This is set by handleAllocationChange catch block
+      let messageText = updateError; 
+      let errorCategoryName = invalidInputCategoryId ? (categories.find(c => c.id === invalidInputCategoryId)?.name || 'une catégorie') : null;
+      let isRetryableError = false;
+      let retryCb = null;
 
-      if (invalidInputCategoryId) {
-        errorCategoryName = categories.find(c => c.id === invalidInputCategoryId)?.name || 'une catégorie';
-        // More specific message if invalidInputCategoryId is present
-        messageText = `Ce changement dépasserait votre 'Reste à Allouer'. Veuillez ajuster le montant pour ${errorCategoryName} ou d'autres catégories.`;
+      // Refine message if it's from our service
+      const serviceErrorPrefix = "Failed to update allocation: ";
+      if (messageText.startsWith(serviceErrorPrefix)) {
+        messageText = messageText.substring(serviceErrorPrefix.length);
       }
-      setActiveFeedback({ text: messageText, type: 'error', categoryName: errorCategoryName });
-    } else if (invalidInputCategoryId && !updateError) { // Case where only invalidInputCategoryId is set
+
+      // Determine if retryable (e.g., network issues, or any non-validation error from service)
+      // For now, let's assume most errors from the service after initial validation are potentially retryable
+      // except for clear validation messages like "Montant invalide" which is set before calling service.
+      if (updateError !== 'Montant invalide.' && invalidInputCategoryId) { // If invalidInputCategoryId is set, it implies a validation error before service call or after capping
+         // Specific message for over-allocation (validation, not directly retryable by re-sending same value)
+         messageText = `Ce changement dépasserait votre 'Reste à Allouer'. Veuillez ajuster le montant pour ${errorCategoryName || 'cette catégorie'} ou d'autres catégories.`;
+         isRetryableError = false; 
+      } else if (updateError === 'Montant invalide.') {
+        isRetryableError = false; // Validation error, not retryable
+      } else if (invalidInputCategoryId) { // Generic validation error before service call
+        errorCategoryName = categories.find(c => c.id === invalidInputCategoryId)?.name || 'une catégorie';
+        messageText = `Veuillez ajuster le montant pour ${errorCategoryName} pour ne pas dépasser le 'Reste à Allouer'.`;
+        isRetryableError = false;
+      } else {
+        // Assumed to be a service/network error if no invalidInputCategoryId and not "Montant invalide."
+        isRetryableError = true;
+        // We need the categoryId and newAmountStr that failed to create the retryCb
+        // This info is not directly available in updateError state. 
+        // We'll need to pass it to setActiveFeedback from handleAllocationChange.
+        // For now, setting a generic retryable error message.
+        // The actual retryAction will be set in handleAllocationChange.
+      }
+
+      setActiveFeedback({
+        text: messageText, 
+        type: 'error', 
+        categoryName: errorCategoryName,
+        isRetryable: isRetryableError,
+        retryAction: null // This will be set in handleAllocationChange if needed
+      });
+
+    } else if (invalidInputCategoryId && !updateError) { // Case where only invalidInputCategoryId is set (validation error before save attempt)
       const errorCategoryName = categories.find(c => c.id === invalidInputCategoryId)?.name || 'une catégorie';
       const messageText = `Veuillez ajuster le montant pour ${errorCategoryName} pour ne pas dépasser le 'Reste à Allouer'.`;
-      setActiveFeedback({ text: messageText, type: 'error', categoryName: errorCategoryName });
+      setActiveFeedback({ text: messageText, type: 'error', categoryName: errorCategoryName, isRetryable: false, retryAction: null });
     }
     
-    // Do not auto-clear error messages with a timeout here. They persist until the error condition is resolved.
-  }, [updateError, invalidInputCategoryId, categories, activeFeedback.type]);
+  }, [updateError, invalidInputCategoryId, categories, activeFeedback.type]); // Removed activeFeedback.type to avoid loops, let it be driven by error states
 
   const triggerRecalculation = useCallback(async () => {
     if (isAuthLoading || !currentUser || !selectedBudgetId || !currentMonthString) {
@@ -250,9 +289,14 @@ function BudgetPage() {
   }, [monthlyData, instantRemainingToAllocate, categories]); // Added categories to dependencies
 
   const handleAllocationChange = useCallback(async (categoryId, newAmountStr) => {
-    setActiveFeedback(prev => (prev.type === 'error' || prev.type === 'info') ? { text: null, type: null, categoryName: null } : prev);
+    setActiveFeedback(prev => (
+      (prev.type === 'error' || prev.type === 'info' || prev.type === 'success') && prev.categoryName === (categories.find(c => c.id === categoryId)?.name || 'Cette catégorie') 
+      ? { text: null, type: null, categoryName: null, isRetryable: false, retryAction: null } 
+      : prev
+    ));
     setUpdateError(null); 
     setAllocationAdjustmentInfo(null); 
+    setIsSavingAllocationStates(prev => ({ ...prev, [categoryId]: true }));
     
     let newAmountNum = parseFloat(newAmountStr);
 
@@ -295,7 +339,12 @@ function BudgetPage() {
 
     try { 
       await updateAllocation(budgetId, currentMonthString, categoryId, newAmountNum); 
-      
+      setIsSavingAllocationStates(prev => ({ ...prev, [categoryId]: false })); // Clear saving state on success
+      // Set success feedback
+      const categoryName = categories.find(c => c.id === categoryId)?.name || 'Cette catégorie';
+      setActiveFeedback({ text: `Montant pour ${categoryName} sauvegardé.`, type: 'success', categoryName, isRetryable: false, retryAction: null });
+      setTimeout(() => setActiveFeedback(prev => (prev.type === 'success' && prev.categoryName === categoryName) ? {text: null, type: null, categoryName: null, isRetryable: false, retryAction: null } : prev), 3000);
+
       // After successful save, clear the editing state for this category
       // so the input reflects the source of truth (monthlyData.allocations)
       setEditingAllocation(prev => {
@@ -308,12 +357,34 @@ function BudgetPage() {
         debouncedTriggerRecalculationRef.current();
       }
     } catch (e) { 
-      setUpdateError(e.message); 
-      // If save fails, editingAllocation still holds the value that failed.
-      // User can see it and retry or change it.
+      // Refine message
+      let refinedMessage = e.message;
+      const serviceErrorPrefix = "Failed to update allocation: ";
+      if (refinedMessage.startsWith(serviceErrorPrefix)) {
+        refinedMessage = refinedMessage.substring(serviceErrorPrefix.length);
+      }
+      setUpdateError(refinedMessage); // This will trigger the useEffect for error messages
+      setIsSavingAllocationStates(prev => ({ ...prev, [categoryId]: false }));
+
+      // Determine if retryable and set feedback directly here to include retryAction
+      const isValidationError = refinedMessage === 'Montant invalide.' || refinedMessage.includes('YYYY-MM') || refinedMessage.includes('non-negative number') || refinedMessage.includes('required');
+      const errorCategoryName = categories.find(c => c.id === categoryId)?.name || 'Cette catégorie';
+
+      if (!isValidationError) {
+         setActiveFeedback({
+            text: refinedMessage,
+            type: 'error',
+            categoryName: errorCategoryName,
+            isRetryable: true,
+            retryAction: () => handleAllocationChange(categoryId, newAmountStr) // Pass current failed values
+        });
+      } else {
+        // For validation errors caught by service, updateError will trigger the other useEffect
+        // but no retryAction needed. The useEffect will handle the message.
+      }
     }
   // Deps: Add `categories` because it's used in find.
-}, [monthlyData, categories, instantRemainingToAllocate, budgetId, currentMonthString, debouncedTriggerRecalculationRef, setActiveFeedback, setUpdateError, setAllocationAdjustmentInfo, setEditingAllocation, setInvalidInputCategoryId]);
+}, [monthlyData, categories, instantRemainingToAllocate, budgetId, currentMonthString, debouncedTriggerRecalculationRef, setActiveFeedback, setUpdateError, setAllocationAdjustmentInfo, setEditingAllocation, setInvalidInputCategoryId, setIsSavingAllocationStates]); // Added setIsSavingAllocationStates
 
   const handleSliderInteractionStart = useCallback((categoryId) => {
     setActiveSliderCategoryId(categoryId);
@@ -402,12 +473,17 @@ function BudgetPage() {
       )}
       {activeFeedback.text && (
         <div 
-          className={`${styles.feedbackContainer} ${styles[activeFeedback.type === 'info' ? 'feedbackInfo' : 'feedbackError']}`}
+          className={`${styles.feedbackContainer} ${styles[activeFeedback.type === 'info' ? 'feedbackInfo' : activeFeedback.type === 'success' ? 'feedbackSuccess' : 'feedbackError']}`}
           role={activeFeedback.type === 'error' ? 'alert' : 'status'}
           aria-live="polite"
         >
           <LocalInfoIcon /> {/* Consider making icon conditional or type-specific */}
           <span>{activeFeedback.text}</span>
+          {activeFeedback.isRetryable && activeFeedback.retryAction && (
+            <button onClick={activeFeedback.retryAction} className={styles.retryButton}>
+              Réessayer
+            </button>
+          )}
         </div>
       )}
        {isUsingServerCalculations !== undefined && (
@@ -460,7 +536,8 @@ function BudgetPage() {
               const netActivityForCategory = categoryActivityMap?.[category.id] ?? 0;
               const spentForCategory = Math.max(0, -netActivityForCategory); 
 
-              const isSavingAllocation = false; 
+              // Pass the saving state for this specific category
+              const isSavingThisAllocation = isSavingAllocationStates[category.id] || false;
               const isInputCurrentlyInvalid = invalidInputCategoryId === category.id;
 
               return (
@@ -477,8 +554,8 @@ function BudgetPage() {
                     baseOnSliderChange={handleSliderChangeImmediate}
                     baseOnAllocationSave={handleAllocationChange} 
                     baseOnSliderInteractionStart={handleSliderInteractionStart}
-                    baseOnSliderInteractionEnd={handleSliderInteractionEnd} 
-                    isSavingAllocation={isSavingAllocation}
+                    baseOnSliderInteractionEnd={handleSliderInteractionEnd} // Pass through
+                    isSavingAllocation={isSavingThisAllocation} // Pass down the specific saving state
                     isInputInvalid={isInputCurrentlyInvalid}
                   />
                 </div>

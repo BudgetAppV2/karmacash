@@ -1,0 +1,92 @@
+{
+    "firebase": {
+      "projectId": "karmacash-6e8f5",
+      "storageBucket": "karmacash-6e8f5.firebasestorage.app",
+      "serviceAccountPath": "./config/serviceAccountKey.json"
+    },
+    "mcp": {
+      "server": {
+        "type": "community",
+        "package": "@gannonh/firebase-mcp",
+        "fallback": "official-cli",
+        "retryAttempts": 3,
+        "timeout": 30000,
+        "validateResponses": true
+      },
+      "transport": "stdio",
+      "debug": {
+        "enabled": true,
+        "logFile": "./logs/firebase-mcp-debug.log"
+      }
+    },
+    "cache": {
+      "maxSize": 104857600,
+      "timeout": 600000,
+      "prefetchEnabled": true,
+      "compressionEnabled": true,
+      "persistentCache": false
+    },
+    "integration": {
+      "autoInitialize": true,
+      "prefetchCommonContent": true,
+      "enableContextualHelp": true,
+      "logPerformance": true
+    },
+    "documents": {
+      "sections": ["b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8"],
+      "defaultVersion": "optimized",
+      "commonDocuments": ["B1.1", "B1.2", "B1.3"],
+      "basePath": "bible/sections/",
+      "fileExtensions": {
+        "raw": ".md",
+        "optimized": ".optimized.json"
+      }
+    },
+    "storage": {
+      "requiredTools": [
+        "storage_list_files",
+        "storage_get_file_info", 
+        "storage_upload_file",
+        "storage_delete_file",
+        "fetch_json",
+        "fetch_markdown",
+        "fetch_txt"
+      ],
+      "pathFormat": {
+        "requireTrailingSlash": true,
+        "caseSensitive": true
+      }
+    },
+    "crossReferences": {
+      "firestoreCollection": "bible_cross_references",
+      "enableExplicit": true,
+      "enableSemantic": false,
+      "confidenceThreshold": 0.7
+    },
+    "performance": {
+      "monitoring": {
+        "enabled": true,
+        "metricsInterval": 60000,
+        "reportingEnabled": true
+      },
+      "optimization": {
+        "batchSize": 10,
+        "concurrentRequests": 5,
+        "rateLimitDelay": 100
+      }
+    },
+    "security": {
+      "validateOrigin": true,
+      "maxRequestSize": 10485760,
+      "allowedOperations": [
+        "read",
+        "list",
+        "search"
+      ]
+    },
+    "development": {
+      "mockMode": false,
+      "testDataPath": "./test/mock-data/",
+      "enableDebugLogging": true
+    }
+  }

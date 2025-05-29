@@ -1,0 +1,20 @@
+# Task ID: 309
+# Title: WF_MCP_Doc.2 - Draft [B7.1] Update for MCP-Driven Workflow
+# Status: pending
+# Dependencies: 306, 307
+# Priority: high
+# Description: Draft a new dedicated section for the [B7.1 AI Workflow] document describing the refined MCP-driven workflow using Claude Desktop (CK) and Cursor AI (CG).
+# Details:
+- Based on HD Answer #5 (Deliverable Format) and findings from other WF_MCP tasks:
+  - Create a new section in [B7.1] (e.g., 'Section X: MCP-Driven Workflow with Claude Desktop (CK) and Cursor AI (CG)').
+  - Detail the updated roles of CK (Claude) and CG (Cursor) in this MCP context.
+  - Describe the information flow: how handoffs/summaries (using structures from Task #307) are created, stored in Firestore (via methods from Task #306), and retrieved by each AI.
+  - Document key MCP tool usage for Firebase interaction.
+  - Outline prompt strategies for instructing Claude and Cursor within this workflow.
+  - Clearly state how this new section complements or supersedes previous workflow descriptions in [B7.1] for relevant tasks.
+  - Include diagrams if helpful (e.g., a high-level workflow diagram).
+- Output: Draft of the new section for [B7.1] in markdown.
+
+# Test Strategy:
+- HD reviews the drafted [B7.1] section for accuracy, clarity, and completeness in describing the new MCP workflow.
+- Ensure it integrates well with the existing [B7.1] document.

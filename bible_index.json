@@ -1,0 +1,910 @@
+{
+    "b0-readme-toc-001-intro-structure": {
+      "title": "Part 1: Introduction & Bible Structure (Original Document: B0 README & TOC)",
+      "mainSectionDirectory": "B0"
+    },
+    "b0-readme-toc-002-toc-usage-standards": {
+      "title": "Part 2: Table of Contents, Usage & Standards (Original Document: B0 README & TOC)",
+      "mainSectionDirectory": "B0"
+    },
+    "b1-1-vision-goals-001-vision-principles": {
+      "title": "Part 1: Vision Statement & Core Principles (Original Document: B1.1 Vision & Goals)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-1-vision-goals-002-primary-goals": {
+      "title": "Part 2: Primary Goals (Original Document: B1.1 Vision & Goals)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-1-vision-goals-003-background-mvp": {
+      "title": "Part 3: Project Background & MVP Scope (Original Document: B1.1 Vision & Goals)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-2-target-audience-001-primary-audience-mvp": {
+      "title": "Part 1: Primary Audience (MVP) (Original Document: B1.2 Target Audience)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-2-target-audience-002-secondary-audience-personas": {
+      "title": "Part 2: Secondary Audience & User Personas (Original Document: B1.2 Target Audience)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-2-target-audience-003-future-persona-evolution": {
+      "title": "Part 3: Future Persona & Audience Evolution Strategy (Original Document: B1.2 Target Audience)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-3-roadmap-001-overview": {
+      "title": "Project Roadmap & Milestones - Part 1: Overview",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-3-roadmap-002-m4a-tasks": {
+      "title": "Project Roadmap & Milestones - Part 2: M4a Tasks",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-3-roadmap-003-m4b-tasks": {
+      "title": "Project Roadmap & Milestones - Part 3: M4b Tasks",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-3-roadmap-004-m5-obj1-2": {
+      "title": "Project Roadmap & Milestones - Part 4: M5 Tasks (Objectives 1 & 2)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-3-roadmap-005-m5-obj3-4": {
+      "title": "Project Roadmap & Milestones - Part 5: M5 Tasks (Objectives 3 & 4)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-3-roadmap-006-m6-tasks": {
+      "title": "Project Roadmap & Milestones - Part 6: M6 Tasks",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-3-roadmap-007-conclusion": {
+      "title": "Project Roadmap & Milestones - Part 7: Conclusion",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-001-intro-prioritization": {
+      "title": "Post-MVP: Introduction & Feature Prioritization",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-002-shared-budgets": {
+      "title": "Post-MVP: Shared Budgets (Highest Priority)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-003-user-onboarding": {
+      "title": "Post-MVP: User Onboarding Feature",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-004-recurring-expense-toggle": {
+      "title": "Post-MVP: Recurring Expense Category Toggle",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-005-dashboard-development": {
+      "title": "Post-MVP: Full Dashboard Development",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-006-goal-setting": {
+      "title": "Post-MVP: Goal Setting",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-007-push-notifications": {
+      "title": "Post-MVP: Push Notifications",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-008-transaction-comparison-graph": {
+      "title": "Post-MVP: User Transaction Comparison Graph",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-009-basic-reporting": {
+      "title": "Post-MVP: Basic Reporting",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-010-csv-import": {
+      "title": "Post-MVP: CSV Import/Reconciliation",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-4-post-mvp-011-additional-considerations": {
+      "title": "Post-MVP: Additional Considerations",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-5-commercialization-001-overview-monetization": {
+      "title": "Commercialization: Overview & Monetization Potential",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-5-commercialization-002-cost-analysis": {
+      "title": "Commercialization: Cost Analysis",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-5-commercialization-003-market-positioning": {
+      "title": "Commercialization: Market Positioning",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-5-commercialization-004-growth-strategy": {
+      "title": "Commercialization: Growth Strategy (Phases 1-2)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-5-commercialization-005-growth-strategy-beta-launch": {
+      "title": "Commercialization: Growth Strategy (Phases 3-4)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-5-commercialization-006-exit-strategies-conclusion": {
+      "title": "Commercialization: Exit Strategies & Conclusion",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-6-competitive-analysis-001-intro-market-overview": {
+      "title": "Competitive Analysis: Intro & Market Overview",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-6-competitive-analysis-002-competitors-ynab-mint": {
+      "title": "Competitive Analysis: YNAB & Mint",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-6-competitive-analysis-003-competitors-everydollar-shareroo-banks": {
+      "title": "Competitive Analysis: EveryDollar, Shareroo & Bank Apps",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-6-competitive-analysis-004-karmacash-differentiators-1-3": {
+      "title": "Competitive Analysis: KarmaCash Differentiators (1-3)",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-6-competitive-analysis-005-karmacash-differentiators-4-5": {
+      "title": "Competitive Analysis: KarmaCash Differentiators (4-5) & Position Map",
+      "mainSectionDirectory": "B1"
+    },
+    "b1-6-competitive-analysis-006-target-market-monitoring": {
+      "title": "Competitive Analysis: Target Market & Monitoring",
+      "mainSectionDirectory": "B1"
+    },
+    "b2-1-design-philosophy-001-intro-foundation": {
+      "title": "Design Philosophy: Intro & Philosophical Foundation",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-1-design-philosophy-002-principles-calm-clarity": {
+      "title": "Design Philosophy: Principles (Calm, Clarity)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-1-design-philosophy-003-principles-simplicity-disclosure": {
+      "title": "Design Philosophy: Principles (Simplicity, Disclosure)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-1-design-philosophy-004-principles-consistency-balance": {
+      "title": "Design Philosophy: Principles (Consistency, Balance)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-1-design-philosophy-005-psychological-considerations": {
+      "title": "Design Philosophy: Psychological Considerations",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-1-design-philosophy-006-application-key-ux-1-2": {
+      "title": "Design Philosophy: Application to UX (Planning, Negative Balances)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-1-design-philosophy-007-application-key-ux-3-4": {
+      "title": "Design Philosophy: Application to UX (Goals, Tracking) & Differentiation",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-1-design-philosophy-008-implementation-guidelines": {
+      "title": "Design Philosophy: Implementation Guidelines",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-001-intro-js-react": {
+      "title": "Tech Standards: Intro, JS/TS & React",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-002-css-naming-components": {
+      "title": "Tech Standards: CSS & Naming Conventions",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-003-component-formatting-quality": {
+      "title": "Tech Standards: Component Structure, Formatting & Quality",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-004-firebase-firestore-intro": {
+      "title": "Tech Standards: Firebase Firestore (Naming, Structure, IDs, Timestamps)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-005-firebase-firestore-rules-indexes-queries": {
+      "title": "Tech Standards: Firebase Firestore (Rules, Indexes, Queries)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-006-firebase-auth-functions": {
+      "title": "Tech Standards: Firebase Authentication & Cloud Functions",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-007-testing": {
+      "title": "Tech Standards: Testing Standards",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-008-deployment-version-control": {
+      "title": "Tech Standards: Deployment & Version Control",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-009-documentation": {
+      "title": "Tech Standards: Documentation Standards",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-010-accessibility": {
+      "title": "Tech Standards: Accessibility (A11y)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-011-performance": {
+      "title": "Tech Standards: Performance Standards",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-012-security-auth-data": {
+      "title": "Tech Standards: Security (Auth, Data Protection)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-2-tech-standards-013-security-dependencies-compliance": {
+      "title": "Tech Standards: Security (Dependencies) & Compliance",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-3-date-handling-001-core-standards-storage": {
+      "title": "Date Handling: Core Standards & Storage",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-3-date-handling-002-firestore-queries": {
+      "title": "Date Handling: Firestore Queries",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-3-date-handling-003-formatting-display": {
+      "title": "Date Handling: Formatting & Display (fr-CA)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-3-date-handling-004-utc-component-comparison": {
+      "title": "Date Handling: UTC Component Comparison (Strict Day Matching)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-3-date-handling-005-grouping-by-utc-day": {
+      "title": "Date Handling: Grouping Transactions by UTC Day",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-3-date-handling-006-pitfalls-best-practices": {
+      "title": "Date Handling: Pitfalls, Best Practices & Conclusion",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-001-overview-principles": {
+      "title": "Error Handling: Overview & Guiding Principles",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-002-categorization": {
+      "title": "Error Handling: Error Categorization",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-003-impl-frontend-react-boundaries": {
+      "title": "Error Handling: Frontend - React Error Boundaries",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-004-impl-frontend-api-errors": {
+      "title": "Error Handling: Frontend - API Error Handling",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-005-impl-frontend-form-validation": {
+      "title": "Error Handling: Frontend - Form Validation",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-006-impl-backend-cloud-functions": {
+      "title": "Error Handling: Backend - Cloud Functions",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-007-ui-components-toast": {
+      "title": "Error Handling: UI Components - Error Toast",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-008-ui-components-inline-display": {
+      "title": "Error Handling: UI Components - Inline Display & Logging Strategy",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-4-error-handling-009-testing-conclusion": {
+      "title": "Error Handling: Testing Scenarios & Conclusion",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-5-code-project-structure-001-repo-org": {
+      "title": "B2.5 Code & Project Structure - Repository Organization",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-5-code-project-structure-002-src-org": {
+      "title": "B2.5 Code & Project Structure - Source Code Organization (src/)",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-5-code-project-structure-003-component-org": {
+      "title": "B2.5 Code & Project Structure - Component Organization",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-5-code-project-structure-004-functions-org": {
+      "title": "B2.5 Code & Project Structure - Cloud Functions Organization",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-5-code-project-structure-005-styling-approach-intro": {
+      "title": "B2.5 Code & Project Structure - Styling Standards: Intro & Implementation",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-5-code-project-structure-006-styling-approach-global": {
+      "title": "B2.5 Code & Project Structure - Styling Standards: Global & Migration",
+      "mainSectionDirectory": "B2"
+    },
+    "b2-5-code-project-structure-007-conclusion": {
+      "title": "B2.5 Code & Project Structure - Conclusion",
+      "mainSectionDirectory": "B2"
+    },
+    "b3-11-animations-interactions-001-intro-core-principles": {
+      "title": "B3.11 Animations: Introduction & Core Principles",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-002-timing-easing": {
+      "title": "B3.11 Animations: Timing & Easing Functions",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-003-microinteractions-buttons-forms": {
+      "title": "B3.11 Animations: Micro-interactions (Buttons & Forms)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-004-microinteractions-nav-data": {
+      "title": "B3.11 Animations: Micro-interactions (Navigation & Data)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-005-microinteractions-financial": {
+      "title": "B3.11 Animations: Micro-interactions (Financial)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-006-when-not-to-animate": {
+      "title": "B3.11 Animations: When NOT to Animate",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-007-tech-guidelines-perf": {
+      "title": "B3.11 Animations: Tech Guidelines (Technologies & Performance)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-008-tech-guidelines-a11y": {
+      "title": "B3.11 Animations: Tech Guidelines (Accessibility & prefers-reduced-motion)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-009-example-scenarios": {
+      "title": "B3.11 Animations: Example Scenarios & Implementation Notes",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-010-testing-refinement": {
+      "title": "B3.11 Animations: Testing & Refinement",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-011-component-specific-guidelines": {
+      "title": "B3.11 Animations: Component-Specific Guidelines",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-012-implementation-examples": {
+      "title": "B3.11 Animations: Implementation Examples (Framer Motion & CSS)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-013-accessibility-hook": {
+      "title": "B3.11 Animations: Accessibility (`useReducedMotion` Hook)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-11-animations-interactions-014-dev-docs-conclusion": {
+      "title": "B3.11 Animations: Developer Documentation & Conclusion",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-001-core-principles-calm-clarity": {
+      "title": "B3.4 UI/UX Guidelines - Core Principles: Calm, Clarity",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-002-core-principles-responsive-components-nav": {
+      "title": "B3.4 UI/UX Guidelines - Core Principles: Responsive, Components, Navigation",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-003-core-principles-data-feedback-lang": {
+      "title": "B3.4 UI/UX Guidelines - Core Principles: Data Viz, Feedback, Language",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-004-core-principles-access-touch-disclosure": {
+      "title": "B3.4 UI/UX Guidelines - Core Principles: Accessibility, Touch, Disclosure",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-005-core-principles-empty-error": {
+      "title": "B3.4 UI/UX Guidelines - Core Principles: Empty States, Error Handling",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-006-flows-onboarding-login": {
+      "title": "B3.4 UI/UX Guidelines - User Flows: Onboarding & Login",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-007-flows-add-transaction": {
+      "title": "B3.4 UI/UX Guidelines - User Flows: Adding Transaction",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-008-flows-set-budget": {
+      "title": "B3.4 UI/UX Guidelines - User Flows: Setting Budgets",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-009-flows-view-transactions": {
+      "title": "B3.4 UI/UX Guidelines - User Flows: Viewing Transactions",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-010-flows-add-category": {
+      "title": "B3.4 UI/UX Guidelines - User Flows: Adding Category",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-011-flows-add-recurring-rule": {
+      "title": "B3.4 UI/UX Guidelines - User Flows: Adding Recurring Rule",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-012-flows-delete-transaction": {
+      "title": "B3.4 UI/UX Guidelines - User Flows: Deleting Transaction",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-4-guidelines-013-implementation-conclusion": {
+      "title": "B3.4 UI/UX Guidelines - Implementation & Conclusion",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-001-intro-navigation": {
+      "title": "B3.6 French Glossary - Intro & Navigation",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-002-date-navigation": {
+      "title": "B3.6 French Glossary - Date Navigation",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-003-transaction-mgmt-1": {
+      "title": "B3.6 French Glossary - Transaction Management 1",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-004-transaction-mgmt-2": {
+      "title": "B3.6 French Glossary - Transaction Management 2",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-005-budget-mgmt": {
+      "title": "B3.6 French Glossary - Budget Management",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-006-categories-1": {
+      "title": "B3.6 French Glossary - Categories 1",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-007-categories-2": {
+      "title": "B3.6 French Glossary - Categories 2",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-008-charts-budget-calc": {
+      "title": "B3.6 French Glossary - Charts & Budget Calculations",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-009-ui-actions-states": {
+      "title": "B3.6 French Glossary - UI Actions & States",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-010-auth-settings": {
+      "title": "B3.6 French Glossary - Auth & Settings",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-011-time-confirmations": {
+      "title": "B3.6 French Glossary - Time Periods & Confirmations",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-6-glossary-fr-012-post-mvp-conclusion": {
+      "title": "B3.6 French Glossary - Post-MVP & Conclusion",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-001-intro-nav-1": {
+      "title": "B3.7 Component Specs - Intro & Navigation 1",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-002-nav-2-header": {
+      "title": "B3.7 Component Specs - Navigation 2 & Header",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-003-transaction-1": {
+      "title": "B3.7 Component Specs - Transaction Components 1",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-004-transaction-2": {
+      "title": "B3.7 Component Specs - Transaction Components 2",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-005-budget-mvp": {
+      "title": "B3.7 Component Specs - Budget Components (MVP)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-006-visualization": {
+      "title": "B3.7 Component Specs - Visualization (Post-MVP)",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-007-category": {
+      "title": "B3.7 Component Specs - Category Components",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-008-action-1": {
+      "title": "B3.7 Component Specs - Action Components 1",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-009-action-2-feedback-1": {
+      "title": "B3.7 Component Specs - Action 2 & Feedback 1",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-010-feedback-2-loader": {
+      "title": "B3.7 Component Specs - Feedback 2 & Loaders",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-011-auth": {
+      "title": "B3.7 Component Specs - Authentication Components",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-7-component-specs-012-relationships-conclusion": {
+      "title": "B3.7 Component Specs - Relationships & Conclusion",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-001-intro-colors-1": {
+      "title": "B3.8 Style Guide v2 - Intro & Primary/Neutral Colors",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-002-colors-2": {
+      "title": "B3.8 Style Guide v2 - Accent/Semantic & Gradient Colors",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-003-colors-categorical": {
+      "title": "B3.8 Style Guide v2 - Categorical Color Palette",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-004-typography-1": {
+      "title": "B3.8 Style Guide v2 - Typography: Family & Size",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-005-typography-2": {
+      "title": "B3.8 Style Guide v2 - Typography: Weights, Line Heights, Styles",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-006-spacing-iconography": {
+      "title": "B3.8 Style Guide v2 - Spacing & Iconography",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-007-shadows-radius": {
+      "title": "B3.8 Style Guide v2 - Shadows & Border Radius",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-008-components-1": {
+      "title": "B3.8 Style Guide v2 - Component Styles: Buttons, Forms 1",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-009-components-2": {
+      "title": "B3.8 Style Guide v2 - Component Styles: Forms 2, Cards, Nav, Modals",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-010-states-responsive-1": {
+      "title": "B3.8 Style Guide v2 - States & Responsive Breakpoints",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-011-responsive-2-css-vars": {
+      "title": "B3.8 Style Guide v2 - Responsive Adjustments & CSS Variables",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-8-style-guide-v2-012-dark-mode-accessibility-conclusion": {
+      "title": "B3.8 Style Guide v2 - Dark Mode, Accessibility & Conclusion",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-001-introduction": {
+      "title": "B3.9 Mood Board: Introduction",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-002-core-themes": {
+      "title": "B3.9 Mood Board: Core Themes & Visual Metaphors",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-003-color-palette": {
+      "title": "B3.9 Mood Board: Color Palette Exploration",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-004-typography": {
+      "title": "B3.9 Mood Board: Typography",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-005-imagery-illustration": {
+      "title": "B3.9 Mood Board: Imagery & Illustration Style",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-006-ui-elements": {
+      "title": "B3.9 Mood Board: UI Element Style Inspiration",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-007-interaction-animation": {
+      "title": "B3.9 Mood Board: Interaction & Animation Principles",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-008-mood-keywords": {
+      "title": "B3.9 Mood Board: Overall Mood & Keywords",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-009-anti-patterns": {
+      "title": "B3.9 Mood Board: Anti-Patterns to Avoid",
+      "mainSectionDirectory": "B3"
+    },
+    "b3-9-mood-board-010-conclusion": {
+      "title": "B3.9 Mood Board: Conclusion & Next Steps",
+      "mainSectionDirectory": "B3"
+    },
+    "b4-1-tech-stack-001-intro-frontend-core": {
+      "title": "B4.1 Tech Stack: Introduction & Frontend Core",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-002-ui-styling": {
+      "title": "B4.1 Tech Stack: UI & Styling",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-003-backend-database": {
+      "title": "B4.1 Tech Stack: Backend & Database",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-004-dev-tooling": {
+      "title": "B4.1 Tech Stack: Development Tooling",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-005-testing-qa": {
+      "title": "B4.1 Tech Stack: Testing & Quality Assurance",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-006-additional-libraries": {
+      "title": "B4.1 Tech Stack: Additional Libraries",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-007-dev-environment": {
+      "title": "B4.1 Tech Stack: Development Environment",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-008-version-compatibility": {
+      "title": "B4.1 Tech Stack: Version Requirements & Compatibility",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-009-integration-diagram": {
+      "title": "B4.1 Tech Stack: Integration & Dependencies Diagram",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-010-evaluation-criteria": {
+      "title": "B4.1 Tech Stack: Technology Evaluation Criteria",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-011-future-considerations": {
+      "title": "B4.1 Tech Stack: Future Technology Considerations",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-1-tech-stack-012-conclusion": {
+      "title": "B4.1 Tech Stack: Conclusion",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-2-frontend-structure-001-intro-architecture": {
+      "title": "B4.2 Frontend Structure: Introduction & Application Architecture",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-2-frontend-structure-002-src-directory": {
+      "title": "B4.2 Frontend Structure: Core src/ Directory Structure",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-2-frontend-structure-003-implementation-patterns": {
+      "title": "B4.2 Frontend Structure: Key Implementation Patterns",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-2-frontend-structure-004-conclusion": {
+      "title": "B4.2 Frontend Structure: Conclusion",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-3-backend-functions-001-overview-backend-architecture-core": {
+      "title": "Part 1: Overview Backend Architecture Core (Original: B4.3 Backend Functions)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-3-backend-functions-002-user-account-creation-handler-onusercreate": {
+      "title": "Part 2: User Account Creation Handler Onusercreate (Original: B4.3 Backend Functions)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-3-backend-functions-003-log-sink-function-logsink-function": {
+      "title": "Part 3: Log Sink Function Logsink Function (Original: B4.3 Backend Functions)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-3-backend-functions-004-conclusion-handling-firebase-emulator": {
+      "title": "Part 4: Conclusion Handling Firebase Emulator (Original: B4.3 Backend Functions)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-3-backend-functions-005-callable-function-payload-nesting-data": {
+      "title": "Part 5: Callable Function Payload Nesting Data (Original: B4.3 Backend Functions)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-3-backend-functions-006-server-timestamps-adminfirestorefieldvalueservertimestamp": {
+      "title": "Part 6: Server Timestamps Adminfirestorefieldvalueservertimestamp (Original: B4.3 Backend Functions)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-4-logging-system-impl-001-purpose-goals-architecture-components": {
+      "title": "Part 1: Purpose Goals Architecture Components (Original: B4.4 Logging System Implementation)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-4-logging-system-impl-002-logger-config-usage-backend-sink": {
+      "title": "Part 2: Logger Config Usage Backend Sink (Original: B4.4 Logging System Implementation)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-4-logging-system-impl-003-firestore-log-storage-log-extraction": {
+      "title": "Part 3: Firestore Log Storage Log Extraction (Original: B4.4 Logging System Implementation)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-4-logging-system-impl-004-integration-ai-workflow": {
+      "title": "Part 4: Integration Ai Workflow (Original: B4.4 Logging System Implementation)",
+      "mainSectionDirectory": "B4"
+    },
+    "b4-4-logging-system-impl-005-performance-considerations": {
+      "title": "Part 5: Performance Considerations (Original: B4.4 Logging System Implementation)",
+      "mainSectionDirectory": "B4"
+    },
+    "b5-1-schema-overview-001-introduction-core-architecture-principles": {
+      "title": "Part 1: Introduction Core Architecture Principles (Original: B5.1 Schema Overview)",
+      "mainSectionDirectory": "B5"
+    },
+    "b5-1-schema-overview-002-collection-purposes-phase-2-structure": {
+      "title": "Part 2: Collection Purposes Phase 2 Structure (Original: B5.1 Schema Overview)",
+      "mainSectionDirectory": "B5"
+    },
+    "b5-1-schema-overview-003-document-id-strategies": {
+      "title": "Part 3: Document Id Strategies (Original: B5.1 Schema Overview)",
+      "mainSectionDirectory": "B5"
+    },
+    "b5-2-collections-schemas-001-budgets-collection-member-object": {
+      "title": "Part 1: Budgets Collection Member Object (Original: B5.2 Collections & Schemas)",
+      "mainSectionDirectory": "B5"
+    },
+    "b5-2-collections-schemas-002-categories-recurring-rules": {
+      "title": "Part 2: Categories Recurring Rules (Original: B5.2 Collections & Schemas)",
+      "mainSectionDirectory": "B5"
+    },
+    "b5-2-collections-schemas-003-recurring-rules-transactions": {
+      "title": "Part 3: Recurring Rules Transactions (Original: B5.2 Collections & Schemas)",
+      "mainSectionDirectory": "B5"
+    },
+    "b5-2-collections-schemas-004-transactions-monthly-data": {
+      "title": "Part 4: Transactions Monthly Data (Original: B5.2 Collections & Schemas)",
+      "mainSectionDirectory": "B5"
+    },
+    "b5-2-collections-schemas-005-monthly-data-users": {
+      "title": "Part 5: Monthly Data Users (Original: B5.2 Collections & Schemas)",
+      "mainSectionDirectory": "B5"
+    },
+    "b5-2-collections-schemas-006-user-budgetmemberships-budget-invitations": {
+      "title": "Part 6: User Budgetmemberships Budget Invitations (Original: B5.2 Collections & Schemas)",
+      "mainSectionDirectory": "B5"
+    },
+    "b6-2-001-managerecurringinstances-definition-trigger": {
+      "title": "Part 1: Managerecurringinstances Definition Trigger (Original: B6.2 Recurring Transaction Algorithm)",
+      "mainSectionDirectory": "B6"
+    },
+    "b6-2-002-managerecurringinstances-generate-delete": {
+      "title": "Part 2: Managerecurringinstances Generate Delete (Original: B6.2 Recurring Transaction Algorithm)",
+      "mainSectionDirectory": "B6"
+    },
+    "b6-2-003-date-calculatenextdate-budget-centric": {
+      "title": "Part 3: Date Calculatenextdate Budget Centric (Original: B6.2 Recurring Transaction Algorithm)",
+      "mainSectionDirectory": "B6"
+    },
+    "b7-1-ai-workflow-v2-001-intro-core-tools": {
+      "title": "Part 1: Introduction & Core Tools/Roles (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-002-optimized-workflow-planning": {
+      "title": "Part 2: Optimized Workflow - High-Level Planning & Manus AI Task Gen (Steps A, B.1-B.3) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-003-manus-output-to-json": {
+      "title": "Part 3: Manus Output to JSON & Task Master Loading (Steps B.4-B.6) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-004-taskmaster-analysis-expansion": {
+      "title": "Part 4: Task Master Analysis & Expansion (Steps B.7-B.9) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-005-ui-mockup-cycle": {
+      "title": "Part 5: UI Mockup Generation Cycle (Section 2.C) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-006-task-management-ship-sessions": {
+      "title": "Part 6: Task Management during SHIP Sessions (Section 2.D) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-007-key-workflow-decisions": {
+      "title": "Part 7: Key Workflow Decisions & Rationale (Section 3) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-008-tasks-json-schema": {
+      "title": "Part 8: tasks.json Schema (Section 4) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-009-ship-integration": {
+      "title": "Part 9: SHIP Document Integration with Task Master (Section 5) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-010-ck-role-responsibilities": {
+      "title": "Part 10: CK Role & Responsibilities (Section 6) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-011-next-steps-resources": {
+      "title": "Part 11: Next Steps, Resources & Conclusion (Sections 7, 8, 9) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-012-shipless-intro-efficiency": {
+      "title": "Part 12: SHIP-less Workflow - Intro & Hyper-Efficiency (Section 10, 10.1) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-013-shipless-startup-architecture": {
+      "title": "Part 13: SHIP-less Workflow - Startup & Architecture (Sections 10.2, 10.3) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-014-shipless-collection-flow": {
+      "title": "Part 14: SHIP-less Workflow - Cross-Collection Flow (Section 10.4) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-015-shipless-token-management": {
+      "title": "Part 15: SHIP-less Workflow - Token Management & Monitoring (Section 10.5) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-016-shipless-token-tracking-v6": {
+      "title": "Part 16: SHIP-less - Enhanced Token Tracking & Monitoring (v6 Integration) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-017-shipless-practical-examples": {
+      "title": "Part 17: SHIP-less Workflow - Practical Examples (Section 10.6) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-018-shipless-superseding-priming": {
+      "title": "Part 18: SHIP-less - Superseding Sections & Enhanced Priming (v6) (Sections 10.7, 10.8 Intro) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-019-shipless-priming-doc-startup": {
+      "title": "Part 19: SHIP-less - Priming Doc & Startup Flow (Section 10.8) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-020-shipless-priming-tool-config": {
+      "title": "Part 20: SHIP-less - Priming Tool Config & Application (Section 10.8) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-1-ai-workflow-v2-021-shipless-bible-aware-intel": {
+      "title": "Part 21: SHIP-less - Bible-Aware Dual-AI Intelligence (Section 10.9) (Original Document: B7.1 AI Workflow with Task Master v2)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-001-manual-ui-console-logging": {
+      "title": "Part 1: Manual Ui Console Logging (Original: Testing Plan & Strategy)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-002-financial-calculation-accuracy": {
+      "title": "Part 2: Financial Calculation Accuracy (Original: Testing Plan & Strategy)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-003-milestone-1-auth-layout": {
+      "title": "Part 3: Milestone 1 Auth Layout (Original: Testing Plan & Strategy)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-004-milestone-5-analysis-nav": {
+      "title": "Part 4: Milestone 5 Analysis Nav (Original: Testing Plan & Strategy)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-005-generation-isolation-feature-dev": {
+      "title": "Part 5: Generation Isolation Feature Dev (Original: Testing Plan & Strategy)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-006-unexpected-error-post-mvp": {
+      "title": "Part 6: Unexpected Error Post Mvp (Original: Testing Plan & Strategy)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-ship-template-tm-integrated-001-intro-core-context": {
+      "title": "Part 1: Intro, CK Block, Purpose & Core Context (Original Document: B7.2 SHIP Template TM Int.)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-ship-template-tm-integrated-002-milestone-history-workflow": {
+      "title": "Part 2: Milestone History & Collaboration Workflow (Original Document: B7.2 SHIP Template TM Int.)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-ship-template-tm-integrated-003-session-recap-plan-intro": {
+      "title": "Part 3: Prev Session Recap & Current Plan Intro (Original Document: B7.2 SHIP Template TM Int.)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-ship-template-tm-integrated-004-planned-tasks": {
+      "title": "Part 4: Planned Tasks for Today (Section 5.3) (Original Document: B7.2 SHIP Template TM Int.)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-ship-template-tm-integrated-005-resources-outcome-emergent": {
+      "title": "Part 5: Resources, Outcome, Emergent Tasks & Next Session Ideas (Sections 5.4-5.7) (Original Document: B7.2 SHIP Template TM Int.)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-ship-template-tm-integrated-006-debugging-handoff": {
+      "title": "Part 6: Debugging Help & Cursor Handoff Template (Sections 6, 7) (Original Document: B7.2 SHIP Template TM Int.)",
+      "mainSectionDirectory": "B7"
+    },
+    "b7-2-ship-template-tm-integrated-007-summary-checklist": {
+      "title": "Part 7: Cursor Summary Template & End of Session Checklist (Sections 8, End) (Original Document: B7.2 SHIP Template TM Int.)",
+      "mainSectionDirectory": "B7"
+    }
+  }

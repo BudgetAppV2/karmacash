@@ -43,3 +43,9 @@ tasks/*.txt
 tasks/tasks_Exchange.json
 tasks/tasksV2.json
 tasks/tasks(210525).json
+
+# Added by Claude Task Master
+# OS specific
+# Task files
+tasks.json
+tasks/ 

@@ -1,0 +1,21 @@
+# Task ID: 302
+# Title: PWA_AutoSaveDoc.2 - Document Data Flow for Budget Allowance Auto-Save
+# Status: done
+# Dependencies: 301
+# Priority: high
+# Description: Document the end-to-end data flow for the budget allowance auto-save feature, from UI event to Firestore update.
+# Details:
+- Document the UI event(s) that trigger the auto-save process (e.g., modification of an allocation slider/input).
+- Detail the debounced save operation mechanism: explain debouncing and the planned timing (e.g., 1-2 seconds delay).
+- Document the structure of the data payload sent from the frontend to the backend (e.g., to `budgetService.js` or a Firebase Function) for saving allocations.
+- Describe the backend actions: how the service/function receives the payload and updates the relevant Firestore document(s).
+- Explain the impact of allocation changes on related calculated fields within the `monthlyData` document (e.g., `totalAllocated`, `remainingToAllocate`), referencing [B6.1].
+- Document based on a single-user context for now, but briefly note future considerations for multi-user conflict management.
+- Reference Bible section [B4.3] for existing backend interaction patterns if applicable.
+- Create a Mermaid data flow diagram illustrating this process.
+- Output: Markdown content for the 'Data Flow' section of `documentation/budget_auto_save_v1.md`, including the diagram.
+
+# Test Strategy:
+- HD reviews the data flow description and diagram for accuracy and clarity.
+- Confirm all stages from UI trigger to Firestore update are covered.
+- Verify considerations for calculated fields are noted.

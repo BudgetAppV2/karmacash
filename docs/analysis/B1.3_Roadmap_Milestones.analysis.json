@@ -1,0 +1,32 @@
+{
+  "original_document_id": "B1.3_Roadmap_Milestones",
+  "title": "Roadmap & Milestones",
+  "analysis_date": "2025-05-30T12:00:00Z",
+  "structural_summary": "Uses H1, H2, H3 headings. Content is descriptive text mixed with deeply nested bulleted lists, especially under 'Detailed Task Breakdown'. Some milestones have status indicators and notes.",
+  "dominant_content_types": [
+    "Roadmap/Milestone Definitions",
+    "Hierarchical Task Lists (Milestone -> Objective/Sub-category -> Task)",
+    "Process Description (Development Approach)",
+    "Project Management Information (Timeline, Dependencies)",
+    "Future Feature Lists (Post-MVP Roadmap)"
+  ],
+  "key_structural_patterns_observed": [
+    "Strong hierarchical structure of Milestones and Tasks.",
+    "Explicitly stated dependencies between milestones.",
+    "Use of status indicators like '(Complete)', '(Current Focus)'.",
+    "Tasks sometimes grouped by phase (Design, Implementation, Testing) or Objective.",
+    "Implicit task numbering in some sections (e.g., M5.1.1)."
+  ],
+  "examples_of_key_entities": [
+    "Milestone 0-6",
+    "Architectural Pivot Point",
+    "Shared Budgets",
+    "Firestore",
+    "Callable Function",
+    "Detailed Task Breakdown",
+    "Timeline Estimate",
+    "Development Dependencies",
+    "Post-MVP Roadmap"
+  ],
+  "notes_for_ai_consumption": "The Milestone-Task hierarchy is well-suited for parsing into a structured task management format or knowledge graph. Explicit dependencies and status indicators provide valuable context. The 'Detailed Task Breakdown' section offers granular tasks that can be extracted. Explicit cross-references to other B#.# documents are frequent."
+} 

@@ -1,0 +1,19 @@
+# Task ID: 310
+# Title: WF_MCP_Refine.1 - Refine SHIP Template and Process based on AI Feedback
+# Status: pending
+# Dependencies: 309
+# Priority: medium
+# Description: Collect feedback from AI agents (Claude as CK, Cursor as CG during test sessions) and HD observations to refine the SHIP template and overall session process for optimal AI-driven execution.
+# Details:
+- During M.WF-MCP.S1 (and subsequent test sessions):
+  - Actively solicit or note feedback from Claude Desktop (CK) on the clarity, usefulness, and completeness of the SHIP document provided to it (e.g., its ability to process context, generate handoffs, draft new SHIPs).
+  - Actively solicit or note feedback from Cursor AI (CG) (e.g., via its summary's feedback section) on the quality of handoffs received, clarity of instructions, and ease of using MCP tools as directed.
+  - HD to note personal observations on workflow efficiency, AI performance, and any pain points.
+- Consolidate all feedback.
+- Propose specific, actionable modifications to the generic SHIP template (structure, sections, priming instructions for AI CKs, Handoff/Summary template content) to improve its effectiveness for the new MCP-based workflow.
+- Document these proposed SHIP refinements.
+- Output: A document outlining feedback received and proposed changes to the SHIP template/process.
+
+# Test Strategy:
+- HD reviews the consolidated feedback and proposed SHIP refinements for practicality and impact.
+- Updated SHIP template should be clearer and more effective for AI CKs.

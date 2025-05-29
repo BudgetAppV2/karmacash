@@ -1,0 +1,29 @@
+{
+  "original_document_id": "B1.2_Target_Audience",
+  "title": "Target Audience",
+  "analysis_date": "2025-05-30T12:00:00Z",
+  "structural_summary": "Document uses H1 for title, H2 for major sections ('Primary Audience (MVP)', 'Secondary Audience (Post-MVP)', 'User Personas', 'Audience Evolution Strategy'), and H3 for sub-categories within these sections (e.g., persona names or audience characteristics). Extensive use of bulleted lists.",
+  "dominant_content_types": [
+    "Audience Segmentation Descriptions",
+    "User Persona Profiles (highly structured)",
+    "List of Audience Characteristics/Needs",
+    "Strategy Description (Audience Evolution)"
+  ],
+  "key_structural_patterns_observed": [
+    "Clear H1, H2, H3 hierarchy.",
+    "Highly structured 'User Persona' sections with consistent sub-headings: Demographics, Technical Proficiency, Financial Situation, Pain Points, Goals, KarmaCash Value.",
+    "Bulleted lists defining characteristics of audience segments.",
+    "Numbered list for 'Audience Evolution Strategy' phases."
+  ],
+  "examples_of_key_entities": [
+    "Primary Audience",
+    "Secondary Audience",
+    "MVP",
+    "Post-MVP",
+    "User Personas (Marie & Jean, Sophie, The Tremblay Family)",
+    "Shared Budgets feature",
+    "fr-CA locale",
+    "Zero-based budgeting practitioners"
+  ],
+  "notes_for_ai_consumption": "The 'User Persona' sections are ideal for extraction as structured data objects due to their consistent internal formatting. H2 sections are good primary chunks. H3 sub-sections (personas, audience sub-categories) are good secondary chunks. Attributes listed under audience segments can serve as keywords or tags."
+} 

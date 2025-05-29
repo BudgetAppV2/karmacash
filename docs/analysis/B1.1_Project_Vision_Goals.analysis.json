@@ -1,0 +1,30 @@
+{
+  "original_document_id": "B1.1_Project_Vision_Goals",
+  "title": "Project Vision & Goals",
+  "analysis_date": "2025-05-30T12:00:00Z",
+  "structural_summary": "Document uses H1 for title, H2 for major sections ('Vision Statement', 'Core Principles', 'Primary Goals', 'Project Background', 'MVP Scope Definition'), and H3 for sub-sections under 'Primary Goals'. Content is primarily descriptive text and bulleted lists.",
+  "dominant_content_types": [
+    "Descriptive/Explanatory Text",
+    "List of Principles/Guidelines",
+    "List of Goals/Objectives",
+    "Historical Context (Project Background)",
+    "Definition (MVP Scope)",
+    "List of Features/Requirements (within MVP Scope)"
+  ],
+  "key_structural_patterns_observed": [
+    "Clear hierarchical structure using H1, H2, H3 headings.",
+    "Extensive use of bulleted lists for itemizing principles, goals, features, etc.",
+    "Well-defined thematic sections (Vision, Principles, Goals, Background, MVP Scope)."
+  ],
+  "examples_of_key_entities": [
+    "KarmaCash",
+    "Zen/Tranquility aesthetic",
+    "Core Principles (e.g., Calm Financial Experience)",
+    "Primary Goals (e.g., Clean Architecture & Codebase)",
+    "Firebase Firestore",
+    "MVP (Minimum Viable Product)",
+    "Milestones (M1, M2, M3, M4)",
+    "Shared Budgets (as Post-MVP)"
+  ],
+  "notes_for_ai_consumption": "H2 and H3 headings provide excellent natural boundaries for primary and secondary content chunks. Bulleted lists under 'Primary Goals' and 'MVP Scope Definition' are well-suited for extracting specific features or objectives as individual data points. Note implicit relationships, e.g., 'Zen/Tranquility' theme connecting to 'Calm Financial Experience' principle and 'Enhanced User Experience' goal."
+} 

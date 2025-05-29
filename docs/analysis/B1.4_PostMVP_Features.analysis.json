@@ -1,0 +1,31 @@
+{
+  "original_document_id": "B1.4_PostMVP_Features",
+  "title": "Post-MVP Features",
+  "analysis_date": "2025-05-30T12:00:00Z",
+  "structural_summary": "H1 title, H2 for 'Feature Prioritization' (numbered list) and then H2 for each individual feature. Each feature section consistently uses H3 subheadings: 'Overview', 'Key Functionality', 'Technical Implementation Notes', 'User Stories'.",
+  "dominant_content_types": [
+    "Prioritized Feature List",
+    "Detailed Feature Descriptions (highly structured)",
+    "Bulleted Lists of Functionalities/Requirements",
+    "Bulleted Lists of Technical Considerations",
+    "Bulleted Lists of User Stories (standard format)"
+  ],
+  "key_structural_patterns_observed": [
+    "Standardized template for describing each feature (Overview, Key Functionality, Tech Notes, User Stories).",
+    "Well-formatted User Stories, easy to extract.",
+    "Explicit prioritization of features in an initial numbered list.",
+    "Frequent explicit cross-references to other B#.# documents within Technical Implementation Notes."
+  ],
+  "examples_of_key_entities": [
+    "Post-MVP Features",
+    "Shared Budgets",
+    "User Onboarding Feature",
+    "Recurring Expense Category Toggle",
+    "Dashboard",
+    "Goal Setting",
+    "Push Notifications",
+    "CSV Import/Reconciliation",
+    "User Stories"
+  ],
+  "notes_for_ai_consumption": "The consistent template for each feature makes this document highly suitable for programmatic parsing and creating structured data objects per feature. User stories can be directly extracted. The 'Key Functionality' and 'Technical Implementation Notes' lists provide detailed requirements and considerations. Many internal links to other Bible sections provide rich context."
+} 

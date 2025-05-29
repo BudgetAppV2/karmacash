@@ -1,0 +1,28 @@
+<context>
+# Overview
+This is a simple to-do list application. It allows users to create, view, and manage tasks.
+
+# Core Features
+1. Create Task: User can add a new task with a title and description.
+2. View Tasks: User can see a list of all their tasks.
+3. Mark Task Complete: User can mark a task as done.
+
+# User Experience
+A simple, clean interface for managing daily to-dos.
+</context>
+<PRD>
+# Technical Architecture
+- Frontend: React
+- Backend: None (local storage for now)
+- Data Model: Task (id, title, description, isComplete)
+
+# Development Roadmap
+- MVP: Basic CRUD operations for tasks stored in local storage.
+- Future: Cloud sync, user accounts.
+
+# Logical Dependency Chain
+1. UI for adding tasks.
+2. UI for displaying tasks.
+3. Functionality to mark tasks complete.
+4. Local storage persistence.
+</PRD> 

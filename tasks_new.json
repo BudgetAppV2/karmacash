@@ -1,0 +1,143 @@
+{
+  "tasks": [
+    {
+      "id": 301,
+      "title": "PWA_AutoSaveDoc.1 - Document Firestore Schema for Budget Allowances",
+      "priority": "high",
+      "dependencies": [],
+      "description": "Analyze and document the Firestore schema used for storing user budget category allowances, focusing on aspects relevant to the auto-save mechanism.",
+      "details": "- Identify and document the full Firestore path for category allowances (e.g., within `userBudgets/{userId}/budgets/{budgetId}/monthlyData/{yyyy-mm}` in the `allocations` map).\n- Detail field names (e.g., categoryId as key), data types (e.g., String, Number), and descriptions for elements within the `allocations` map.\n- Document validation rules and constraints applicable (e.g., allocated amounts >= 0, referenced category IDs must exist).\n- Provide clear example data snippets of the `allocations` map structure.\n- Document integrity constraints, such as the relationship between `allocations` and the main `categories` subcollection.\n- Explain how `monthlyData.updatedAt` and `monthlyData.lastEditedByUserId` fields are expected to be affected by auto-saves.\n- Cross-reference with Bible sections [B5.1] and [B5.2] for schema consistency.\n- Output: Markdown content for the 'Firestore Schema' section of `documentation/budget_auto_save_v1.md`.",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "- HD reviews the generated markdown section for schema accuracy against [B5.1], [B5.2] and planned implementation.\n- Verify all specified documentation points for the schema are covered.",
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 302,
+      "title": "PWA_AutoSaveDoc.2 - Document Data Flow for Budget Allowance Auto-Save",
+      "priority": "high",
+      "dependencies": [
+        301
+      ],
+      "description": "Document the end-to-end data flow for the budget allowance auto-save feature, from UI event to Firestore update.",
+      "details": "- Document the UI event(s) that trigger the auto-save process (e.g., modification of an allocation slider/input).\n- Detail the debounced save operation mechanism: explain debouncing and the planned timing (e.g., 1-2 seconds delay).\n- Document the structure of the data payload sent from the frontend to the backend (e.g., to `budgetService.js` or a Firebase Function) for saving allocations.\n- Describe the backend actions: how the service/function receives the payload and updates the relevant Firestore document(s).\n- Explain the impact of allocation changes on related calculated fields within the `monthlyData` document (e.g., `totalAllocated`, `remainingToAllocate`), referencing [B6.1].\n- Document based on a single-user context for now, but briefly note future considerations for multi-user conflict management.\n- Reference Bible section [B4.3] for existing backend interaction patterns if applicable.\n- Create a Mermaid data flow diagram illustrating this process.\n- Output: Markdown content for the 'Data Flow' section of `documentation/budget_auto_save_v1.md`, including the diagram.",
+      "mockupDesignNeeded": "Yes - for the Mermaid data flow diagram.",
+      "testStrategy": "- HD reviews the data flow description and diagram for accuracy and clarity.\n- Confirm all stages from UI trigger to Firestore update are covered.\n- Verify considerations for calculated fields are noted.",
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 303,
+      "title": "PWA_AutoSaveDoc.3 - Document Auto-Save Mechanism Implementation Details",
+      "priority": "medium",
+      "dependencies": [
+        302
+      ],
+      "description": "Detail the specific client-side and backend implementation aspects of the auto-save mechanism.",
+      "details": "- Document the chosen debouncing implementation (e.g., specific library like `lodash.debounce` or custom hook) and its configuration.\n- Detail error handling approaches ([B2.4]) for various scenarios: Firestore write failures, network issues, validation errors.\n- Document the planned user feedback indicators (e.g., 'Saving...', 'Saved', 'Error') and their intended UI placement (e.g., near sliders, in `BudgetPageHeader`).\n- Explain how user feedback will be non-intrusive, adhering to Zen/Tranquility principles ([B3.11]).\n- Document navigation safety mechanisms (e.g., confirm-on-leave prompts if unsaved changes, or force save on navigate).\n- Briefly address offline behavior considerations (e.g., what happens if the user is offline when an auto-save is due? Acknowledge full offline sync is post-MVP).\n- Reference relevant Bible sections for consistency.\n- Output: Markdown content for the 'Auto-Save Mechanism Details' section of `documentation/budget_auto_save_v1.md`.",
+      "mockupDesignNeeded": "No (or Yes - for UI mockups of feedback indicators, if not already defined).",
+      "testStrategy": "- HD reviews documentation for clarity on debounce, error handling, UX feedback, and navigation safety.\n- Ensure alignment with Bible guidelines ([B2.4], [B3.11]).",
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 304,
+      "title": "PWA_AutoSaveDoc.4 - Create Visualizations and Code Examples for Documentation",
+      "priority": "medium",
+      "dependencies": [
+        302,
+        303
+      ],
+      "description": "Enhance the auto-save documentation with illustrative visualizations and concise code examples for key implementation aspects.",
+      "details": "- If not already created in Task PWA_AutoSaveDoc.2, create/refine the Mermaid data flow diagram for the complete auto-save process.\n- Provide illustrative pseudo-code or concise JavaScript/React code snippets for:\n    - Setting up debouncing for an input/slider.\n    - The structure of the API call to `budgetService.js` (or Firebase Function) for saving allocations.\n    - Example of how user feedback indicators might be triggered/displayed (conceptual).\n    - Basic error handling in a service call.\n- Create a visual representation (e.g., simple text diagram or JSON snippet) of the `allocations` map within the `monthlyData` document structure if not fully covered in PWA_AutoSaveDoc.1.\n- Reference relevant source code files if actual implementation snippets are used.\n- Output: Mermaid diagrams, code snippets, and visual aids integrated into the appropriate sections of `documentation/budget_auto_save_v1.md`.",
+      "mockupDesignNeeded": "Yes - for any new diagrams if not covered by PWA_AutoSaveDoc.2.",
+      "testStrategy": "- HD reviews all visualizations and code examples for clarity, accuracy, and relevance.\n- Ensure diagrams are easy to understand and correctly represent the system.\n- Confirm code snippets are illustrative and correct.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 305,
+      "title": "PWA_AutoSaveDoc.5 - Compile, Review, and Finalize Auto-Save Documentation",
+      "priority": "low",
+      "dependencies": [
+        301,
+        302,
+        303,
+        304
+      ],
+      "description": "Assemble all documented sections into the final 'budget_auto_save_v1.md' file, review for completeness and accuracy, and format for readability.",
+      "details": "- Create the main documentation file at `documentation/budget_auto_save_v1.md` if not already done.\n- Consolidate content from previous sub-tasks (Schema, Data Flow, Mechanism Details, Visualizations) into this main file.\n- Add an 'Overview' section explaining the purpose and scope of the auto-save feature and this document.\n- Ensure clear headings and structure for all sections.\n- Add a Table of Contents if the document is lengthy.\n- Verify all Bible references ([B5.1], [B5.2], [B4.3], [B2.4], [B3.11]) are correctly cited and content aligns.\n- Perform a final technical accuracy and completeness review against the original requirements and target audience needs.\n- Format the entire document for optimal readability and ensure all diagrams/code examples are properly integrated and rendered.\n- Include a section for 'Related Documentation' or 'See Also' if applicable.\n- Output: Finalized `documentation/budget_auto_save_v1.md`.",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "- HD performs a full review of the complete `documentation/budget_auto_save_v1.md` document.\n- Check for consistency, clarity, accuracy, completeness, and formatting.\n- Ensure it meets the goal of being a useful technical reference.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 306,
+      "title": "WF_MCP_Research.1 - Investigate Firebase MCP HTTP & Direct Write Capabilities",
+      "priority": "high",
+      "dependencies": [],
+      "description": "Research and document the capabilities of Firebase MCP servers used by Claude Desktop and Cursor AI for making HTTP requests and performing direct Firestore writes, informing the strategy for template storage.",
+      "details": "- Based on HD Answer #2 (Firebase MCP Usage):\n  - Thoroughly investigate if `firebase-tools experimental:mcp` (for Claude) and `@gannonh/firebase-mcp` (for Cursor) provide robust, generic HTTP POST/GET MCP tools.\n  - If HTTP tools exist, document how to use them to call the existing Template Exchange API (URL, headers, body construction via prompts).\n  - If HTTP tools are problematic or unavailable, document best practices for direct Firestore writes (`firestore_set_document` or similar) via MCP for both agents. This must include how to prompt AIs to handle all necessary fields: `sessionId` (predictable format), `type`, `content`, `status`, `metadata`, `createdAt`/`updatedAt` (as ISO strings if server timestamps aren't supported by MCP tool), and `shard` values.\n  - Research advanced Firestore querying patterns via MCP (e.g., flexible filtering for `listTemplates` equivalent).\n  - Document security best practices for the service account keys used by both MCP servers (least privilege principle).\n- Output: Detailed notes and findings, contributing to the [B7.1] update.",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "- HD reviews research notes for completeness on HTTP vs. direct write capabilities and security.\n- Determine a clear primary strategy (and fallback) for template storage via MCP.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 307,
+      "title": "WF_MCP_Doc.1 - Define and Document Handoff/Summary Template Structures for MCP",
+      "priority": "high",
+      "dependencies": [
+        306
+      ],
+      "description": "Define and document the precise structure for 'handoff' and 'summary' templates to be stored in Firestore and exchanged between Claude (CK) and Cursor (CG) via MCP.",
+      "details": "- Based on HD Answer #3 (Custom Template Structures):\n  - Create clear JSON Schema descriptions (or equivalent textual definitions) for 'handoff' and 'summary' documents in the `templates` collection.\n  - Provide field-by-field explanations: purpose, expected data type, formatting requirements (e.g., `sessionId` format `M.WF-MCP.S#_TMID_type`, `metadata.taskMasterId`, `metadata.source`).\n  - Include complete example JSON documents for a well-formed handoff and a summary.\n  - Provide guidance on how CK (Claude) should be prompted to populate all dynamic fields when creating a handoff.\n  - Provide guidance on how CG (Cursor) should be prompted to populate all dynamic fields when creating a summary.\n  - Ensure these structures align with the existing Template Exchange Data Model Documentation but are optimized for AI processing via MCP.\n- Output: Markdown document detailing these template structures and population guidelines, contributing to the [B7.1] update or a new B-series doc.",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "- HD reviews the defined template structures and examples for clarity, completeness, and suitability for AI processing.\n- Confirm alignment with Firestore data model and retrieval needs.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 308,
+      "title": "WF_MCP_Research.2 - Investigate AI Token Tracking & Management Strategies",
+      "priority": "medium",
+      "dependencies": [],
+      "description": "Research practical methods for monitoring or estimating AI token usage for Claude Desktop and Cursor AI, and explore prompt optimization and token-based triggers.",
+      "details": "- Based on HD Answer #4 (Token Tracking):\n  - Research and list any available tools, libraries, or manual techniques for estimating token consumption by Claude Desktop and Cursor AI for typical tasks (e.g., processing a SHIP, generating a handoff, analyzing code).\n  - Compile best practices for prompt engineering aimed at reducing token usage for both Claude and Cursor without sacrificing output quality.\n  - Investigate the feasibility (even if theoretical/aspirational) of external systems or internal AI capabilities triggering actions (e.g., SHIP generation) based on token usage thresholds or session length.\n- Output: Documented research findings, strategies, and feasibility assessment, contributing to [B7.1] or internal notes.",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "- HD reviews research findings for actionable strategies on token estimation/optimization.\n- Assess the practicality of any proposed token-based trigger mechanisms.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 309,
+      "title": "WF_MCP_Doc.2 - Draft [B7.1] Update for MCP-Driven Workflow",
+      "priority": "high",
+      "dependencies": [
+        306,
+        307
+      ],
+      "description": "Draft a new dedicated section for the [B7.1 AI Workflow] document describing the refined MCP-driven workflow using Claude Desktop (CK) and Cursor AI (CG).",
+      "details": "- Based on HD Answer #5 (Deliverable Format) and findings from other WF_MCP tasks:\n  - Create a new section in [B7.1] (e.g., 'Section X: MCP-Driven Workflow with Claude Desktop (CK) and Cursor AI (CG)').\n  - Detail the updated roles of CK (Claude) and CG (Cursor) in this MCP context.\n  - Describe the information flow: how handoffs/summaries (using structures from Task #307) are created, stored in Firestore (via methods from Task #306), and retrieved by each AI.\n  - Document key MCP tool usage for Firebase interaction.\n  - Outline prompt strategies for instructing Claude and Cursor within this workflow.\n  - Clearly state how this new section complements or supersedes previous workflow descriptions in [B7.1] for relevant tasks.\n  - Include diagrams if helpful (e.g., a high-level workflow diagram).\n- Output: Draft of the new section for [B7.1] in markdown.",
+      "mockupDesignNeeded": "Yes - for workflow diagram(s) if included.",
+      "testStrategy": "- HD reviews the drafted [B7.1] section for accuracy, clarity, and completeness in describing the new MCP workflow.\n- Ensure it integrates well with the existing [B7.1] document.",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 310,
+      "title": "WF_MCP_Refine.1 - Refine SHIP Template and Process based on AI Feedback",
+      "priority": "medium",
+      "dependencies": [
+        309
+      ],
+      "description": "Collect feedback from AI agents (Claude as CK, Cursor as CG during test sessions) and HD observations to refine the SHIP template and overall session process for optimal AI-driven execution.",
+      "details": "- During M.WF-MCP.S1 (and subsequent test sessions):\n  - Actively solicit or note feedback from Claude Desktop (CK) on the clarity, usefulness, and completeness of the SHIP document provided to it (e.g., its ability to process context, generate handoffs, draft new SHIPs).\n  - Actively solicit or note feedback from Cursor AI (CG) (e.g., via its summary's feedback section) on the quality of handoffs received, clarity of instructions, and ease of using MCP tools as directed.\n  - HD to note personal observations on workflow efficiency, AI performance, and any pain points.\n- Consolidate all feedback.\n- Propose specific, actionable modifications to the generic SHIP template (structure, sections, priming instructions for AI CKs, Handoff/Summary template content) to improve its effectiveness for the new MCP-based workflow.\n- Document these proposed SHIP refinements.\n- Output: A document outlining feedback received and proposed changes to the SHIP template/process.",
+      "mockupDesignNeeded": "No",
+      "testStrategy": "- HD reviews the consolidated feedback and proposed SHIP refinements for practicality and impact.\n- Updated SHIP template should be clearer and more effective for AI CKs.",
+      "status": "pending",
+      "subtasks": []
+    }
+  ]
+}

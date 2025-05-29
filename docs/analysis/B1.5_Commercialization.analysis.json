@@ -1,0 +1,32 @@
+{
+  "original_document_id": "B1.5_Commercialization",
+  "title": "Commercialization",
+  "analysis_date": "2025-05-30T12:00:00Z",
+  "structural_summary": "Uses H1, H2, H3, and H4 headings. Extensive use of bulleted lists to detail models, costs, strategies, and competitive points. Contains explicit decision logs in italics.",
+  "dominant_content_types": [
+    "Strategy/Model Descriptions (Monetization, Market Positioning, Growth, Exit)",
+    "Lists of Options/Factors (Revenue Models, Cost Components, Competitive Advantages)",
+    "Tiered Model Definitions (Freemium: Basic, Premium)",
+    "Comparative Lists (Differentiation from Competitors)",
+    "Phased Approach Descriptions (Growth Strategy)"
+  ],
+  "key_structural_patterns_observed": [
+    "Hierarchical breakdown of commercial aspects.",
+    "Tiered 'Freemium Model' with clearly defined features per tier.",
+    "'vs. Competitor' pattern in 'Differentiation' section.",
+    "Explicit decision logging (e.g., 'Decision: Ad-free model is mandatory...').",
+    "Phased 'Growth Strategy' with distinct stages."
+  ],
+  "examples_of_key_entities": [
+    "Monetization Potential",
+    "Freemium Model",
+    "Premium Tier",
+    "Cost Analysis",
+    "Firebase Free Tier",
+    "Market Positioning",
+    "Competitive Advantages",
+    "Growth Strategy",
+    "Exit Strategies"
+  ],
+  "notes_for_ai_consumption": "The 'Freemium Model' section is well-structured for extracting tiered feature sets. Decision logs provide explicit constraints or choices. The phased 'Growth Strategy' can be parsed into sequential steps. Lists of advantages and differentiators are good for keyword extraction."
+} 

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { formatCurrency } from '../../../utils/formatters'; // Adjust path if needed
 import styles from './CategoryRow.module.css';
+import debounce from 'lodash/debounce'; // Import debounce
 
 /**
  * Displays a single category row in the budget view.
@@ -24,14 +25,17 @@ function CategoryRow({
   onAllocationChange
 }) {
   // Local state for input value
-  const [inputValue, setInputValue] = useState(allocatedAmount);
+  const [inputValue, setInputValue] = useState(String(allocatedAmount));
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef(null);
   
   // Update local state if allocatedAmount prop changes
   useEffect(() => {
-    setInputValue(allocatedAmount);
-  }, [allocatedAmount]);
+    // Only update inputValue if not currently editing, to avoid disrupting user input
+    if (!isEditing) {
+      setInputValue(String(allocatedAmount));
+    }
+  }, [allocatedAmount, isEditing]);
 
   // Auto-focus input when isEditing becomes true
   useEffect(() => {
@@ -53,23 +57,56 @@ function CategoryRow({
       ? styles.positive // Positive available (underspent)
       : ''; // Zero available (exactly spent)
       
+  // Create a debounced version of the onAllocationChange handler
+  const debouncedAllocationChange = useCallback(
+    debounce((catId, newAmountStr) => {
+      const newAmount = parseFloat(newAmountStr);
+      // Validate input is a non-negative number
+      if (!isNaN(newAmount) && newAmount >= 0) {
+        // Call parent callback with categoryId and new amount
+        // Only call if the value has actually changed from the prop
+        if (newAmount !== allocatedAmount) {
+          onAllocationChange(catId, newAmount);
+        }
+      } else {
+        // If input is invalid after debounce (e.g., user types 'abc'), 
+        // revert to the last valid allocatedAmount for display in input,
+        // but don't trigger a save. Or, simply don't update.
+        // For now, we'll let the input hold the invalid value until blur/enter fixes it.
+      }
+    }, 750), // 750ms debounce delay
+    [allocatedAmount, onAllocationChange] // Dependencies for useCallback
+  );
+  
   // Handler for input changes
   const handleInputChange = (e) => {
-    setInputValue(e.target.value);
+    const currentValue = e.target.value;
+    setInputValue(currentValue); // Update input state immediately for responsiveness
+
+    // Call the debounced function to handle saving after user stops typing
+    // We pass categoryId and the current input value
+    debouncedAllocationChange(categoryId, currentValue);
   };
   
   // Handler for when input loses focus
   const handleInputBlur = () => {
     setIsEditing(false);
+    // Ensure any pending debounced calls are flushed if needed, or just perform final validation.
+    // lodash debounce typically calls on the trailing edge, so the last call might be pending.
+    // For simplicity, we'll perform a direct validation and call here.
+    // The debounced call might have already updated, this ensures the final state is committed.
+    debouncedAllocationChange.cancel(); // Cancel any pending debounced invocation
+
     const newAmount = parseFloat(inputValue);
     
     // Validate input is a non-negative number
-    if (!isNaN(newAmount) && newAmount >= 0 && newAmount !== allocatedAmount) {
-      // Call parent callback with categoryId and new amount
-      onAllocationChange(categoryId, newAmount);
+    if (!isNaN(newAmount) && newAmount >= 0) {
+      if (newAmount !== allocatedAmount) {
+        onAllocationChange(categoryId, newAmount);
+      }
     } else {
       // Revert to original value if invalid
-      setInputValue(allocatedAmount);
+      setInputValue(String(allocatedAmount));
     }
   };
   

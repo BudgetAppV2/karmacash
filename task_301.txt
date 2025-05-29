@@ -1,0 +1,19 @@
+# Task ID: 301
+# Title: PWA_AutoSaveDoc.1 - Document Firestore Schema for Budget Allowances
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Analyze and document the Firestore schema used for storing user budget category allowances, focusing on aspects relevant to the auto-save mechanism.
+# Details:
+- Identify and document the full Firestore path for category allowances (e.g., within `userBudgets/{userId}/budgets/{budgetId}/monthlyData/{yyyy-mm}` in the `allocations` map).
+- Detail field names (e.g., categoryId as key), data types (e.g., String, Number), and descriptions for elements within the `allocations` map.
+- Document validation rules and constraints applicable (e.g., allocated amounts >= 0, referenced category IDs must exist).
+- Provide clear example data snippets of the `allocations` map structure.
+- Document integrity constraints, such as the relationship between `allocations` and the main `categories` subcollection.
+- Explain how `monthlyData.updatedAt` and `monthlyData.lastEditedByUserId` fields are expected to be affected by auto-saves.
+- Cross-reference with Bible sections [B5.1] and [B5.2] for schema consistency.
+- Output: Markdown content for the 'Firestore Schema' section of `documentation/budget_auto_save_v1.md`.
+
+# Test Strategy:
+- HD reviews the generated markdown section for schema accuracy against [B5.1], [B5.2] and planned implementation.
+- Verify all specified documentation points for the schema are covered.

@@ -1,0 +1,28 @@
+{
+  "original_document_id": "B1.6_Competitive_Analysis",
+  "title": "Competitive Analysis",
+  "analysis_date": "2025-05-30T12:00:00Z",
+  "structural_summary": "H1 title, H2 for 'Direct Competitors', 'Indirect Competitors', 'SWOT Analysis', and 'Key Differentiators'. Within 'Direct Competitors', each competitor is an H3 with a structured list of 'Strengths', 'Weaknesses', and 'KarmaCash Opportunity'. SWOT Analysis is structured with H3s for Strengths, Weaknesses, Opportunities, Threats.",
+  "dominant_content_types": [
+    "Competitor Profiles (structured: Strengths, Weaknesses, Opportunity)",
+    "Market Segment Descriptions (Direct/Indirect Competitors)",
+    "SWOT Analysis (Strengths, Weaknesses, Opportunities, Threats)",
+    "List of Differentiating Factors"
+  ],
+  "key_structural_patterns_observed": [
+    "Standardized template for each Direct Competitor (H3 + Strengths/Weaknesses/Opportunity lists).",
+    "Classic SWOT analysis structure.",
+    "Clear distinction between direct and indirect competitors.",
+    "Bulleted lists for key differentiators."
+  ],
+  "examples_of_key_entities": [
+    "Direct Competitors (YNAB, Mint, Personal Capital)",
+    "Indirect Competitors (Spreadsheets, Pen & Paper)",
+    "SWOT Analysis",
+    "Key Differentiators",
+    "Zen/Tranquility UI",
+    "Rollover Budgeting",
+    "Shared Budgets"
+  ],
+  "notes_for_ai_consumption": "The structured competitor profiles are excellent for comparative analysis and extracting specific competitive attributes. SWOT components can be easily parsed. 'KarmaCash Opportunity' sections provide targeted insights. 'Key Differentiators' offer a concise summary of unique selling propositions."
+} 

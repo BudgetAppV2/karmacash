@@ -48,7 +48,7 @@ function ProtectedRoute({ children }) {
   }
   
   if (!currentUser) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth/login" replace />;
   }
   
   return children;
@@ -81,6 +81,10 @@ function AppRoutes() {
         } 
       />
       
+      <Route path="/login" element={ 
+        !currentUser ? <Navigate to="/auth/login" replace /> : <Navigate to="/" replace /> 
+      }/>
+
       <Route path="/password-reset" element={<PasswordResetPage />} />
       <Route path="/test-page" element={<TestPage />} />
       <Route path="/test-auth" element={<TestAuthComponent />} />
