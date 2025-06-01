@@ -1,0 +1,87 @@
+{
+  "comparisonDate": "2025-05-30",
+  "testSubject": "B2.1_Design_Philosophy.md",
+  "approaches": {
+    "manual": {
+      "timeMinutes": 10,
+      "steps": 6,
+      "automationLevel": "0%",
+      "quality": {
+        "structuralIntegrity": 10,
+        "crossReferenceAccuracy": 100,
+        "contentPreservation": 10,
+        "semanticCoherence": 10
+      },
+      "pros": [
+        "Highest quality output",
+        "Complete control over process",
+        "Deep understanding of content"
+      ],
+      "cons": [
+        "Time-intensive",
+        "Not scalable for B2-B8",
+        "Prone to human error with repetition"
+      ]
+    },
+    "semiAutomated": {
+      "timeMinutes": 6,
+      "steps": 6,
+      "automationLevel": "40%",
+      "quality": {
+        "structuralIntegrity": 10,
+        "crossReferenceAccuracy": 95,
+        "contentPreservation": 10,
+        "semanticCoherence": 9
+      },
+      "pros": [
+        "40% time savings",
+        "Consistent upload/metadata",
+        "Human oversight maintained"
+      ],
+      "cons": [
+        "Still requires significant manual work",
+        "Mixed automation can cause confusion",
+        "Moderate scalability"
+      ]
+    },
+    "templateDriven": {
+      "timeMinutes": 5,
+      "steps": 6,
+      "automationLevel": "85%",
+      "quality": {
+        "structuralIntegrity": 9,
+        "crossReferenceAccuracy": 95,
+        "contentPreservation": 10,
+        "semanticCoherence": 9
+      },
+      "pros": [
+        "50% time savings",
+        "Highly scalable",
+        "Consistent quality",
+        "Minimal human intervention"
+      ],
+      "cons": [
+        "Requires template maintenance",
+        "Less flexibility for edge cases",
+        "Initial setup investment"
+      ]
+    }
+  },
+  "recommendation": {
+    "selectedApproach": "templateDriven",
+    "rationale": [
+      "Best balance of quality and efficiency",
+      "Scalable for B2-B8 processing",
+      "Maintains B1 quality standards (95%+)",
+      "Reduces processing time by 50%",
+      "Consistent, repeatable results"
+    ],
+    "implementationPlan": [
+      "Finalize templates based on B2.1 testing",
+      "Create validation checklist for CG review",
+      "Process B2.2-B2.5 with template approach",
+      "Review and refine templates",
+      "Scale to B3-B8 sections"
+    ]
+  }
+}

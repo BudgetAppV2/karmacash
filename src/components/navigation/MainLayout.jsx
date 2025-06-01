@@ -1,9 +1,10 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ToastProvider } from '../../contexts/ToastContext';
 import { useBudgets } from '../../contexts/BudgetContext';
 import AdminSeedDataTool from '../admin/AdminSeedDataTool';
+import BottomNavigation from './BottomNavigation';
 import ensoCircleSvg from '../../assets/enso-circle.svg';
 
 function MainLayout() {
@@ -240,15 +241,8 @@ function MainLayout() {
         </ToastProvider>
       </main>
       
-      <nav className="app-nav">
-        <Link to="/transactions" className="app-nav__link">Transactions</Link>
-        <Link to="/budget" className="app-nav__link">Budget</Link>
-        <Link to="/categories" className="app-nav__link">Catégories</Link>
-        <Link to="/recurring" className="app-nav__link">Récurrences</Link>
-        <Link to="/graphs" className="app-nav__link">Graphiques</Link>
-        <Link to="/profile" className="app-nav__link">Profil</Link>
-        <Link to="/settings" className="app-nav__link">Paramètres</Link>
-      </nav>
+      {/* New glassmorphism bottom navigation */}
+      <BottomNavigation />
     </div>
   );
 }

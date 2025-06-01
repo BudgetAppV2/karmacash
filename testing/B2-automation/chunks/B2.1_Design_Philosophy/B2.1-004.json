@@ -1,0 +1,12 @@
+{
+  "chunk_id": "B2.1-004",
+  "original_document_id": "B2.1_Design_Philosophy",
+  "parent_headings": [
+    "Design Philosophy",
+    "Psychological Considerations"
+  ],
+  "content_markdown": "## Psychological Considerations\n\n### Color Psychology\nThe selected palette leverages established research on color effects:\n- Soft greens promote restfulness and reduce anxiety\n- Earth tones create feelings of stability and groundedness\n- Muted blues improve focus and productivity\n- The deliberate avoidance of harsh reds (except in subtle, softer forms for warnings) prevents triggering stress responses\n\n### Spatial Psychology\nThe generous use of whitespace isn't merely aesthetic—studies show that visual crowding increases cortisol (stress hormone) levels. The app's breathing room allows users to process financial information without feeling overwhelmed.\n\n### Cognitive Load Theory\nBy limiting the visual elements and creating clear visual hierarchy, we reduce extraneous cognitive load, allowing users to dedicate more mental resources to the intrinsic cognitive load of financial decision-making.\n\n",
+  "content_text": "Psychological Considerations\n\nColor Psychology\nThe selected palette leverages established research on color effects:\n- Soft greens promote restfulness and reduce anxiety\n- Earth tones create feelings of stability and groundedness\n- Muted blues improve focus and productivity\n- The deliberate avoidance of harsh reds (except in subtle, softer forms for warnings) prevents triggering stress responses\n\nSpatial Psychology\nThe generous use of whitespace isn't merely aesthetic—studies show that visual crowding increases cortisol (stress hormone) levels. The app's breathing room allows users to process financial information without feeling overwhelmed.\n\nCognitive Load Theory\nBy limiting the visual elements and creating clear visual hierarchy, we reduce extraneous cognitive load, allowing users to dedicate more mental resources to the intrinsic cognitive load of financial decision-making.\n\n",
+  "chunk_type": "subsection",
+  "generation_date": "2025-05-30T02:12:16.088Z"
+}

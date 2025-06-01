@@ -1,0 +1,35 @@
+{
+  "document_id": "B5.3_security-rules-strategy",
+  "analysis_date": "2025-05-30T03:27:55.046Z",
+  "structural_summary": "Document has 1 H1, 7 H2, and 5 H3 headers",
+  "dominant_content_types": [
+    "database_design",
+    "data_schemas",
+    "security_rules"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "7 main sections",
+    "Cross-references: 0"
+  ],
+  "examples_of_key_entities": [
+    "Firestore",
+    "collection",
+    "document",
+    "schema",
+    "validation",
+    "security rules",
+    "database",
+    "timestamp"
+  ],
+  "potential_for_ai_optimization": "High - structured database content ideal for schema generation",
+  "notes_for_chunking": "Natural boundaries at 7 H2 sections",
+  "cross_references_detected": [],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 7,
+    "h3_count": 5,
+    "cross_references": 0,
+    "word_count": 1092
+  }
+}

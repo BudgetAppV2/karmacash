@@ -1,0 +1,48 @@
+{
+  "document_id": "B2.5_Code_Project_Structure",
+  "analysis_date": "2025-05-30T03:06:02.972Z",
+  "structural_summary": "Document has 1 H1, 6 H2, and 1 H3 headers",
+  "dominant_content_types": [
+    "technical_documentation",
+    "standards",
+    "guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "6 main sections",
+    "Cross-references: 3"
+  ],
+  "examples_of_key_entities": [
+    "KarmaCash",
+    "React",
+    "Firebase",
+    "Firestore",
+    "ESLint"
+  ],
+  "potential_for_ai_optimization": "High - structured technical content ideal for AI processing",
+  "notes_for_chunking": "Natural boundaries at 6 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B2.2 Technical Standards]",
+      "context": "As defined in [B2.2 Technical Standards], the standard approach for component styling is **CSS Modules (`.module.css`)**.",
+      "location": "Styling Approach Standard"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- **Global Styles:** Use the `src/styles/` directory for truly global styles, resets, and CSS variable theme definitions ([B3.8]). Avoid broad, unscoped selectors in global files where possible.",
+      "location": "Styling Approach Standard"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "This project structure aims for clarity, maintainability, and scalability by organizing code based on features and shared concerns. Adhering to this structure (especially component location rules) and the defined CSS Modules standard ([B2.2]) is essential for consistent development within the AI-assisted workflow. Areas marked **\"<<< REVIEW NEEDED\"** should be addressed to ensure full alignment with the intended architecture.",
+      "location": "Conclusion"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 6,
+    "h3_count": 1,
+    "cross_references": 3,
+    "word_count": 892
+  }
+}

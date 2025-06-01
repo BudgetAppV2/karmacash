@@ -1,0 +1,75 @@
+{
+  "document_id": "B4.2_Frontend_Structure",
+  "analysis_date": "2025-05-30T03:21:57.250Z",
+  "structural_summary": "Document has 1 H1, 4 H2, and 2 H3 headers",
+  "dominant_content_types": [
+    "ui_ux_design",
+    "component_specifications",
+    "style_guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "4 main sections",
+    "Cross-references: 9"
+  ],
+  "examples_of_key_entities": [
+    "component",
+    "CSS"
+  ],
+  "potential_for_ai_optimization": "High - structured UI/UX content ideal for component generation",
+  "notes_for_chunking": "Natural boundaries at 4 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B2.5 Code & Project Structure]",
+      "context": "This document details the organization, high-level architecture, and key patterns of the KarmaCash frontend application, built with React. Refer to [B2.5 Code & Project Structure] for the detailed file tree and [B2.2 Technical Standards] for specific implementation rules.",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B2.2 Technical Standards]",
+      "context": "This document details the organization, high-level architecture, and key patterns of the KarmaCash frontend application, built with React. Refer to [B2.5 Code & Project Structure] for the detailed file tree and [B2.2 Technical Standards] for specific implementation rules.",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "The application source code is organized as follows (Refer to [B2.5] for full details):",
+      "location": "2. Core `src/` Directory Structure"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "-   **`src/styles/`**: Contains global CSS files, including resets (`reset.css`), theme variables (`theme.css`), and base styles (`index.css`). Component-specific styles use **CSS Modules** ([B2.2], [B2.5]).",
+      "location": "2. Core `src/` Directory Structure"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "-   **`src/styles/`**: Contains global CSS files, including resets (`reset.css`), theme variables (`theme.css`), and base styles (`index.css`). Component-specific styles use **CSS Modules** ([B2.2], [B2.5]).",
+      "location": "2. Core `src/` Directory Structure"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "-   **Component Structure**: Functional components with Hooks are standard ([B2.2]). JSDoc is used for documenting props and purpose.",
+      "location": "3. Key Implementation Patterns"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "-   **Styling**: CSS Modules (`.module.css`) provide locally scoped styles for components. Global styles and theme variables reside in `src/styles/` ([B2.2], [B2.5]).",
+      "location": "3. Key Implementation Patterns"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "-   **Styling**: CSS Modules (`.module.css`) provide locally scoped styles for components. Global styles and theme variables reside in `src/styles/` ([B2.2], [B2.5]).",
+      "location": "3. Key Implementation Patterns"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "This frontend structure promotes modularity and separation of concerns, facilitating development and maintenance within the AI-assisted workflow. Key standards include the feature-based directory organization, clear separation of shared vs. feature components, the use of React Hooks and Context for state, a dedicated service layer for backend interactions, and CSS Modules for styling. Adherence to this structure is detailed further in [B2.5].",
+      "location": "4. Conclusion"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 4,
+    "h3_count": 2,
+    "cross_references": 9,
+    "word_count": 598
+  }
+}

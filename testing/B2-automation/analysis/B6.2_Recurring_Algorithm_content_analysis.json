@@ -1,0 +1,86 @@
+{
+  "document_id": "B6.2_Recurring_Algorithm",
+  "analysis_date": "2025-05-30T03:33:21.641Z",
+  "structural_summary": "Document has 1 H1, 5 H2, and 3 H3 headers",
+  "dominant_content_types": [
+    "business_logic",
+    "algorithms",
+    "calculations",
+    "budget_processing"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "5 main sections",
+    "Cross-references: 10"
+  ],
+  "examples_of_key_entities": [
+    "budget",
+    "calculation",
+    "algorithm",
+    "recurring",
+    "transaction",
+    "category",
+    "frequency"
+  ],
+  "potential_for_ai_optimization": "High - algorithmic content ideal for code generation and optimization",
+  "notes_for_chunking": "Natural boundaries at 5 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B5.1]",
+      "context": "This document details the algorithm for generating recurring transaction instances from user-defined rules within the budget-centric architecture ([B5.1]), a critical feature of KarmaCash.",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "1.  **Recurring Rules**: User-defined patterns stored in `/budgets/{budgetId}/recurringRules/{ruleId}` ([B5.2]), containing frequency, interval, date info, and importantly, the **signed amount**.",
+      "location": "1. Overview"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "2.  **Transaction Instances**: Individual transactions generated from rules, stored in `/budgets/{budgetId}/transactions/{transactionId}` ([B5.2]) with `isRecurringInstance: true` and `recurringRuleId` set. The **signed amount** is derived from the rule.",
+      "location": "1. Overview"
+    },
+    {
+      "reference": "[B4.3]",
+      "context": "The system relies on a **Firebase Cloud Callable Function** named `manageRecurringInstances`, detailed in [B4.3].",
+      "location": "2. Core Management Function (`manageRecurringInstances`)"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "-   **Signed Amounts**: The algorithm relies on the `recurringRule.amount` being stored with the correct sign (+income/-expense) as defined in [B5.2]. It then propagates this signed amount to generated `transaction.amount` fields.",
+      "location": "4. Key Implementation Details & Considerations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "-   **Dual Active Fields**: The `manageRecurringInstances` function should respect the `rule.isActive` status (skipping generation if false), aligning with the fields defined in [B5.2]. The service layer handles updates to both `active` and `isActive`.",
+      "location": "4. Key Implementation Details & Considerations"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "-   **`date-fns` & UTC**: All date calculations MUST use `date-fns` and adhere strictly to UTC standards ([B2.3]) to avoid timezone issues.",
+      "location": "4. Key Implementation Details & Considerations"
+    },
+    {
+      "reference": "[B4.4]",
+      "context": "-   **Error Handling & Logging**: Robust error handling and detailed logging ([B4.4]) are implemented within the function.",
+      "location": "4. Key Implementation Details & Considerations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "-   **Performance**: The \"occurrence hopping\" logic using `calculateNextDate` is significantly more performant than daily checks. Indexing on `recurringRuleId` and `date` for transactions ([B5.2]) is crucial.",
+      "location": "4. Key Implementation Details & Considerations"
+    },
+    {
+      "reference": "[B7.2]",
+      "context": "Refer to [B7.2] for test scenarios covering various frequencies, intervals, edge cases (start/end dates, month boundaries, leap years), and rule updates/deletions. Use the Firebase Emulator Suite extensively.",
+      "location": "5. Testing"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 5,
+    "h3_count": 3,
+    "cross_references": 10,
+    "word_count": 988
+  }
+}

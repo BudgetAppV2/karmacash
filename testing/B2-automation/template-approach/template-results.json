@@ -1,0 +1,74 @@
+{
+  "approach": "template-driven",
+  "timestamp": "2025-05-30T01:58:22.502Z",
+  "steps": {
+    "upload": {
+      "template": "config-based",
+      "automated": true,
+      "time": "< 1 minute"
+    },
+    "metadata": {
+      "template": "pre-structured",
+      "automated": true,
+      "time": "< 1 minute"
+    },
+    "analysis": {
+      "template": "1.0",
+      "fields": 6,
+      "automated": true,
+      "time": "< 1 minute"
+    },
+    "chunking": {
+      "template": "1.0",
+      "rules": {
+        "primary": {
+          "rule": "Split on H2 headers",
+          "rationale": "Major topic boundaries",
+          "preserveHierarchy": true
+        },
+        "secondary": {
+          "rule": "Split on H3 headers within H2 sections",
+          "rationale": "Subtopic organization",
+          "maxChunkSize": 2000,
+          "minChunkSize": 200
+        },
+        "exceptions": {
+          "codeBlocks": "Keep code blocks intact within their section",
+          "lists": "Do not split numbered or bulleted lists",
+          "tables": "Keep tables as single units"
+        }
+      },
+      "automated": true,
+      "time": "< 1 minute"
+    },
+    "optimization": {
+      "template": "1.0",
+      "goals": {
+        "primary": "Enhance searchability and AI comprehension",
+        "secondary": "Maintain human readability",
+        "constraints": "Preserve all original meaning and technical accuracy"
+      },
+      "automated": true,
+      "time": "2-3 minutes"
+    },
+    "crossReferences": {
+      "patterns": [
+        "[BX.Y]"
+      ],
+      "detectionRate": "95%+",
+      "automated": true
+    }
+  },
+  "validation": {
+    "required": true,
+    "type": "CG review",
+    "checkpoints": [
+      "Template application accuracy",
+      "Content preservation",
+      "Cross-reference detection",
+      "Quality standards compliance"
+    ]
+  },
+  "estimatedTotalTime": "5-7 minutes",
+  "humanInterventionRequired": "Minimal - only for validation"
+}

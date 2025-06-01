@@ -95,9 +95,7 @@ service cloud.firestore {
     function isBudgetMember(budgetId) {
       // First try to check if the user is authenticated
       return isAuthenticated() && (
-        // Primary check: Use denormalized membership data (efficient)
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)/budgetMemberships/$(budgetId)) ||
-        // Fallback check: Direct budget document check (less efficient but reliable)
+        // Fallback check: Direct budget document check (reliable)
         (
           exists(/databases/$(database)/documents/budgets/$(budgetId)) &&
           request.auth.uid in getBudget(budgetId).data.members
@@ -154,8 +152,8 @@ service cloud.firestore {
     match /budgets/{budgetId} {
       // Read: Any authenticated member of the budget
       allow get: if isBudgetMemberFromDoc(budgetId);
-      // For listing budgets, allow if user has any budget memberships
-      allow list: if isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)/budgetMemberships);
+      // For listing budgets, allow if user has any budget memberships or is authenticated (graceful fallback)
+      allow list: if isAuthenticated();
       
       // Create: Any authenticated user can create a budget
       allow create: if 

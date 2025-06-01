@@ -1,0 +1,20 @@
+Uploading B2.1_Design_Philosophy.md to bible/sections/b2-semi/raw/B2.1_Design_Philosophy.md...
+✓ Upload complete: B2.1_Design_Philosophy.md
+
+Upload result: {
+  "success": true,
+  "storagePath": "bible/sections/b2-semi/raw/B2.1_Design_Philosophy.md",
+  "downloadUrl": "https://storage.googleapis.com/karmacash-6e8f5.firebasestorage.app/bible/sections/b2-semi/raw/B2.1_Design_Philosophy.md?GoogleAccessId=firebase-adminsdk-fbsvc%40karmacash-6e8f5.iam.gserviceaccount.com&Expires=1893474000&Signature=Uk7tFJMqucariR0MxOpjkEVkwMpfGeaL7btbZZXKw1Vm%2Fryumn9X8vr6%2FlcpsizN5XBLC9J5TweL20GgLaESGgj0jM4nH2tqu5QBWPWQYTF4ycA3JHzAK8T9F2TKUBr79DiORH%2Br2BHf6kFmSxOAfF3M4BfSEwOB3dSwMw%2B8aCFz7ICtRMoh2KaAx6AobEgX2Bshe%2BbYN9NlFQxZlyKnTVW03InjDBMnm93U931WYQWVM2JZpgL2z%2FjxCDwbKJTxhKhSGzWV%2Bg5ytBbUWiiKRePrXXC4YQm81ZAdWXIPK4C%2Fy2EbNoBKJzzxdDJO7nua7Vy6%2FqW9EozaFQcudqmLHQ%3D%3D",
+  "metadata": {
+    "originalName": "B2.1_Design_Philosophy.md",
+    "section": "b2-semi",
+    "subsection": "b2.1_design_philosophy",
+    "uploadDate": "2025-05-30T01:57:00.304Z",
+    "fileSize": 6925,
+    "contentHash": "a16c3c03a495339a793548b7b75750aa",
+    "mimeType": "text/markdown",
+    "processingStage": "raw",
+    "b1Reference": true
+  },
+  "fileName": "B2.1_Design_Philosophy.md"
+}

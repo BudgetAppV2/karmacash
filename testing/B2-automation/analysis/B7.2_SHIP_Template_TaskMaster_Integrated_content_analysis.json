@@ -1,0 +1,100 @@
+{
+  "document_id": "B7.2_SHIP_Template_TaskMaster_Integrated",
+  "analysis_date": "2025-05-31T02:30:02.878Z",
+  "structural_summary": "Document has 1 H1, 9 H2, and 0 H3 headers",
+  "dominant_content_types": [
+    "workflow_processes",
+    "ai_integration",
+    "testing_strategies",
+    "development_practices"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "9 main sections",
+    "Cross-references: 13"
+  ],
+  "examples_of_key_entities": [
+    "AI",
+    "workflow",
+    "SHIP",
+    "prompt",
+    "template",
+    "decision"
+  ],
+  "potential_for_ai_optimization": "High - workflow and process content ideal for automation and AI assistance",
+  "notes_for_chunking": "Natural boundaries at 9 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B7.2]",
+      "context": "# [B7.2] Session Handoff & Initialization Plan (SHIP) - Task Master Integrated Template",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "- **Your Role:** You are the CK for this KarmaCash session. Your primary function is to maintain context using this SHIP document and by referencing task details from our Task Master system via Cursor AI. Refer to Bible sections ([BX.Y]) for deeper detail when needed. Adhere to the AI Workflow defined in [B7.1].",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "**Purpose:** To structure our development session, maintain context, track Task Master tasks, and effectively collaborate with Cursor AI, following the workflow outlined in [B7.1].",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B0_README_TOC.md]",
+      "context": "*Stable, foundational information. For full Bible structure, see [B0_README_TOC.md].*",
+      "location": "1. Core Project Context (The Big Picture)"
+    },
+    {
+      "reference": "[B1.3]",
+      "context": "*Tracks progress through the project roadmap ([B1.3]) and summarizes key past events.*",
+      "location": "2. Milestone & Project History (Where We Are Now)"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "## 3. Our Collaboration Workflow (Ref: [B7.1])",
+      "location": "3. Our Collaboration Workflow (Ref: [B7.1])"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "  - *(Standard Emergent Task Log structure from [B7.1])*",
+      "location": "5. Plan for *This* Session: M[#].S[#] - [Brief Session Focus]"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "*(Standard strategy from [B7.1])*",
+      "location": "6. Debugging Help"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "## 7. Cursor AI Handoff Template (Ref: [B7.1])",
+      "location": "7. Cursor AI Handoff Template (Ref: [B7.1])"
+    },
+    {
+      "reference": "[B3.4]",
+      "context": "Core Principles/Standards Reminders: [Optional: e.g., Zen UI [B3.4], Adhere to [B3.8]]",
+      "location": "7. Cursor AI Handoff Template (Ref: [B7.1])"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "Core Principles/Standards Reminders: [Optional: e.g., Zen UI [B3.4], Adhere to [B3.8]]",
+      "location": "7. Cursor AI Handoff Template (Ref: [B7.1])"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "## 8. Cursor AI Implementation Summary Template (Ref: [B7.1])",
+      "location": "8. Cursor AI Implementation Summary Template (Ref: [B7.1])"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "## End of Session Checklist (Ref: [B7.1])",
+      "location": "End of Session Checklist (Ref: [B7.1])"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 9,
+    "h3_count": 0,
+    "cross_references": 13,
+    "word_count": 1180
+  }
+}

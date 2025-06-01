@@ -1,0 +1,34 @@
+{
+  "document_id": "B8.1_Project_Setup_Guide",
+  "analysis_date": "2025-05-30T03:43:52.477Z",
+  "structural_summary": "Document has 4 H1, 2 H2, and 2 H3 headers",
+  "dominant_content_types": [
+    "setup_guide",
+    "installation_instructions",
+    "project_configuration"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "2 main sections",
+    "Cross-references: 0"
+  ],
+  "examples_of_key_entities": [
+    "setup",
+    "environment",
+    "dependencies",
+    "npm",
+    "git",
+    "node",
+    "firebase"
+  ],
+  "potential_for_ai_optimization": "High - setup and configuration content ideal for automation and scripting",
+  "notes_for_chunking": "Natural boundaries at 2 H2 sections",
+  "cross_references_detected": [],
+  "metrics": {
+    "h1_count": 4,
+    "h2_count": 2,
+    "h3_count": 2,
+    "cross_references": 0,
+    "word_count": 148
+  }
+}

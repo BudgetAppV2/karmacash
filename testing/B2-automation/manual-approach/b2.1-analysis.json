@@ -1,0 +1,111 @@
+{
+  "analysisVersion": "1.0",
+  "documentId": "b2_b2.1_design_philosophy",
+  "analysisDate": "2025-05-30T01:55:00Z",
+  "approach": "manual",
+  "sections": {
+    "overview": {
+      "mainTopic": "Zen/Tranquility Design Philosophy for KarmaCash PWA",
+      "scope": "Core design philosophy, psychological foundations, principles, and implementation guidelines",
+      "targetAudience": "Developers, designers, and product team members working on KarmaCash",
+      "dependencies": ["B3.8 Style Guide v2", "B3.11 Animations and Interactions"]
+    },
+    "structuralAnalysis": {
+      "headingHierarchy": {
+        "h1Count": 1,
+        "h2Sections": [
+          "Zen/Tranquility: Core Design Philosophy",
+          "Philosophical Foundation",
+          "Design Principles",
+          "Psychological Considerations",
+          "Application to Key User Experiences",
+          "Competitive Differentiation",
+          "Implementation Guidelines"
+        ],
+        "h3Subsections": [
+          "Reducing Financial Anxiety",
+          "Promoting Clarity and Focus",
+          "Supporting Mindful Financial Decisions",
+          "Brand Alignment with KarmaCash Identity",
+          "1. Calm & Minimalist Aesthetic",
+          "2. Clarity & Focus",
+          "3. Essential Simplicity",
+          "4. Progressive Disclosure",
+          "5. Consistency of Feeling",
+          "6. Balancing Serenity with Action",
+          "Color Psychology",
+          "Spatial Psychology",
+          "Cognitive Load Theory",
+          "Monthly Budget Planning",
+          "Negative Balance Situations",
+          "Financial Goal Setting",
+          "Daily Transaction Tracking"
+        ],
+        "structureNotes": "Well-organized hierarchical structure with clear sections and subsections"
+      },
+      "contentBlocks": {
+        "codeBlocks": 0,
+        "lists": 6,
+        "tables": 0,
+        "examples": 4
+      }
+    },
+    "keyEntities": {
+      "concepts": [
+        "Zen/Tranquility philosophy",
+        "Mindfulness in finance",
+        "Cognitive load reduction",
+        "Progressive disclosure",
+        "Slow finance approach"
+      ],
+      "technicalTerms": [
+        "Japandi design",
+        "Information hierarchy",
+        "Cognitive load theory",
+        "Micro-interactions",
+        "Visual hierarchy"
+      ],
+      "projectSpecific": [
+        "KarmaCash",
+        "Enso circle logo",
+        "Monthly budget planning",
+        "Transaction tracking"
+      ],
+      "crossReferences": {
+        "internal": [
+          "[B3.8 v2] - Style guide for colors, typography, and components",
+          "[B3.11] - Gentle micro-interactions definitions"
+        ],
+        "pattern": "[BX.Y] format references detected"
+      }
+    },
+    "contentClassification": {
+      "technical": {
+        "level": "intermediate",
+        "domains": ["UX/UI Design", "Psychology", "Product Philosophy"]
+      },
+      "documentation": {
+        "type": "specification",
+        "completeness": "complete"
+      }
+    },
+    "optimizationNotes": {
+      "summaryPotential": "High - can be effectively summarized while preserving key principles",
+      "chunkingStrategy": "Split by H2 sections for thematic coherence",
+      "preservationPriority": "Design principles and psychological foundations must be preserved intact",
+      "enhancementOpportunities": "Add visual examples of design principles in action"
+    },
+    "qualityChecklist": {
+      "structuralIntegrity": true,
+      "crossReferenceDetection": true,
+      "semanticCoherence": true,
+      "metadataCompleteness": true
+    }
+  },
+  "metrics": {
+    "totalSections": 7,
+    "totalSubsections": 17,
+    "crossReferenceCount": 2,
+    "estimatedChunks": 7
+  }
+}

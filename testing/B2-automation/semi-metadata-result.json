@@ -1,0 +1,79 @@
+Creating metadata for b2-semi_b2.1_design_philosophy...
+✓ Metadata created: b2-semi_b2.1_design_philosophy
+
+Metadata result: {
+  "success": true,
+  "documentId": "b2-semi_b2.1_design_philosophy",
+  "metadata": {
+    "id": "b2-semi_b2.1_design_philosophy",
+    "section": "b2-semi",
+    "subsection": "b2.1_design_philosophy",
+    "fileName": "B2.1_Design_Philosophy.md",
+    "storagePath": "bible/sections/b2-semi/raw/B2.1_Design_Philosophy.md",
+    "downloadUrl": "https://storage.googleapis.com/karmacash-6e8f5.firebasestorage.app/bible/sections/b2-semi/raw/B2.1_Design_Philosophy.md?GoogleAccessId=firebase-adminsdk-fbsvc%40karmacash-6e8f5.iam.gserviceaccount.com&Expires=1893474000&Signature=Uk7tFJMqucariR0MxOpjkEVkwMpfGeaL7btbZZXKw1Vm%2Fryumn9X8vr6%2FlcpsizN5XBLC9J5TweL20GgLaESGgj0jM4nH2tqu5QBWPWQYTF4ycA3JHzAK8T9F2TKUBr79DiORH%2Br2BHf6kFmSxOAfF3M4BfSEwOB3dSwMw%2B8aCFz7ICtRMoh2KaAx6AobEgX2Bshe%2BbYN9NlFQxZlyKnTVW03InjDBMnm93U931WYQWVM2JZpgL2z%2FjxCDwbKJTxhKhSGzWV%2Bg5ytBbUWiiKRePrXXC4YQm81ZAdWXIPK4C%2Fy2EbNoBKJzzxdDJO7nua7Vy6%2FqW9EozaFQcudqmLHQ%3D%3D",
+    "contentHash": "a16c3c03a495339a793548b7b75750aa",
+    "processingStatus": {
+      "raw": {
+        "completed": true,
+        "timestamp": "2025-05-30T01:57:16.841Z",
+        "path": "bible/sections/b2-semi/raw/B2.1_Design_Philosophy.md"
+      },
+      "analysis": {
+        "completed": false,
+        "timestamp": null,
+        "path": null
+      },
+      "chunks": {
+        "completed": false,
+        "timestamp": null,
+        "count": 0,
+        "paths": []
+      },
+      "optimized": {
+        "completed": false,
+        "timestamp": null,
+        "path": null
+      },
+      "crossReferences": {
+        "completed": false,
+        "timestamp": null,
+        "count": 0
+      }
+    },
+    "contentMetadata": {
+      "fileSize": 6925,
+      "mimeType": "text/markdown",
+      "lastModified": "2025-05-30T01:57:16.841Z",
+      "characterCount": 6907,
+      "lineCount": 103,
+      "wordCount": 931
+    },
+    "methodology": {
+      "version": "B1-v1.0",
+      "steps": [
+        "raw",
+        "metadata",
+        "analysis",
+        "chunking",
+        "optimization",
+        "cross-reference"
+      ],
+      "qualityBaseline": "B1-standards"
+    },
+    "createdAt": "2025-05-30T01:57:16.841Z",
+    "updatedAt": "2025-05-30T01:57:16.841Z",
+    "tags": [
+      "design",
+      "philosophy",
+      "zen",
+      "tranquility"
+    ],
+    "keywords": [
+      "japandi",
+      "mindfulness",
+      "clarity",
+      "minimalist"
+    ],
+    "automationType": "manual"
+  }
+}

@@ -1,0 +1,210 @@
+/* Bottom Navigation CSS Module */
+/* Implements glassmorphism effect following BudgetHeader.module.css pattern */
+/* Zen aesthetic with French localization support */
+
+.bottomNavigation {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  
+  /* Glassmorphism effect - even more transparent with less blur */
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  background: linear-gradient(
+    to top, 
+    rgba(243, 240, 232, 0.3), 
+    rgba(255, 255, 255, 0.2)
+  ) !important;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border-top: 1px solid rgba(145, 154, 127, 0.3);
+  
+  /* Enhanced shadow for glassmorphism depth */
+  box-shadow: 
+    0 -4px 16px rgba(0, 0, 0, 0.08),
+    0 -2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  /* Safe area support for iOS devices */
+  padding-bottom: env(safe-area-inset-bottom);
+  
+  /* Prevent content from flowing behind navigation */
+  min-height: calc(4rem + env(safe-area-inset-bottom));
+}
+
+.navContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.navTabWrapper {
+  /* Wrapper for motion.div to contain tab animations */
+  display: flex;
+  flex: 1;
+  justify-content: center;
+}
+
+.navTab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: var(--space-2, 0.5rem);
+  min-width: 3.5rem;
+  text-decoration: none;
+  border-radius: var(--radius-md, 8px);
+  transition: all var(--transition-fast, 0.15s) ease-out;
+  
+  /* Ensure tap targets are accessible (44px minimum) */
+  min-height: 44px;
+  
+  /* Focus styles for accessibility */
+  outline: none;
+}
+
+.navTab:focus-visible {
+  outline: 2px solid var(--primary-sage, #919A7F);
+  outline-offset: 2px;
+}
+
+/* Hover effect - subtle background */
+.navTab:hover:not(.navTabActive) {
+  background: rgba(145, 154, 127, 0.1); /* var(--primary-sage) with low opacity */
+  transform: translateY(-1px);
+}
+
+/* Active tab styling */
+.navTabActive {
+  background: rgba(145, 154, 127, 0.15); /* var(--primary-sage) with opacity */
+  transform: translateY(-2px);
+}
+
+.navIcon {
+  position: relative;
+  margin-bottom: var(--space-1, 0.25rem);
+  transition: transform var(--transition-fast, 0.15s) ease-out;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--text-secondary, #88837A);
+  transition: color var(--transition-fast, 0.15s) ease-out;
+}
+
+/* Active icon styling */
+.navTabActive .icon {
+  color: var(--primary-sage, #919A7F);
+  transform: scale(1.05);
+}
+
+/* Hover icon effect */
+.navTab:hover:not(.navTabActive) .icon {
+  color: var(--primary-sage, #919A7F);
+  transform: scale(1.02);
+}
+
+.navLabel {
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: var(--font-medium, 500);
+  color: var(--text-secondary, #88837A);
+  line-height: 1.2;
+  text-align: center;
+  transition: color var(--transition-fast, 0.15s) ease-out;
+  
+  /* Ensure text doesn't break awkwardly */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 4rem;
+}
+
+/* Active label styling */
+.navTabActive .navLabel {
+  color: var(--primary-sage, #919A7F);
+  font-weight: var(--font-semibold, 600);
+}
+
+/* Hover label effect */
+.navTab:hover:not(.navTabActive) .navLabel {
+  color: var(--primary-sage, #919A7F);
+}
+
+/* Active indicator - subtle dot above icon */
+.activeIndicator {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--primary-sage, #919A7F);
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .bottomNavigation {
+    /* On larger screens, consider showing as persistent sidebar or adapt positioning */
+    position: fixed;
+    bottom: 0;
+    /* Could be adapted for desktop in NavUX.7 */
+  }
+  
+  .navContainer {
+    padding: var(--spacing-4, 1rem) var(--spacing-6, 1.5rem);
+    max-width: 600px; /* Limit width on large screens */
+  }
+  
+  .navTab {
+    min-width: 4rem;
+  }
+  
+  .navLabel {
+    font-size: var(--font-size-sm, 0.875rem);
+    max-width: 5rem;
+  }
+}
+
+/* Dark mode support (disabled for now to ensure glassmorphism works) */
+/* 
+@media (prefers-color-scheme: dark) {
+  .bottomNavigation {
+    background: rgba(26, 26, 26, 0.95);
+    border-top-color: rgba(145, 154, 127, 0.2);
+  }
+  
+  .navTab:hover:not(.navTabActive) {
+    background: rgba(145, 154, 127, 0.15);
+  }
+  
+  .navTabActive {
+    background: rgba(145, 154, 127, 0.2);
+  }
+}
+*/
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .navTab,
+  .navIcon,
+  .icon,
+  .navLabel {
+    transition: none;
+  }
+  
+  .navTab:hover:not(.navTabActive) {
+    transform: none;
+  }
+  
+  .navTabActive {
+    transform: none;
+  }
+}

@@ -1,0 +1,503 @@
+/* GraphsPage Styles */
+/* Follows KarmaCash Zen aesthetic and B3.8 Style Guide */
+
+.graphsPage {
+  padding: var(--spacing-6, 1.5rem);
+  background: var(--color-background, #F3F0E8);
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-8, 2rem);
+  padding-bottom: var(--spacing-6, 1.5rem);
+  border-bottom: 1px solid rgba(136, 131, 122, 0.2);
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.pageTitle {
+  font-family: var(--font-family-heading, 'Work Sans', sans-serif);
+  font-size: var(--font-size-3xl, 2rem);
+  font-weight: var(--font-weight-light, 300);
+  color: var(--color-text-primary, #2F2F2F);
+  margin: 0 0 var(--spacing-2, 0.5rem) 0;
+  letter-spacing: -0.02em;
+  line-height: var(--line-height-tight, 1.25);
+}
+
+.pageDescription {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-lg, 1.125rem);
+  color: var(--color-text-secondary, #88837A);
+  margin: 0;
+  line-height: var(--line-height-base, 1.5);
+}
+
+/* Time Range Selector */
+.timeSelector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3, 0.75rem);
+}
+
+.timeSelectorLabel {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #88837A);
+}
+
+.timeOptions {
+  display: flex;
+  background: var(--color-surface, #FFFFFF);
+  border-radius: var(--border-radius-sm, 6px);
+  padding: var(--spacing-1, 0.25rem);
+  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
+}
+
+.timeOption {
+  padding: var(--spacing-2, 0.5rem) var(--spacing-3, 0.75rem);
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-sm, 6px);
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #88837A);
+  cursor: pointer;
+  transition: all var(--transition-fast, 0.15s) ease-out;
+  white-space: nowrap;
+}
+
+.timeOption:hover {
+  background: rgba(145, 154, 127, 0.1);
+  color: var(--color-primary, #919A7F);
+}
+
+.timeOptionActive {
+  background: var(--color-primary, #919A7F);
+  color: var(--color-surface, #FFFFFF);
+}
+
+.timeOptionActive:hover {
+  background: var(--color-primary, #919A7F);
+  color: var(--color-surface, #FFFFFF);
+}
+
+/* Charts Grid Layout */
+.chartsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6, 1.5rem);
+}
+
+.chartRow {
+  display: flex;
+  gap: var(--spacing-6, 1.5rem);
+  width: 100%;
+}
+
+.chartColumn {
+  flex: 1;
+  min-width: 0; /* Allows flex items to shrink below content size */
+}
+
+.chartColumnFull {
+  flex: 1;
+  width: 100%;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-12, 3rem) var(--spacing-6, 1.5rem);
+  background: var(--color-surface, #FFFFFF);
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: var(--shadow-level-1, 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03));
+  text-align: center;
+  margin-top: var(--spacing-8, 2rem);
+}
+
+.emptyTitle {
+  font-family: var(--font-family-heading, 'Work Sans', sans-serif);
+  font-size: var(--font-size-2xl, 1.5rem);
+  font-weight: var(--font-weight-light, 300);
+  color: var(--color-text-primary, #2F2F2F);
+  margin: 0 0 var(--spacing-3, 0.75rem) 0;
+}
+
+.emptyDescription {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text-secondary, #88837A);
+  margin: 0 0 var(--spacing-6, 1.5rem) 0;
+  max-width: 400px;
+  line-height: var(--line-height-base, 1.5);
+}
+
+.emptyAction {
+  padding: var(--spacing-3, 0.75rem) var(--spacing-6, 1.5rem);
+  background: var(--color-primary, #919A7F);
+  color: var(--color-surface, #FFFFFF);
+  border: none;
+  border-radius: var(--border-radius-sm, 6px);
+  font-family: var(--font-family-heading, 'Work Sans', sans-serif);
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all var(--transition-fast, 0.15s) ease-out;
+  min-height: 44px; /* Accessibility - touch target */
+}
+
+.emptyAction:hover {
+  background: #7e8669; /* Darker shade of primary */
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-level-2, 0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04));
+}
+
+.emptyAction:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 1023px) {
+  .chartRow {
+    flex-direction: column;
+    gap: var(--spacing-4, 1rem);
+  }
+  
+  .pageHeader {
+    flex-direction: column;
+    gap: var(--spacing-4, 1rem);
+    align-items: stretch;
+  }
+  
+  .timeSelector {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .graphsPage {
+    padding: var(--spacing-4, 1rem);
+  }
+  
+  .pageHeader {
+    margin-bottom: var(--spacing-6, 1.5rem);
+    padding-bottom: var(--spacing-4, 1rem);
+  }
+  
+  .pageTitle {
+    font-size: var(--font-size-2xl, 1.5rem);
+  }
+  
+  .pageDescription {
+    font-size: var(--font-size-base, 1rem);
+  }
+  
+  .chartsGrid {
+    gap: var(--spacing-4, 1rem);
+  }
+  
+  .timeSelector {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-2, 0.5rem);
+  }
+  
+  .timeOptions {
+    width: 100%;
+    justify-content: space-around;
+  }
+  
+  .timeOption {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .emptyState {
+    padding: var(--spacing-8, 2rem) var(--spacing-4, 1rem);
+    margin-top: var(--spacing-6, 1.5rem);
+  }
+  
+  .emptyTitle {
+    font-size: var(--font-size-xl, 1.25rem);
+  }
+  
+  .emptyDescription {
+    font-size: var(--font-size-sm, 0.875rem);
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .graphsPage {
+    padding: var(--spacing-3, 0.75rem);
+  }
+  
+  .pageTitle {
+    font-size: var(--font-size-xl, 1.25rem);
+  }
+  
+  .timeOptions {
+    flex-direction: column;
+    gap: var(--spacing-1, 0.25rem);
+  }
+  
+  .timeOption {
+    width: 100%;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .pageHeader {
+    border-bottom-color: var(--color-text-primary, #2F2F2F);
+  }
+  
+  .timeOptions {
+    border: 1px solid var(--color-text-primary, #2F2F2F);
+  }
+  
+  .emptyState {
+    border: 1px solid rgba(136, 131, 122, 0.3);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .timeOption,
+  .emptyAction {
+    transition: none;
+  }
+  
+  .emptyAction:hover {
+    transform: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.timeOption:focus-visible,
+.emptyAction:focus-visible {
+  outline: 2px solid var(--color-primary, #919A7F);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .graphsPage {
+    background: white;
+    padding: 0;
+  }
+  
+  .timeSelector {
+    display: none;
+  }
+  
+  .emptyAction {
+    display: none;
+  }
+}
+
+/* Enhanced Zen UI Compliance & Accessibility */
+
+/* Enhanced motion and spring physics for Zen aesthetic */
+.chartRow,
+.pageHeader {
+  transform-origin: center top;
+}
+
+/* Color contrast enhancements for B3.8 compliance */
+.pageTitle,
+.pageDescription,
+.timeSelectorLabel,
+.timeOption,
+.emptyTitle,
+.emptyDescription {
+  /* Ensure text meets WCAG AA contrast ratios */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced interaction states following Zen principles */
+.timeOption,
+.emptyAction {
+  transition: all var(--transition-fast, 0.15s) cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow, background-color;
+}
+
+.timeOption:focus,
+.emptyAction:focus {
+  outline: 2px solid var(--color-primary, #919A7F);
+  outline-offset: 2px;
+  box-shadow: 
+    var(--shadow-level-2, 0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)),
+    0 0 0 4px rgba(145, 154, 127, 0.1);
+}
+
+/* KarmaCash maintains consistent Zen aesthetic across all themes */
+/* Dark mode support removed to preserve B3.4 design consistency */
+
+/* Enhanced typography scale for visual hierarchy */
+.pageTitle {
+  /* Perfect fifth ratio: 1.5 */
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-variation-settings: 'wght' 300;
+}
+
+.pageDescription {
+  line-height: 1.6;
+  max-width: 65ch; /* Optimal reading length */
+}
+
+/* Microinteractions for delightful UX */
+.timeOption:active {
+  transform: scale(0.98);
+}
+
+.emptyAction:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Content density optimization for different screen sizes */
+@media (min-width: 1440px) {
+  .graphsPage {
+    max-width: 1400px;
+    padding: var(--spacing-xl, 2rem);
+  }
+  
+  .chartRow {
+    gap: var(--spacing-8, 2rem);
+  }
+}
+
+/* Data Status Indicators */
+.staleIndicator {
+  background: rgba(217, 165, 102, 0.1);
+  color: #D9A566;
+  padding: var(--spacing-2, 0.5rem) var(--spacing-3, 0.75rem);
+  border-radius: var(--border-radius-sm, 6px);
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  text-align: center;
+  margin-top: var(--spacing-2, 0.5rem);
+  border: 1px solid rgba(217, 165, 102, 0.2);
+}
+
+.staleGlobalIndicator {
+  position: fixed;
+  top: var(--spacing-4, 1rem);
+  right: var(--spacing-4, 1rem);
+  background: rgba(217, 165, 102, 0.9);
+  color: var(--color-surface, #FFFFFF);
+  padding: var(--spacing-3, 0.75rem) var(--spacing-4, 1rem);
+  border-radius: var(--border-radius-lg, 12px);
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-level-3, 0 4px 8px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.06));
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Error State Styles */
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-8, 2rem);
+  background: rgba(193, 124, 116, 0.05);
+  border: 1px solid rgba(193, 124, 116, 0.2);
+  border-radius: var(--border-radius-lg, 12px);
+  margin-top: var(--spacing-6, 1.5rem);
+  text-align: center;
+}
+
+.errorTitle {
+  font-family: var(--font-family-heading, 'Work Sans', sans-serif);
+  font-size: var(--font-size-xl, 1.25rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-negative, #C17C74);
+  margin: 0 0 var(--spacing-2, 0.5rem) 0;
+}
+
+.errorDescription {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text-secondary, #88837A);
+  margin: 0 0 var(--spacing-4, 1rem) 0;
+  line-height: var(--line-height-base, 1.5);
+}
+
+.errorAction {
+  padding: var(--spacing-3, 0.75rem) var(--spacing-4, 1rem);
+  background: var(--color-negative, #C17C74);
+  color: var(--color-surface, #FFFFFF);
+  border: none;
+  border-radius: var(--border-radius-sm, 6px);
+  font-family: var(--font-family-heading, 'Work Sans', sans-serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all var(--transition-fast, 0.15s) ease-out;
+  min-height: 40px;
+}
+
+.errorAction:hover {
+  background: #a66860;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-level-2, 0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04));
+}
+
+.errorAction:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsive adjustments for indicators */
+@media (max-width: 767px) {
+  .staleGlobalIndicator {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: var(--spacing-4, 1rem) 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .errorState {
+    padding: var(--spacing-6, 1.5rem) var(--spacing-4, 1rem);
+    margin-top: var(--spacing-4, 1rem);
+  }
+  
+  .staleIndicator {
+    font-size: var(--font-size-xs, 0.75rem);
+    padding: var(--spacing-1, 0.25rem) var(--spacing-2, 0.5rem);
+  }
+}

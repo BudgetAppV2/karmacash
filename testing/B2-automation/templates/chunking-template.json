@@ -1,0 +1,81 @@
+{
+  "templateVersion": "1.0",
+  "basedOn": "B1-semantic-chunking",
+  "purpose": "Guide for creating semantic chunks from Bible documentation",
+  "chunkingRules": {
+    "primary": {
+      "rule": "Split on H2 headers",
+      "rationale": "Major topic boundaries",
+      "preserveHierarchy": true
+    },
+    "secondary": {
+      "rule": "Split on H3 headers within H2 sections",
+      "rationale": "Subtopic organization",
+      "maxChunkSize": 2000,
+      "minChunkSize": 200
+    },
+    "exceptions": {
+      "codeBlocks": "Keep code blocks intact within their section",
+      "lists": "Do not split numbered or bulleted lists",
+      "tables": "Keep tables as single units"
+    }
+  },
+  "chunkStructure": {
+    "required": {
+      "id": "Unique identifier (section_subsection_index)",
+      "source": "Original file reference",
+      "section": "Parent section (H2)",
+      "subsection": "Subsection if applicable (H3)",
+      "content": "The actual chunk content",
+      "metadata": {
+        "position": "Order within document",
+        "headingLevel": "H2 or H3",
+        "contentType": "text|code|mixed"
+      }
+    },
+    "optional": {
+      "summary": "Brief description of chunk content",
+      "keywords": "Extracted key terms",
+      "crossReferences": "Detected [BX.Y] patterns",
+      "dependencies": "Related chunks"
+    }
+  },
+  "semanticPreservation": {
+    "contextWindow": {
+      "before": "Include intro paragraph if chunk starts mid-section",
+      "after": "Include conclusion if chunk ends mid-section"
+    },
+    "crossReferences": {
+      "detection": "Identify all [BX.Y] patterns",
+      "context": "Preserve surrounding sentence for reference meaning"
+    },
+    "codeContext": {
+      "imports": "Include relevant imports with code blocks",
+      "comments": "Preserve explanatory comments"
+    }
+  },
+  "qualityValidation": {
+    "checks": {
+      "completeContent": "No content lost between chunks",
+      "orderPreserved": "Document flow maintained",
+      "referencesIntact": "All cross-references preserved",
+      "standaloneReadable": "Each chunk makes sense independently"
+    },
+    "metrics": {
+      "avgChunkSize": "Target 500-1500 tokens",
+      "chunkCount": "Reasonable number for document size",
+      "overlapRatio": "Minimal content duplication"
+    }
+  },
+  "outputFormat": {
+    "fileNaming": "{section}_{subsection}_chunk_{index}.json",
+    "structure": {
+      "version": "1.0",
+      "sourceDocument": "Original file path",
+      "chunkIndex": "Position in sequence",
+      "totalChunks": "Total count for document",
+      "content": "The chunk data",
+      "metadata": "Additional information"
+    }
+  }
+}

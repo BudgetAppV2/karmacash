@@ -761,6 +761,13 @@ input::placeholder {
   padding: var(--space-4) var(--space-6);
 }
 
+/* Main content area adjustments for bottom navigation */
+.app-main {
+  /* Add bottom padding to prevent content from being hidden behind bottom navigation */
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom) + var(--space-4));
+  min-height: calc(100vh - 4rem); /* Account for header height */
+}
+
 @media (max-width: 767px) {
   .app-header__logo {
     width: 24px;

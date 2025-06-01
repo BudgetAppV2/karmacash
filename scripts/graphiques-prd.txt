@@ -1,0 +1,166 @@
+# KarmaCash Graphiques Section Implementation - Session-Scoped PRD
+
+## Document Properties
+- **Project**: KarmaCash PWA - M5 Objective 2 Implementation  
+- **Scope**: Charts and Analytics Implementation for Graphiques Navigation Tab
+- **Timeline**: 2-3 CG Implementation Sessions (4-6 hours)
+- **Priority**: High (Required for M5 Objective 2 completion)
+- **Milestone Context**: M5.S4+ (Navigation UX Complete, Graphiques Next Priority)
+
+## Goals
+**Primary Goal**: Implement complete Graphiques section with 4 core chart types providing users with financial analytics and visual insights into their spending patterns, income trends, and budget performance.
+
+**Specific Objectives**:
+1. Transform placeholder GraphsPage.jsx into fully functional analytics dashboard
+2. Implement 4 core chart visualizations with interactive features
+3. Integrate with existing KarmaCash data sources (transactions, budgets, categories)
+4. Ensure mobile-first responsive design following Zen aesthetic principles
+5. Optimize performance for large transaction datasets
+
+## Background  
+The Graphiques section is a core component of KarmaCash's navigation system, accessible via the bottom navigation bar. Currently exists as a placeholder with basic French text. B1.3 Milestone 5 Objective 2 specifies implementation of charts/analysis section as critical for application structure refinement.
+
+**Current State**: Placeholder component with minimal markup
+**Required Transformation**: Complete analytics dashboard with 4 functional chart types
+**Design Foundation**: Existing mockup shows Graphiques tab in navigation, Zen aesthetic established
+
+## Assumptions
+- Recharts library will be added as the primary charting solution (React-friendly, performant)
+- Transaction data and budget data are available via existing services
+- Category color coding follows B3.8 categorical color palette (20 colors available)
+- Users expect mobile-optimized touch interactions for chart exploration
+- Charts should gracefully handle empty states and loading conditions
+
+## User Stories
+
+### Core User Stories
+**US1**: As a KarmaCash user, I want to see a pie chart of my expense distribution by category so I can understand where my money goes each month.
+
+**US2**: As a KarmaCash user, I want to compare my income vs expenses vs net balance over time so I can track my financial trends.
+
+**US3**: As a KarmaCash user, I want to see my spending trends over time so I can identify patterns and make informed budget decisions.
+
+**US4**: As a KarmaCash user, I want to compare my budgeted amounts vs actual spending so I can assess my budget performance.
+
+### Secondary User Stories  
+**US5**: As a mobile user, I want charts to be touch-friendly and responsive so I can interact with them on my phone.
+
+**US6**: As a user with limited data, I want to see helpful empty states when I have no transactions so I understand what charts will show once I add data.
+
+## Requirements
+
+### Functional Requirements
+**FR1**: Expense Distribution Pie Chart
+- Display expense transactions grouped by category
+- Show percentages and amounts
+- Interactive segments (hover/touch for details)
+- Category color coding using B3.8 palette
+- Date range filtering capability
+
+**FR2**: Income vs Expense vs Balance Bar Chart  
+- Three data series: Income (positive), Expenses (negative), Net Balance
+- Monthly aggregation with option for quarterly/yearly views
+- Color coding: Income (positive), Expenses (negative), Balance (conditional)
+- Time period navigation controls
+
+**FR3**: Spending Trends Line Chart
+- Line chart showing spending over time (monthly/weekly views)
+- Category filtering (show/hide specific categories)
+- Smooth line interpolation with data points
+- Trend indicators and optional goal line overlay
+
+**FR4**: Budget vs Actual Comparison Chart
+- Horizontal or grouped bar chart comparing budgeted vs actual amounts
+- Over/under budget visual indicators
+- Percentage completion display
+- Alert styling for budget overruns
+
+### Technical Requirements
+**TR1**: Chart Library Integration
+- Add Recharts dependency to package.json
+- Implement responsive chart containers
+- Configure chart themes following B3.8 color system
+- Ensure mobile touch optimization
+
+**TR2**: Data Integration
+- Connect to existing transaction and budget data services
+- Implement efficient data aggregation and filtering
+- Handle real-time updates when transactions change
+- Cache processed chart data for performance
+
+**TR3**: Responsive Design
+- Mobile-first design with 2x2 desktop grid, single column mobile stack
+- Touch-friendly interactions for mobile users
+- Proper chart sizing and scaling across screen sizes
+- Maintain Zen aesthetic principles throughout
+
+### Performance Requirements
+**PR1**: Charts must load within 2 seconds for typical datasets (100-500 transactions)
+**PR2**: Interactive elements must provide immediate feedback (<100ms response)
+**PR3**: Memory usage should remain stable during chart interactions
+**PR4**: Support datasets up to 1000+ transactions without performance degradation
+
+## Success Criteria
+**SC1**: All 4 chart types implemented and displaying accurate data
+**SC2**: Charts are responsive and work on mobile and desktop screen sizes
+**SC3**: Date range filtering functional across all relevant charts
+**SC4**: Empty states and loading states properly implemented
+**SC5**: Visual design consistent with KarmaCash Zen aesthetic (B3.8 compliance)
+**SC6**: Touch interactions work smoothly on mobile devices
+**SC7**: Charts integrate seamlessly with existing navigation and layout
+**SC8**: Performance meets specified load time and responsiveness criteria
+
+## Constraints
+- **Timeline**: Maximum 2-3 CG implementation sessions (4-6 hours total)
+- **Scope**: Focus on 4 core charts only, no advanced analytics features
+- **Technology**: Must use Recharts library, no custom chart implementations
+- **Design**: Must follow existing B3.8 Zen aesthetic, no new design patterns
+- **Data**: Use existing transaction/budget data, no new data collection
+- **Testing**: Manual testing only, no automated test framework implementation
+- **Documentation**: Update only essential component documentation, no comprehensive guides
+- **Complexity**: Avoid advanced features like export, drill-down, or comparison modes
+
+## Dependencies
+**Technical Dependencies**:
+- Navigation UX implementation (Tasks 101-108) - COMPLETE ✅
+- Existing transaction and budget data services
+- B3.8 Style Guide and color palette definitions
+- Current GraphsPage.jsx placeholder component
+
+**Data Dependencies**:
+- Transaction data with category assignments
+- Budget allocation data for comparison charts
+- Category definitions with color coding
+- User date range preferences (if stored)
+
+**Design Dependencies**:
+- B3.8 categorical color palette (20 colors)
+- Existing responsive grid system
+- Component architecture patterns from other KarmaCash features
+
+## Acceptance Criteria
+
+### Chart Implementation
+**AC1**: Expense Distribution Pie Chart shows accurate category breakdown with proper color coding
+**AC2**: Income vs Expense Bar Chart displays correct monthly totals with appropriate color coding
+**AC3**: Spending Trends Line Chart renders smooth lines with proper data point markers
+**AC4**: Budget vs Actual Chart shows accurate comparison with over/under budget indicators
+
+### User Experience
+**AC5**: All charts resize properly on mobile, tablet, and desktop screen sizes
+**AC6**: Touch interactions work smoothly on mobile devices (tap, pan, zoom where appropriate)
+**AC7**: Date range selectors update chart data correctly
+**AC8**: Loading states display during data fetching
+**AC9**: Empty states show helpful messages when no data is available
+
+### Technical Implementation
+**AC10**: Recharts library properly integrated with no console errors
+**AC11**: Chart data updates when transactions are added/modified
+**AC12**: Performance meets specified criteria (2s load, 100ms interaction response)
+**AC13**: Code follows KarmaCash component architecture patterns
+**AC14**: CSS follows B3.8 spacing, typography, and color guidelines
+
+### Integration
+**AC15**: Charts integrate seamlessly with bottom navigation (Graphiques tab)
+**AC16**: Page header and layout consistent with other KarmaCash sections
+**AC17**: Charts work correctly with existing user authentication and data permissions

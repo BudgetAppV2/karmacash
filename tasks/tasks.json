@@ -1,381 +1,108 @@
 {
   "tasks": [
     {
-      "id": 2,
-      "title": "Implement Custom Firebase MCP Server Extensions",
-      "description": "Extend the custom-firebase MCP server with basic Firebase Storage integration and core storage tools, including 'storage_get_file_content', 'storage_upload_file', 'storage_list_files', 'storage_delete_file', and 'storage_get_file_info'. This task is a high priority and should be completed before implementing the storage structure.",
-      "status": "done",
-      "dependencies": [],
+      "id": 1,
+      "title": "Set up Recharts Library and Configure Theme",
+      "description": "Integrate Recharts library into the project and configure the chart theme to match KarmaCash's Zen aesthetic.",
+      "details": "1. Add Recharts to package.json\n2. Install dependencies\n3. Create a chart theme configuration file (e.g., chartTheme.js)\n4. Define color palette based on B3.8 categorical colors\n5. Set up default chart styles (fonts, sizes, etc.) adhering to Zen aesthetic\n6. Create a ChartWrapper component for responsive sizing",
+      "testStrategy": "Verify Recharts installation. Create a sample chart to ensure theme is applied correctly. Test ChartWrapper with different screen sizes.",
       "priority": "high",
-      "details": "Use the latest version of the custom-firebase library and follow best practices for server-side development. Implement basic error handling and logging to ensure reliable performance. Integrate Firebase Storage SDK and implement core storage tools with support for text and binary file types, and proper error handling. Ensure consistent JSON response formatting matching existing Firestore tools. This task is crucial for enabling further development of the storage structure.",
-      "testStrategy": "Write unit tests for each new function to verify correct behavior and basic error handling. Integrate the MCP server extensions with the existing CK_Priming_v11 system and validate end-to-end functionality for core storage operations. Ensure thorough testing due to the high priority of this task.",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Implement environment variable loading",
-          "description": "Create a function to load environment variables from a .env file or system environment",
-          "dependencies": [],
-          "details": "Use a library like dotenv to load variables from a .env file. Fall back to system environment variables if not found in the file. Add support for FIREBASE_STORAGE_BUCKET environment variable.",
-          "status": "done"
-        },
-        {
-          "id": 2,
-          "title": "Develop configuration validation",
-          "description": "Create a function to validate the presence and format of required configuration values",
-          "dependencies": [],
-          "details": "Check for the presence of critical variables like API keys, endpoints, and storage bucket. Validate the format of values where applicable (e.g., URL format for endpoints). Enhance existing service account path configuration validation to include storage permissions.",
-          "status": "done"
-        },
-        {
-          "id": 3,
-          "title": "Implement error handling for missing configuration",
-          "description": "Create a mechanism to handle and report missing or invalid configuration values",
-          "dependencies": [
-            2
-          ],
-          "details": "Develop a custom error class for configuration issues. Implement error throwing for missing critical values and logging for non-critical issues. Include storage-specific configuration error handling.",
-          "status": "done"
-        },
-        {
-          "id": 4,
-          "title": "Create a configuration access interface",
-          "description": "Develop a clean interface for other modules to access configuration values",
-          "dependencies": [
-            2,
-            3
-          ],
-          "details": "Create getter methods for each configuration value, including storage-specific configurations. Implement caching to avoid repeated environment lookups.",
-          "status": "done"
-        },
-        {
-          "id": 5,
-          "title": "Integrate configuration module with MCP server extension",
-          "description": "Modify the MCP server extension to use the new configuration module for accessing settings",
-          "dependencies": [
-            4
-          ],
-          "details": "Update the MCP server extension to use the new configuration interface instead of directly accessing environment variables. Ensure all necessary configuration values are accessible, including storage-related configurations.",
-          "status": "done"
-        },
-        {
-          "id": 6,
-          "title": "Implement Firebase Storage SDK integration and core storage tools",
-          "description": "Integrate Firebase Storage SDK and implement the five essential storage tools",
-          "dependencies": [
-            5
-          ],
-          "details": "Import { getStorage } from 'firebase-admin/storage'. Initialize storage with default bucket using const storage = getStorage(); const bucket = storage.bucket(). Implement storage authentication verification. Create the following functions: storage_get_file_content(path, encoding?), storage_upload_file(path, content, contentType?, metadata?), storage_list_files(directoryPath?, prefix?), storage_delete_file(path), and storage_get_file_info(path). Ensure support for text and binary file types, basic error handling, file path validation and sanitization, and consistent JSON response formatting.",
-          "status": "done"
-        },
-        {
-          "id": 7,
-          "title": "Perform final testing and integration",
-          "description": "Conduct thorough testing of all implemented storage tools and ensure seamless integration with the existing system",
-          "dependencies": [
-            6
-          ],
-          "details": "Perform comprehensive unit and integration tests for all implemented storage functions. Verify error handling, edge cases, and performance under various conditions. Ensure that the MCP server extensions work correctly with the CK_Priming_v11 system. Document any potential impacts on the upcoming storage structure implementation.",
-          "status": "done"
-        }
-      ]
+      "dependencies": [],
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 2,
+      "title": "Implement Expense Distribution Pie Chart",
+      "description": "Create a pie chart showing expense distribution by category with interactive features.",
+      "details": "1. Create ExpenseDistributionChart component\n2. Fetch and aggregate transaction data by category\n3. Implement pie chart using Recharts PieChart and Pie components\n4. Add hover/touch interactivity for segment details\n5. Implement date range filtering\n6. Handle loading and empty states",
+      "testStrategy": "Test with various data sets. Verify correct percentages and amounts. Check touch interactivity on mobile. Ensure proper handling of edge cases (no data, single category).",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 3,
-      "title": "Upload B1 Section Documents to Firebase Storage",
-      "description": "Upload the B1 section documents from the local folder to the '/bible/sections/B1/raw/' directory in Firebase Storage.",
-      "details": "Use the 'storage_upload_document' function to upload each document with the appropriate metadata. Ensure file integrity and no data loss during the upload process.",
-      "testStrategy": "Verify that all B1 section documents are successfully uploaded to Firebase Storage and that the file contents match the local copies.",
-      "priority": "medium",
-      "dependencies": [],
+      "title": "Develop Income vs Expense vs Balance Bar Chart",
+      "description": "Create a bar chart comparing income, expenses, and net balance over time.",
+      "details": "1. Create IncomeExpenseChart component\n2. Fetch and process income and expense data\n3. Calculate net balance\n4. Implement bar chart using Recharts BarChart and Bar components\n5. Add time period navigation (monthly, quarterly, yearly)\n6. Implement color coding for income, expenses, and balance\n7. Handle loading and empty states",
+      "testStrategy": "Test with various time ranges. Verify correct calculations and color coding. Check navigation controls. Test edge cases like no income or all negative balance periods.",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
       "status": "done",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Implement create/update template function",
-          "description": "Develop a function to create and update B1 document templates in the API client module",
-          "dependencies": [],
-          "details": "Create a function that accepts template data, constructs the payload, sends a POST/PUT request to the API, and handles the response. Include error handling and validation of input data.",
-          "status": "done"
-        },
-        {
-          "id": 2,
-          "title": "Implement get template function",
-          "description": "Develop a function to retrieve B1 document templates from the API",
-          "dependencies": [],
-          "details": "Create a function that sends a GET request to the API to fetch template data. Handle pagination if applicable, and process the response to return the template information.",
-          "status": "done"
-        },
-        {
-          "id": 3,
-          "title": "Implement B1 document upload process",
-          "description": "Create a function to handle the B1 document upload process, including subsections B1.1-B1.6",
-          "dependencies": [
-            2
-          ],
-          "details": "Develop a function that takes B1 document data, validates it against the template, and uploads each subsection (B1.1-B1.6) to the appropriate location in Firebase Storage. Ensure proper organization and naming conventions.",
-          "status": "done"
-        },
-        {
-          "id": 4,
-          "title": "Implement error handling and HTTP response management",
-          "description": "Create utility functions for managing HTTP responses and handling errors consistently across the API client module",
-          "dependencies": [
-            2,
-            3
-          ],
-          "details": "Develop reusable functions for processing HTTP responses, extracting relevant data, and standardizing error handling. Implement logging for errors and unexpected responses.",
-          "status": "done"
-        }
-      ]
+      "subtasks": []
     },
     {
       "id": 4,
-      "title": "Create Metadata Records in Firestore",
-      "description": "Create metadata records for the B1 section documents in the 'bible_storage_metadata' Firestore collection.",
-      "details": "For each B1 document, create a new record in the 'bible_storage_metadata' collection with the following fields: 'section', 'title', 'storage_path', 'optimized_path', 'chunks', 'cross_references', and 'metadata'.",
-      "testStrategy": "Validate that all B1 section documents have corresponding metadata records in the 'bible_storage_metadata' collection, and that the records contain the expected fields and values.",
+      "title": "Create Spending Trends Line Chart",
+      "description": "Implement a line chart showing spending trends over time with category filtering.",
+      "details": "1. Create SpendingTrendsChart component\n2. Fetch and process spending data over time\n3. Implement line chart using Recharts LineChart and Line components\n4. Add smooth line interpolation and data point markers\n5. Implement category filtering functionality\n6. Add optional goal line overlay\n7. Handle loading and empty states",
+      "testStrategy": "Test with various time ranges and categories. Verify smooth line rendering and correct data points. Test category filtering. Check goal line overlay functionality.",
       "priority": "medium",
-      "dependencies": [],
+      "dependencies": [
+        1
+      ],
       "status": "done",
       "subtasks": []
     },
     {
       "id": 5,
-      "title": "Generate Initial Cross-Reference Mapping",
-      "description": "Implement the 'bible_update_cross_references' function to generate the initial cross-reference mapping for the B1 section documents.",
-      "details": "Analyze the content of the B1 documents and create cross-reference records in the 'bible_cross_references' Firestore collection. Each record should include the 'source_document', 'target_document', 'reference_type', 'context', and 'confidence' fields.",
-      "testStrategy": "Verify that the 'bible_cross_references' collection contains accurate and comprehensive cross-reference data for the B1 section documents. Manually review a sample of the cross-references to ensure they are contextually relevant.",
+      "title": "Implement Budget vs Actual Comparison Chart",
+      "description": "Create a chart comparing budgeted amounts to actual spending with visual indicators.",
+      "details": "1. Create BudgetComparisonChart component\n2. Fetch budget and actual spending data\n3. Implement horizontal or grouped bar chart using Recharts BarChart and Bar\n4. Add over/under budget visual indicators\n5. Display percentage completion\n6. Implement alert styling for budget overruns\n7. Handle loading and empty states",
+      "testStrategy": "Test with various budget scenarios. Verify correct calculations and visual indicators. Check alert styling for overruns. Test edge cases like no budget set or no spending.",
       "priority": "medium",
-      "dependencies": [],
+      "dependencies": [
+        1
+      ],
       "status": "done",
       "subtasks": []
     },
     {
       "id": 6,
-      "title": "Upload B0_README_TOC.md as Master Index",
-      "description": "Upload the B0_README_TOC.md file to the '/bible' directory in Firebase Storage as the master table of contents for the Bible documentation.",
-      "details": "Use the 'storage_upload_document' function to upload the B0_README_TOC.md file. Ensure the file is accessible and up-to-date with the latest section information.",
-      "testStrategy": "Verify that the B0_README_TOC.md file is successfully uploaded and that the table of contents accurately reflects the available Bible sections.",
-      "priority": "medium",
-      "dependencies": [],
+      "title": "Integrate Charts into GraphsPage and Implement Responsive Layout",
+      "description": "Integrate all charts into the GraphsPage component and implement a responsive layout.",
+      "details": "1. Update GraphsPage.jsx to replace placeholder content\n2. Implement responsive grid layout (2x2 desktop, single column mobile)\n3. Add chart components to the layout\n4. Implement shared date range selector affecting all relevant charts\n5. Ensure proper sizing and scaling of charts across screen sizes\n6. Implement touch-friendly interactions for mobile",
+      "testStrategy": "Test layout on various screen sizes. Verify chart resizing and touch interactions. Check shared date range functionality. Ensure consistent styling with other KarmaCash sections.",
+      "priority": "high",
+      "dependencies": [
+        2,
+        3,
+        4,
+        5
+      ],
       "status": "done",
       "subtasks": []
     },
     {
       "id": 7,
-      "title": "Analyze B1 Documents for Structure and Content Patterns",
-      "description": "Analyze the B1 section documents to identify structural and content patterns that can be used to optimize the documents for AI consumption.",
-      "details": "Use natural language processing and machine learning techniques to detect document structure, semantic relationships, and key information. Identify opportunities to extract and organize the content into more AI-friendly formats.",
-      "testStrategy": "Validate the analysis results by manually reviewing a sample of the B1 documents and comparing the identified patterns to the original content. Ensure the analysis accurately captures the essential information and structure.",
+      "title": "Optimize Data Fetching and State Management",
+      "description": "Implement efficient data fetching, caching, and state management for chart data.",
+      "details": "1. Create a data fetching service for chart data\n2. Implement data aggregation and filtering logic\n3. Set up caching mechanism for processed chart data\n4. Implement real-time updates when transactions change\n5. Optimize data structures for large datasets (1000+ transactions)\n6. Implement error handling and retry mechanisms",
+      "testStrategy": "Test with large datasets to ensure performance. Verify caching effectiveness. Check real-time update functionality. Test error scenarios and recovery.",
       "priority": "medium",
-      "dependencies": [],
+      "dependencies": [
+        6
+      ],
       "status": "done",
       "subtasks": []
     },
     {
       "id": 8,
-      "title": "Generate Semantic Chunks for B1 Documents",
-      "description": "Based on the analysis from the previous task, generate semantic chunks of the B1 section documents and store them in the '/bible/sections/B1/chunks/' directory.",
-      "details": "Develop an algorithm to split the B1 documents into logically coherent chunks, preserving the context and relationships between the content. Store the chunks in a structured format (e.g., JSON) that can be easily consumed by AI systems.",
-      "testStrategy": "Verify that the generated chunks accurately represent the original document content and maintain the necessary context and relationships. Ensure the chunk data is stored in a format that is easily accessible and usable by the CK_Priming_v11 system.",
-      "priority": "medium",
-      "dependencies": [],
-      "status": "done",
-      "subtasks": []
-    },
-    {
-      "id": 9,
-      "title": "Create Optimized Versions of B1 Documents",
-      "description": "Generate optimized versions of the B1 section documents and store them in the '/bible/sections/B1/optimized/' directory.",
-      "details": "Based on the analysis and chunk generation, create AI-friendly versions of the B1 documents that are structured, annotated, and formatted to improve their usability for the CK_Priming_v11 system. Leverage the latest natural language processing and content optimization techniques to enhance the documents.",
-      "testStrategy": "Validate the optimized documents by comparing them to the original versions and ensuring that the essential information and context are preserved. Verify that the optimized documents provide improved performance and usability for the CK_Priming_v11 system.",
-      "priority": "medium",
-      "dependencies": [],
-      "status": "done",
-      "subtasks": []
-    },
-    {
-      "id": 10,
-      "title": "Implement Automated Cross-Reference Detection and Mapping",
-      "description": "Develop an automated process to detect and map cross-references between the B1 section documents.",
-      "details": "Enhance the 'bible_update_cross_references' function to automatically analyze the content of the B1 documents, identify relevant cross-references, and update the 'bible_cross_references' Firestore collection accordingly. Leverage natural language processing and machine learning techniques to improve the accuracy and reliability of the cross-reference detection.",
-      "testStrategy": "Validate the cross-reference mapping by manually reviewing a sample of the generated relationships and ensuring they are contextually accurate and relevant. Monitor the performance and accuracy of the automated cross-reference detection over time.",
-      "priority": "medium",
-      "dependencies": [],
-      "status": "done",
-      "subtasks": []
-    },
-    {
-      "id": 11,
-      "title": "Integrate Bible Access Module into CK_Priming_v11",
-      "description": "Add a new bible access module to the CK_Priming_v11 system, enabling autonomous retrieval of B1 section content.",
-      "details": "Implement the necessary client-side functionality to interact with the custom-firebase MCP server extensions and retrieve B1 section documents, cross-references, and semantic chunks. Ensure the integration is seamless and does not degrade the overall performance of the CK_Priming_v11 system.",
-      "testStrategy": "Thoroughly test the bible access module within the CK_Priming_v11 system, verifying that the CK can successfully fetch B1 section content, follow cross-references, and build contextual information. Monitor the system's performance and stability during integration.",
-      "priority": "medium",
-      "dependencies": [
-        "2"
-      ],
-      "status": "done",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Create Bible Access Module Structure",
-          "description": "Set up the basic structure for the Bible Access Module within the CK_Priming_v11 system",
-          "dependencies": [],
-          "details": "Create a new module directory in the CK_Priming_v11 project. Define the main class for the Bible Access Module with placeholder methods for document retrieval, cross-reference lookup, and semantic chunk access. Set up the necessary import statements and module dependencies.\n<info added on 2025-05-29T02:42:04.169Z>\nThe Bible Access Module core structure has been completed with the following key components:\n\n1. Document Retrieval System: Implemented methods for getting documents by ID, sections, and content search.\n2. Cross-Reference Navigation: Integrated with Task 10's cross-reference mapping from Firestore.\n3. Intelligent Caching: Developed an LRU cache with configurable timeout and size limits.\n4. Context Building: Created smart context assembly for AI queries with related documents.\n5. Performance Metrics: Implemented built-in monitoring for cache efficiency and usage patterns.\n6. Error Handling: Established comprehensive error handling with fallbacks.\n7. Modular Design: Designed clean interfaces ready for CK_Priming_v11 integration.\n\nThe module now handles Firebase MCP communication, optimized JSON parsing, and token-efficient content retrieval. It is prepared for implementation in subtask 11.2.\n</info added on 2025-05-29T02:42:04.169Z>",
-          "status": "done",
-          "testStrategy": "Create unit tests for the module structure, ensuring all expected methods and properties are present."
-        },
-        {
-          "id": 2,
-          "title": "Implement Firebase MCP Server Communication",
-          "description": "Develop the communication layer between the Bible Access Module and the custom-firebase MCP server extensions",
-          "dependencies": [],
-          "details": "Implement methods to establish a connection with the Firebase MCP server. Create functions to send requests for B1 section documents, cross-references, and semantic chunks. Handle authentication and error scenarios. Ensure proper data parsing of server responses.\n<info added on 2025-05-29T02:44:40.476Z>\nFirebase MCP Server Communication layer implemented with the following key features:\n\n1. FirebaseMCPClient class for comprehensive communication management\n2. Firebase Storage operations with proper path handling\n3. Specialized content fetching methods for JSON, Markdown, and text\n4. Complete CRUD operations for Firestore cross-reference management\n5. Optimized Bible-specific helper methods\n6. Built-in performance monitoring and metrics tracking\n7. Robust error handling and retry mechanism with exponential backoff\n8. Automatic response validation for MCP tool responses\n\nBibleAccessModule updated to utilize the new FirebaseMCPClient, improving separation of concerns and error handling. Implementation is complete and ready for integration with content retrieval and caching in subtask 11.3.\n</info added on 2025-05-29T02:44:40.476Z>",
-          "status": "done",
-          "testStrategy": "Develop integration tests to verify successful communication with the Firebase MCP server, including authentication and data retrieval."
-        },
-        {
-          "id": 3,
-          "title": "Implement Content Retrieval and Caching",
-          "description": "Create methods for retrieving and caching Bible content within the CK_Priming_v11 system",
-          "dependencies": [
-            2
-          ],
-          "details": "Implement functions to retrieve B1 section documents, cross-references, and semantic chunks using the communication layer. Develop a caching mechanism to store frequently accessed content and reduce server requests. Implement methods for updating and invalidating the cache as needed.\n<info added on 2025-05-29T02:49:35.038Z>\nCompleted Content Retrieval and Caching implementation with advanced features:\n\n1. Enhanced Caching System: Multi-level cache for documents, sections, cross-references, metadata, and search results\n2. Intelligent Prefetching: Automatic prefetching of related content based on usage patterns and cross-references\n3. Batch Retrieval: Optimized batch operations for multiple document requests to reduce latency\n4. LRU Cache Management: Least Recently Used eviction with configurable size limits and compression\n5. Cache Analytics: Comprehensive performance monitoring with hit rates, memory usage, and prefetch statistics\n6. Context-Aware Caching: Smart caching for section retrieval with adjacent section prefetching\n7. Search Result Caching: Efficient caching of search results with query-based keys\n8. Performance Reporting: Detailed performance reports combining module, cache, and MCP client metrics\n\nThe BibleAccessModule now utilizes the EnhancedCacheSystem for all caching operations, providing significant performance improvements through intelligent prefetching and optimized retrieval strategies. Implementation is complete and ready for final integration and testing in subtask 11.4.\n</info added on 2025-05-29T02:49:35.038Z>",
-          "status": "done",
-          "testStrategy": "Create unit tests for content retrieval and caching functions. Implement performance tests to ensure efficient content access and cache utilization."
-        },
-        {
-          "id": 4,
-          "title": "Integrate and Test Bible Access Module",
-          "description": "Integrate the Bible Access Module into the CK_Priming_v11 system and perform comprehensive testing",
-          "dependencies": [
-            3
-          ],
-          "details": "Integrate the Bible Access Module into the main CK_Priming_v11 system. Update existing code to utilize the new module for Bible content retrieval. Ensure seamless interaction between the module and other system components. Optimize performance and handle edge cases.\n<info added on 2025-05-29T02:55:15.352Z>\nIntegration and Testing completed successfully with the following deliverables:\n\n1. CK Integration Layer: Fully integrated system enhancing CK_Priming_v11 with Bible access capabilities, including autonomous content retrieval, search, context building, and cross-reference navigation.\n\n2. Comprehensive Test Suite: Complete test coverage with unit tests for MCP client, cache system, and Bible module; integration tests for CK system integration; performance tests for cache efficiency, batch operations, and memory usage; and end-to-end workflow tests.\n\n3. Production-Ready Deployment: Detailed deployment guide including installation instructions, configuration options, usage examples, troubleshooting guide, and best practices.\n\n4. Performance Monitoring: Implemented built-in metrics collection, performance reporting, health checks, and optimization recommendations.\n\n5. Error Handling: Robust error handling system with retry logic, fallback strategies, and comprehensive logging.\n\n6. Documentation: Comprehensive deployment guide covering installation, configuration, integration patterns, testing procedures, and maintenance.\n\nThe Bible Access Module is now fully integrated with CK_Priming_v11 and ready for production deployment. All components work together seamlessly to provide autonomous Bible content access with intelligent caching, cross-reference navigation, and context building capabilities.\n</info added on 2025-05-29T02:55:15.352Z>",
-          "status": "done",
-          "testStrategy": "Conduct end-to-end testing of the CK_Priming_v11 system with the integrated Bible Access Module. Perform stress tests to ensure system stability under heavy load. Verify autonomous content retrieval functionality across various scenarios."
-        }
-      ]
-    },
-    {
-      "id": 12,
-      "title": "Validate Improved PWA Development Guidance",
-      "description": "Evaluate the impact of the B1 section AI optimization on the quality and accuracy of the PWA development guidance provided by the CK_Priming_v11 system.",
-      "details": "Conduct user testing and feedback sessions with the CK team to assess the improvements in the PWA development guidance, including the ability to discover relevant content, follow contextual cross-references, and make more informed decisions based on the optimized Bible documentation.",
-      "testStrategy": "Gather quantitative and qualitative data from the CK team, measuring factors such as time to find relevant information, accuracy of development decisions, and overall satisfaction with the Bible documentation access. Analyze the results and identify areas for further improvement.",
-      "priority": "medium",
-      "dependencies": [],
-      "status": "pending",
-      "subtasks": []
-    },
-    {
-      "id": 13,
-      "title": "Document Proven Methodology from B1 Pilot",
-      "description": "Capture the lessons learned and best practices from the B1 section AI optimization pilot, creating a blueprint for scaling the solution to the remaining Bible sections.",
-      "details": "Document the end-to-end process, including the technical implementation details, quality assurance procedures, and user feedback. Identify opportunities for automation and streamlining the migration and optimization of additional Bible sections.",
-      "testStrategy": "Review the documentation with the project team and key stakeholders to ensure it accurately reflects the proven methodology and can be effectively applied to the remaining Bible sections.",
-      "priority": "medium",
-      "dependencies": [],
-      "status": "pending",
-      "subtasks": []
-    },
-    {
-      "id": 14,
-      "title": "Establish Quality Assurance Process",
-      "description": "Develop a comprehensive quality assurance process to ensure the ongoing integrity and accuracy of the Bible documentation system.",
-      "details": "Implement automated testing and validation procedures to verify the correctness of the document storage, metadata, cross-references, and optimized content. Establish a regular review and auditing schedule to identify and address any issues or discrepancies.",
-      "testStrategy": "Validate the quality assurance process by running it against the B1 section and verifying that it effectively detects and resolves any problems. Refine the process as needed to ensure it can be scaled to the full Bible documentation collection.",
-      "priority": "medium",
-      "dependencies": [],
-      "status": "pending",
-      "subtasks": []
-    },
-    {
-      "id": 15,
-      "title": "Plan Incremental Rollout Strategy",
-      "description": "Create a detailed plan for the incremental rollout of the Bible documentation AI optimization to the remaining sections (B2, B3, etc.).",
-      "details": "Leverage the lessons learned from the B1 pilot to develop a scalable and efficient rollout strategy. Consider factors such as resource allocation, timeline, risk management, and stakeholder communication. Ensure the rollout plan maintains backward compatibility and minimizes disruption to the existing CK_Priming_v11 system.",
-      "testStrategy": "Review the rollout plan with the project team and key stakeholders to validate the feasibility, timeline, and risk mitigation strategies. Incorporate feedback and refine the plan as necessary to ensure a successful and seamless scale-up of the Bible documentation AI optimization.",
-      "priority": "medium",
-      "dependencies": [],
-      "status": "pending",
-      "subtasks": []
-    },
-    {
-      "id": 16,
-      "title": "Evaluate and Implement Working Firebase MCP Server Solution for Bible Access Module",
-      "description": "Verify and implement the @gannonh/firebase-mcp server solution for the Bible Access Module, ensuring it has all required Storage tools and works properly with our KarmaCash Firebase project.",
-      "status": "done",
-      "dependencies": [
-        2
-      ],
+      "title": "Finalize Implementation and Conduct Testing",
+      "description": "Complete final implementation details, conduct thorough testing, and prepare for deployment.",
+      "details": "1. Implement empty states and loading indicators for all charts\n2. Ensure consistent error handling across all components\n3. Optimize performance (aim for <2s load time, <100ms interaction response)\n4. Conduct cross-browser and cross-device testing\n5. Verify integration with bottom navigation\n6. Update component documentation\n7. Prepare release notes",
+      "testStrategy": "Conduct end-to-end testing of entire Graphiques section. Verify all acceptance criteria are met. Test on multiple devices and browsers. Measure and document performance metrics.",
       "priority": "high",
-      "details": "1. Review current @gannonh/firebase-mcp server setup:\n   - Confirm the server is correctly installed and configured in the project environment\n\n2. Verify required Storage tools:\n   - Check if @gannonh/firebase-mcp server provides the following tools:\n     - storage_list_files\n     - storage_get_file_info\n     - fetch_json\n   - Document any missing tools that need to be implemented separately\n\n3. Test existing Storage tools with KarmaCash Firebase project:\n   - Set up a test environment connected to the KarmaCash Firebase project\n   - Create test scripts for each required Storage tool\n   - Implement and test each tool, ensuring they work correctly with our project\n\n4. Implement missing tools (if any):\n   - For any required tools not provided by @gannonh/firebase-mcp, create custom implementations\n   - Ensure these custom tools integrate seamlessly with the existing MCP server\n\n5. Document tool signatures and response formats:\n   - Create detailed documentation for each Storage tool, including:\n     - Function signatures\n     - Required parameters\n     - Response formats\n     - Error handling\n\n6. Optimize and refine:\n   - Perform stress testing to ensure stability under load\n   - Implement error handling and logging for all tools\n   - Optimize performance if necessary\n\n7. Update project documentation:\n   - Add or update instructions for using the @gannonh/firebase-mcp server with our project\n   - Include the newly created documentation for Storage tools\n\n8. Prepare for integration:\n   - Ensure the implemented solution is ready for use in Task 11\n   - Create a brief guide for other developers on how to use the Storage tools with the MCP server",
-      "testStrategy": "1. Unit Testing:\n   - Write unit tests for each Storage tool (storage_list_files, storage_get_file_info, fetch_json, etc.)\n   - Ensure each function returns expected results and handles errors appropriately\n\n2. Integration Testing:\n   - Set up a test environment that connects to the KarmaCash Firebase project\n   - Create test cases that simulate real-world usage scenarios for the Bible Access Module\n   - Verify that the MCP server and Storage tools integrate correctly with the Firebase project\n\n3. Performance Testing:\n   - Conduct load tests to ensure the MCP server can handle expected traffic\n   - Measure response times for various operations and compare them to project requirements\n\n4. Functionality Verification:\n   - Create a checklist of all required Storage tools and verify each one works as expected\n   - Test edge cases, such as large file uploads, numerous small files, and concurrent operations\n\n5. Error Handling:\n   - Simulate various error conditions (network issues, invalid inputs, etc.) and verify proper error handling\n\n6. Security Testing:\n   - Verify that the MCP server implements proper authentication and authorization with the KarmaCash Firebase project\n   - Ensure that sensitive data is properly protected\n\n7. Compatibility Testing:\n   - Test the MCP server and Storage tools with different versions of Firebase SDKs to ensure compatibility\n   - Verify functionality across different environments (development, staging, production)\n\n8. Documentation Review:\n   - Have another team member review the documentation and attempt to use the Storage tools using only the provided instructions\n   - Address any unclear or missing information in the documentation\n\n9. Code Review:\n   - Conduct a thorough code review with team members to ensure code quality and adherence to project standards\n\n10. Final Acceptance Test:\n    - Demonstrate the working MCP server solution and Storage tools to project stakeholders\n    - Verify that all requirements for the Bible Access Module are met",
-      "subtasks": []
-    },
-    {
-      "id": 17,
-      "title": "Update Bible Access Module for Functional Firebase MCP Server Integration",
-      "description": "Refactor the Bible Access Module to work with the verified Firebase MCP server implementation from Task 16, addressing the incomplete implementation from Task 2. The core functionality has been implemented and tested with the actual @gannonh/firebase-mcp tools.",
+      "dependencies": [
+        7
+      ],
       "status": "done",
-      "dependencies": [
-        16
-      ],
-      "priority": "high",
-      "details": "1. Review the Firebase MCP server solution implemented in Task 16 and the completed core functionality.\n\n2. FirebaseMCPClient updates (completed):\n   - Updated to use actual @gannonh/firebase-mcp tools (storage_list_files, storage_get_file_info, storage_upload, firestore_list_documents, etc.)\n   - Implemented proper response handling based on tested tool outputs\n   - Created Bible-specific methods: getBibleDocument, listBibleDocuments, and getBibleCrossReferences\n\n3. Bible Access Module components (completed):\n   - Updated all imports to use the working FirebaseMCPClient\n   - Implemented correct path formatting including trailing slash requirement for directory listings\n\n4. Caching mechanism (completed):\n   - Restored simple but effective caching with proper LRU eviction\n\n5. Performance optimization:\n   - Review and optimize the implemented lazy loading for Bible chapters and verses\n   - Enhance pagination support for large result sets if needed\n\n6. Configuration (completed):\n   - Verified configuration files and environment variables point to the correct MCP server\n\n7. Error handling:\n   - Review and enhance the implemented error handling for different failure scenarios\n   - Ensure user-friendly error messages are in place for all potential errors\n\n8. Update documentation:\n   - Revise API documentation to reflect the implemented changes in the FirebaseMCPClient\n   - Update developer guides and README files with new integration instructions and examples\n\n9. Refactor unit tests:\n   - Review and update existing unit tests to ensure they cover all implemented functionality\n   - Add new tests for any edge cases or scenarios not covered by existing tests\n\n10. Perform integration testing:\n    - Create a comprehensive test suite that verifies all Bible Access Module components work correctly with the new MCP server implementation\n    - Include edge cases and error scenarios in the integration tests\n    - Verify that performance metrics collection works correctly with actual MCP tool responses\n\n11. Final review and optimization:\n    - Conduct a thorough code review to ensure all implementations follow best practices\n    - Identify and implement any final optimizations for performance or resource usage",
-      "testStrategy": "1. Unit Testing:\n   - Run updated unit tests for FirebaseMCPClient and ensure all pass\n   - Verify that all Bible Access Module components have up-to-date unit tests\n   - Achieve at least 90% code coverage with unit tests\n\n2. Integration Testing:\n   - Use the existing test environment with the @gannonh/firebase-mcp server\n   - Execute test cases for all Bible Access Module functionalities:\n     a. Fetching Bible books, chapters, and verses\n     b. Searching for specific content\n     c. Handling large result sets with pagination\n     d. Caching and cache invalidation\n   - Verify correct handling of various error scenarios\n\n3. Performance Testing:\n   - Conduct load tests to ensure the module can handle multiple concurrent requests\n   - Measure response times for different operations and compare with previous implementation\n   - Verify that lazy loading and pagination improve performance for large datasets\n   - Test the effectiveness of the implemented caching mechanism\n\n4. Compatibility Testing:\n   - Test the updated module with different versions of dependent libraries\n   - Verify compatibility with various client applications that use the Bible Access Module\n\n5. Security Testing:\n   - Perform penetration testing to ensure the new implementation doesn't introduce vulnerabilities\n   - Verify that all communication with the MCP server is properly secured\n\n6. User Acceptance Testing:\n   - Provide a test build to a group of end-users or stakeholders\n   - Collect feedback on functionality, performance, and user experience\n\n7. Documentation Review:\n   - Have another developer review the updated documentation for clarity and completeness\n   - Verify that all changes are accurately reflected in the API documentation\n\n8. Code Review:\n   - Conduct a thorough code review of all changes, preferably by a senior developer not involved in the implementation\n\n9. Regression Testing:\n   - Run a full suite of regression tests to ensure existing functionalities are not broken\n\n10. Deployment Testing:\n    - Perform a dry run of the deployment process in a staging environment\n    - Verify that the module works correctly after deployment with the new MCP server in a production-like environment\n\n11. Performance Metrics Validation:\n    - Verify that the updated metrics collection accurately reflects the module's performance with actual MCP tool responses",
-      "subtasks": [
-        {
-          "id": "17.1",
-          "title": "Review and optimize lazy loading",
-          "status": "done"
-        },
-        {
-          "id": "17.2",
-          "title": "Enhance pagination support",
-          "status": "done"
-        },
-        {
-          "id": "17.3",
-          "title": "Review and enhance error handling",
-          "status": "done"
-        },
-        {
-          "id": "17.4",
-          "title": "Update documentation",
-          "status": "done"
-        },
-        {
-          "id": "17.5",
-          "title": "Review and update unit tests",
-          "status": "done"
-        },
-        {
-          "id": "17.6",
-          "title": "Create comprehensive integration test suite",
-          "status": "done"
-        },
-        {
-          "id": "17.7",
-          "title": "Conduct final code review and optimization",
-          "status": "done"
-        }
-      ]
-    },
-    {
-      "id": 18,
-      "title": "Create Configuration Files for Bible Access Module Deployment",
-      "description": "Create missing configuration files for Bible Access Module deployment, including bible-config.json with Firebase MCP settings, package.json with required dependencies, and update the deployment guide with MCP server configuration.",
-      "details": "1. Create bible-config.json:\n   - Define Firebase MCP settings structure\n   - Include fields for projectId, storageBucket, and apiKey\n   - Add configuration for both official and community Firebase MCP server options\n\n2. Create package.json:\n   - Initialize with `npm init -y`\n   - Add required dependencies:\n     - firebase-admin\n     - firebase-functions\n     - @firebase/storage\n     - @gannonh/firebase-mcp (for community server option)\n\n3. Update deployment guide:\n   - Add section for environment variable setup:\n     - FIREBASE_PROJECT_ID\n     - FIREBASE_STORAGE_BUCKET\n     - FIREBASE_API_KEY\n   - Include instructions for service account configuration:\n     - Generating and downloading service account key\n     - Setting GOOGLE_APPLICATION_CREDENTIALS environment variable\n   - Provide integration instructions for official Firebase MCP server:\n     - Installing firebase-tools globally\n     - Initializing Firebase project\n     - Starting Firebase emulators\n   - Add integration instructions for community Firebase MCP server:\n     - Installing @gannonh/firebase-mcp\n     - Configuring and starting the community MCP server\n   - Include examples of how to switch between official and community MCP servers in the Bible Access Module\n\n4. Create a .env.example file:\n   - Add placeholder values for all required environment variables\n   - Include comments explaining each variable's purpose\n\n5. Update .gitignore:\n   - Add entries for .env file and service account key file\n\n6. Create a setup script (setup.js or setup.sh):\n   - Automate the process of copying .env.example to .env\n   - Prompt user for necessary configuration values\n   - Update bible-config.json and .env files with provided values",
-      "testStrategy": "1. Verify bible-config.json:\n   - Ensure all required fields are present\n   - Validate JSON structure\n   - Check for proper Firebase MCP settings for both server options\n\n2. Test package.json:\n   - Run `npm install` to verify all dependencies can be installed without errors\n   - Check that all required dependencies are listed with appropriate versions\n\n3. Review deployment guide:\n   - Follow the guide step-by-step to set up a test environment\n   - Verify all environment variables can be set as described\n   - Test service account configuration process\n   - Attempt to start both official and community Firebase MCP servers\n   - Ensure the Bible Access Module can connect to both server options\n\n4. Test .env.example and setup script:\n   - Run the setup script and provide test values\n   - Verify that .env file is created with correct structure\n   - Check that bible-config.json is updated with provided values\n\n5. Validation test:\n   - Use a linter (e.g., ESLint) to check the syntax of all created/modified files\n   - Attempt to deploy the Bible Access Module using the new configuration\n   - Verify that the module can perform basic operations (e.g., file upload, download) with both MCP server options",
-      "status": "pending",
-      "dependencies": [
-        17
-      ],
-      "priority": "medium",
       "subtasks": []
     }
   ]

@@ -1,0 +1,12 @@
+{
+  "chunk_id": "B2.1-005",
+  "original_document_id": "B2.1_Design_Philosophy",
+  "parent_headings": [
+    "Design Philosophy",
+    "Application to Key User Experiences"
+  ],
+  "content_markdown": "## Application to Key User Experiences\n\n### Monthly Budget Planning\nWhen users are allocating limited resources across competing needs, the calming interface reduces decision fatigue and promotes thoughtful consideration rather than hasty allocation.\n\n### Negative Balance Situations\nWhen displaying concerning financial information (overspending, negative balances), the soothing design elements help maintain perspective and encourage solution-focused thinking rather than panic.\n\n### Financial Goal Setting\nThe clean, focused UI supports thoughtful reflection on priorities when establishing savings goals or spending limits, encouraging alignment with deeper values rather than superficial desires.\n\n### Daily Transaction Tracking\nThe non-judgmental, clean aesthetic makes regular financial check-ins feel like a mindfulness practice rather than a chore, increasing the likelihood of consistent engagement.\n\n",
+  "content_text": "Application to Key User Experiences\n\nMonthly Budget Planning\nWhen users are allocating limited resources across competing needs, the calming interface reduces decision fatigue and promotes thoughtful consideration rather than hasty allocation.\n\nNegative Balance Situations\nWhen displaying concerning financial information (overspending, negative balances), the soothing design elements help maintain perspective and encourage solution-focused thinking rather than panic.\n\nFinancial Goal Setting\nThe clean, focused UI supports thoughtful reflection on priorities when establishing savings goals or spending limits, encouraging alignment with deeper values rather than superficial desires.\n\nDaily Transaction Tracking\nThe non-judgmental, clean aesthetic makes regular financial check-ins feel like a mindfulness practice rather than a chore, increasing the likelihood of consistent engagement.\n\n",
+  "chunk_type": "subsection",
+  "generation_date": "2025-05-30T02:12:16.088Z"
+}

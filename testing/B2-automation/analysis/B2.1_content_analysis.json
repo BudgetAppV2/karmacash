@@ -1,0 +1,53 @@
+{
+  "document_id": "B2.1_Design_Philosophy",
+  "analysis_date": "2025-05-30T02:11:00Z",
+  "structural_summary": "Document follows a clear hierarchical structure with 1 H1 header (Design Philosophy), 7 H2 sections covering core philosophy through implementation guidelines, and 17 H3 subsections providing detailed breakdowns. Strong use of bullet lists (6 instances) for principles and guidelines.",
+  "dominant_content_types": [
+    "descriptive_text",
+    "philosophical_principles", 
+    "design_guidelines",
+    "psychological_concepts",
+    "implementation_directives"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchical organization",
+    "Consistent use of bullet lists for principles",
+    "Numbered design principles (1-6) under Design Principles section",
+    "Examples under Application to Key User Experiences",
+    "Cross-references to other Bible sections [B3.8 v2], [B3.11]"
+  ],
+  "examples_of_key_entities": [
+    "Zen/Tranquility philosophy",
+    "KarmaCash",
+    "Japandi design",
+    "Enso circle logo",
+    "Cognitive load theory",
+    "Financial anxiety",
+    "Mindfulness",
+    "Progressive disclosure"
+  ],
+  "potential_for_ai_optimization": "High potential for AI optimization through: 1) Extracting design principles as structured rules, 2) Creating searchable index of psychological concepts, 3) Mapping implementation guidelines to specific UI components, 4) Building semantic relationships between philosophy and practical applications",
+  "notes_for_chunking": "Natural chunk boundaries at H2 sections (7 main chunks). Some H2 sections with multiple H3s (Design Principles has 6, Psychological Considerations has 3) could be sub-chunked. Cross-references should be preserved with context.",
+  "cross_references_detected": [
+    {
+      "reference": "[B3.8 v2]",
+      "context": "Visual Design: Follow the style guide [B3.8 v2] for colors, typography, and components",
+      "location": "Implementation Guidelines section"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "Interaction Design: Implement the gentle micro-interactions defined in [B3.11]",
+      "location": "Implementation Guidelines section"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 7,
+    "h3_count": 17,
+    "bullet_lists": 6,
+    "cross_references": 2,
+    "estimated_chunks": 7,
+    "word_count": 931,
+    "character_count": 6907
+  }
+}

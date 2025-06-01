@@ -1,0 +1,301 @@
+{
+  "document_id": "B3.4_Guidelines",
+  "analysis_date": "2025-05-30T03:12:47.662Z",
+  "structural_summary": "Document has 1 H1, 3 H2, and 21 H3 headers",
+  "dominant_content_types": [
+    "ui_ux_design",
+    "component_specifications",
+    "style_guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "3 main sections",
+    "Cross-references: 53"
+  ],
+  "examples_of_key_entities": [
+    "component",
+    "animation",
+    "color",
+    "typography",
+    "spacing",
+    "Japandi",
+    "zen",
+    "tranquility"
+  ],
+  "potential_for_ai_optimization": "High - structured UI/UX content ideal for component generation",
+  "notes_for_chunking": "Natural boundaries at 3 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B3.8]",
+      "context": "- Use muted, natural colors from the Japandi-inspired palette defined in [B3.8] / [B3.9].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.9]",
+      "context": "- Use muted, natural colors from the Japandi-inspired palette defined in [B3.8] / [B3.9].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Incorporate generous whitespace and clean typography ([B3.8]).",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Use subtle visual cues rather than harsh contrasting elements ([B3.8]).",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Pay special attention to comfortable spacing on all screen sizes as defined in [B3.8].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.7]",
+      "context": "- Build the UI using reusable shared components ([B3.7], `src/components/...`) and feature-specific components ([B2.5], `src/features/...`) that follow the styling principles in [B3.8].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "- Build the UI using reusable shared components ([B3.7], `src/components/...`) and feature-specific components ([B2.5], `src/features/...`) that follow the styling principles in [B3.8].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Build the UI using reusable shared components ([B3.7], `src/components/...`) and feature-specific components ([B2.5], `src/features/...`) that follow the styling principles in [B3.8].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.7]",
+      "context": "- Create a component library structure that reflects the Zen/Tranquility principles ([B3.7]).",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- Implement intuitive, predictable navigation with gentle transitions between sections ([B3.11]).",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Use the softer, harmonious color scheme defined in the Style Guide [B3.8].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- Implement the subtle animations defined in [B3.11].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- Use the micro-interactions defined in [B3.11] for form validation, button states, and loading indicators.",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Use appropriate semantic colors from [B3.8].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.6]",
+      "context": "- Maintain French UI text as defined in [B3.6], with 'fr-CA' locale for date/currency formatting.",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Ensure typography follows the guidelines in [B3.8] for optimal readability of French text.",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "- Follow the UTC date/time handling standards defined in [B2.3].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- Create an interface accessible to all users (Target WCAG 2.1 AA [B2.2]).",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Ensure sufficient color contrast while maintaining the muted palette ([B3.8]).",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Design for comfortable touch interaction with appropriately sized targets (minimum 44x44px as per [B3.8]).",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- Implement refined touch gestures like swipe-to-delete for transactions with the subtle animations defined in [B3.11].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.6]",
+      "context": "- Use supportive language ([B3.6]) and subtle visual cues to help users get started.",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Present errors calmly using the Negative accent color (Soft Terra Cotta) from [B3.8].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B2.4]",
+      "context": "- Follow the Error Handling Strategy defined in [B2.4].",
+      "location": "Core Principles"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "2. User clicks 'Sign Up' (styled according to [B3.8]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "4. User clicks 'Submit' button (Primary color from palette [B3.8]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "3. User enters email and password in a clean form aligned with [B3.8].",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "6. During verification, a subtle loading animation is shown (as per [B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "2. User is presented with a calm, focused form with generous spacing ([B3.8]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "10. Frontend validates the input with gentle feedback animations ([B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B5.X]",
+      "context": "11. Frontend sends transaction data to Firestore (`/users/{userId}/transactions` or via Budget linking per [B5.X]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "12. Upon successful save, a subtle confirmation toast/message appears with a gentle animation ([B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "13. Relevant UI sections update with smooth transitions ([B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B5.X]",
+      "context": "3. The app fetches or creates the budget document for that month from Firestore ([B5.X]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "4. The UI displays categories with current spending and allocation controls, using Zen styling [B3.8].",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "7. The 'Reste à Allouer' display updates in real-time with subtle animation ([B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "3. User uses the 'Semaine'/'Mois' toggle to switch views (styled as per [B3.8]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "4. User uses the Previous/Next controls (using Heroicons [B3.8]) to navigate time periods.",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "6. Content transitions smoothly between views ([B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "4. User selects a color using the defined palette UI [B3.8].",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "7. The UI confirms the addition with a subtle toast/animation ([B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "2. User clicks 'Ajouter Règle' (Add Rule) button styled according to [B3.8].",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "6. A gentle confirmation appears ([B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "2. User swipes left on a transaction item (with smooth animation per [B3.11]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "3. A 'Supprimer' (Delete) button appears, styled with the Negative accent color (Soft Terra Cotta [B3.8]).",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "7. The UI updates with the item smoothly disappearing ([B3.11]), often accompanied by a confirmation toast.",
+      "location": "Key User Flows"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "1.  **Refer to the Style Guide**: Always reference [B3.8] for specific color values (Palette v5 TBC), spacing, typography, and component styling.",
+      "location": "Implementation Guidance"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "2.  **Use Animation Guidelines**: Follow [B3.11] for timing, easing, and animation principles.",
+      "location": "Implementation Guidance"
+    },
+    {
+      "reference": "[B3.7]",
+      "context": "3.  **Follow Component Specs**: Implement components according to [B3.7] specifications.",
+      "location": "Implementation Guidance"
+    },
+    {
+      "reference": "[B3.6]",
+      "context": "4.  **Maintain Language Consistency**: Use the French terminology defined in [B3.6].",
+      "location": "Implementation Guidance"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "5.  **Test Across Devices**: Ensure the calm, focused experience translates to all viewport sizes (Mobile-First [B2.2]).",
+      "location": "Implementation Guidance"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "6.  **Preserve Whitespace**: Resist the urge to fill space; generous whitespace is essential to the Zen aesthetic [B3.8].",
+      "location": "Implementation Guidance"
+    },
+    {
+      "reference": "[B2.1]",
+      "context": "8.  **Consider Emotional Impact**: Evaluate each design decision for its effect on the user's sense of calm and control [B2.1].",
+      "location": "Implementation Guidance"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 3,
+    "h3_count": 21,
+    "cross_references": 53,
+    "word_count": 1603
+  }
+}

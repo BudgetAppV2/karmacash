@@ -1,0 +1,326 @@
+{
+  "document_id": "B3.7_Component_Specs",
+  "analysis_date": "2025-05-30T03:12:55.112Z",
+  "structural_summary": "Document has 1 H1, 12 H2, and 26 H3 headers",
+  "dominant_content_types": [
+    "ui_ux_design",
+    "component_specifications",
+    "style_guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "12 main sections",
+    "Cross-references: 58"
+  ],
+  "examples_of_key_entities": [
+    "component",
+    "animation",
+    "color",
+    "typography",
+    "spacing",
+    "CSS",
+    "zen",
+    "tranquility"
+  ],
+  "potential_for_ai_optimization": "High - structured UI/UX content ideal for component generation",
+  "notes_for_chunking": "Natural boundaries at 12 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B3.4]",
+      "context": "This document identifies and describes the distinct UI components that make up the KarmaCash interface, based on the user stories and design requirements, aligning with the Zen/Tranquility theme ([B3.4], [B3.8 v2]).",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "This document identifies and describes the distinct UI components that make up the KarmaCash interface, based on the user stories and design requirements, aligning with the Zen/Tranquility theme ([B3.4], [B3.8 v2]).",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Horizontal navigation bar containing primary options: Transactions, Budget, Graphiques, Catégories, Ajouter. Visually styled according to [B3.8 v2].",
+      "location": "1. Navigation Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Behavior**: Active item is clearly highlighted, potentially using the Primary Sage Green color or other subtle visual cues defined in [B3.8 v2].",
+      "location": "1. Navigation Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Location**: Fixed at the top of the application below the header (Or potentially other locations like bottom navigation on mobile, as per responsive considerations in [B3.8 v2]).",
+      "location": "1. Navigation Components"
+    },
+    {
+      "reference": "[B3.9]",
+      "context": "- **Description**: Contains previous/next interactive elements (using icons like Heroicons from [B3.9]), date range display, and view mode toggles (e.g., 'Semaine', 'Mois'). Employs generous spacing as per [B3.4].",
+      "location": "1. Navigation Components"
+    },
+    {
+      "reference": "[B3.4]",
+      "context": "- **Description**: Contains previous/next interactive elements (using icons like Heroicons from [B3.9]), date range display, and view mode toggles (e.g., 'Semaine', 'Mois'). Employs generous spacing as per [B3.4].",
+      "location": "1. Navigation Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "  - View toggles switch between Semaine/Mois views, styled per [B3.8 v2]. ('Aujourd'hui' button might be separate).",
+      "location": "1. Navigation Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Interactive toggle switch element, labeled \"Solde\" with \"Cumulatif/Période\" options. Visually styled as per [B3.8 v2] button/toggle specifications, ensuring adequate touch target size.",
+      "location": "1. Navigation Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Styled header area presenting the \"KarmaCash\" name/logo on the left and the primary balance amount on the right. Background uses theme colors (e.g., subtle neutral) as defined in [B3.8 v2].",
+      "location": "2. Header Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Behavior**: Balance updates based on transactions and selected mode (Cumulatif/Période). Positive/Negative balances are indicated using the Muted Teal / Soft Terra Cotta accent colors from [B3.8 v2].",
+      "location": "2. Header Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Card container holding transactions for a specific day. Follows card styling (background, rounded corners, subtle shadows, generous padding) from [B3.8 v2]. Header displays the date and net daily total (per [B3.4] user flow). Content area is expandable/collapsible.",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.4]",
+      "context": "- **Description**: Card container holding transactions for a specific day. Follows card styling (background, rounded corners, subtle shadows, generous padding) from [B3.8 v2]. Header displays the date and net daily total (per [B3.4] user flow). Content area is expandable/collapsible.",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Expands/collapses (with gentle animation per [B3.11]) to show/hide transaction items and income/expense breakdown.",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Row element displaying transaction details (e.g., description, category name - potentially omitted?, amount). Amounts use accent colors (Muted Teal / Soft Terra Cotta) from [B3.8 v2] to indicate income/expense. Includes category color indicator (bar+dot style) and optional recurring indicator styled subtly ([B3.8 v2]). Uses generous spacing between elements.",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Row element displaying transaction details (e.g., description, category name - potentially omitted?, amount). Amounts use accent colors (Muted Teal / Soft Terra Cotta) from [B3.8 v2] to indicate income/expense. Includes category color indicator (bar+dot style) and optional recurring indicator styled subtly ([B3.8 v2]). Uses generous spacing between elements.",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Interaction (e.g., swipe, tap) reveals delete options with gentle animation/transition ([B3.11]). Tapping may navigate to a detail view (TBD).",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Input form with fields for date, type, category, amount, description etc. Uses form element styling (inputs, dropdowns, buttons, labels) and generous spacing defined in [B3.8 v2].",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Validates input, submits data. Provides feedback using gentle micro-interactions (e.g., soft validation messages) as per [B3.11].",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "- **Description**: Grid-based calendar layout, styled for an airy, minimalist appearance with ample whitespace ([B2.5]). Days display dates and daily total indicator bars styled per [B3.8 v2]. Visual weight of grid lines minimized.",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Grid-based calendar layout, styled for an airy, minimalist appearance with ample whitespace ([B2.5]). Days display dates and daily total indicator bars styled per [B3.8 v2]. Visual weight of grid lines minimized.",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Behavior**: Indicates days with transactions via bars, highlights current/selected day using theme accents [B3.8 v2]. Selection triggers filtering of the list below. Month navigation updates view.",
+      "location": "3. Transaction Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Row item within the Budget page displaying category name and an input field/area for the user to specify the allocated amount for the month. Includes placeholders for 'Spent' amount and visual progress indicator (Detailed styling TBD). Styled minimally according to [B3.8 v2].",
+      "location": "4. Budget Components (MVP - Structure & Input Focused)"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Prominent display area (e.g., styled card or header section) showing the amount left to allocate based on Available Funds vs. current user inputs. Negative values indicated using Negative Accent Color ([B3.8 v2]).",
+      "location": "4. Budget Components (MVP - Structure & Input Focused)"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Updates dynamically in real-time (with subtle animation [B3.11]) as category allocation inputs change.",
+      "location": "4. Budget Components (MVP - Structure & Input Focused)"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Prominent display area clearly presenting the calculated available funds amount (based on income, recurring expenses, rollover). Styled according to [B3.8 v2].",
+      "location": "4. Budget Components (MVP - Structure & Input Focused)"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Donut chart using softer colors from [B3.8 v2]. Clear labels, spacing emphasized.",
+      "location": "5. Visualization Components (Post-MVP Focus - M5)"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Segments reflect spending proportion. Interactive states ([B3.11]).",
+      "location": "5. Visualization Components (Post-MVP Focus - M5)"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Bar chart using theme colors ([B3.8 v2]). Minimal axes/gridlines. Readable typography.",
+      "location": "5. Visualization Components (Post-MVP Focus - M5)"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Bar heights reflect amounts. Progressive animations ([B3.11]).",
+      "location": "5. Visualization Components (Post-MVP Focus - M5)"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Row or card-like item displaying category name and its assigned color indicator (swatch or bar per [B3.8 v2]). Includes Edit/Delete action triggers.",
+      "location": "6. Category Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Dropdown menu or Bottom Sheet (mobile) styled according to [B3.8 v2]. Displays category names, potentially with color indicators.",
+      "location": "6. Category Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Shows available categories for selection; opens/closes with subtle transitions ([B3.11]).",
+      "location": "6. Category Components"
+    },
+    {
+      "reference": "[B3.3]",
+      "context": "- **Location**: In the transaction form ([B3.3]).",
+      "location": "6. Category Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Button styled using Negative Accent Color (#C17C74) [B3.8 v2], likely outline or muted fill. Labelled \"Supprimer\".",
+      "location": "7. Action Components"
+    },
+    {
+      "reference": "[B8.3]",
+      "context": "- **Behavior**: Triggers confirmation ([B8.3]). Gentle hover/active states ([B3.11]).",
+      "location": "7. Action Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Triggers confirmation ([B8.3]). Gentle hover/active states ([B3.11]).",
+      "location": "7. Action Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Button styled like Delete Button. Differentiated text (\"Supprimer série\") or icon ([B3.8 v2]).",
+      "location": "7. Action Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Primary action button styled using Primary Accent Color (#919A7F) [B3.8 v2]. Label varies (Sauvegarder, Ajouter).",
+      "location": "7. Action Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Triggers save. Standard interactions ([B3.11]).",
+      "location": "7. Action Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Secondary action button (neutral colors, outline variant) [B3.8 v2]. Labelled \"Réinitialiser\".",
+      "location": "7. Action Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Clears/reverts data. Standard interactions ([B3.11]).",
+      "location": "7. Action Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Subtle notification card styled per message type ([B3.8 v2] semantic colors).",
+      "location": "8. Feedback Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Gentle appearance/disappearance ([B3.11]). Persists briefly.",
+      "location": "8. Feedback Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Text message using semantic colors ([B3.8 v2]) near the input.",
+      "location": "8. Feedback Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Appears/disappears gently on validation status change ([B3.11]).",
+      "location": "8. Feedback Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Modal dialog styled per [B3.8 v2] (calm background, clear text, action buttons).",
+      "location": "8. Feedback Components"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Behavior**: Appears centered, blocks background interaction, dismisses smoothly ([B3.11]).",
+      "location": "8. Feedback Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "- **Description**: Clean, focused form styled per [B3.8 v2]. Email, password fields, login button, signup link.",
+      "location": "10. Authentication Components"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "1. **Consistent Styling**: All components follow [B3.8 v2].",
+      "location": "Component Relationships and Interactions"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "2. **Gentle Transitions**: Transitions follow [B3.11].",
+      "location": "Component Relationships and Interactions"
+    },
+    {
+      "reference": "[B9]",
+      "context": "3. **Progressive Loading**: Views load with smooth transitions, using loaders ([B9]).",
+      "location": "Component Relationships and Interactions"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- Use React functional components with **CSS Modules** ([B2.2]) for implementation.",
+      "location": "Implementation Notes"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- Ensure all components support keyboard navigation and screen reader accessibility ([B2.2]).",
+      "location": "Implementation Notes"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- Extract common styling patterns into theme variables ([B3.8]).",
+      "location": "Implementation Notes"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "- Implement components as independent, reusable modules ([B2.5]).",
+      "location": "Implementation Notes"
+    },
+    {
+      "reference": "[B3.8 v2]",
+      "context": "This component specification serves as a guide for implementing the UI elements of KarmaCash while maintaining the Zen/Tranquility design philosophy. Refer to the Style Guide [B3.8 v2] for specific styling details and Animation Principles [B3.11] for interaction guidance.",
+      "location": "Implementation Notes"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "This component specification serves as a guide for implementing the UI elements of KarmaCash while maintaining the Zen/Tranquility design philosophy. Refer to the Style Guide [B3.8 v2] for specific styling details and Animation Principles [B3.11] for interaction guidance.",
+      "location": "Implementation Notes"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 12,
+    "h3_count": 26,
+    "cross_references": 58,
+    "word_count": 1732
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "document_id": "B4.1_Tech_Stack_Details",
+  "analysis_date": "2025-05-30T03:21:52.176Z",
+  "structural_summary": "Document has 1 H1, 12 H2, and 21 H3 headers",
+  "dominant_content_types": [
+    "ui_ux_design",
+    "component_specifications",
+    "style_guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "12 main sections",
+    "Cross-references: 26"
+  ],
+  "examples_of_key_entities": [
+    "component",
+    "animation",
+    "color",
+    "CSS",
+    "zen",
+    "tranquility"
+  ],
+  "potential_for_ai_optimization": "High - structured UI/UX content ideal for component generation",
+  "notes_for_chunking": "Natural boundaries at 12 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B2.2]",
+      "context": "- **Implementation Notes**: Functional components only. Memoization ([B2.2]). Structure per [B2.5].",
+      "location": "1. Frontend Core"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "- **Implementation Notes**: Functional components only. Memoization ([B2.2]). Structure per [B2.5].",
+      "location": "1. Frontend Core"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- **Standard**: **CSS Modules (`.module.css`) is the required styling method** as defined in [B2.2].",
+      "location": "2. UI & Styling"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- **Migration**: Existing inline/traditional CSS to be refactored gradually ([B2.2]). All new components **must** use CSS Modules.",
+      "location": "2. UI & Styling"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- **Implementation Notes**: Use `styles` object import (`import styles from './Component.module.css';`), define theme variables globally ([B3.8]). Follow structure in [B2.5].",
+      "location": "2. UI & Styling"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "- **Implementation Notes**: Use `styles` object import (`import styles from './Component.module.css';`), define theme variables globally ([B3.8]). Follow structure in [B2.5].",
+      "location": "2. UI & Styling"
+    },
+    {
+      "reference": "[B3.9]",
+      "context": "- **Justification**: Clean, minimal style fits Zen theme [B3.9], comprehensive set, lightweight.",
+      "location": "2. UI & Styling"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- **Implementation Notes**: Prefer Outline style. Use wrappers for sizing/color. Follow guidelines in [B3.8].",
+      "location": "2. UI & Styling"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Justification**: Simplifies implementation of animation principles [B3.11], declarative API, performance-focused. Already used successfully in M3.",
+      "location": "2. UI & Styling"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Implementation Notes**: Create animation presets [B3.11], implement reduced motion support, use subtly for Zen theme.",
+      "location": "2. UI & Styling"
+    },
+    {
+      "reference": "[B5.1]",
+      "context": "- **Implementation Notes**: Structure per [B5.1], [B5.2] (w/ planned Budget refactor). Use batch writes. Strict UTC date handling [B2.3]. Comprehensive security rules [B2.2].",
+      "location": "3. Backend & Database"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "- **Implementation Notes**: Structure per [B5.1], [B5.2] (w/ planned Budget refactor). Use batch writes. Strict UTC date handling [B2.3]. Comprehensive security rules [B2.2].",
+      "location": "3. Backend & Database"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "- **Implementation Notes**: Structure per [B5.1], [B5.2] (w/ planned Budget refactor). Use batch writes. Strict UTC date handling [B2.3]. Comprehensive security rules [B2.2].",
+      "location": "3. Backend & Database"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- **Implementation Notes**: Structure per [B5.1], [B5.2] (w/ planned Budget refactor). Use batch writes. Strict UTC date handling [B2.3]. Comprehensive security rules [B2.2].",
+      "location": "3. Backend & Database"
+    },
+    {
+      "reference": "[B4.3]",
+      "context": "    - Structure functions by domain. Use TypeScript if desired. Error handling & logging crucial. Auth context validation required. ([B4.3])",
+      "location": "3. Backend & Database"
+    },
+    {
+      "reference": "[B7.X?]",
+      "context": "- **Implementation Notes**: Configure caching, SPA redirects, CI/CD ([B7.X?]), custom domain (post-MVP).",
+      "location": "3. Backend & Database"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- **Implementation Notes**: Consistent config, pre-commit hooks, VS Code integration, align with [B2.2].",
+      "location": "4. Development Tooling"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- **Implementation Notes**: Simple branch strategy (`main`, `feature/*`). Conventional commits [B2.2]. PR templates.",
+      "location": "4. Development Tooling"
+    },
+    {
+      "reference": "[B4.4]",
+      "context": "- **Implementation Notes**: Client-side `logger.js` ([B4.4]) sends structured logs to Firebase Callable Function `logSink`, which can then process/forward logs (e.g., to Cloud Logging or potentially Loggly later if needed).",
+      "location": "4. Development Tooling"
+    },
+    {
+      "reference": "[B7.2]",
+      "context": "- **Implementation Notes**: Create test scenarios [B7.2], Checklist, Issue tracking.",
+      "location": "5. Testing & Quality Assurance"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "- **Implementation Notes**: Consistent usage for dates, Follow [B2.3] strictly, Import needed functions.",
+      "location": "6. Additional Libraries"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Implementation Notes**: Wrap for styling, Zen theme colors/animations [B3.11], Optimize mobile.",
+      "location": "6. Additional Libraries"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "- **Justification**: Accelerates development, VS Code compatibility, Fits AI workflow [B7.1].",
+      "location": "7. Development Environment"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "- **Implementation Notes**: Effective prompting strategies [B7.1], Codebase context config, Use alongside external AI (Claude) for different tasks.",
+      "location": "7. Development Environment"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "The technology stack for KarmaCash balances modern development practices with pragmatic choices appropriate for an MVP. The selected technologies provide a solid foundation for building a high-quality personal budgeting application with the Zen/Tranquility aesthetic, while enabling future growth and feature expansion. Adherence to the defined usage standards ([B2.2], [B2.3], etc.) is crucial.",
+      "location": "Conclusion"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "The technology stack for KarmaCash balances modern development practices with pragmatic choices appropriate for an MVP. The selected technologies provide a solid foundation for building a high-quality personal budgeting application with the Zen/Tranquility aesthetic, while enabling future growth and feature expansion. Adherence to the defined usage standards ([B2.2], [B2.3], etc.) is crucial.",
+      "location": "Conclusion"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 12,
+    "h3_count": 21,
+    "cross_references": 26,
+    "word_count": 1657
+  }
+}

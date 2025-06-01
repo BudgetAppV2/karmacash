@@ -1,0 +1,81 @@
+{
+  "templateVersion": "1.0",
+  "basedOn": "B1-methodology",
+  "purpose": "Structured content analysis for Bible documentation",
+  "sections": {
+    "overview": {
+      "description": "High-level summary of the document content",
+      "fields": {
+        "mainTopic": "Primary subject matter",
+        "scope": "What the document covers",
+        "targetAudience": "Who should read this",
+        "dependencies": "Related documents or sections"
+      }
+    },
+    "structuralAnalysis": {
+      "description": "Document structure and organization",
+      "fields": {
+        "headingHierarchy": {
+          "h1Count": 0,
+          "h2Sections": [],
+          "h3Subsections": [],
+          "structureNotes": "Comments on document organization"
+        },
+        "contentBlocks": {
+          "codeBlocks": 0,
+          "lists": 0,
+          "tables": 0,
+          "examples": 0
+        }
+      }
+    },
+    "keyEntities": {
+      "description": "Important concepts, terms, and references",
+      "fields": {
+        "concepts": [],
+        "technicalTerms": [],
+        "projectSpecific": [],
+        "crossReferences": {
+          "internal": [],
+          "pattern": "[BX.Y] format references"
+        }
+      }
+    },
+    "contentClassification": {
+      "description": "Type and nature of content",
+      "categories": {
+        "technical": {
+          "level": "beginner|intermediate|advanced",
+          "domains": []
+        },
+        "documentation": {
+          "type": "guide|reference|tutorial|specification",
+          "completeness": "draft|partial|complete"
+        }
+      }
+    },
+    "optimizationNotes": {
+      "description": "Recommendations for AI optimization",
+      "fields": {
+        "summaryPotential": "Can this be effectively summarized?",
+        "chunkingStrategy": "Recommended approach for semantic chunking",
+        "preservationPriority": "Critical content that must not be altered",
+        "enhancementOpportunities": "Areas where AI can add value"
+      }
+    },
+    "qualityChecklist": {
+      "description": "B1 standard compliance",
+      "checks": {
+        "structuralIntegrity": false,
+        "crossReferenceDetection": false,
+        "semanticCoherence": false,
+        "metadataCompleteness": false
+      }
+    }
+  },
+  "usage": {
+    "manual": "Fill out each section based on document analysis",
+    "semiAutomated": "Use scripts to pre-populate, then review",
+    "templateDriven": "Apply this template with automated validation"
+  }
+}

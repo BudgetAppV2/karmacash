@@ -1,0 +1,178 @@
+{
+  "document_id": "B7.3_Decision_Log",
+  "analysis_date": "2025-05-31T02:30:10.905Z",
+  "structural_summary": "Document has 1 H1, 6 H2, and 21 H3 headers",
+  "dominant_content_types": [
+    "workflow_processes",
+    "ai_integration",
+    "testing_strategies",
+    "development_practices"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "6 main sections",
+    "Cross-references: 28"
+  ],
+  "examples_of_key_entities": [
+    "AI",
+    "workflow",
+    "SHIP",
+    "testing",
+    "automation",
+    "prompt",
+    "template",
+    "API",
+    "decision"
+  ],
+  "potential_for_ai_optimization": "High - workflow and process content ideal for automation and AI assistance",
+  "notes_for_chunking": "Natural boundaries at 6 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B4.1 Tech Stack Details]",
+      "context": "- **Related Documents**: [B4.1 Tech Stack Details]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B4.1 Tech Stack Details]",
+      "context": "- **Related Documents**: [B4.1 Tech Stack Details]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B4.1 Tech Stack Details]",
+      "context": "- **Related Documents**: [B4.1 Tech Stack Details], [B5.1 Schema Overview]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B5.1 Schema Overview]",
+      "context": "- **Related Documents**: [B4.1 Tech Stack Details], [B5.1 Schema Overview]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B5.1 Schema Overview]",
+      "context": "- **Related Documents**: [B5.1 Schema Overview], [B5.2 Collections & Schemas]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B5.2 Collections & Schemas]",
+      "context": "- **Related Documents**: [B5.1 Schema Overview], [B5.2 Collections & Schemas]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B3.8 Style Guide v2]",
+      "context": "- **Related Documents**: [B3.8 Style Guide v2], [B4.2 Frontend Structure]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B4.2 Frontend Structure]",
+      "context": "- **Related Documents**: [B3.8 Style Guide v2], [B4.2 Frontend Structure]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B3.7 Component Specs]",
+      "context": "- **Related Documents**: [B3.7 Component Specs], [B3.8 Style Guide v2]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B3.8 Style Guide v2]",
+      "context": "- **Related Documents**: [B3.7 Component Specs], [B3.8 Style Guide v2]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B4.2 Frontend Structure]",
+      "context": "- **Related Documents**: [B4.2 Frontend Structure]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B4.2 Frontend Structure]",
+      "context": "- **Related Documents**: [B4.2 Frontend Structure]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B2.3 Date Handling Guide]",
+      "context": "- **Related Documents**: [B2.3 Date Handling Guide]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B3.6 Glossary FR]",
+      "context": "- **Related Documents**: [B3.6 Glossary FR]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B7.2 Testing Strategy]",
+      "context": "- **Related Documents**: [B7.2 Testing Strategy]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B4.4 Logging System Impl]",
+      "context": "- **Related Documents**: [B4.4 Logging System Impl], [B7.1 AI Workflow SHIP]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B7.1 AI Workflow SHIP]",
+      "context": "- **Related Documents**: [B4.4 Logging System Impl], [B7.1 AI Workflow SHIP]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B3.8 Style Guide v2]",
+      "context": "- **Related Documents**: [B3.8 Style Guide v2], [B3.9 Mood Board], [B3.10 Design Rationale]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B3.9 Mood Board]",
+      "context": "- **Related Documents**: [B3.8 Style Guide v2], [B3.9 Mood Board], [B3.10 Design Rationale]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B3.10 Design Rationale]",
+      "context": "- **Related Documents**: [B3.8 Style Guide v2], [B3.9 Mood Board], [B3.10 Design Rationale]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B3.8 Style Guide v2]",
+      "context": "- **Related Documents**: [B3.8 Style Guide v2]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B7.1 AI Workflow SHIP]",
+      "context": "- **Related Documents**: [B7.1 AI Workflow SHIP]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B5.1 Schema Overview]",
+      "context": "- **Related Documents**: [B5.1 Schema Overview], [B1.4 PostMVP Features]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B1.4 PostMVP Features]",
+      "context": "- **Related Documents**: [B5.1 Schema Overview], [B1.4 PostMVP Features]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B4.3 Backend Functions]",
+      "context": "- **Related Documents**: [B4.3 Backend Functions], [B6.2 Recurring Algorithm]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B6.2 Recurring Algorithm]",
+      "context": "- **Related Documents**: [B4.3 Backend Functions], [B6.2 Recurring Algorithm]",
+      "location": "2. Key Architectural Decisions"
+    },
+    {
+      "reference": "[B1.3 Roadmap Milestones]",
+      "context": "- **Related Documents**: [B1.3 Roadmap Milestones]",
+      "location": "3. Project Management Decisions"
+    },
+    {
+      "reference": "[B0 README TOC]",
+      "context": "- **Related Documents**: [B0 README TOC]",
+      "location": "3. Project Management Decisions"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 6,
+    "h3_count": 21,
+    "cross_references": 28,
+    "word_count": 3495
+  }
+}

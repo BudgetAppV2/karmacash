@@ -1,0 +1,291 @@
+/* Budget Comparison Chart Styles */
+/* Follows KarmaCash Zen aesthetic and B3.8 Style Guide */
+
+.chartContainer {
+  position: relative;
+}
+
+.chartWithSummary {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* Summary Statistics */
+.summary {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: var(--spacing-4, 1rem);
+  background: var(--color-background, #F3F0E8);
+  border-radius: var(--border-radius-sm, 6px);
+  margin-bottom: var(--spacing-4, 1rem);
+  border: 1px solid rgba(136, 131, 122, 0.1);
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.summaryLabel {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-secondary, #88837A);
+  margin-bottom: var(--spacing-1, 0.25rem);
+}
+
+.summaryValue {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #2F2F2F);
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryValue.positive {
+  color: var(--color-positive, #568E8D);
+}
+
+.summaryValue.negative {
+  color: var(--color-negative, #C17C74);
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-8, 2rem);
+  background: var(--color-background, #F3F0E8);
+  border-radius: var(--border-radius-sm, 6px);
+  min-height: 300px;
+}
+
+.emptyText {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #88837A);
+  margin: 0 0 var(--spacing-2, 0.5rem) 0;
+  text-align: center;
+}
+
+.emptySubtext {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary, #88837A);
+  text-align: center;
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* Custom Tooltip */
+.tooltip {
+  background: var(--color-surface, #FFFFFF);
+  border: 1px solid rgba(136, 131, 122, 0.2);
+  border-radius: var(--border-radius-sm, 6px);
+  padding: var(--spacing-3, 0.75rem);
+  box-shadow: var(--shadow-level-2, 0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04));
+  max-width: 300px;
+}
+
+.tooltipHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2, 0.5rem);
+  padding-bottom: var(--spacing-2, 0.5rem);
+  border-bottom: 1px solid rgba(136, 131, 122, 0.1);
+}
+
+.tooltipCategory {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #2F2F2F);
+  flex-grow: 1;
+  margin-right: var(--spacing-2, 0.5rem);
+}
+
+.statusBadge {
+  padding: var(--spacing-1, 0.25rem) var(--spacing-2, 0.5rem);
+  border-radius: var(--border-radius-sm, 6px);
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusBadge.good {
+  background: rgba(86, 142, 141, 0.1);
+  color: var(--color-positive, #568E8D);
+}
+
+.statusBadge.warning {
+  background: rgba(217, 165, 102, 0.1);
+  color: #D9A566;
+}
+
+.statusBadge.over {
+  background: rgba(193, 124, 116, 0.1);
+  color: var(--color-negative, #C17C74);
+}
+
+.tooltipContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2, 0.5rem);
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltipVariance {
+  margin-top: var(--spacing-1, 0.25rem);
+  padding-top: var(--spacing-2, 0.5rem);
+  border-top: 1px solid rgba(136, 131, 122, 0.1);
+}
+
+.tooltipRowHeader {
+  display: flex;
+  align-items: center;
+}
+
+.tooltipIndicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: var(--spacing-2, 0.5rem);
+  flex-shrink: 0;
+}
+
+.tooltipLabel {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-secondary, #88837A);
+  margin-right: var(--spacing-3, 0.75rem);
+}
+
+.tooltipValue {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #2F2F2F);
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltipValue.positive {
+  color: var(--color-positive, #568E8D);
+}
+
+.tooltipValue.negative {
+  color: var(--color-negative, #C17C74);
+}
+
+.tooltipPercent {
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-regular, 400);
+  opacity: 0.8;
+  margin-left: var(--spacing-1, 0.25rem);
+}
+
+/* Custom Legend */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-6, 1.5rem);
+  padding: var(--spacing-2, 0.5rem) 0;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+}
+
+.legendIndicator {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--border-radius-sm, 6px);
+  margin-right: var(--spacing-2, 0.5rem);
+  flex-shrink: 0;
+}
+
+.legendText {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-primary, #2F2F2F);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .summary {
+    flex-direction: column;
+    gap: var(--spacing-2, 0.5rem);
+    padding: var(--spacing-3, 0.75rem);
+  }
+  
+  .summaryItem {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .summaryLabel {
+    margin-bottom: 0;
+    margin-right: var(--spacing-2, 0.5rem);
+  }
+  
+  .emptyState {
+    padding: var(--spacing-6, 1.5rem);
+    min-height: 250px;
+  }
+  
+  .tooltip {
+    padding: var(--spacing-2, 0.5rem);
+    max-width: 260px;
+  }
+  
+  .tooltipCategory {
+    font-size: var(--font-size-xs, 0.75rem);
+  }
+  
+  .legend {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-2, 0.5rem);
+  }
+  
+  .legendText {
+    font-size: var(--font-size-xs, 0.75rem);
+  }
+}
+
+/* Medium screens adjustments */
+@media (max-width: 1023px) {
+  .summary {
+    flex-wrap: wrap;
+    gap: var(--spacing-3, 0.75rem);
+  }
+  
+  .summaryItem {
+    min-width: 150px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .chartContainer {
+    /* Chart animations handled by parent wrapper */
+  }
+}

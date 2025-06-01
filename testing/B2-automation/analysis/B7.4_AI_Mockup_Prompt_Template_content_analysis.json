@@ -1,0 +1,52 @@
+{
+  "document_id": "B7.4_AI_Mockup_Prompt_Template",
+  "analysis_date": "2025-05-31T02:30:16.125Z",
+  "structural_summary": "Document has 1 H1, 6 H2, and 4 H3 headers",
+  "dominant_content_types": [
+    "workflow_processes",
+    "ai_integration",
+    "testing_strategies",
+    "development_practices"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "6 main sections",
+    "Cross-references: 4"
+  ],
+  "examples_of_key_entities": [
+    "AI",
+    "prompt",
+    "template"
+  ],
+  "potential_for_ai_optimization": "High - workflow and process content ideal for automation and AI assistance",
+  "notes_for_chunking": "Natural boundaries at 6 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B7.4]",
+      "context": "# [B7.4] AI Mockup Prompt Template (for ChatGPT/DALL-E or similar)",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B3.4 UI Guidelines]",
+      "context": "*   **Theme:** \"Zen/Tranquility\" – calm, minimalist, uncluttered, generous whitespace (Ref: [B3.4 UI Guidelines]).",
+      "location": "2. Overall App Theme & Style (Context)"
+    },
+    {
+      "reference": "[B3.8 Style Guide v2]",
+      "context": "*   **Primary Colors (Ref: [B3.8 Style Guide v2]):**",
+      "location": "2. Overall App Theme & Style (Context)"
+    },
+    {
+      "reference": "[B3.8 Style Guide v2]",
+      "context": "*   **Typography (Ref: [B3.8 Style Guide v2]):**",
+      "location": "2. Overall App Theme & Style (Context)"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 6,
+    "h3_count": 4,
+    "cross_references": 4,
+    "word_count": 572
+  }
+}

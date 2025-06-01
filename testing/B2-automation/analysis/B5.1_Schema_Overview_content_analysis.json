@@ -1,0 +1,76 @@
+{
+  "document_id": "B5.1_Schema_Overview",
+  "analysis_date": "2025-05-30T03:27:45.747Z",
+  "structural_summary": "Document has 1 H1, 11 H2, and 10 H3 headers",
+  "dominant_content_types": [
+    "database_design",
+    "data_schemas",
+    "security_rules"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "11 main sections",
+    "Cross-references: 8"
+  ],
+  "examples_of_key_entities": [
+    "Firestore",
+    "collection",
+    "document",
+    "schema",
+    "validation",
+    "security rules",
+    "timestamp",
+    "index"
+  ],
+  "potential_for_ai_optimization": "High - structured database content ideal for schema generation",
+  "notes_for_chunking": "Natural boundaries at 11 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B2.3]",
+      "context": "4. **Consistent Date Handling**: All date/time values are stored as UTC Timestamps ([B2.3]).",
+      "location": "Core Architecture Principles"
+    },
+    {
+      "reference": "[B1.4]",
+      "context": "This budget-centric structure is the foundation for shared budgets ([B1.4]) and all development from Milestone 4 onwards.",
+      "location": "Schema Evolution Status"
+    },
+    {
+      "reference": "[B6.1]",
+      "context": "- **Purpose**: Stores monthly allocations and calculated summaries ([B6.1]) for the specific budget and month. Managed by owners/editors. Document ID is YYYY-MM.",
+      "location": "Collection Purposes (Phase 2 Structure)"
+    },
+    {
+      "reference": "[B6.1]",
+      "context": "- **Calculated Fields in monthlyData**: Pre-calculate sums ([B6.1]).",
+      "location": "Denormalization Strategy"
+    },
+    {
+      "reference": "[B2.3 Date Handling Guide]",
+      "context": "All date fields follow the standard defined in [B2.3 Date Handling Guide].",
+      "location": "UTC Date Handling"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "Validation occurs via Frontend, Services, Cloud Functions, and Firestore Security Rules (Strategy outlined in [B5.2]).",
+      "location": "Schema Validation"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "- Indexing strategy outlined in [B5.2].",
+      "location": "Scalability Considerations"
+    },
+    {
+      "reference": "[B5.2 Collections & Schemas]",
+      "context": "Detailed schemas are in [B5.2 Collections & Schemas].",
+      "location": "Scalability Considerations"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 11,
+    "h3_count": 10,
+    "cross_references": 8,
+    "word_count": 968
+  }
+}

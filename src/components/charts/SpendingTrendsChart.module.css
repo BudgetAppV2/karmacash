@@ -1,0 +1,191 @@
+/* Spending Trends Chart Styles */
+/* Follows KarmaCash Zen aesthetic and B3.8 Style Guide */
+
+.chartContainer {
+  position: relative;
+}
+
+.chartWithIndicators {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Trend Indicator */
+.trendIndicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 0.5rem);
+  padding: var(--spacing-2, 0.5rem) var(--spacing-3, 0.75rem);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--border-radius-sm, 6px);
+  border: 1px solid rgba(136, 131, 122, 0.1);
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+.trendIcon {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: 1;
+}
+
+.trendIcon.increasing {
+  color: var(--color-negative, #C17C74); /* Increasing spending is concerning */
+}
+
+.trendIcon.decreasing {
+  color: var(--color-positive, #568E8D); /* Decreasing spending is positive */
+}
+
+.trendText {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.trendText.increasing {
+  color: var(--color-negative, #C17C74);
+}
+
+.trendText.decreasing {
+  color: var(--color-positive, #568E8D);
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-8, 2rem);
+  background: var(--color-background, #F3F0E8);
+  border-radius: var(--border-radius-sm, 6px);
+  min-height: 250px;
+}
+
+.emptyText {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #88837A);
+  margin: 0 0 var(--spacing-2, 0.5rem) 0;
+  text-align: center;
+}
+
+.emptySubtext {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary, #88837A);
+  text-align: center;
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* Custom Tooltip */
+.tooltip {
+  background: var(--color-surface, #FFFFFF);
+  border: 1px solid rgba(136, 131, 122, 0.2);
+  border-radius: var(--border-radius-sm, 6px);
+  padding: var(--spacing-3, 0.75rem);
+  box-shadow: var(--shadow-level-2, 0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04));
+  max-width: 250px;
+}
+
+.tooltipHeader {
+  margin-bottom: var(--spacing-2, 0.5rem);
+  padding-bottom: var(--spacing-2, 0.5rem);
+  border-bottom: 1px solid rgba(136, 131, 122, 0.1);
+}
+
+.tooltipPeriod {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #2F2F2F);
+}
+
+.tooltipContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 0.25rem);
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltipLabel {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-secondary, #88837A);
+  margin-right: var(--spacing-3, 0.75rem);
+}
+
+.tooltipValue {
+  font-family: var(--font-family-body, 'IBM Plex Serif', serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #2F2F2F);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .trendIndicator {
+    position: static;
+    justify-content: center;
+    margin-bottom: var(--spacing-3, 0.75rem);
+    background: var(--color-background, #F3F0E8);
+  }
+  
+  .emptyState {
+    padding: var(--spacing-6, 1.5rem);
+    min-height: 200px;
+  }
+  
+  .tooltip {
+    padding: var(--spacing-2, 0.5rem);
+    max-width: 200px;
+  }
+  
+  .tooltipPeriod {
+    font-size: var(--font-size-xs, 0.75rem);
+  }
+}
+
+/* Medium screens adjustments */
+@media (max-width: 1023px) {
+  .trendIndicator {
+    top: var(--spacing-2, 0.5rem);
+    right: var(--spacing-2, 0.5rem);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .trendIndicator {
+    background: var(--color-surface, #FFFFFF);
+    border-color: var(--color-text-primary, #2F2F2F);
+  }
+  
+  .tooltip {
+    border-color: var(--color-text-primary, #2F2F2F);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .trendIndicator {
+    backdrop-filter: none;
+  }
+  
+  .chartContainer {
+    /* Chart animations handled by parent wrapper */
+  }
+}

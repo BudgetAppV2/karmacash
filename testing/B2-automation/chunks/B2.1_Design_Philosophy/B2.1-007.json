@@ -1,0 +1,12 @@
+{
+  "chunk_id": "B2.1-007",
+  "original_document_id": "B2.1_Design_Philosophy",
+  "parent_headings": [
+    "Design Philosophy",
+    "Implementation Guidelines"
+  ],
+  "content_markdown": "## Implementation Guidelines\n\nThe Zen/Tranquility philosophy must inform all aspects of implementation:\n\n- **Visual Design**: Follow the style guide [B3.8 v2] for colors, typography, and components\n- **Interaction Design**: Implement the gentle micro-interactions defined in [B3.11]\n- **Content Strategy**: Use clear, supportive language that avoids inducing financial anxiety\n- **Feature Development**: Evaluate all new features against the core design principles\n- **Technical Architecture**: Prioritize performance and reliability to support the sense of calm\n\nThis design philosophy is not merely an aesthetic choice—it is the core of KarmaCash's approach to helping users develop a healthier, more mindful relationship with their finances.\n\n",
+  "content_text": "Implementation Guidelines\n\nThe Zen/Tranquility philosophy must inform all aspects of implementation:\n\n- Visual Design: Follow the style guide B3.8 v2 for colors, typography, and components\n- Interaction Design: Implement the gentle micro-interactions defined in B3.11\n- Content Strategy: Use clear, supportive language that avoids inducing financial anxiety\n- Feature Development: Evaluate all new features against the core design principles\n- Technical Architecture: Prioritize performance and reliability to support the sense of calm\n\nThis design philosophy is not merely an aesthetic choice—it is the core of KarmaCash's approach to helping users develop a healthier, more mindful relationship with their finances.\n\n",
+  "chunk_type": "section",
+  "generation_date": "2025-05-30T02:12:16.088Z"
+}

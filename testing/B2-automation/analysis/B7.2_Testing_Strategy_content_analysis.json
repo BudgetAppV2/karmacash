@@ -1,0 +1,33 @@
+{
+  "document_id": "B7.2_Testing_Strategy",
+  "analysis_date": "2025-05-31T02:30:07.057Z",
+  "structural_summary": "Document has 1 H1, 10 H2, and 26 H3 headers",
+  "dominant_content_types": [
+    "workflow_processes",
+    "ai_integration",
+    "testing_strategies",
+    "development_practices"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "10 main sections",
+    "Cross-references: 0"
+  ],
+  "examples_of_key_entities": [
+    "AI",
+    "workflow",
+    "SHIP",
+    "testing",
+    "API"
+  ],
+  "potential_for_ai_optimization": "High - workflow and process content ideal for automation and AI assistance",
+  "notes_for_chunking": "Natural boundaries at 10 H2 sections",
+  "cross_references_detected": [],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 10,
+    "h3_count": 26,
+    "cross_references": 0,
+    "word_count": 1660
+  }
+}

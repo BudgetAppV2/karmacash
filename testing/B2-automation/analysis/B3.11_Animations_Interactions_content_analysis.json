@@ -1,0 +1,74 @@
+{
+  "document_id": "B3.11_Animations_Interactions",
+  "analysis_date": "2025-05-30T03:13:08.147Z",
+  "structural_summary": "Document has 1 H1, 12 H2, and 26 H3 headers",
+  "dominant_content_types": [
+    "ui_ux_design",
+    "component_specifications",
+    "style_guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "12 main sections",
+    "Cross-references: 8"
+  ],
+  "examples_of_key_entities": [
+    "component",
+    "animation",
+    "color",
+    "CSS",
+    "zen",
+    "tranquility"
+  ],
+  "potential_for_ai_optimization": "High - structured UI/UX content ideal for component generation",
+  "notes_for_chunking": "Natural boundaries at 12 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B3.9]",
+      "context": "This document builds upon the animation & interaction guidelines established in [B3.9] and defines the specific principles and implementations for motion within KarmaCash, adhering to the Zen/Tranquility theme ([B2.1], [B3.4]).",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B2.1]",
+      "context": "This document builds upon the animation & interaction guidelines established in [B3.9] and defines the specific principles and implementations for motion within KarmaCash, adhering to the Zen/Tranquility theme ([B2.1], [B3.4]).",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B3.4]",
+      "context": "This document builds upon the animation & interaction guidelines established in [B3.9] and defines the specific principles and implementations for motion within KarmaCash, adhering to the Zen/Tranquility theme ([B2.1], [B3.4]).",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "*(CSS Variables defined in [B3.8] theme)*",
+      "location": "2. Timing & Easing Functions"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- **Focus:** Clear visual focus style ([B3.8] - e.g., primary color outline) applied with var(--transition-fast).",
+      "location": "3. Specific Micro-interactions"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- **Field Focus:** Subtle border color/shadow transition (var(--transition-fast)) per [B3.8].",
+      "location": "3. Specific Micro-interactions"
+    },
+    {
+      "reference": "[B2.4]",
+      "context": "- **Validation Error:** Soft appearance/fade-in of error message ([B2.4]) below field (~250ms).",
+      "location": "3. Specific Micro-interactions"
+    },
+    {
+      "reference": "[B2.1]",
+      "context": "These micro-interactions and animation principles aim to enhance the KarmaCash user experience while reinforcing the Zen/Tranquility theme. By implementing subtle, meaningful, and performant animations, we create a more intuitive and emotionally supportive financial management application aligned with [B2.1].",
+      "location": "Conclusion"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 12,
+    "h3_count": 26,
+    "cross_references": 8,
+    "word_count": 1652
+  }
+}

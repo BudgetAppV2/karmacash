@@ -1,0 +1,117 @@
+{
+  "document_id": "B7.1_AI_Workflow_SHIP",
+  "analysis_date": "2025-05-31T02:29:54.647Z",
+  "structural_summary": "Document has 2 H1, 17 H2, and 18 H3 headers",
+  "dominant_content_types": [
+    "workflow_processes",
+    "ai_integration",
+    "testing_strategies",
+    "development_practices"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "17 main sections",
+    "Cross-references: 16"
+  ],
+  "examples_of_key_entities": [
+    "AI",
+    "workflow",
+    "SHIP",
+    "testing",
+    "prompt",
+    "template",
+    "API",
+    "decision"
+  ],
+  "potential_for_ai_optimization": "High - workflow and process content ideal for automation and AI assistance",
+  "notes_for_chunking": "Natural boundaries at 17 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B7.1]",
+      "context": "**Purpose:** To structure our development session, maintain context, track tasks, and effectively collaborate with Cursor AI, following the workflow outlined in [B7.1].",
+      "location": "2. Session Handoff & Initialization Plan (SHIP)"
+    },
+    {
+      "reference": "[B0_README_TOC.md]",
+      "context": "*Stable, foundational information about the project. For full structure, see [B0_README_TOC.md].*",
+      "location": "1. Core Project Context (The Big Picture)"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "- **Key Standards:** `[e.g., TypeScript, ESLint config, UTC Dates [B2.3]. Link to Bible: B2.2]`",
+      "location": "1. Core Project Context (The Big Picture)"
+    },
+    {
+      "reference": "[B3.4]",
+      "context": "* **Core Principles/Standards Reminders:** [Optional: e.g., Zen UI [B3.4], UTC Dates [B2.3]]",
+      "location": "7. Cursor AI Handoff Template"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "* **Core Principles/Standards Reminders:** [Optional: e.g., Zen UI [B3.4], UTC Dates [B2.3]]",
+      "location": "7. Cursor AI Handoff Template"
+    },
+    {
+      "reference": "[B0]",
+      "context": "2. **Information Storage**: The SHIP document (`SHIP-M#-S#-Date.md`) is saved in a designated project folder (e.g., `/handoffs/`). Any persistent notes are updated in their separate location (e.g., Google Doc linked in [B0]).",
+      "location": "End of Session Checklist"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- **Best Practices Adherence**: Follow project standards ([B2.2], [B2.3], [B2.5]), style guides ([B3.8]), and instructions within the Handoff.",
+      "location": "3. Role-Specific Responsibilities"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "- **Best Practices Adherence**: Follow project standards ([B2.2], [B2.3], [B2.5]), style guides ([B3.8]), and instructions within the Handoff.",
+      "location": "3. Role-Specific Responsibilities"
+    },
+    {
+      "reference": "[B2.5]",
+      "context": "- **Best Practices Adherence**: Follow project standards ([B2.2], [B2.3], [B2.5]), style guides ([B3.8]), and instructions within the Handoff.",
+      "location": "3. Role-Specific Responsibilities"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "- **Best Practices Adherence**: Follow project standards ([B2.2], [B2.3], [B2.5]), style guides ([B3.8]), and instructions within the Handoff.",
+      "location": "3. Role-Specific Responsibilities"
+    },
+    {
+      "reference": "[B0]",
+      "context": "- **Bible for Depth**: Use `[BX.Y]` references in SHIP to point to detailed rules/specs. The Bible Table of Contents ([B0]) is the entry point.",
+      "location": "4. Practical Implementation"
+    },
+    {
+      "reference": "[B4.4]",
+      "context": "- **AI_CONTEXT Logs:** Use `logger.ai_context()` ([B4.4]) for crucial runtime state snapshots when needed for debugging complex issues.",
+      "location": "4. Practical Implementation"
+    },
+    {
+      "reference": "[B7.3]",
+      "context": "- **Decision Log:** Use [B7.3] for major, *persistent* architectural or strategic decisions not suitable for session recaps alone.",
+      "location": "4. Practical Implementation"
+    },
+    {
+      "reference": "[B0]",
+      "context": "- **Persistent Notes:** Use the external document (linked in [B0] or similar) for tracking minor bugs, tech debt, and follow-up items identified during sessions (Ref: SHIP Checklist).",
+      "location": "4. Practical Implementation"
+    },
+    {
+      "reference": "[B7.3]",
+      "context": "- **SHIP Emphasis**: Design problem/goal (Sec 5.1), options considered (Sec 4 if prior discussion), documented decisions (Sec 4 of *next* SHIP or [B7.3]).",
+      "location": "5. Development Session Types"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "The KarmaCash AI workflow, centered around the **standard SHIP template documented in Section 2.1**, provides a robust and optimized approach for collaboration between a non-developer HD and AI assistants (CK, CG). By integrating CK priming, clarifying roles, standardizing handoffs (including summary requests), and incorporating Git practices, this workflow aims to maximize efficiency, maintain context effectively, and ensure project consistency and quality. Reference this document ([B7.1]) for operational details.",
+      "location": "8. Conclusion"
+    }
+  ],
+  "metrics": {
+    "h1_count": 2,
+    "h2_count": 17,
+    "h3_count": 18,
+    "cross_references": 16,
+    "word_count": 2783
+  }
+}

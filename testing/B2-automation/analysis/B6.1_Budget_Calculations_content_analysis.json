@@ -1,0 +1,117 @@
+{
+  "document_id": "B6.1_Budget_Calculations",
+  "analysis_date": "2025-05-30T03:33:16.555Z",
+  "structural_summary": "Document has 1 H1, 12 H2, and 14 H3 headers",
+  "dominant_content_types": [
+    "business_logic",
+    "algorithms",
+    "calculations",
+    "budget_processing"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "12 main sections",
+    "Cross-references: 16"
+  ],
+  "examples_of_key_entities": [
+    "budget",
+    "calculation",
+    "allocation",
+    "recurring",
+    "transaction",
+    "category",
+    "percentage",
+    "rollover"
+  ],
+  "potential_for_ai_optimization": "High - algorithmic content ideal for code generation and optimization",
+  "notes_for_chunking": "Natural boundaries at 12 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B5.2]",
+      "context": "**Storage**: Stored in budget document as `calculated.revenue` ([B5.2]).",
+      "location": "3. Key Calculations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "**Storage**: Stored in budget document as `calculated.recurringExpenses` ([B5.2]).",
+      "location": "3. Key Calculations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "**Storage**: Stored in budget document as `calculated.rolloverFromPrevious` ([B5.2]).",
+      "location": "3. Key Calculations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "**Storage**: Stored in budget document as `calculated.availableToAllocate` ([B5.2]).",
+      "location": "3. Key Calculations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "**Storage**: Stored in budget document as `calculated.totalAllocated` ([B5.2]).",
+      "location": "3. Key Calculations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "**Storage**: Stored in budget document as `calculated.remainingToAllocate` ([B5.2]).",
+      "location": "3. Key Calculations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "**Storage**: Stored in budget document as `calculated.totalSpent` ([B5.2]).",
+      "location": "3. Key Calculations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "**Storage**: Stored in budget document as `calculated.monthlySavings` ([B5.2]).",
+      "location": "3. Key Calculations"
+    },
+    {
+      "reference": "[B4.3]",
+      "context": "*(Strategy: Server-side recalculation via Callable Function [B4.3]? Triggered by client? Recalculate entirely on client? Decision needed)*",
+      "location": "6. Recalculation Triggers"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "- **Store Results**: Persist calculated fields (`revenue`, `recurringExpenses`, `rolloverFromPrevious`, `availableToAllocate`, `totalAllocated`, `remainingToAllocate`, `totalSpent`, `monthlySavings`) within the `/users/{userId}/budgets/{yyyy-mm}` document ([B5.2]) or the Phase 2 equivalent. `NetCategorySpending` is typically calculated client-side.",
+      "location": "7. Implementation in Firestore"
+    },
+    {
+      "reference": "[B4.3]",
+      "context": "*(Code examples illustrating calculation logic omitted for brevity - implementation resides in services/hooks or potentially Cloud Function [B4.3])*",
+      "location": "8. Code Example *(Conceptual)*"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "- Adhere strictly to UTC Date Handling standards [B2.3] for range queries.",
+      "location": "9. Validation Rules"
+    },
+    {
+      "reference": "[B7.2]",
+      "context": "Test scenarios outlined in [B7.2] must cover:",
+      "location": "10. Testing Strategy"
+    },
+    {
+      "reference": "[B4.3]",
+      "context": "- Consider server-side calculation ([B4.3]) if client-side becomes too slow with large transaction volumes.",
+      "location": "11. Performance Considerations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "- Ensure necessary Firestore indexes exist for date/type/recurring queries ([B5.2]).",
+      "location": "11. Performance Considerations"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "These calculations define the core zero-based budgeting logic for KarmaCash. Accurate and consistent implementation is paramount for user trust and application utility. These formulas will be implemented primarily during Milestone 4b, referencing data stored according to the schemas defined in [B5.2].",
+      "location": "Conclusion"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 12,
+    "h3_count": 14,
+    "cross_references": 16,
+    "word_count": 1378
+  }
+}

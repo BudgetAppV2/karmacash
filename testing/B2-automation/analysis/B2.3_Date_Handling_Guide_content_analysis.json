@@ -1,0 +1,37 @@
+{
+  "document_id": "B2.3_Date_Handling_Guide",
+  "analysis_date": "2025-05-31T18:34:44.892Z",
+  "structural_summary": "Document has 1 H1, 8 H2, and 10 H3 headers",
+  "dominant_content_types": [
+    "technical_documentation",
+    "standards",
+    "guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "8 main sections",
+    "Cross-references: 1"
+  ],
+  "examples_of_key_entities": [
+    "KarmaCash",
+    "Firebase",
+    "JavaScript",
+    "Firestore"
+  ],
+  "potential_for_ai_optimization": "High - structured technical content ideal for AI processing",
+  "notes_for_chunking": "Natural boundaries at 8 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B2.3 Rule #2]",
+      "context": "Consistent date handling using Firestore Timestamps for storage and date-fns for manipulation/display is critical. Adhering to the distinction between local time display (using format with frCA locale) and strict UTC component comparisons for critical boundary logic ([B2.3 Rule #2]) ensures data integrity and prevents common timezone-related bugs experienced during development. Reference this guide for all date-related implementations.",
+      "location": "Conclusion"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 8,
+    "h3_count": 10,
+    "cross_references": 1,
+    "word_count": 1603
+  }
+}

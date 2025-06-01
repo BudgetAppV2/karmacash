@@ -1,0 +1,108 @@
+{
+  "document_id": "B7.1_AI_Workflow_TaskMaster_v2",
+  "analysis_date": "2025-05-31T02:29:49.481Z",
+  "structural_summary": "Document has 1 H1, 10 H2, and 16 H3 headers",
+  "dominant_content_types": [
+    "workflow_processes",
+    "ai_integration",
+    "testing_strategies",
+    "development_practices"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "10 main sections",
+    "Cross-references: 14"
+  ],
+  "examples_of_key_entities": [
+    "AI",
+    "workflow",
+    "SHIP",
+    "TaskMaster",
+    "testing",
+    "prompt",
+    "template",
+    "API",
+    "decision"
+  ],
+  "potential_for_ai_optimization": "High - workflow and process content ideal for automation and AI assistance",
+  "notes_for_chunking": "Natural boundaries at 10 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B7.1 v2]",
+      "context": "This document ([B7.1 v2]) outlines the refined AI-assisted development workflow for the KarmaCash project. It details the integration of Claude Task Master for robust task management, working in synergy with Manus AI for detailed planning, the SHIP (Session Handoff & Initialization Plan) methodology for session management, and Cursor AI as the primary code generation and Task Master interaction tool. This workflow builds upon and formalizes the principles established in the experimental 'Workflow_Integration_Manus_TaskMaster_v1.md' document and incorporates practical learnings from recent development sessions to enhance clarity, efficiency, and predictability in the development lifecycle.",
+      "location": "Introduction & Purpose"
+    },
+    {
+      "reference": "[B1.3]",
+      "context": "    *   **Role:** Remains the central, immutable source of truth for all project context, coding standards, architectural decisions, application logic, UI/UX guidelines, and all formal \"B\" series documentation (e.g., [B1.3], [B3.4], [B5.2]). It is consistently referenced using the `[BX.Y]` notation.",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B3.4]",
+      "context": "    *   **Role:** Remains the central, immutable source of truth for all project context, coding standards, architectural decisions, application logic, UI/UX guidelines, and all formal \"B\" series documentation (e.g., [B1.3], [B3.4], [B5.2]). It is consistently referenced using the `[BX.Y]` notation.",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B5.2]",
+      "context": "    *   **Role:** Remains the central, immutable source of truth for all project context, coding standards, architectural decisions, application logic, UI/UX guidelines, and all formal \"B\" series documentation (e.g., [B1.3], [B3.4], [B5.2]). It is consistently referenced using the `[BX.Y]` notation.",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B1.3 Roadmap & Milestones]",
+      "context": "    *   The Human Developer (HD), with assistance from the Context Keeper (CK), identifies the next major feature, user story, or milestone requiring detailed task breakdown. This is typically based on the project roadmap ([B1.3 Roadmap & Milestones]) or outputs from dedicated planning sessions (e.g., M4PLAN.md).",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B1.2 User Personas]",
+      "context": "    *   The CK assists by gathering all relevant context from the KarmaCash Bible (e.g., [B1.2 User Personas], [B3.X UI/UX Guidelines], [B5.X Data Models], existing technical plans) and any related Task Master tasks. This consolidated information forms the basis of an initial brief for Manus AI.",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B3.X UI/UX Guidelines]",
+      "context": "    *   The CK assists by gathering all relevant context from the KarmaCash Bible (e.g., [B1.2 User Personas], [B3.X UI/UX Guidelines], [B5.X Data Models], existing technical plans) and any related Task Master tasks. This consolidated information forms the basis of an initial brief for Manus AI.",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B5.X Data Models]",
+      "context": "    *   The CK assists by gathering all relevant context from the KarmaCash Bible (e.g., [B1.2 User Personas], [B3.X UI/UX Guidelines], [B5.X Data Models], existing technical plans) and any related Task Master tasks. This consolidated information forms the basis of an initial brief for Manus AI.",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B3.4 UI Guidelines]",
+      "context": "        *   Desired style and theme (referencing KarmaCash Bible, e.g., [B3.4 UI Guidelines], [B3.8 Style Guide v2], Zen/Tranquility principles).",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B3.8 Style Guide v2]",
+      "context": "        *   Desired style and theme (referencing KarmaCash Bible, e.g., [B3.4 UI Guidelines], [B3.8 Style Guide v2], Zen/Tranquility principles).",
+      "location": "1. Core Tools & Roles (Refined)"
+    },
+    {
+      "reference": "[B6.1]",
+      "context": "  \"details\": \"string\",        // A multi-line string containing specific implementation steps, technical considerations, UI/UX notes, references to Bible sections (e.g., [B6.1]), etc. Preserves formatting like bullet points.",
+      "location": "4. `tasks.json` Schema"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "    *   Regularly review and update this [B7.1] document, along with associated prompt templates (`B7.3_Manus_AI_Feature_Breakdown_Prompt_Template.md`, `B7.4_AI_Mockup_Prompt_Template.md`), based on practical experience and new learnings.",
+      "location": "7. Next Steps & Ongoing Refinement"
+    },
+    {
+      "reference": "[B7.1 AI Workflow with Task Master v2]",
+      "context": "This document ([B7.1 AI Workflow with Task Master v2]) serves as the primary guide for this integrated workflow. Supporting documentation and resources include:",
+      "location": "8. Further Documentation & Resources"
+    },
+    {
+      "reference": "[B7.1]",
+      "context": "This \"Revolutionary SHIP-less Workflow\" (Section 10 and its subsections) supersedes previous descriptions of SHIP document usage for session management, context transfer, and handoff/summary procedures within this [B7.1] document, particularly elements of Section 2.D, Section 5, and aspects of Section 6 that detail CK's role in SHIP document management. Task Master's role as defined in Section 1 and Section 4 remains foundational, but its interaction is now framed by this Firebase-centric session flow.",
+      "location": "10. The Revolutionary SHIP-less Workflow (B7.1 Addendum)"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 10,
+    "h3_count": 16,
+    "cross_references": 14,
+    "word_count": 6594
+  }
+}

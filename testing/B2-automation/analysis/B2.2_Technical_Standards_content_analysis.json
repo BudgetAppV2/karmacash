@@ -1,0 +1,111 @@
+{
+  "document_id": "B2.2_Technical_Standards",
+  "analysis_date": "2025-05-31T18:34:39.658Z",
+  "structural_summary": "Document has 1 H1, 12 H2, and 26 H3 headers",
+  "dominant_content_types": [
+    "technical_documentation",
+    "standards",
+    "guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "12 main sections",
+    "Cross-references: 15"
+  ],
+  "examples_of_key_entities": [
+    "KarmaCash",
+    "React",
+    "Firebase",
+    "TypeScript",
+    "JavaScript",
+    "Firestore",
+    "Jest",
+    "ESLint"
+  ],
+  "potential_for_ai_optimization": "High - structured technical content ideal for AI processing",
+  "notes_for_chunking": "Natural boundaries at 12 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B3.8]",
+      "context": "-   **Responsive Design**: Mobile-first approach required, using `min-width` media queries based on breakpoints defined in [B3.8].",
+      "location": "Language & Framework Standards"
+    },
+    {
+      "reference": "[B2.5 Code & Project Structure]",
+      "context": "-   **Project Organization**: Feature-based directories under `src/features/`. See [B2.5 Code & Project Structure].",
+      "location": "Coding Conventions"
+    },
+    {
+      "reference": "[B5.X]",
+      "context": "    -   Decision: Budgets will move to a top-level shared collection `/budgets/{budgetId}` to support sharing (Details [B5.X]).",
+      "location": "Firebase Standards"
+    },
+    {
+      "reference": "[B5.X]",
+      "context": "    -   Transactions will likely link to `budgetId` (Details [B5.X]).",
+      "location": "Firebase Standards"
+    },
+    {
+      "reference": "[B2.3]",
+      "context": "-   **Timestamps**: MUST use Firestore Timestamp type for all date/time storage. Refer to [B2.3] for handling.",
+      "location": "Firebase Standards"
+    },
+    {
+      "reference": "[B1.4]",
+      "context": "-   **Method**: Email/password required for MVP. Consider social logins Post-MVP ([B1.4]).",
+      "location": "Firebase Standards"
+    },
+    {
+      "reference": "[B7.X? Ref needed]",
+      "context": "-   **Test Data**: Utilize `seedTestData.js` script ([B7.X? Ref needed]) for generating consistent test data during development. Keep script updated.",
+      "location": "Testing Standards"
+    },
+    {
+      "reference": "[B4.4]",
+      "context": "-   **Logging**: Leverage detailed logging ([B4.4]) extensively for debugging during development and testing.",
+      "location": "Testing Standards"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "-   Verify UI responsiveness across mobile, tablet, desktop breakpoints ([B3.8]).",
+      "location": "Testing Standards"
+    },
+    {
+      "reference": "[B6.1]",
+      "context": "-   Verify core calculations (Budgeting - [B6.1]) against manual examples.",
+      "location": "Testing Standards"
+    },
+    {
+      "reference": "[B0\\_README\\_TOC]",
+      "context": "-   **Structure**: Adhere to the modular Bible structure ([B0\\_README\\_TOC]).",
+      "location": "Documentation Standards"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "-   **Color Contrast**: Verify text/background contrast meets AA requirements ([B3.8]).",
+      "location": "Accessibility Standards (A11y)"
+    },
+    {
+      "reference": "[B3.8]",
+      "context": "-   **Focus Management**: Implement clear visual focus states ([B3.8]). Ensure focus is managed correctly for modals, dialogs, and dynamic content changes.",
+      "location": "Accessibility Standards (A11y)"
+    },
+    {
+      "reference": "[B2.4]",
+      "context": "-   Ensure error messages do not leak sensitive implementation details ([B2.4]).",
+      "location": "Security Standards"
+    },
+    {
+      "reference": "[B7.3]",
+      "context": "These technical standards provide the foundation for building KarmaCash as a high-quality, maintainable, and secure application. They are living standards and should be referenced during development and updated via the Decision Log ([B7.3]) or directly as the project evolves and new best practices emerge. Adherence to these standards is crucial for efficient collaboration, especially within the AI-assisted workflow.",
+      "location": "Conclusion"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 12,
+    "h3_count": 26,
+    "cross_references": 15,
+    "word_count": 1718
+  }
+}

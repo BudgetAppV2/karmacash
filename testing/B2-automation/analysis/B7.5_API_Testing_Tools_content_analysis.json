@@ -1,0 +1,40 @@
+{
+  "document_id": "B7.5_API_Testing_Tools",
+  "analysis_date": "2025-05-31T02:30:23.994Z",
+  "structural_summary": "Document has 6 H1, 8 H2, and 11 H3 headers",
+  "dominant_content_types": [
+    "workflow_processes",
+    "ai_integration",
+    "testing_strategies",
+    "development_practices"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "8 main sections",
+    "Cross-references: 1"
+  ],
+  "examples_of_key_entities": [
+    "AI",
+    "workflow",
+    "testing",
+    "prompt",
+    "template",
+    "API"
+  ],
+  "potential_for_ai_optimization": "High - workflow and process content ideal for automation and AI assistance",
+  "notes_for_chunking": "Natural boundaries at 8 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B7.5]",
+      "context": "# [B7.5] Template Exchange System - API Testing Tools",
+      "location": "Introduction"
+    }
+  ],
+  "metrics": {
+    "h1_count": 6,
+    "h2_count": 8,
+    "h3_count": 11,
+    "cross_references": 1,
+    "word_count": 625
+  }
+}

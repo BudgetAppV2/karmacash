@@ -1,0 +1,97 @@
+{
+  "templateVersion": "1.0",
+  "basedOn": "B1-ai-optimization",
+  "purpose": "Template for AI-optimized versions of Bible documentation",
+  "optimizationGoals": {
+    "primary": "Enhance searchability and AI comprehension",
+    "secondary": "Maintain human readability",
+    "constraints": "Preserve all original meaning and technical accuracy"
+  },
+  "optimizationStructure": {
+    "metadata": {
+      "originalDocument": "Source file reference",
+      "optimizationDate": "When optimization occurred",
+      "aiModel": "Model used for optimization",
+      "validationStatus": "human-reviewed|pending|automated"
+    },
+    "summary": {
+      "executive": "1-2 sentence overview",
+      "detailed": "Paragraph covering main points",
+      "keywords": "Extracted key terms for search"
+    },
+    "structuredContent": {
+      "sections": [
+        {
+          "title": "Section heading",
+          "summary": "Section overview",
+          "keyPoints": [],
+          "concepts": [],
+          "crossReferences": [],
+          "codeExamples": []
+        }
+      ]
+    },
+    "enhancedMetadata": {
+      "topics": "Categorized subject areas",
+      "difficulty": "Technical complexity level",
+      "prerequisites": "Required knowledge",
+      "relatedSections": "Connected Bible sections"
+    }
+  },
+  "crossReferenceEnhancement": {
+    "detection": {
+      "patterns": ["[BX.Y]", "See section X", "Refer to"],
+      "contextExtraction": "Include surrounding context"
+    },
+    "mapping": {
+      "bidirectional": true,
+      "contextPreserved": true,
+      "linkGeneration": "Create navigable connections"
+    },
+    "storage": {
+      "inline": "Within optimized document",
+      "separate": "In cross_references collection"
+    }
+  },
+  "codeOptimization": {
+    "extraction": {
+      "separateBlocks": true,
+      "preserveContext": true,
+      "addDescriptions": true
+    },
+    "enhancement": {
+      "syntaxHighlighting": "Language detection",
+      "documentation": "Add missing comments",
+      "examples": "Create runnable examples"
+    }
+  },
+  "validationCriteria": {
+    "contentIntegrity": {
+      "factualAccuracy": "All information correct",
+      "completePreservation": "No content lost",
+      "meaningIntact": "Original intent maintained"
+    },
+    "enhancementQuality": {
+      "searchability": "Improved keyword coverage",
+      "structure": "Clear organization",
+      "accessibility": "Easier to understand"
+    },
+    "technicalValidity": {
+      "codeCorrectness": "All code examples work",
+      "referenceAccuracy": "Cross-references valid",
+      "consistencyCheck": "Terminology consistent"
+    }
+  },
+  "outputSpecification": {
+    "format": "JSON",
+    "encoding": "UTF-8",
+    "prettyPrint": true,
+    "fileNaming": "{section}_{subsection}_optimized.json",
+    "compression": "None (human readable)"
+  },
+  "usageGuidelines": {
+    "manual": "Human expert reviews and optimizes",
+    "semiAutomated": "AI generates, human validates",
+    "fullyAutomated": "AI with automated validation"
+  }
+}

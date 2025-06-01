@@ -1,0 +1,171 @@
+{
+  "document_id": "B3.8_Style_Guide",
+  "analysis_date": "2025-05-30T03:13:00.680Z",
+  "structural_summary": "Document has 1 H1, 10 H2, and 30 H3 headers",
+  "dominant_content_types": [
+    "ui_ux_design",
+    "component_specifications",
+    "style_guidelines"
+  ],
+  "key_structural_patterns_observed": [
+    "H1 -> H2 -> H3 hierarchy",
+    "10 main sections",
+    "Cross-references: 27"
+  ],
+  "examples_of_key_entities": [
+    "component",
+    "color",
+    "typography",
+    "spacing",
+    "CSS",
+    "Japandi",
+    "zen",
+    "tranquility"
+  ],
+  "potential_for_ai_optimization": "High - structured UI/UX content ideal for component generation",
+  "notes_for_chunking": "Natural boundaries at 10 H2 sections",
+  "cross_references_detected": [
+    {
+      "reference": "[B2.1]",
+      "context": "*Note: This document replaces the previous UI Style Guide (now archived as v1-Legacy). It defines the specific visual implementation of the Zen/Tranquility theme ([B2.1]).*",
+      "location": "Introduction"
+    },
+    {
+      "reference": "[B3.9.2]",
+      "context": "Based on the Japandi-inspired color palette defined in [B3.9.2]. All color variables are defined in `src/styles/theme.css` (See Section 10.1).",
+      "location": "1. Color Palette"
+    },
+    {
+      "reference": "[B5.X?]",
+      "context": "- This palette is specifically used for assigning distinct colors to **user-defined categories** (e.g., for list indicators, chart segments). Assignment logic detailed elsewhere ([B5.X?], [B6.X?]). Palette consists of 20 harmonious colors:",
+      "location": "1. Color Palette"
+    },
+    {
+      "reference": "[B6.X?]",
+      "context": "- This palette is specifically used for assigning distinct colors to **user-defined categories** (e.g., for list indicators, chart segments). Assignment logic detailed elsewhere ([B5.X?], [B6.X?]). Palette consists of 20 harmonious colors:",
+      "location": "1. Color Palette"
+    },
+    {
+      "reference": "[B3.9.3]",
+      "context": "Based on the typography recommendations in [B3.9.3]. Font variables defined in `src/styles/theme.css`.",
+      "location": "2. Typography"
+    },
+    {
+      "reference": "[B3.9.5]",
+      "context": "Referencing [B3.9.5].",
+      "location": "4. Iconography"
+    },
+    {
+      "reference": "[B3.9.4]",
+      "context": "Subtle shadows following [B3.9.4]. Variables defined in `src/styles/theme.css`.",
+      "location": "5. Shadows & Elevation"
+    },
+    {
+      "reference": "[B3.9.4]",
+      "context": "Aligning with [B3.9.4]. Variables defined in `src/styles/theme.css`.",
+      "location": "6. Border Radius"
+    },
+    {
+      "reference": "[B3.7 Component Specs]",
+      "context": "*(Refer to [B3.7 Component Specs] for full list and purpose)*",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.7.7]",
+      "context": "*(Refer to [B3.7.7] for specs)*",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- Transition: `var(--transition-medium) ease-out` ([B3.11]).",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.7 Component Specs]",
+      "context": "*(Refer to [B3.7 Component Specs])*",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.7 Component Spec Ref Needed]",
+      "context": "- **Mobile Interaction:** Tapping trigger opens a **Bottom Sheet** modal ([B3.7 Component Spec Ref Needed]) displaying options styled consistently. Follow Bottom Sheet interaction patterns from [B3.11].",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Mobile Interaction:** Tapping trigger opens a **Bottom Sheet** modal ([B3.7 Component Spec Ref Needed]) displaying options styled consistently. Follow Bottom Sheet interaction patterns from [B3.11].",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.7 Component Specs]",
+      "context": "*(Refer to [B3.7 Component Specs])*",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.7 Component Specs]",
+      "context": "*(Refer to [B3.7 Component Specs])*",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.7 Component Specs]",
+      "context": "*(Refer to [B3.7 Component Specs])*",
+      "location": "7. UI Component Styles"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "- **Hover:** Subtle background change (e.g., 5% darker/lighter depending on element) or subtle scale/lift. Transition: `var(--transition-fast)` ([B3.11]).",
+      "location": "8. States & Variations"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- **Focus:** Clear visual outline using `--color-primary`, sufficient offset for visibility (e.g., `outline: 2px solid var(--color-primary); outline-offset: 2px;`). See [B2.2] Accessibility.",
+      "location": "8. States & Variations"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "- **Prioritize Mobile:** Styles defined mobile-first ([B2.2]).",
+      "location": "9. Responsive Adaptations"
+    },
+    {
+      "reference": "[B3.8 v2 Section 3]",
+      "context": "- **Adaptations:** Use `min-width` media queries. Common adaptations: increase padding/margins ([B3.8 v2 Section 3]), adjust typography sizes slightly ([B3.8 v2 Section 2]), switch layout (e.g., Card list from 1-col to 2-col). Main navigation may change structure (e.g., bottom tabs on mobile).",
+      "location": "9. Responsive Adaptations"
+    },
+    {
+      "reference": "[B3.8 v2 Section 2]",
+      "context": "- **Adaptations:** Use `min-width` media queries. Common adaptations: increase padding/margins ([B3.8 v2 Section 3]), adjust typography sizes slightly ([B3.8 v2 Section 2]), switch layout (e.g., Card list from 1-col to 2-col). Main navigation may change structure (e.g., bottom tabs on mobile).",
+      "location": "9. Responsive Adaptations"
+    },
+    {
+      "reference": "[B2.2]",
+      "context": "Ensure components meet WCAG 2.1 AA ([B2.2]).",
+      "location": "10. Implementation Notes"
+    },
+    {
+      "reference": "[B3.4]",
+      "context": "This Style Guide provides the detailed specifications for implementing the Zen/Tranquility visual theme in KarmaCash, ensuring a consistent, calm, and accessible user experience. Developers should adhere strictly to these guidelines, utilizing the defined CSS variables and principles. This guide, along with related sections ([B3.4], [B3.7], [B3.9], [B3.11]), forms the foundation for the KarmaCash UI.",
+      "location": "10. Implementation Notes"
+    },
+    {
+      "reference": "[B3.7]",
+      "context": "This Style Guide provides the detailed specifications for implementing the Zen/Tranquility visual theme in KarmaCash, ensuring a consistent, calm, and accessible user experience. Developers should adhere strictly to these guidelines, utilizing the defined CSS variables and principles. This guide, along with related sections ([B3.4], [B3.7], [B3.9], [B3.11]), forms the foundation for the KarmaCash UI.",
+      "location": "10. Implementation Notes"
+    },
+    {
+      "reference": "[B3.9]",
+      "context": "This Style Guide provides the detailed specifications for implementing the Zen/Tranquility visual theme in KarmaCash, ensuring a consistent, calm, and accessible user experience. Developers should adhere strictly to these guidelines, utilizing the defined CSS variables and principles. This guide, along with related sections ([B3.4], [B3.7], [B3.9], [B3.11]), forms the foundation for the KarmaCash UI.",
+      "location": "10. Implementation Notes"
+    },
+    {
+      "reference": "[B3.11]",
+      "context": "This Style Guide provides the detailed specifications for implementing the Zen/Tranquility visual theme in KarmaCash, ensuring a consistent, calm, and accessible user experience. Developers should adhere strictly to these guidelines, utilizing the defined CSS variables and principles. This guide, along with related sections ([B3.4], [B3.7], [B3.9], [B3.11]), forms the foundation for the KarmaCash UI.",
+      "location": "10. Implementation Notes"
+    }
+  ],
+  "metrics": {
+    "h1_count": 1,
+    "h2_count": 10,
+    "h3_count": 30,
+    "cross_references": 27,
+    "word_count": 1693
+  }
+}
