@@ -49,3 +49,4 @@ tasks/tasks(210525).json
 # Task files
 tasks.json
 tasks/ 
+config/serviceAccountKey.json
