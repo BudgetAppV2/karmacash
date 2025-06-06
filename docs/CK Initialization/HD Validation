@@ -1,0 +1,14 @@
+## HD Validation Protocol
+Before creating Firestore documents:
+
+### Step 1: Intent Summary
+1. Create document summary in JSON format:
+```json
+{
+  "documentType": "continuity|handoff|summary",
+  "collection": "collection_name", 
+  "documentId": "exact_document_id",
+  "keyFields": {"field1": "value1", "field2": "value2"},
+  "purpose": "brief explanation",
+  "tokenEstimate": "approximate size"
+}

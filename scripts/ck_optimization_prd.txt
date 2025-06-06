@@ -1,0 +1,229 @@
+# CK Initialization Optimization - Session-Scoped PRD
+
+## Document Properties
+
+**Project**: KarmaCash AI Workflow Optimization  
+**Component**: CK (Context Keeper) Initialization System  
+**Scope**: Session-scoped optimization (2-3 CG implementation sessions)  
+**Priority**: High  
+**Estimated Effort**: 8-12 hours total  
+**Target Sessions**: 2-3 CG implementation sessions  
+
+## Goals
+
+### Primary Objective
+Transform CK initialization from token-heavy enterprise system to lightweight, efficient startup with on-demand module access.
+
+### Success Metrics
+- **70-80% token reduction** from current 15-20KB to target <5KB
+- **60% faster initialization** from 7-step to 3-step process  
+- **100% functionality preservation** through on-demand loading
+- **Mobile-optimized efficiency** for phone interactions
+
+## Background
+
+### Current Pain Points
+- CK initialization consumes 15-20KB tokens for basic context loading
+- 7-step sequential process with extensive pre-loading
+- Marketing language mixed with operational instructions
+- Over-engineered validation and documentation in startup sequence
+- Inefficient for mobile/phone-based interactions
+
+### Proven Solutions Available
+- Bible Access Module pattern (lightweight + on-demand loading)
+- JSON document format for efficient AI consumption
+- Keyword-triggered module loading system
+- Streamlined validation workflows
+
+## Assumptions
+
+- Current CK capabilities must be preserved (handoff creation, validation, tool access)
+- HD validation protocol remains mandatory but can be optimized
+- Bible Access Module patterns can be applied to CK guidance system
+- JSON format provides better AI consumption than markdown
+- On-demand loading is faster than pre-loading for most use cases
+- 3-step initialization sufficient for essential context
+
+## User Stories
+
+**As HD (Human Developer)**:
+- I want rapid CK initialization so I can start productive sessions quickly
+- I want token-efficient startup so mobile interactions are practical
+- I want maintained quality standards so handoffs remain excellent
+- I want preserved validation control so document creation stays controlled
+
+**As CK (Context Keeper)**:
+- I want essential knowledge immediately available so I can function effectively
+- I want access to advanced modules when needed so capabilities remain complete- I want clear role definition so I understand orchestrator vs implementer distinction
+- I want efficient HD validation so workflow isn't unnecessarily slowed
+
+**As CG (Code Generator)**:
+- I want consistent handoff quality so implementation instructions remain clear
+- I want preserved CK capabilities so workflow integration continues working
+
+## Requirements
+
+### Functional Requirements
+
+**FR1: Essential Knowledge Loading**
+- Load session context (continuity + naming patterns)
+- Load core protocols (role definition + tool inventory + validation)
+- Load project context (TaskMaster state + next tasks)
+
+**FR2: On-Demand Module Access**
+- Keyword-triggered loading of advanced modules
+- Bible Access pattern implementation for CK guidance
+- Fast module loading (<10 seconds per module)
+
+**FR3: Streamlined Validation**
+- Maintain HD approval requirement for document creation
+- Optimize validation workflow for efficiency
+- Preserve safety while reducing token overhead
+
+**FR4: JSON Document Format**
+- Convert CK guidance documents to JSON format
+- Implement Bible Access Module structure pattern
+- Ensure efficient AI consumption
+
+### Performance Requirements
+
+**PR1: Initialization Speed**
+- Complete 3-step initialization in <30 seconds
+- Parallel loading where possible
+- Efficient error handling and fallbacks
+
+**PR2: Token Efficiency**
+- Reduce initialization content to <5KB
+- Eliminate redundant information
+- Remove promotional/marketing language
+
+**PR3: Module Loading Speed**
+- On-demand modules load in <10 seconds
+- Keyword triggers respond immediately
+- Cache frequently used modules
+
+## Success Criteria
+
+**Must Have**:
+- 3-step initialization sequence functional
+- <5KB token usage for typical startup
+- All current CK capabilities accessible
+- HD validation preserved and optimized
+- JSON module format implemented
+
+**Should Have**:
+- 70%+ token reduction achieved
+- 60%+ initialization speed improvement
+- Mobile-friendly efficiency- Clear keyword triggers for modules
+
+**Could Have**:
+- Module usage analytics
+- Predictive loading based on patterns
+- Advanced caching mechanisms
+
+## Constraints
+
+### Technical Constraints
+- **NO complex frameworks** - keep implementation simple
+- **NO over-engineering** - focus on essential functionality only
+- **NO extensive documentation** in initialization sequence
+- **NO marketing language** - factual instructions only
+- **NO redundant explanations** - each concept explained once
+
+### Time Constraints
+- **Maximum 1-2 hours per task** - keep tasks focused and practical
+- **2-3 CG implementation sessions total** - realistic scope
+- **Session-scoped deliverables** - complete functional increments
+
+### Quality Constraints
+- **Preserve all current capabilities** - no functionality loss
+- **Maintain handoff quality standards** - CG receives same quality instructions
+- **Keep HD validation control** - safety mechanisms maintained
+- **Follow Bible Access patterns** - proven approach only
+
+## Dependencies
+
+### System Dependencies
+- Access to current CK_Access_Module_Init document
+- Firebase Storage for document conversion
+- TaskMaster integration for task management
+- Bible Access Module as reference pattern
+
+### Workflow Dependencies
+- Current session continuity system
+- Enhanced handoff template system
+- HD validation protocol
+- CK-CG workflow integration
+
+## Acceptance Criteria
+
+**AC1: Streamlined Initialization**
+```
+GIVEN: New CK session startup
+WHEN: CK runs initialization sequence
+THEN: Complete 3-step process in <30 seconds using <5KB tokens
+AND: All essential knowledge loaded (role, tools, context, validation)
+AND: Ready for immediate HD consultation and action
+```
+
+**AC2: Functionality Preservation**
+```
+GIVEN: Optimized CK system
+WHEN: CK performs standard workflow tasks
+THEN: All current capabilities remain accessibleAND: Handoff creation quality maintained
+AND: HD validation workflow functional
+AND: Tool integration preserved
+```
+
+**AC3: On-Demand Module Access**
+```
+GIVEN: CK needs advanced functionality
+WHEN: Keyword trigger used for module loading
+THEN: Module loads in <10 seconds
+AND: Module content available for use
+AND: No impact on core initialization speed
+```
+
+**AC4: Token Efficiency**
+```
+GIVEN: CK initialization content
+WHEN: Measured against current system
+THEN: 70-80% token reduction achieved
+AND: No redundant information present
+AND: No promotional language included
+AND: Factual, actionable instructions only
+```
+
+**AC5: HD Control Maintained**
+```
+GIVEN: CK document creation workflow
+WHEN: CK attempts to create/modify documents
+THEN: HD validation required and enforced
+AND: Validation process optimized for efficiency
+AND: HD maintains full control over document creation
+```
+
+## Implementation Notes
+
+### Task Generation Guidance
+- Apply CARE framework (Context + Ask + Rules + Examples)
+- Use explicit constraint patterns (NO lists)
+- Keep tasks focused on 1-2 hour implementation windows
+- Reference successful patterns from Bible Processing Automation
+- Ensure proper task dependencies and complexity scores
+
+### Quality Gates
+- Each task must preserve essential CK functionality
+- Validate token usage reduction at each milestone
+- Test on-demand loading performance
+- Verify HD validation workflow efficiency
+
+### Risk Mitigation
+- Maintain backup of current system during transition
+- Implement rollback capability if issues arise
+- Test all workflows before deployment
+- Validate with real-world usage scenarios
+
+---
+
+**This PRD follows the proven Session-Scoped methodology that successfully generated high-quality TaskMaster tasks for Bible Processing Automation and Graphiques implementation projects.**

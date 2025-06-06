@@ -1,0 +1,76 @@
+{
+  "module_id": "cg_implementation_patterns",
+  "title": "CG Implementation Patterns - KarmaCash Standards",
+  "category": "coding_standards",
+  "version": "1.0",
+  "optimized": true,
+  "token_target": 2000,
+  "usage_frequency": "on_demand",
+  "description": "Provides detailed coding standards, file structure, UI/UX principles, and testing guidelines for KarmaCash PWA development.",
+  "content": {
+    "design_principles_summary": {
+      "source_reference": "KarmaCash Creative and Attractive UI Design Rule",
+      "mobile_first_pwa": "Design for small screens first, then scale up. Ensure touch-friendliness (min 44x44px targets).",
+      "visual_hierarchy_whitespace": "Embrace whitespace and clear hierarchy. Highlight important data.",
+      "interactive_elements_microinteractions": "Add purposeful micro-interactions for responsiveness. Use subtle animations.",
+      "data_visualization": "Transform raw numbers into meaningful visual representations (e.g., progress bars, charts over plain lists).",
+      "empty_states_guidance": "Make empty states helpful, guiding users on next steps (e.g., include action buttons).",
+      "color_usage_visual_interest": "Use color strategically for guidance and visual interest. Create depth with subtle shadows and layering.",
+      "zen_principles": "Maintain Calm, Minimalist, Clarity, Responsive, and Consistent design."
+    },
+    "file_structure_conventions": {
+      "source_reference": "CG_Priming_v1",
+      "components": "src/components/[feature]/[ComponentName].jsx",
+      "services": "src/services/[serviceName].js",
+      "hooks": "src/hooks/[hookName].js",
+      "utilities": "src/utils/[utilityName].js",
+      "styles": "src/styles/[componentName].module.css (CSS Modules preferred)",
+      "documentation": "docs/[section].md"
+    },
+    "coding_standards": {
+      "source_reference": "CG_Priming_v1 & General Best Practices",
+      "javascript": "ES6+ with JSDoc comments for functions and complex logic. Prioritize clarity and maintainability.",
+      "react": {
+        "components": "Functional components with hooks (useState, useEffect, useContext, custom hooks).",
+        "props": "Use PropTypes or TypeScript for prop validation in larger components.",
+        "state_management": "Prefer React Context for global state; consider Zustand or Redux Toolkit for more complex needs if Context becomes unwieldy.",
+        "performance": "Memoize components with React.memo where appropriate. Use useMemo/useCallback for expensive calculations/functions."
+      },
+      "styling": {
+        "method": "CSS Modules with Japandi-inspired design (natural colors, minimalism). Tailwind CSS is also used; ensure consistency.",
+        "variables": "Use CSS custom properties for themeable values (colors, spacing, fonts)."
+      },
+      "firebase": {
+        "firestore": "Structure data for efficient querying. Use listeners for real-time updates. Implement security rules.",
+        "auth": "Secure user authentication flows.",
+        "functions": "Callable functions for backend logic. Ensure proper error handling and idempotency where applicable."
+      }
+    },
+    "code_quality_tools": {
+      "source_reference": "CG_Priming_v1 / package.json",
+      "linter": "ESLint (ensure configuration is respected - `eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0`)",
+      "formatter": "Prettier (ensure code is formatted before committing)",
+      "general": "Write clean, readable, and self-documenting code. Keep functions small and focused."
+    },
+    "testing_guidelines": {
+      "source_reference": "CG_Priming_v1 (Quality Gates) & General Best Practices",
+      "unit_tests": "Use Vitest for unit testing components, hooks, and utility functions. Aim for good coverage of critical logic.",
+      "integration_tests": "Test interactions between components and services.",
+      "firestore_rules_testing": "Use `@firebase/rules-unit-testing` (see `test:rules` script in package.json).",
+      "end_to_end_tests": "(Future consideration) Tools like Playwright or Cypress for E2E testing critical user flows.",
+      "general": "Ensure tests are reliable, fast, and easy to maintain. Test edge cases and error conditions."
+    },
+    "accessibility_a11y": {
+      "importance": "Ensure the application is accessible to all users.",
+      "guidelines": [
+        "Use semantic HTML.",
+        "Provide text alternatives for non-text content (alt attributes for images).",
+        "Ensure keyboard navigability.",
+        "Manage focus appropriately.",
+        "Use ARIA attributes where necessary to enhance semantics for assistive technologies.",
+        "Ensure sufficient color contrast."
+      ],
+      "tools": "Consider using browser dev tools and automated checkers (e.g., Axe) for audits."
+    }
+  }
+} 

@@ -1,0 +1,269 @@
+# Task 9: 3-Step CK Initialization Design Specification
+
+## Current State Analysis
+
+### **Current 7-Step Process Breakdown**
+
+**Step 1-2: Session Context Loading**
+- Get continuity pointer → Load session continuity 
+- **Essential**: ✅ Required for naming and project context
+- **Token Usage**: ~1.5KB (efficient, document-based)
+
+**Step 3-4: Protocol Essentials Loading** 
+- Storage file info → Read 14KB markdown file
+- **Problem**: ❌ 14KB Protocol Essentials file (over-engineered)
+- **Token Usage**: ~14KB (excessive for basic startup)
+
+**Step 5: Enhanced Template Loading**
+- Load handoff template for future use
+- **Problem**: ❌ Pre-loads template not immediately needed
+- **Token Usage**: ~2KB (unnecessary at startup)
+
+**Step 6-7: Project Context Loading**
+- TaskMaster state → Next available task
+- **Essential**: ✅ Required for immediate work context
+- **Token Usage**: ~1KB (efficient, focused)
+
+### **Token Usage Analysis**
+- **Current Total**: ~18.5KB initialization
+- **Essential Content**: ~2.5KB (Steps 1-2, 6-7)
+- **Waste Identified**: ~16KB (85% reduction opportunity)
+
+### **Problems Identified**
+1. **Protocol Essentials Over-Engineering**: 14KB file with marketing language and extensive documentation
+2. **Premature Template Loading**: Loading handoff template before it's needed
+3. **Sequential Inefficiency**: Steps that could be parallelized run sequentially
+4. **Documentation vs. Operational**: Reference material mixed with startup requirements
+
+## 3-Step Design Specification
+
+### **Step 1: Session Context (Essential Continuity)**
+**Purpose**: Load session context and establish naming patterns
+**Token Target**: <1KB
+
+**Implementation**:
+```xml
+<function_calls>
+<invoke name="firestore_get_document_by_id" call_id="1">
+<parameter name="collection">ck_continuity</parameter>
+<parameter name="documentId">current-continuity-pointer</parameter>
+</invoke>
+</function_calls>
+
+<function_calls>
+<invoke name="firestore_get_document_by_id" call_id="2">
+<parameter name="collection">ck_continuity</parameter>
+<parameter name="documentId">[current_continuity value]</parameter>
+</invoke>
+</function_calls>
+```
+
+**Content Loaded**:
+- Current milestone and session (M{X}.S{Y})
+- Project phase and goals
+- Task Master project root
+- Session focus and success metrics
+
+### **Step 2: Core Protocols (Essential Knowledge)**
+**Purpose**: Load essential protocols without documentation bloat
+**Token Target**: <2KB
+
+**Implementation**:
+```xml
+<function_calls>
+<invoke name="firestore_get_document_by_id" call_id="3">
+<parameter name="collection">ck_protocols</parameter>
+<parameter name="documentId">essential_protocols_lite</parameter>
+</invoke>
+</function_calls>
+```
+
+**Content Required** (New Lite Document):
+- Role definition: CK = orchestrator, not implementer
+- HD validation protocol: 5-step process
+- Dynamic naming convention: Extract M{X}.S{Y} from continuity
+- MCP tool inventory: Available tools (brief list)
+- On-demand loading: Keyword triggers for advanced modules
+
+**Content Excluded** (Move to On-Demand):
+- Extensive tool explanations
+- Marketing language ("revolutionary", "enhanced")
+- Detailed examples and alternatives
+- Module categorization lists
+- Success metrics and projections
+
+### **Step 3: Project Context (Immediate Work)**
+**Purpose**: Load current project state for immediate action
+**Token Target**: <1KB
+
+**Implementation**:
+```xml
+<function_calls>
+<invoke name="get_tasks" call_id="4">
+<parameter name="projectRoot">[from_continuity]</parameter>
+</invoke>
+</function_calls>
+
+<function_calls>
+<invoke name="next_task" call_id="5">
+<parameter name="projectRoot">[from_continuity]</parameter>
+</invoke>
+</function_calls>
+```
+
+**Content Loaded**:
+- Current TaskMaster project state
+- Next available task information
+- Immediate action context
+
+## Essential Knowledge Requirements Mapping
+
+### **Must-Have (Initialization)**
+- **Role Definition**: CK orchestrates, CG implements
+- **HD Validation**: 5-step mandatory process
+- **Naming Convention**: Dynamic M{X}.S{Y} extraction
+- **Basic Tool Awareness**: Available MCP tools
+- **On-Demand Access**: How to load additional modules
+
+### **Nice-to-Have (On-Demand)**
+- **Detailed Tool Explanations**: Comprehensive MCP documentation
+- **Handoff Templates**: Enhanced template system
+- **Module Categorization**: Complete guidance library
+- **Success Metrics**: Performance projections
+- **Alternative Access Methods**: Fallback procedures
+
+### **Reference Only (Bible Access Pattern)**
+- **Implementation Examples**: Detailed code samples
+- **Historical Context**: Previous optimizations
+- **Module Development**: How modules were created
+- **Performance Analytics**: Usage statistics
+
+## Implementation Guidelines
+
+### **Essential Protocols Lite Document Structure**
+```markdown
+# CK Essential Protocols
+
+## Role
+CK = orchestrator, CG = implementer. Create handoffs, don't implement.
+
+## HD Validation (Mandatory)
+1. Create content in artifact
+2. Announce destination 
+3. Say: "Please confirm before I create this Firestore document"
+4. Wait for approval
+5. Execute after confirmation
+
+## Naming Convention
+Extract M{X}.S{Y} from continuity document ID.
+Handoffs: handoffs/M{X}/items/M{X}.S{Y}_task_{id}_{name}
+
+## Available Tools
+- Firebase: firestore_*, storage_*
+- TaskMaster: get_tasks, next_task, set_task_status
+- Desktop Commander: read_file, write_file, execute_command
+- Browser: getConsoleLogs, takeScreenshot, runAudit*
+- Bible Access: getBibleSection, searchBibleContent
+
+## On-Demand Loading
+Keywords trigger module loading:
+- "handoff" → Load enhanced template
+- "validation" → Load quality guidelines
+- "technical" → Load integration docs
+- "planning" → Load session guidance
+
+## Next Steps
+After initialization: "What would you like me to focus on for [session]?"
+```
+
+### **On-Demand Module System**
+**Trigger Patterns**:
+- User mentions "handoff" → Load `enhanced_cg_handoff_v3`
+- User mentions "validation" → Load quality gates module
+- User mentions "technical" → Load integration documentation
+- User mentions "planning" → Load session planning guidance
+
+**Loading Implementation**:
+```xml
+<function_calls>
+<invoke name="firestore_get_document_by_id" call_id="N">
+<parameter name="collection">[module_collection]</parameter>
+<parameter name="documentId">[triggered_module]</parameter>
+</invoke>
+</function_calls>
+```
+
+### **Parallel Loading Opportunities**
+- **Step 1**: Session context loading (sequential, dependent)
+- **Step 2**: Protocols loading (can run in parallel with Step 3)
+- **Step 3**: Project context loading (can run in parallel with Step 2)
+
+### **Error Handling Strategy**
+- **Minimal Process-Focused**: Simple fallbacks, no complex error handling
+- **Essential Document Missing**: Use previous session continuity as fallback
+- **Protocol Loading Failure**: Use basic role definition and HD validation
+- **Project Context Failure**: Continue with session planning focus
+
+### **Success Validation Criteria**
+- [ ] **Speed**: Complete 3-step sequence in <30 seconds
+- [ ] **Token Efficiency**: Total usage <5KB 
+- [ ] **Essential Knowledge**: Role, validation, naming, tools, triggers loaded
+- [ ] **Immediate Readiness**: Can start HD consultation immediately
+- [ ] **On-Demand Access**: Keyword triggers functional for advanced features
+
+## Implementation Roadmap
+
+### **Phase 1: Create Essential Protocols Lite**
+- Extract essential content from 14KB Protocol Essentials
+- Remove marketing language and extensive documentation
+- Focus on operational requirements only
+- Target: <2KB document
+
+### **Phase 2: Update CK Access Module Init**
+- Replace 7-step with 3-step sequence
+- Update function calls and documentation
+- Remove pre-loading of handoff template
+- Add on-demand loading instructions
+
+### **Phase 3: Test and Validate**
+- Measure token usage reduction
+- Verify essential functionality preserved
+- Test on-demand loading for advanced features
+- Validate workflow continuity
+
+### **Phase 4: Migration Strategy**
+- Backup current system before deployment
+- Gradual rollout with fallback capability
+- Monitor performance and functionality
+- Adjust based on real-world usage
+
+## Token Reduction Projections
+
+### **Current vs. Target**
+- **Current**: 18.5KB initialization
+- **Target**: <5KB initialization  
+- **Reduction**: 73% token savings
+- **Essential Content**: Preserved 100%
+- **Advanced Features**: Available on-demand
+
+### **Specific Reductions**
+- **Protocol Essentials**: 14KB → 2KB (86% reduction)
+- **Template Pre-loading**: 2KB → 0KB (100% elimination)
+- **Redundant Explanations**: 1.5KB → 0KB (100% elimination)
+- **Marketing Language**: 0.5KB → 0KB (100% elimination)
+
+## Next Steps for Implementation
+
+### **CG Handoff Requirements**
+1. **Essential Protocols Lite Creation**: Following exact specification above
+2. **CK Access Module Update**: Replace 7-step with 3-step sequence
+3. **On-Demand System**: Implement keyword-triggered module loading
+4. **Testing Protocol**: Validate functionality and measure performance
+
+### **Continuity Protection**
+- This design specification enables any future CK to implement the 3-step system
+- All decisions documented with rationale
+- Clear separation between essential vs. on-demand content
+- Measurable success criteria defined
+
+**This specification provides complete foundation for implementing the optimized 3-step CK initialization system with 73% token reduction while preserving all essential functionality.**

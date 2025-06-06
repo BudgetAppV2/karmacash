@@ -334,99 +334,23 @@ class CKModuleAccess {
     this.metrics.cacheMisses++;
     
     try {
-      // First check if module exists in Firestore (for existing modules)
-      if (moduleId === 'essential_ck_protocols_lite' || moduleId === 'optimized_ck_access_init_v3' || moduleId.includes('handoff')) {
-        let collection = 'ck_guidance_modules';
-        if (moduleId.includes('handoff') || moduleId === 'enhanced_cg_handoff_v3') {
-          collection = 'handoff_templates';
-        } else if (moduleId === 'essential_ck_protocols_lite') {
-          collection = 'ck_protocols';
-        } else if (moduleId === 'optimized_ck_access_init_v3') {
-          collection = 'priming';
-        }
-        
-        const docRef = db.collection(collection).doc(moduleId);
-        const doc = await docRef.get();
-        
-        if (doc.exists) {
-          const data = doc.data();
-          
-          // Cache the result if requested
-          if (cacheSession) {
-            this.cache.set(cacheKey, {
-              data,
-              timestamp: Date.now()
-            });
-          }
-          
-          this.metrics.modulesRetrieved++;
-          return data;
-        }
+      // Determine collection based on module ID
+      let collection = 'ck_guidance_modules';
+      if (moduleId.includes('handoff') || moduleId === 'enhanced_cg_handoff_v3') {
+        collection = 'handoff_templates';
+      } else if (moduleId === 'essential_ck_protocols_lite') {
+        collection = 'ck_protocols';
       }
       
-      // If not in Firestore, check Firebase Storage for JSON modules
-      // Determine directory based on module ID patterns
-      let directory = 'specialized';
+      // Fetch from Firestore
+      const docRef = db.collection(collection).doc(moduleId);
+      const doc = await docRef.get();
       
-      // Essential modules: ck2.1, ck8.1, ck3.1, ck5.1, ck6.1, ck_initialization_guide, ck_tool_inventory, ck_mcp_tool_awareness_v2
-      if (['ck2.1', 'ck8.1', 'ck3.1', 'ck5.1', 'ck6.1', 'ck_initialization_guide', 'ck_tool_inventory', 'progression_compaction_guidance_v1', 'ck_mcp_tool_awareness_v2'].includes(moduleId)) {
-        directory = 'essential';
-      }
-      // Reference modules: ck9.1, ck4.1, ck6.2
-      else if (['ck9.1', 'ck4.1', 'ck6.2'].includes(moduleId)) {
-        directory = 'reference';
-      }
-      // Foundation module
-      else if (moduleId === 'project_foundation_summary_v1') {
-        directory = 'foundation';
-      }
-      // Specialized modules: ck1.1, ck1.2, ck4.2, ck7.1, ck1.3, ck2.2
-      
-      // Construct file path - map module ID to filename
-      const moduleFileMap = {
-        // Essential
-        'ck2.1': 'ck2.1_hd_validation_protocol',
-        'ck8.1': 'ck8.1_foundational_access',
-        'ck3.1': 'ck3.1_task_generation',
-        'ck5.1': 'ck5.1_error_handling',
-        'ck6.1': 'ck6.1_continuity_handoffs',
-        'ck_initialization_guide': 'ck_initialization_guide',
-        'ck_tool_inventory': 'ck_tool_inventory',
-        'progression_compaction_guidance_v1': 'progression_compaction_guidance_v1',
-        'ck_mcp_tool_awareness_v2': 'ck_mcp_tool_awareness_v2',
-        // Reference
-        'ck9.1': 'ck9.1_troubleshooting_guide',
-        'ck4.1': 'ck4.1_handoff_templates',
-        'ck6.2': 'ck6.2_emergency_procedures',
-        // Specialized
-        'ck1.1': 'ck1.1_mcp_conventions',
-        'ck1.2': 'ck1.2_task_scoping',
-        'ck4.2': 'ck4.2_large_document_mgmt',
-        'ck7.1': 'ck7.1_firebase_storage',
-        'ck1.3': 'ck1.3_gap_analysis',
-        'ck2.2': 'ck2.2_session_management',
-        // Foundation
-        'project_foundation_summary_v1': 'project_foundation_summary_v1'
-      };
-      
-      const fileName = moduleFileMap[moduleId];
-      if (!fileName) {
-        throw new Error(`Unknown module ID: ${moduleId}`);
+      if (!doc.exists) {
+        throw new Error(`Module ${moduleId} not found in ${collection}`);
       }
       
-      const filePath = `ck_modules_json/${directory}/${fileName}.json`;
-      
-      // Get file from Firebase Storage
-      const bucket = storage.bucket();
-      const file = bucket.file(filePath);
-      const [exists] = await file.exists();
-      
-      if (!exists) {
-        throw new Error(`Module ${moduleId} not found at ${filePath} in Firebase Storage`);
-      }
-      
-      const [content] = await file.download();
-      const data = JSON.parse(content.toString());
+      const data = doc.data();
       
       // Cache the result if requested
       if (cacheSession) {
@@ -457,78 +381,6 @@ class CKModuleAccess {
 
 // Initialize CK Module Access
 const ckModule = new CKModuleAccess();
-
-// NEW: CG Module Access Logic
-class CGModuleAccess {
-  constructor() {
-    this.cache = new Map();
-    this.metrics = {
-      modulesRetrieved: 0,
-      cacheHits: 0,
-      cacheMisses: 0
-    };
-  }
-
-  async getModule(moduleId, cacheSession = true) {
-    const cacheKey = `cg-${moduleId}`;
-    
-    // Check cache first
-    if (cacheSession && this.cache.has(cacheKey)) {
-      const cached = this.cache.get(cacheKey);
-      if (Date.now() - cached.timestamp < 300000) { // 5 minutes
-        this.metrics.cacheHits++;
-        return cached.data;
-      }
-      this.cache.delete(cacheKey);
-    }
-
-    this.metrics.cacheMisses++;
-    
-    try {
-      const fileName = `${moduleId}.optimized.json`;
-      const filePath = `cg_guidance/modules/protocols/optimized/${fileName}`;
-      
-      // Get file from Firebase Storage
-      const bucket = storage.bucket();
-      const file = bucket.file(filePath);
-      const [exists] = await file.exists();
-      
-      if (!exists) {
-        throw new Error(`CG Module ${moduleId} not found at ${filePath} in Firebase Storage`);
-      }
-      
-      const [content] = await file.download();
-      const data = JSON.parse(content.toString());
-      
-      // Cache the result if requested
-      if (cacheSession) {
-        this.cache.set(cacheKey, {
-          data,
-          timestamp: Date.now()
-        });
-      }
-      
-      this.metrics.modulesRetrieved++;
-      return data;
-      
-    } catch (error) {
-      throw new Error(`Failed to retrieve CG module ${moduleId}: ${error.message}`);
-    }
-  }
-
-  getMetrics() {
-    return {
-      module: {
-        ...this.metrics,
-        cacheEfficiency: this.metrics.cacheHits / (this.metrics.cacheHits + this.metrics.cacheMisses) * 100 || 0,
-        cacheSize: this.cache.size
-      }
-    };
-  }
-}
-
-// Initialize CG Module Access
-const cgModule = new CGModuleAccess();
 
 // Create MCP server
 const server = new Server({
@@ -665,19 +517,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: 'object',
           properties: {
             moduleId: { type: 'string', description: 'Module ID (e.g., "ck2.1", "enhanced_cg_handoff_v3", "essential_ck_protocols_lite")' },
-            cacheSession: { type: 'boolean', description: 'Whether to cache the module for session reuse', default: true }
-          },
-          required: ['moduleId']
-        }
-      },
-      // NEW: CG Module Access tool
-      {
-        name: 'getCGModule',
-        description: 'Get a CG module by ID with caching from cg_guidance/',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            moduleId: { type: 'string', description: 'Module ID (e.g., "cg_essentials_lite")' },
             cacheSession: { type: 'boolean', description: 'Whether to cache the module for session reuse', default: true }
           },
           required: ['moduleId']
@@ -871,23 +710,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'getCKModule': {
         const { moduleId, cacheSession = true } = args;
         const result = await ckModule.getModule(moduleId, cacheSession);
-        return {
-          content: [{
-            type: "text",
-            text: JSON.stringify({
-              success: true,
-              moduleId,
-              cached: cacheSession,
-              data: result
-            }, null, 2)
-          }]
-        };
-      }
-
-      // NEW: CG Module Access handler
-      case 'getCGModule': {
-        const { moduleId, cacheSession = true } = args;
-        const result = await cgModule.getModule(moduleId, cacheSession);
         return {
           content: [{
             type: "text",

@@ -1,0 +1,160 @@
+/* SwipeActions Component Styles */
+.swipe-actions-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.swipe-actions-wrapper:active {
+  cursor: grabbing;
+}
+
+/* Action buttons container */
+.swipe-actions-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  z-index: 1;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  min-width: 192px; /* 90px + 90px + 12px gap */
+  gap: 12px;
+  padding-right: 12px;
+}
+
+.swipe-actions-container.hidden {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.swipe-actions-container.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Individual action buttons */
+.swipe-action-button {
+  height: calc(100% - 16px); /* Account for container padding */
+  margin: 8px 0;
+  padding: 0 16px;
+  border: none;
+  background: #6b7280; /* Default neutral color */
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 6px; /* Default, overridden by specific variants */
+}
+
+.swipe-action-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.swipe-action-button:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Action button variants - Exact KarmaCash colors */
+.swipe-action-button.delete {
+  background: #C17C74; /* Negative Soft Terra Cotta - matching TransactionList */
+  color: #FFFFFF;
+  border-radius: 0 6px 6px 0; /* Rounded right edge only */
+}
+
+.swipe-action-button.edit {
+  background: #F4A97F; /* Clear Peach/Orange from paletteV5 */
+  color: #FFFFFF;
+  border-radius: 6px 0 0 6px; /* Rounded left edge only */
+}
+
+.swipe-action-button.archive {
+  background: #6b7280; /* Default neutral */
+  color: #FFFFFF;
+}
+
+/* Special case: when edit is first button (left), delete is second (right) */
+.swipe-actions-container .swipe-action-button:first-child.edit {
+  border-radius: 6px 0 0 6px; /* Left button rounded on left */
+}
+
+.swipe-actions-container .swipe-action-button:last-child.delete {
+  border-radius: 0 6px 6px 0; /* Right button rounded on right */
+}
+
+/* Main content */
+.swipe-content {
+  position: relative;
+  background: var(--color-surface, white);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 2;
+  width: 100%;
+}
+
+.swipe-content.swiped {
+  transform: translateX(-192px); /* 90px + 90px + 12px gap */
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .swipe-actions-container,
+  .swipe-content {
+    transition: none;
+  }
+}
+
+/* Touch-friendly sizing on mobile */
+@media (max-width: 768px) {
+  .swipe-action-button {
+    width: 90px; /* Maintain consistent 90px width on mobile */
+    padding: 0 12px;
+  }
+  
+  .swipe-content.swiped {
+    transform: translateX(-192px); /* Consistent with desktop */
+  }
+  
+  .swipe-actions-container {
+    min-width: 192px; /* 90px + 90px + 12px gap */
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .swipe-action-button {
+    border: 1px solid white;
+  }
+}
+
+/* Focus states for keyboard navigation */
+.swipe-action-button:focus {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: 2px;
+}
+
+/* RTL support */
+[dir="rtl"] .swipe-actions-container {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .swipe-content.swiped {
+  transform: translateX(120px);
+}
+
+[dir="rtl"] .swipe-actions-container.hidden {
+  transform: translateX(-100%);
+}

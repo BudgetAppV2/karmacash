@@ -1,0 +1,223 @@
+# Task 10.2: Keyword Trigger Mapping System
+
+## Keyword Analysis from HD Usage Patterns
+
+### **Common HD Requests Analysis**
+Based on typical CK session interactions, HD frequently asks:
+
+**Handoff Creation:**
+- "create handoff for task X"
+- "need handoff template" 
+- "handoff CG for implementation"
+→ **Trigger**: "handoff" → Load `enhanced_cg_handoff_v3`
+
+**Validation Questions:**
+- "validate this approach"
+- "quality check needed"
+- "validation protocol"
+→ **Trigger**: "validation" → Load `ck2.1` + `ck5.1`
+
+**Task Management:**
+- "create task", "add task", "task generation"
+- "task scoping", "task management"
+→ **Trigger**: "task" → Load `ck3.1`
+
+**Technical Integration:**
+- "technical guidance", "integration help"
+- "Firebase access", "storage issues"
+→ **Trigger**: "technical" → Load `ck6.1` + related modules
+
+**Session Planning:**
+- "what next", "session planning"
+- "next steps", "priorities"
+→ **Trigger**: "planning" → Load session management guidance
+
+## Keyword → Module Mapping Table
+
+### **Primary Triggers (High Frequency)**
+
+| **Trigger Word** | **Primary Module** | **Secondary Modules** | **Usage Context** |
+|------------------|-------------------|----------------------|-------------------|
+| `handoff` | `enhanced_cg_handoff_v3` | `ck4.1`, `ck4.2` | Creating CG handoffs |
+| `validation` | `ck2.1` | `ck5.1` | HD approval, quality checks |
+| `task` | `ck3.1` | `ck1.2` | Task generation, scoping |
+| `technical` | `ck6.1` | `ck7.1`, `ck8.1` | Integration, Firebase |
+| `planning` | Session guidance | `ck1.3` | Next steps, priorities |
+
+### **Secondary Triggers (Medium Frequency)**
+
+| **Trigger Word** | **Primary Module** | **Secondary Modules** | **Usage Context** |
+|------------------|-------------------|----------------------|-------------------|
+| `quality` | `ck5.1` | `ck2.1` | Quality gates, frameworks |
+| `storage` | `ck7.1` | `ck6.1` | Firebase Storage access |
+| `document` | `ck4.2` | `ck4.1` | Large document management |
+| `foundational` | `ck8.1` | `ck7.1` | Bible Access integration |
+| `format` | `ck1.1` | None | MCP formatting issues |
+
+### **Contextual Triggers (Phrase-Based)**
+
+| **Trigger Phrase** | **Module Load** | **Context** |
+|-------------------|----------------|-------------|
+| "create handoff" | `enhanced_cg_handoff_v3` + `ck4.1` | Handoff creation workflow |
+| "validation protocol" | `ck2.1` | HD validation process |
+| "task generation" | `ck3.1` + `ck1.2` | Creating new tasks |
+| "technical integration" | `ck6.1` + `ck7.1` + `ck8.1` | Complex technical work |
+| "quality assurance" | `ck5.1` + `ck2.1` | Quality validation |
+
+## Module Loading Priority System
+
+### **Priority Level 1 (Essential - <5s load)**
+- `ck2.1`: HD Validation Protocol
+- `enhanced_cg_handoff_v3`: Handoff Template
+- Essential protocols supplement
+
+### **Priority Level 2 (Important - <10s load)**
+- `ck3.1`: Task Generation 
+- `ck4.1`: Handoff Templates
+- `ck5.1`: Quality Gates
+
+### **Priority Level 3 (Reference - <15s load)**
+- `ck6.1`, `ck7.1`, `ck8.1`: Technical modules
+- `ck4.2`: Large document management
+- `ck1.1`, `ck1.2`, `ck1.3`: Initialization references
+
+## Conflict Resolution Strategy
+
+### **Overlapping Keywords**
+**Problem**: Multiple triggers might match user input
+
+**Solution - Priority Rules:**
+1. **Exact Match Priority**: "handoff" → handoff template (not task generation)
+2. **Context Priority**: "task validation" → validation (not task generation)
+3. **Frequency Priority**: Common usage patterns take precedence
+
+### **Multiple Module Triggers**
+**Problem**: Single keyword might need multiple modules
+
+**Solution - Smart Loading:**
+```
+"technical" → Primary: ck6.1
+           → Secondary: ck7.1, ck8.1 (if technical work involves storage/foundational)
+           → Decision: Load ck6.1 first, mention availability of related modules
+```
+
+## Implementation Specification
+
+### **Keyword Detection Algorithm**
+```
+1. Scan HD input for trigger words
+2. Apply priority rules for conflicts
+3. Load primary module immediately
+4. Offer secondary modules: "Related modules available: [list]"
+5. Cache loaded modules for session reuse
+```
+
+### **Loading Pattern Examples**
+
+**Example 1 - Simple Trigger:**
+```
+HD: "I need to create a handoff for task 12"
+Detected: "handoff" 
+Action: Load enhanced_cg_handoff_v3
+Response: "Handoff template loaded. Ready to create task 12 handoff."
+```
+
+**Example 2 - Complex Trigger:**
+```
+HD: "Technical validation needed for storage integration"
+Detected: "technical" + "validation" + "storage"
+Action: Load ck6.1 (technical), ck2.1 (validation), ck7.1 (storage)
+Response: "Technical integration, validation protocols, and storage guidance loaded."
+```
+
+**Example 3 - Context-Aware:**
+```
+HD: "What's the task scoping process?"
+Detected: "task" + context suggests scoping
+Action: Load ck3.1 + ck1.2
+Response: "Task generation and scoping guidelines loaded."
+```
+
+## Caching Strategy
+
+### **Session-Level Caching**
+- **First Load**: Fetch from source, cache in memory
+- **Subsequent Access**: Serve from cache instantly
+- **Cache Duration**: Entire CK session
+- **Cache Limit**: Top 5 most-used modules per session
+
+### **Cross-Session Optimization**
+- **Frequent Modules**: Enhanced template, validation protocol
+- **Pre-cache Candidates**: handoff template (used ~80% of sessions)
+- **Smart Pre-loading**: Load likely-needed modules during idle time
+
+## Fallback Mechanisms
+
+### **Module Loading Failure**
+1. **Primary Failure**: Try alternative storage location
+2. **Complete Failure**: Provide basic guidance + manual reference
+3. **Recovery**: "Module temporarily unavailable, here's essential info: [basic guidance]"
+
+### **Keyword Miss**
+1. **No Trigger Match**: Offer module menu
+2. **Unclear Request**: Ask clarifying question
+3. **Manual Override**: "Available modules: [list with descriptions]"
+
+## Performance Targets
+
+### **Loading Speed Requirements**
+- **Essential modules**: <5 seconds
+- **Standard modules**: <10 seconds  
+- **Complex modules**: <15 seconds
+- **Cached modules**: <1 second
+
+### **Token Efficiency**
+- **Trigger detection**: <50 tokens overhead
+- **Module loading**: Only requested content
+- **Cache benefits**: 90% token savings on repeat access
+
+## Integration with 3-Step Initialization
+
+### **Step 2 Enhancement**
+```markdown
+## Step 2: Core Protocols + On-Demand Setup
+1. Load Essential Protocols Lite
+2. Initialize keyword trigger system
+3. Set up module loading capabilities
+4. Ready for HD-triggered module access
+```
+
+### **Module Loading During Session**
+```xml
+<!-- When keyword detected -->
+<function_calls>
+<invoke name="firestore_get_document_by_id" call_id="N">
+<parameter name="collection">ck_guidance_modules</parameter>
+<parameter name="documentId">[triggered_module_id]</parameter>
+</invoke>
+</function_calls>
+```
+
+## Testing & Validation
+
+### **Keyword Detection Testing**
+- Test common HD phrases for correct module loading
+- Verify conflict resolution works properly
+- Validate performance targets met
+
+### **Module Access Testing**
+- Confirm all modules load correctly
+- Test caching performance
+- Verify fallback mechanisms
+
+## Next Steps (Task 10.3)
+
+This keyword mapping provides foundation for:
+- ✅ **Complete trigger → module mapping**
+- ✅ **Priority and conflict resolution rules**
+- ✅ **Performance targets and caching strategy**
+- ✅ **Integration specification for 3-step init**
+
+**Ready for Task 10.3**: Bible Access Pattern Application using this mapping system.
+
+**Length Limit Protection**: Task 10.3 can proceed independently with this complete keyword specification.

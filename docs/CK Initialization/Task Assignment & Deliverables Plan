@@ -1,0 +1,211 @@
+# CK Optimization - Task Assignment & Deliverables Plan
+
+## Task Assignment Strategy
+
+### **CK Tasks (Context-Rich Analysis & Design)**
+Tasks requiring project knowledge, document analysis, and strategic design decisions.
+
+### **CG Tasks (Implementation & Conversion)**
+Tasks requiring technical implementation, document creation, and systematic execution.
+
+---
+
+## Task-by-Task Assignment
+
+### **Task 9: Design 3-Step Initialization Sequence**
+**Assigned to: CK** ✅  
+**Rationale**: Requires deep understanding of current initialization, strategic design decisions  
+**Max Length Risk**: Medium - involves analysis but creates concise design specification
+
+**CK Deliverables**:
+- Current initialization analysis document
+- 3-step sequence specification (Step 1: Context, Step 2: Protocols, Step 3: Project)
+- Token usage comparison (current vs. target)
+- Essential knowledge requirements mapping
+- Implementation guidelines for CG
+
+**Continuity Handoff**: Detailed design specification ready for CG implementation
+
+---
+
+### **Task 10: Implement On-Demand Module Access**
+**Assigned to: CK** ✅  
+**Rationale**: Requires understanding of current modules, Bible Access pattern knowledge  
+**Max Length Risk**: High - involves extensive document analysis and module mapping
+
+**CK Deliverables (Chunked for Continuity)**:
+1. **Current module inventory** (complete list with analysis)
+2. **Keyword trigger mapping** (which keywords → which modules)
+3. **Bible Access pattern specification** (how to apply to CK modules)
+4. **Module loading system design** (technical specification)
+5. **Storage structure plan** (Firebase organization)
+
+**Continuity Strategy**: Each deliverable can be completed independently, allowing handoff at any point
+
+---
+
+### **Task 11: Optimize HD Validation Workflow**
+**Assigned to: CK** ✅  
+**Rationale**: Requires understanding of current workflow, process optimization expertise  
+**Max Length Risk**: Low - focused on process analysis and optimization
+
+**CK Deliverables**:
+- Current HD validation workflow analysis
+- Inefficiency identification report
+- Streamlined workflow specification
+- Token reduction opportunities in validation
+- Process optimization recommendations
+
+**Continuity Handoff**: Complete workflow optimization ready for documentation update
+
+---
+
+### **Task 12: Convert CK Guidance to JSON Format**
+**Assigned to: CG** 🔄  
+**Rationale**: Systematic conversion work, technical implementation  
+**Why CG**: Repetitive conversion process, less context-dependent
+
+**CK Pre-Work Required**:
+- JSON schema design specification
+- Conversion priority list (which documents first)
+- Bible Access pattern template
+- Quality validation criteria
+
+**CG Deliverables**:
+- Converted JSON documents in Firebase Storage
+- Updated document references
+- Conversion validation report
+
+---
+
+### **Task 13: Implement Token Reduction Strategies**
+**Assigned to: CK** ✅  
+**Rationale**: Requires content analysis, editorial judgment, project context  
+**Max Length Risk**: Very High - involves extensive content analysis and editing
+
+**CK Deliverables (Staged for Continuity)**:
+1. **Content audit report** (document-by-document analysis)
+2. **Marketing language removal guide** (what to eliminate)
+3. **Optimization patterns** (common reduction strategies)
+4. **Priority editing list** (highest impact documents first)
+5. **Token measurement baseline** (before/after tracking)
+
+**Continuity Strategy**: 
+- **Subtask 13.1-13.2**: CK analysis and identification
+- **Subtask 13.3-13.4**: Can be handed to CG with clear guidelines
+
+---
+
+### **Task 15: Integrate with TaskMaster and CG Workflow**
+**Assigned to: CK** ✅  
+**Rationale**: Requires workflow understanding, integration expertise  
+**Max Length Risk**: Medium - documentation work, not extensive analysis
+
+**CK Deliverables**:
+- Workflow integration specification
+- TaskMaster integration requirements
+- CG handoff process documentation
+- Workflow preservation validation
+- Integration testing criteria
+
+**Continuity Handoff**: Complete integration documentation for system update
+
+---
+
+## Continuity Protection Strategy
+
+### **Progressive Deliverables Approach**
+Each CK task produces multiple standalone deliverables that can be:
+1. **Used independently** by future CK sessions
+2. **Handed to CG** if CK hits length limits
+3. **Built upon incrementally** without starting over
+
+### **Critical Handoff Points**
+- **After Task 9**: Complete design specification available
+- **After Task 10.1-10.3**: Module inventory and triggers mapped
+- **After Task 11**: Process optimization ready for implementation
+- **After Task 13.1-13.2**: Analysis complete, editing can be delegated
+
+### **Length Limit Mitigation**
+- **Chunked deliverables**: Each major deliverable is a complete unit
+- **Clear specifications**: CG can execute with minimal additional context
+- **Priority ordering**: Most critical deliverables first
+
+---
+
+## Recommended Implementation Sequence
+
+### **CK Session 1 (High Priority Foundation)**
+- **Task 9**: Complete 3-step design
+- **Task 11**: Complete HD validation optimization
+- **Task 10.1-10.2**: Module inventory and trigger mapping
+
+**If length limit hit**: Task 10.3-10.5 handed to next CK session
+
+### **CK Session 2 (Module System & Analysis)**
+- **Task 10.3-10.5**: Complete on-demand system design
+- **Task 13.1-13.2**: Content audit and marketing language identification
+
+**If length limit hit**: Task 13.3-13.4 handed to CG with guidelines
+
+### **CK Session 3 (Integration & Finalization)**
+- **Task 15**: Complete workflow integration
+- **Task 13 oversight**: Review CG content optimization work
+
+### **CG Sessions (Implementation)**
+- **Task 12**: Complete JSON conversion following CK specifications
+- **Task 13.3-13.4**: Execute content optimization following CK guidelines
+
+---
+
+## Deliverable Quality Standards
+
+### **CK Deliverables Must Include**
+- **Context**: Why this deliverable matters
+- **Specification**: Exact requirements for implementation
+- **Examples**: Concrete patterns to follow
+- **Validation**: How to verify success
+- **Next Steps**: Clear handoff instructions
+
+### **Continuity Document Requirements**
+- **Current State**: What was completed
+- **Next Actions**: What needs to be done next
+- **Key Decisions**: Important choices made and rationale
+- **Handoff Points**: Where CG can take over
+- **Success Metrics**: How to measure completion
+
+---
+
+## Risk Mitigation
+
+### **Length Limit Risks**
+- **Task 10**: Highest risk - extensive module analysis
+- **Task 13**: Very high risk - comprehensive content editing
+- **Mitigation**: Progressive deliverables with clear handoff points
+
+### **Context Loss Risks**
+- **Risk**: Future CK sessions missing critical decisions
+- **Mitigation**: Detailed continuity documentation with decision rationale
+
+### **Implementation Risks**
+- **Risk**: CG implementing without sufficient context
+- **Mitigation**: Complete specifications with examples and validation criteria
+
+---
+
+## Success Metrics
+
+### **CK Success Criteria**
+- Complete design specifications ready for implementation
+- Clear handoff points with sufficient context
+- Progressive deliverables enabling continuous progress
+- Token reduction targets achieved through optimization
+
+### **Overall Project Success**
+- 70-80% token reduction achieved
+- 3-step initialization implemented
+- On-demand module system functional
+- HD validation optimized but preserved
+- Workflow integration seamless
+
+**This approach ensures continuous progress regardless of length limits while leveraging CK's superior project context for strategic decisions and CG's implementation capabilities for systematic execution.**

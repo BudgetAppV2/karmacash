@@ -1,0 +1,92 @@
+{
+  "module_id": "ck5.1",
+  "title": "Quality Gates Framework",
+  "category": "reference",
+  "version": "2.0",
+  "optimized": true,
+  "token_target": 1000,
+  "usage_frequency": "medium",
+  "trigger_keywords": [
+    "quality",
+    "gates",
+    "validation",
+    "standards"
+  ],
+  "content": {
+    "quality_philosophy": "Every handoff must enable CG to deliver production-ready implementations suitable for stakeholder review",
+    "quality_gate_framework": {
+      "gate_1_requirements_validation": {
+        "ck_ensures_handoffs_include": [
+          "Complete requirements clearly defined",
+          "Technical approach viable within session constraints",
+          "Deliverable matches objectives",
+          "Measurable completion conditions"
+        ]
+      },
+      "gate_2_design_context": {
+        "ck_includes": [
+          "Architecture consistency guidance",
+          "Integration points clearly defined",
+          "Security requirements addressed",
+          "Performance expectations documented"
+        ]
+      },
+      "gate_3_implementation_standards": {
+        "ck_specifies_for_cg": [
+          "Code standards reference",
+          "Documentation requirements",
+          "Error handling requirements",
+          "Performance requirements"
+        ]
+      },
+      "gate_4_testing_requirements": {
+        "ck_defines": [
+          "Test coverage for critical functionality",
+          "Integration test scenarios",
+          "Edge cases to validate",
+          "User acceptance requirements"
+        ]
+      },
+      "gate_5_production_readiness": {
+        "ck_ensures_handoffs_enable": [
+          "Deployment readiness",
+          "Rollback procedures",
+          "Monitoring requirements",
+          "Operations documentation"
+        ]
+      }
+    },
+    "quality_frameworks": {
+      "technical_quality": {
+        "functionality": "Works as specified",
+        "reliability": "Works consistently",
+        "performance": "Meets speed/efficiency requirements",
+        "maintainability": "Easily modified/extended",
+        "portability": "Works in different environments"
+      },
+      "process_quality": {
+        "clarity": "Instructions clear for CG",
+        "completeness": "All steps covered",
+        "efficiency": "Optimally designed process",
+        "repeatability": "CG can follow reliably",
+        "measurability": "Outcomes trackable"
+      },
+      "content_quality": {
+        "accuracy": "Information factually correct",
+        "relevance": "Addresses implementation needs",
+        "completeness": "All aspects covered",
+        "clarity": "Easily understood by CG",
+        "actionability": "CG can act on information"
+      }
+    }
+  },
+  "integration_points": [
+    "Handoff validation",
+    "Quality assessment",
+    "Implementation review"
+  ],
+  "performance_metrics": {
+    "load_time_target": "<5s",
+    "token_reduction": "80%"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "module_id": "cg_health_diagnostics",
+  "title": "CG Health Diagnostics - Comprehensive Validation",
+  "category": "diagnostics",
+  "version": "1.0",
+  "optimized": true,
+  "token_target": 1500,
+  "usage_frequency": "on_demand",
+  "description": "Provides on-demand procedures for comprehensive health validation of the CG development and execution environment.",
+  "content": {
+    "introduction": {
+      "purpose": "To be loaded when a thorough health check is needed, potentially triggered by a WARNING or CRITICAL status, or for periodic validation.",
+      "scope": "Covers MCP Servers, Development Server/Client, Project Environment, and Firebase Services."
+    },
+    "mcp_server_diagnostics": {
+      "source_reference": "CG_Access_Module_Init (Step 0, Step 6e), B7.5 (MCP Server Connectivity)",
+      "primary_check_command": "/Users/benoitarchambault/Desktop/KarmaCash/mcp-management/auto-mcp-launcher.sh --status",
+      "expected_healthy_output_pattern": "Status: 8/8 servers running",
+      "detailed_check_command": "/Users/benoitarchambault/Desktop/KarmaCash/mcp-management/mcp-health-monitor.sh --check",
+      "key_metrics_to_observe": [
+        "All 8 MCP servers (TaskMaster, Original Firebase, Custom Firebase, Context7, Desktop Commander, Memory Server, Browser Tools Server, Browser Tools MCP) are running.",
+        "No critical errors reported by mcp-health-monitor.sh (resource usage, response times)."
+      ],
+      "troubleshooting_tips": [
+        "If servers are down, attempt relaunch with `/Users/benoitarchambault/Desktop/KarmaCash/mcp-management/auto-mcp-launcher.sh --check`.",
+        "Check MCP server logs in `logs/mcp/[server-name].log` for specific errors."
+      ]
+    },
+    "development_environment_diagnostics": {
+      "source_reference": "CG_Access_Module_Init (Step 6a, 6b), B7.5 (Development Server Validation)",
+      "client_side_checks": {
+        "console_logs": {
+          "tool": "mcp_browser-tools_getConsoleLogs",
+          "look_for": "Absence of critical runtime errors, successful Firebase init, normal application flow logs."
+        },
+        "console_errors": {
+          "tool": "mcp_browser-tools_getConsoleErrors",
+          "look_for": "Explanation for any errors, particularly Vite HMR issues, log sending failures, client-side Firebase connection problems (auth/network-request-failed)."
+        },
+        "network_errors": {
+          "tool": "mcp_browser-tools_getNetworkErrors",
+          "look_for": "Any failed network requests that could impact application functionality."
+        }
+      },
+      "project_files_check": {
+        "list_project_root": {
+          "tool": "list_dir",
+          "parameter_path": "." 
+        },
+        "package_json_check": {
+          "tool": "read_file",
+          "parameter_target_file": "package.json",
+          "look_for": "Valid JSON structure, presence of key dependencies (react, firebase, vite)."
+        }
+      }
+    },
+    "firebase_service_diagnostics": {
+      "source_reference": "CG_Access_Module_Init (Step 6d), B7.5 (Database Connectivity)",
+      "firestore_read_check": {
+        "tool": "mcp_firebase_firestore_get_document_by_id",
+        "parameters": {
+          "collection": "ck_continuity",
+          "documentId": "current-continuity-pointer"
+        },
+        "look_for": "Successful retrieval of the document, `exists: true`."
+      },
+      "storage_read_check": {
+        "tool": "mcp_firebase_getBibleSection",
+        "parameters": {
+          "documentId": "B1.1"
+        },
+        "look_for": "Successful retrieval, `success: true`."
+      }
+    },
+    "overall_assessment_protocol": {
+      "source_reference": "CG_Access_Module_Init (Health Check Assessment Protocol)",
+      "status_definitions": {
+        "healthy": "All checks pass, MCP 8/8, no critical client errors, Firebase services responsive.",
+        "warning": "Minor issues (e.g., some client-side log errors, 6-7/8 MCP servers), but core functionality seems intact. Proceed with caution and monitor.",
+        "critical": "Major issues (e.g., <6/8 MCP servers, critical client-side Firebase errors blocking functionality, MCP tools unresponsive). Block implementation."
+      },
+      "action_guidelines": {
+        "healthy": "Proceed with implementation.",
+        "warning": "Document issues, monitor closely during implementation. Consider rerunning specific diagnostic steps if issues persist.",
+        "critical": "Do not proceed. Report detailed findings, including specific failed checks and error messages. Await guidance or manual intervention."
+      }
+    }
+  }
+} 

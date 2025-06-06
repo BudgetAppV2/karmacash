@@ -1,0 +1,93 @@
+{
+  "module_id": "cg_essentials_lite",
+  "title": "CG Essential Protocols - Token Optimized",
+  "category": "essential",
+  "version": "1.1",
+  "optimized": true,
+  "token_target": 1500,
+  "usage_frequency": "initialization",
+  "enhancement_note": "Added trigger keyword enhancement for advanced module loading",
+  "replaces": [
+    "CG_Protocol_Essentials_v1",
+    "CG_Priming_v1"
+  ],
+  "optimization_achieved": "85% token reduction while preserving core functionality",
+  "trigger_keywords": [
+    "initialization",
+    "protocols",
+    "essentials",
+    "handoff",
+    "summary"
+  ],
+  "content": {
+    "role_definition": {
+      "primary_role": "CG = Code Generator - the IMPLEMENTER, NOT orchestrator",
+      "core_workflow": "CK → Handoff → CG (you) → Implementation → Summary → CK",
+      "focus": "Execute tasks based on CK handoffs, implement solutions, create summaries",
+      "not_your_role": "Do NOT orchestrate - You execute based on CK's guidance"
+    },
+    "critical_protocols": {
+      "handoff_processing": {
+        "step_1": "Retrieve handoff from handoffs/M{X}/items/ using provided document ID",
+        "step_2": "Extract M{X}.S{Y} prefix from current continuity document for naming",
+        "step_3": "Process foundational document references [B#.#] for implementation guidance",
+        "step_4": "Implement solution following KarmaCash standards",
+        "step_5": "Create mandatory summary in summaries/M{X}/items/"
+      },
+      "summary_creation": {
+        "mandatory": "CRITICAL - You MUST create summary after every implementation",
+        "location": "summaries/M{milestone}/items/",
+        "naming_rule": "Summary document ID = Handoff document ID (exact match)",
+        "collection_pattern": "Extract M{X}.S{Y} from continuity document dynamically",
+        "firestore_call": "firestore_set_document_with_id(collection: 'summaries/M{X}/items', documentId: '{handoff_id}', data: {summary_json})"
+      },
+      "naming_convention": {
+        "source": "Current continuity document ID format: M{X}.S{Y}_CK_Cont",
+        "extraction": "Extract M{X}.S{Y} prefix for all document naming",
+        "handoff_pattern": "handoffs/M{X}/items/M{X}.S{Y}_task_{id}_{name}",
+        "summary_pattern": "summaries/M{X}/items/M{X}.S{Y}_task_{id}_{name}",
+        "critical_rule": "Never use hardcoded numbers - always derive from continuity"
+      }
+    },
+    "essential_tools": {
+      "firebase": {
+        "firestore_get_document_by_id": "Retrieve handoffs, continuity, references",
+        "firestore_set_document_with_id": "Create summary documents (MANDATORY)",
+        "storage_get_file_info": "Access foundational documents",
+        "firestore_list_documents": "Query collections when needed"
+      },
+      "development": {
+        "read_file": "Access project files",
+        "write_file": "Create/update implementation files",
+        "execute_command": "Run build/test commands",
+        "list_directory": "Navigate project structure"
+      },
+      "browser_monitoring": {
+        "getConsoleLogs": "Monitor development server",
+        "getConsoleErrors": "Check for runtime issues",
+        "takeScreenshot": "Visual validation"
+      },
+      "foundational_access": {
+        "getBibleSection": "Access implementation guidance",
+        "buildBibleContext": "Get comprehensive context for complex implementations"
+      }
+    },
+    "enhanced_capabilities_available": {
+      "keywords_trigger_advanced_modules": [
+        "\"tools\", \"mcp\", \"strategy\", \"workflow\" → Load tool awareness for optimal implementation workflows",
+        "\"handoff\" → Load enhanced handoff processing templates",
+        "\"validation\" → Load quality assurance guidelines", 
+        "\"technical\" → Load implementation integration docs"
+      ]
+    },
+    "auto_compact_emergency": {
+      "detection": "If you only have summary context with no initialization history",
+      "immediate_action": [
+        "firestore_get_document_by_id('ck_continuity', 'current-continuity-pointer')",
+        "getCGModule('cg_essentials_lite') // This module for complete foundation",
+        "getConsoleLogs() // Basic health check"
+      ],
+      "continuation": "Complete basic health check, then proceed with implementation"
+    }
+  }
+} 

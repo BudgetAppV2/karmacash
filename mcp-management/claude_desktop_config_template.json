@@ -1,0 +1,59 @@
+{
+  "mcpServers": {
+    "taskmaster-ai": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package=task-master-ai",
+        "task-master-ai"
+      ],
+      "env": {
+        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE"
+      }
+    },
+    "firebase-original": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@gannonh/firebase-mcp"
+      ],
+      "env": {
+        "SERVICE_ACCOUNT_KEY_PATH": "YOUR_FIREBASE_SERVICE_ACCOUNT_PATH_HERE",
+        "FIREBASE_STORAGE_BUCKET": "YOUR_FIREBASE_BUCKET_HERE"
+      }
+    },
+    "firebase": {
+      "command": "node",
+      "args": ["YOUR_PROJECT_PATH/custom-firebase-mcp/enhanced-index-fixed.cjs"],
+      "env": {
+        "SERVICE_ACCOUNT_KEY_PATH": "YOUR_FIREBASE_SERVICE_ACCOUNT_PATH_HERE",
+        "FIREBASE_STORAGE_BUCKET": "YOUR_FIREBASE_BUCKET_HERE"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "desktop-commander": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "browser-tools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@agentdeskai/browser-tools-mcp@1.2.0"
+      ]
+    }
+  }
+}

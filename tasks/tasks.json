@@ -2,107 +2,319 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Set up Recharts Library and Configure Theme",
-      "description": "Integrate Recharts library into the project and configure the chart theme to match KarmaCash's Zen aesthetic.",
-      "details": "1. Add Recharts to package.json\n2. Install dependencies\n3. Create a chart theme configuration file (e.g., chartTheme.js)\n4. Define color palette based on B3.8 categorical colors\n5. Set up default chart styles (fonts, sizes, etc.) adhering to Zen aesthetic\n6. Create a ChartWrapper component for responsive sizing",
-      "testStrategy": "Verify Recharts installation. Create a sample chart to ensure theme is applied correctly. Test ChartWrapper with different screen sizes.",
-      "priority": "high",
+      "title": "Validate and Prepare CG Automation Tools",
+      "description": "Analyze existing legacy scripts, review Task 16 documentation, and create CG automation tools based on documentation and legacy script patterns. Prepare these tools for integration with CK strategic framework.",
+      "status": "pending",
       "dependencies": [],
-      "status": "done",
-      "subtasks": []
+      "priority": "high",
+      "details": "1. Review Task 16 documentation in /docs/ (cg_implementation_guide_b7_restructuring.md, cg_upload_protocol_documentation.md, etc.).\n2. Analyze existing legacy scripts in /testing/B2-automation 2/scripts/ (e.g., process-b7-ai-development-workflow.js, upload-raw-simple.js, create-metadata-simple.js).\n3. Create new CG automation scripts in a new /scripts/cg-automation/ directory, based on Task 16 documentation and legacy script patterns.\n4. Implement the following scripts: upload-cg-raw.js, create-cg-metadata.js, migrate-b7-to-cg.js, process-cg-complete.js, and validate-cg-performance.js.\n5. Ensure each new script meets production standards (error handling, logging, security).\n6. Document the functionality and input/output requirements of each new tool.\n7. Prepare a test suite to validate each tool's functionality.\n8. Create a report on the performance and reliability of these new tools.",
+      "testStrategy": "1. Develop unit tests for each new CG automation tool.\n2. Create integration tests to verify interactions between tools.\n3. Perform stress testing to ensure tools can handle expected load.\n4. Validate output against expected results from CK strategic documentation and Task 16 specifications.\n5. Compare new tool functionality with legacy scripts to ensure all necessary features are implemented.",
+      "subtasks": [
+        {
+          "id": "1.1",
+          "title": "Review Task 16 documentation",
+          "status": "pending"
+        },
+        {
+          "id": "1.2",
+          "title": "Analyze legacy scripts",
+          "status": "pending"
+        },
+        {
+          "id": "1.3",
+          "title": "Create /scripts/cg-automation/ directory",
+          "status": "pending"
+        },
+        {
+          "id": "1.4",
+          "title": "Implement upload-cg-raw.js",
+          "status": "pending"
+        },
+        {
+          "id": "1.5",
+          "title": "Implement create-cg-metadata.js",
+          "status": "pending"
+        },
+        {
+          "id": "1.6",
+          "title": "Implement migrate-b7-to-cg.js",
+          "status": "pending"
+        },
+        {
+          "id": "1.7",
+          "title": "Implement process-cg-complete.js",
+          "status": "pending"
+        },
+        {
+          "id": "1.8",
+          "title": "Implement validate-cg-performance.js",
+          "status": "pending"
+        },
+        {
+          "id": "1.9",
+          "title": "Document new tools",
+          "status": "pending"
+        },
+        {
+          "id": "1.10",
+          "title": "Create test suite",
+          "status": "pending"
+        },
+        {
+          "id": "1.11",
+          "title": "Generate performance and reliability report",
+          "status": "pending"
+        }
+      ]
     },
     {
       "id": 2,
-      "title": "Implement Expense Distribution Pie Chart",
-      "description": "Create a pie chart showing expense distribution by category with interactive features.",
-      "details": "1. Create ExpenseDistributionChart component\n2. Fetch and aggregate transaction data by category\n3. Implement pie chart using Recharts PieChart and Pie components\n4. Add hover/touch interactivity for segment details\n5. Implement date range filtering\n6. Handle loading and empty states",
-      "testStrategy": "Test with various data sets. Verify correct percentages and amounts. Check touch interactivity on mobile. Ensure proper handling of edge cases (no data, single category).",
-      "priority": "high",
+      "title": "Integrate CG Automation with CK Strategic Framework",
+      "description": "Combine CG's working automation scripts with CK's strategic framework to create a unified workflow, and upload the integrated B7 documentation to Firebase Storage for Bible Access Module consumption.",
+      "status": "pending",
       "dependencies": [
         1
       ],
-      "status": "done",
+      "priority": "high",
+      "details": "1. Review CK strategic documents in `/docs/ck-strategic/`: b7-2-ck-access-module.md, b7-3-upload-maintenance.md, b7-restructuring-plan.md, b7-4-cg-optimization.md, b7-5-system-health-checks.md.\n2. Map CG automation tools to corresponding CK strategies.\n3. Develop a unified data model that accommodates both CG and CK requirements.\n4. Modify CG scripts to align with CK strategic goals, particularly the 84.7% token reduction methodology.\n5. Create a new script that orchestrates the integrated workflow.\n6. Upload the integrated B7 section documents to Firebase Storage at `bible/sections/b7/raw/`.\n7. Create proper metadata and indexing for Bible Access Module consumption.\n8. Ensure the uploaded documents follow Bible Access Module patterns for CK/CG access.",
+      "testStrategy": "1. Develop tests to ensure the integrated workflow achieves 84.7% token reduction.\n2. Validate that the unified data model correctly represents both CG and CK data.\n3. Perform end-to-end testing of the new integrated workflow.\n4. Verify that all CK strategic goals are met in the integrated system.\n5. Test the upload process to Firebase Storage and verify correct placement of documents.\n6. Validate metadata and indexing for Bible Access Module consumption.\n7. Confirm that both CK and CG instances can access the optimized B7 section through the Bible Access Module.",
       "subtasks": []
     },
     {
       "id": 3,
-      "title": "Develop Income vs Expense vs Balance Bar Chart",
-      "description": "Create a bar chart comparing income, expenses, and net balance over time.",
-      "details": "1. Create IncomeExpenseChart component\n2. Fetch and process income and expense data\n3. Calculate net balance\n4. Implement bar chart using Recharts BarChart and Bar components\n5. Add time period navigation (monthly, quarterly, yearly)\n6. Implement color coding for income, expenses, and balance\n7. Handle loading and empty states",
-      "testStrategy": "Test with various time ranges. Verify correct calculations and color coding. Check navigation controls. Test edge cases like no income or all negative balance periods.",
+      "title": "Implement Automated B7 Restructuring",
+      "description": "Use CG automation to implement CK's 6-section B7 reorganization, including content migration and cross-reference validation.",
+      "details": "1. Enhance migrate-b7-to-cg.js to fully implement the B7 restructuring plan.\n2. Develop a content migration script that preserves existing achievements.\n3. Implement an archiving system for legacy content that maintains accessibility.\n4. Create a cross-reference validation tool to ensure integrity post-migration.\n5. Develop a rollback mechanism in case of migration issues.",
+      "testStrategy": "1. Create a test environment with a copy of production data.\n2. Perform a dry-run of the B7 restructuring and validate results.\n3. Test the archiving system for proper storage and retrieval of legacy content.\n4. Validate all cross-references in the restructured content.\n5. Test the rollback mechanism to ensure it can revert changes if needed.",
       "priority": "high",
       "dependencies": [
-        1
+        2
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 4,
-      "title": "Create Spending Trends Line Chart",
-      "description": "Implement a line chart showing spending trends over time with category filtering.",
-      "details": "1. Create SpendingTrendsChart component\n2. Fetch and process spending data over time\n3. Implement line chart using Recharts LineChart and Line components\n4. Add smooth line interpolation and data point markers\n5. Implement category filtering functionality\n6. Add optional goal line overlay\n7. Handle loading and empty states",
-      "testStrategy": "Test with various time ranges and categories. Verify smooth line rendering and correct data points. Test category filtering. Check goal line overlay functionality.",
+      "title": "Develop Performance Monitoring and Health Check Systems",
+      "description": "Create comprehensive monitoring and health check systems to ensure optimal performance and prevent session failures.",
+      "details": "1. Design a performance monitoring system that combines CK metrics with CG validation.\n2. Implement real-time monitoring for key performance indicators (KPIs) including token reduction and workflow success rate.\n3. Develop automated health checks based on b7-5-system-health-checks.md.\n4. Create an alerting system for performance degradation or system issues.\n5. Implement logging and error tracking throughout the integrated system.",
+      "testStrategy": "1. Simulate various load conditions and verify accurate performance reporting.\n2. Inject faults into the system to test health check effectiveness.\n3. Validate that alerts are triggered appropriately for different error conditions.\n4. Ensure that logs provide sufficient detail for troubleshooting.",
       "priority": "medium",
       "dependencies": [
-        1
+        2
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 5,
-      "title": "Implement Budget vs Actual Comparison Chart",
-      "description": "Create a chart comparing budgeted amounts to actual spending with visual indicators.",
-      "details": "1. Create BudgetComparisonChart component\n2. Fetch budget and actual spending data\n3. Implement horizontal or grouped bar chart using Recharts BarChart and Bar\n4. Add over/under budget visual indicators\n5. Display percentage completion\n6. Implement alert styling for budget overruns\n7. Handle loading and empty states",
-      "testStrategy": "Test with various budget scenarios. Verify correct calculations and visual indicators. Check alert styling for overruns. Test edge cases like no budget set or no spending.",
+      "title": "Optimize CG Workflows",
+      "description": "Extend optimization patterns to CG workflows to achieve complete CK↔CG workflow efficiency.",
+      "details": "1. Analyze current CG workflows for optimization opportunities.\n2. Apply CK's token reduction methodology to CG processes.\n3. Implement optimizations in CG automation scripts.\n4. Develop new scripts or modify existing ones to streamline CG workflows.\n5. Ensure optimizations maintain backward compatibility with existing systems.",
+      "testStrategy": "1. Benchmark CG workflow performance before and after optimization.\n2. Validate that optimized workflows maintain functionality and data integrity.\n3. Test backward compatibility with existing CG systems.\n4. Perform stress tests to ensure optimized workflows can handle increased load.",
       "priority": "medium",
       "dependencies": [
-        1
+        2,
+        4
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 6,
-      "title": "Integrate Charts into GraphsPage and Implement Responsive Layout",
-      "description": "Integrate all charts into the GraphsPage component and implement a responsive layout.",
-      "details": "1. Update GraphsPage.jsx to replace placeholder content\n2. Implement responsive grid layout (2x2 desktop, single column mobile)\n3. Add chart components to the layout\n4. Implement shared date range selector affecting all relevant charts\n5. Ensure proper sizing and scaling of charts across screen sizes\n6. Implement touch-friendly interactions for mobile",
-      "testStrategy": "Test layout on various screen sizes. Verify chart resizing and touch interactions. Check shared date range functionality. Ensure consistent styling with other KarmaCash sections.",
-      "priority": "high",
+      "title": "Implement Unified Upload and Maintenance Procedures",
+      "description": "Create unified procedures for content upload and system maintenance based on integrated CG-CK framework.",
+      "details": "1. Develop a unified upload procedure that incorporates both CG and CK requirements.\n2. Create maintenance scripts that can be scheduled for regular system upkeep.\n3. Implement version control for content and system configurations.\n4. Develop a user interface for content upload and maintenance tasks.\n5. Create comprehensive documentation for all procedures.",
+      "testStrategy": "1. Perform end-to-end testing of the upload procedure with various content types.\n2. Validate that maintenance scripts correctly perform all required tasks.\n3. Test version control system for proper tracking of changes.\n4. Conduct usability testing on the user interface.\n5. Verify that documentation accurately reflects all procedures.",
+      "priority": "medium",
       "dependencies": [
         2,
         3,
-        4,
         5
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 7,
-      "title": "Optimize Data Fetching and State Management",
-      "description": "Implement efficient data fetching, caching, and state management for chart data.",
-      "details": "1. Create a data fetching service for chart data\n2. Implement data aggregation and filtering logic\n3. Set up caching mechanism for processed chart data\n4. Implement real-time updates when transactions change\n5. Optimize data structures for large datasets (1000+ transactions)\n6. Implement error handling and retry mechanisms",
-      "testStrategy": "Test with large datasets to ensure performance. Verify caching effectiveness. Check real-time update functionality. Test error scenarios and recovery.",
-      "priority": "medium",
+      "title": "Deploy Enhanced Bible Access Module",
+      "description": "Deploy the optimized and integrated Bible Access Module to the production environment.",
+      "details": "1. Prepare a detailed deployment plan, including rollback procedures.\n2. Set up a staging environment that mirrors production.\n3. Perform a dry-run deployment in the staging environment.\n4. Schedule the production deployment during a low-traffic period.\n5. Execute the deployment, including data migration and system reconfiguration.\n6. Activate new monitoring and health check systems.",
+      "testStrategy": "1. Conduct thorough testing in the staging environment before production deployment.\n2. Perform gradual rollout and monitor system performance at each stage.\n3. Validate that all features work correctly in the production environment.\n4. Verify that monitoring systems are correctly reporting performance metrics.\n5. Conduct post-deployment testing to ensure 99.7% workflow success rate and 84.7% token reduction.",
+      "priority": "high",
       "dependencies": [
+        3,
+        4,
+        5,
         6
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 8,
-      "title": "Finalize Implementation and Conduct Testing",
-      "description": "Complete final implementation details, conduct thorough testing, and prepare for deployment.",
-      "details": "1. Implement empty states and loading indicators for all charts\n2. Ensure consistent error handling across all components\n3. Optimize performance (aim for <2s load time, <100ms interaction response)\n4. Conduct cross-browser and cross-device testing\n5. Verify integration with bottom navigation\n6. Update component documentation\n7. Prepare release notes",
-      "testStrategy": "Conduct end-to-end testing of entire Graphiques section. Verify all acceptance criteria are met. Test on multiple devices and browsers. Measure and document performance metrics.",
-      "priority": "high",
+      "title": "Establish Sustainable Operational Framework",
+      "description": "Create a framework for continued evolution and optimization of the Bible Access Module.",
+      "details": "1. Develop a process for regular performance reviews and optimization.\n2. Create a system for collecting and analyzing user feedback.\n3. Establish a protocol for implementing and testing new features or optimizations.\n4. Develop a training program for maintainers and operators of the system.\n5. Create a long-term roadmap for system evolution based on business needs and technological advancements.",
+      "testStrategy": "1. Simulate the performance review process and validate its effectiveness.\n2. Test the feedback collection system with sample user input.\n3. Conduct a mock implementation of a new feature using the established protocol.\n4. Evaluate the training program with a group of test users.\n5. Review the long-term roadmap with stakeholders to ensure it meets business objectives.",
+      "priority": "medium",
       "dependencies": [
         7
       ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 9,
+      "title": "Design 3-Step Initialization Sequence",
+      "description": "Create a streamlined 3-step initialization process for CK that loads essential knowledge efficiently.",
+      "details": "1. Define three main steps: session context, core protocols, and project context.\n2. Ensure each step loads only essential information.\n3. Implement parallel loading where possible.\n4. Aim for <30 seconds total initialization time.\n5. Keep total token usage under 5KB.\n6. Remove any marketing language or redundant explanations.\n7. Use JSON format for efficient AI consumption.",
+      "testStrategy": "1. Measure initialization time, aiming for <30 seconds.\n2. Count tokens used, ensuring <5KB.\n3. Verify all essential knowledge is loaded (role, tools, context, validation).\n4. Test CK's ability to start immediate consultation after initialization.",
       "status": "done",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Implement On-Demand Module Access",
+      "description": "Develop a system for keyword-triggered loading of advanced CK modules using the Bible Access pattern.",
+      "details": "1. Identify all current CK modules that can be loaded on-demand.\n2. Implement keyword triggers for each module.\n3. Create a module loading system using the Bible Access pattern.\n4. Ensure each module loads in <10 seconds.\n5. Implement caching for frequently used modules.\n6. Use JSON format for module storage and access.",
+      "testStrategy": "1. Test each keyword trigger for correct module loading.\n2. Measure loading time for each module, ensuring <10 seconds.\n3. Verify all current CK capabilities are accessible through on-demand loading.\n4. Test caching mechanism for improved performance on subsequent loads.",
+      "status": "done",
+      "dependencies": [
+        9
+      ],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 11,
+      "title": "Optimize HD Validation Workflow",
+      "description": "Streamline the HD (Human Developer) validation process for efficiency while maintaining safety and control.",
+      "status": "pending",
+      "dependencies": [
+        9
+      ],
+      "priority": "medium",
+      "details": "1. Analyze current HD validation workflow.\n2. Identify steps that can be optimized or simplified.\n3. Design a streamlined validation process.\n4. Ensure HD maintains full control over document creation.\n5. Reduce unnecessary steps in validation instructions.\n6. Focus on documentation and process optimization.",
+      "testStrategy": "1. Verify HD approval is still required for document creation.\n2. Measure time savings in new validation process.\n3. Test various scenarios to ensure safety mechanisms are maintained.\n4. Verify HD has full control over the validation process.\n5. Collect feedback from HDs on the streamlined workflow.",
+      "subtasks": []
+    },
+    {
+      "id": 12,
+      "title": "Convert CK Guidance to JSON Format",
+      "description": "Transform existing CK guidance documents into a JSON structure for more efficient AI consumption.",
+      "details": "1. Identify all CK guidance documents that need conversion.\n2. Design a JSON schema that captures all necessary information.\n3. Convert each document to the new JSON format.\n4. Implement the Bible Access Module structure pattern in the JSON design.\n5. Ensure all converted documents are stored in Firebase Storage.\n6. Update any references to these documents in the CK system.",
+      "testStrategy": "1. Validate JSON structure of each converted document.\n2. Verify all information from original documents is preserved.\n3. Test CK's ability to efficiently consume and use the new JSON format.\n4. Measure any improvements in processing speed or token usage.",
+      "status": "done",
+      "dependencies": [
+        9,
+        10
+      ],
+      "priority": "medium",
+      "subtasks": []
+    },
+    {
+      "id": 13,
+      "title": "Implement Token Reduction Strategies",
+      "description": "Optimize documentation to reduce token usage in CK initialization and operation through content editing.",
+      "status": "done",
+      "dependencies": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "priority": "high",
+      "details": "1. Analyze current token usage in CK documentation.\n2. Identify and remove any redundant information in the documentation.\n3. Eliminate all promotional and marketing language from the content.\n4. Optimize instructions for conciseness without losing clarity.\n5. Use shorthand or abbreviations where appropriate and clear.\n6. Aim for 70-80% token reduction from current 15-20KB to <5KB.",
+      "testStrategy": "1. Measure token usage before and after optimization.\n2. Verify 70-80% reduction in token usage.\n3. Review optimized documentation to ensure clarity and completeness of information.\n4. Have team members unfamiliar with the project review the optimized content for comprehension.",
+      "subtasks": [
+        {
+          "id": "13.1",
+          "title": "Content Audit",
+          "description": "Perform a thorough audit of existing documentation to identify areas for optimization.",
+          "status": "done"
+        },
+        {
+          "id": "13.2",
+          "title": "Remove Marketing Language",
+          "description": "Identify and remove all promotional and marketing language from the documentation.",
+          "status": "done"
+        },
+        {
+          "id": "13.3",
+          "title": "Optimize Instructions",
+          "description": "Rewrite instructions for maximum conciseness while maintaining clarity.",
+          "status": "done"
+        },
+        {
+          "id": "13.4",
+          "title": "Implement Abbreviations",
+          "description": "Create a list of clear and appropriate abbreviations or shorthand for frequently used terms.",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Integrate with TaskMaster and CG Workflow",
+      "description": "Document and establish the workflow for integrating the optimized CK system with TaskMaster and CG, focusing on seamless handoffs and efficient processes.",
+      "status": "pending",
+      "dependencies": [
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "priority": "high",
+      "details": "1. Document the process for CK integration with TaskMaster for project context loading.\n2. Outline the steps for CK to access and update TaskMaster state.\n3. Describe the handoff creation process from CK to CG.\n4. Document the CK-CG workflow integration with the new initialization and module system.\n5. Outline the method for CK to provide next task information to CG.\n6. Ensure all current workflow capabilities are documented in the optimized system.",
+      "testStrategy": "1. Review documentation for completeness and clarity.\n2. Conduct a walkthrough of the documented processes with relevant team members.\n3. Verify that all current workflow capabilities are accurately described.\n4. Gather feedback from CK, TaskMaster, and CG teams on the documented integration processes.",
+      "subtasks": []
+    },
+    {
+      "id": 16,
+      "title": "Extract Reusable SwipeActions Component from TransactionList",
+      "description": "Extract the sophisticated swipe-to-delete/modify functionality from TransactionList.jsx into a reusable SwipeActions component and implement it in the Categories page for consistent user interaction patterns.",
+      "details": "1. Analyze existing swipe implementation in src/features/transactions/components/TransactionList.jsx\n2. Extract touch/mouse event handling, animation logic, and accessibility features into reusable SwipeActions component\n3. Create src/components/ui/SwipeActions.jsx with props for customizable actions (delete, modify)\n4. Maintain existing Framer Motion animations and prefers-reduced-motion support\n5. Update CategoriesPage.jsx to use SwipeActions component instead of basic edit/delete buttons\n6. Ensure touch threshold (70px) and haptic feedback are preserved\n7. Test swipe interactions on both touch devices and desktop mouse\n8. Verify accessibility with keyboard navigation and screen readers",
+      "testStrategy": "1. Component unit tests for SwipeActions with different action configurations\n2. Integration tests in both TransactionList and CategoriesPage contexts\n3. Manual testing of touch gestures on mobile devices and mouse interactions on desktop\n4. Accessibility testing with keyboard navigation and screen reader compatibility\n5. Performance testing to ensure 60fps animations on target devices",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 17,
+      "title": "Create Universal Date Management System with Global Persistence",
+      "description": "Extract the date range management system from TransactionsPage.jsx into a universal component and implement global date persistence across transactions, categories, and future graphs pages.",
+      "details": "1. Analyze existing date management in src/features/transactions/TransactionsPage.jsx\n2. Extract date picker, view mode toggle (week/month), and navigation controls into UniversalDatePicker component\n3. Create src/components/ui/UniversalDatePicker.jsx with consistent styling and behavior\n4. Implement React Context for global date state management (startDate, endDate, viewMode)\n5. Create DateContext provider at app level with session-based persistence\n6. Update TransactionsPage.jsx to use new universal components\n7. Update CategoriesPage.jsx to integrate universal date picker and global state\n8. Ensure default behavior: current week range, consistent formatting across pages\n9. Test date persistence when navigating between pages",
+      "testStrategy": "1. Component testing for UniversalDatePicker with different date ranges and view modes\n2. Context testing for global state management and persistence\n3. Integration testing across multiple pages using the same date state\n4. Edge case testing with invalid dates, timezone handling, and date range validation\n5. User testing of date navigation and consistency across page switches",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 18,
+      "title": "Implement Drag-and-Drop Category Reorganization",
+      "description": "Implement drag-and-drop category reorganization functionality in the Categories page, allowing users to reorder categories by priority with iPhone-like user experience and persistent storage of the new order.",
+      "details": "1. Research and implement drag-and-drop library (React DnD or similar) for category reordering\n2. Add visual feedback during drag operations: lifting effect, drop zone indicators, smooth animations\n3. Implement touch and mouse support for drag interactions across devices\n4. Update category order persistence using existing 'order' field in Firestore categories\n5. Create intuitive drag handles or long-press activation for mobile devices\n6. Add snap-to-position behavior and smooth settling animations using Framer Motion\n7. Ensure drag-and-drop works with existing category filtering and sorting options\n8. Optimize performance for reasonable category counts (up to 50-100 categories)\n9. Test on both touch devices and desktop with mouse interactions",
+      "testStrategy": "1. Component testing for drag-and-drop functionality with various category counts\n2. Integration testing with existing category CRUD operations and sorting\n3. Manual testing of drag gestures on mobile devices and mouse drag on desktop\n4. Performance testing with larger category lists to ensure smooth interactions\n5. Persistence testing to verify order changes are saved and restored correctly",
+      "status": "done",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": []
+    },
+    {
+      "id": 19,
+      "title": "Add Transaction Display Integration to Categories Page",
+      "description": "Integrate transaction display within the Categories page by adding expandable sections for each category that show filtered transactions using the existing TransactionList component and universal date management.",
+      "details": "1. Add expandable/collapsible sections to each category card in CategoriesPage.jsx\n2. Implement transaction fetching filtered by categoryId and selected date range\n3. Integrate existing TransactionList component to display transactions within each category\n4. Add transaction count indicators for each category based on current date selection\n5. Implement lazy loading: fetch transaction data only when category section is expanded\n6. Use Framer Motion for smooth expand/collapse animations consistent with existing patterns\n7. Ensure transaction interactions (swipe-to-delete, edit) work within category context\n8. Connect with universal date picker to update transaction lists when date range changes\n9. Handle empty states when categories have no transactions in selected date range\n10. Optimize performance for categories with large transaction counts",
+      "testStrategy": "1. Component testing for expandable category sections with various transaction counts\n2. Integration testing with existing TransactionList component and date filtering\n3. Performance testing with large transaction datasets and multiple expanded categories\n4. User experience testing of expand/collapse animations and transaction interactions\n5. Date range testing to verify transaction lists update correctly when date selection changes",
+      "status": "in-progress",
+      "dependencies": [],
+      "priority": "medium",
       "subtasks": []
     }
   ]

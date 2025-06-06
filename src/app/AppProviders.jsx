@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AuthProvider } from '../contexts/AuthContext';
 import { SettingsProvider } from '../contexts/SettingsContext';
 import BudgetProvider from '../contexts/BudgetContext';
+import { DateProvider } from '../contexts/DateContext';
 
 // Debug log
 console.log('AppProviders.jsx: Initial load');
@@ -37,7 +38,9 @@ function AppProviders({ children }) {
     <AuthProvider>
       <BudgetProvider>
         <SettingsProvider>
-          {children}
+          <DateProvider>
+            {children}
+          </DateProvider>
         </SettingsProvider>
       </BudgetProvider>
     </AuthProvider>

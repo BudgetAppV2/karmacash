@@ -15,7 +15,147 @@ import { formatCurrency } from '../../utils/formatters';
 import Loader from '../../components/ui/Loader';
 import StatusMessage from '../../components/ui/StatusMessage';
 import ConfirmationDialog from '../../components/ui/ConfirmationDialog';
+import SwipeActions from '../../components/ui/SwipeActions';
+import UniversalDatePicker from '../../components/ui/UniversalDatePicker';
 import logger from '../../services/logger';
+
+// DnD Kit imports - testing with proper npm installation
+import {
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// Sortable Category Item Component 
+function SortableItem({ category, onEdit, onDelete, isDragging: globalIsDragging, dragDisabled }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1000 : 'auto',
+    position: 'relative',
+  };
+
+  const categoryColor = category.color || '#C8AD9B'; // Default neutral color
+
+  return (
+    <li 
+      ref={setNodeRef}
+      className={`category-item-wrapper ${isDragging ? 'dragging' : ''}`}
+      style={{ 
+        ...style,
+        '--color-dot-bg': categoryColor,
+      }}
+    >
+      <div 
+        className={`category-drag-handle ${globalIsDragging ? 'drag-active' : ''} ${dragDisabled ? 'disabled' : ''}`}
+        {...(!dragDisabled ? attributes : {})}
+        {...(!dragDisabled ? listeners : {})}
+        style={{
+          position: 'absolute',
+          left: '8px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: '20px',
+          height: '20px',
+          cursor: dragDisabled ? 'default' : (isDragging ? 'grabbing' : 'grab'),
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: dragDisabled ? '#D9D0C7' : '#88837A',
+          fontSize: '14px',
+          zIndex: 10,
+          touchAction: dragDisabled ? 'auto' : 'none',
+          opacity: dragDisabled ? 0.5 : 1,
+        }}
+        title={dragDisabled ? 'Glisser-déposer désactivé' : 'Glisser pour réorganiser'}
+      >
+        ⋮⋮
+      </div>
+      
+      <SwipeActions
+        itemId={category.id}
+        actions={[
+          {
+            label: 'Modifier',
+            onClick: () => onEdit(category),
+            className: 'edit',
+            ariaLabel: 'Modifier la catégorie'
+          },
+          {
+            label: 'Supprimer',
+            onClick: () => onDelete(category),
+            className: 'delete',
+            ariaLabel: 'Supprimer la catégorie'
+          }
+        ]}
+        swipeThreshold={70}
+        disabled={isDragging || globalIsDragging}
+      >
+        <div 
+          className="category-item"
+          style={{ 
+            paddingLeft: '36px', // Space for drag handle
+            pointerEvents: isDragging ? 'none' : 'auto',
+          }}
+        >
+          <span 
+            className="category-color-dot" 
+            style={{ backgroundColor: categoryColor }}
+          ></span>
+          <div className="category-info">
+            <span className="category-name">{category.name}</span>
+            <span className="category-type-tag">
+              {category.type === 'expense' ? 'Dépense' : 'Revenu'}
+            </span>
+          </div>
+          <div className="category-actions desktop-only">
+            <button 
+              onClick={() => onEdit(category)}
+              className="category-edit-button"
+              aria-label="Edit category"
+              title="Modifier"
+              disabled={isDragging || globalIsDragging}
+            >
+              ✎
+            </button>
+            <button 
+              onClick={() => onDelete(category)}
+              className="category-delete-button"
+              aria-label="Delete category"
+              title="Supprimer"
+              disabled={isDragging || globalIsDragging}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </SwipeActions>
+    </li>
+  );
+}
 
 function CategoriesPage() {
   const { currentUser } = useAuth();
@@ -28,6 +168,9 @@ function CategoriesPage() {
   
   // Sorting state
   const [sortAlphabetically, setSortAlphabetically] = useState(false);
+  
+  // Drag and drop state
+  const [isDragging, setIsDragging] = useState(false);
   
   // Form state
   const [showForm, setShowForm] = useState(false);
@@ -479,6 +622,70 @@ function CategoriesPage() {
     }
   }, [categories, sortAlphabetically]);
 
+  // DnD Kit sensors configuration
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5, // Reduced distance for more responsive drag
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handle drag start
+  const handleDragStart = (event) => {
+    setIsDragging(true);
+  };
+
+  // Handle drag end
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    setIsDragging(false);
+
+    if (active.id !== over?.id) {
+      const oldIndex = sortedCategories.findIndex(cat => cat.id === active.id);
+      const newIndex = sortedCategories.findIndex(cat => cat.id === over.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Create new order for categories
+        const newCategories = arrayMove(sortedCategories, oldIndex, newIndex);
+        
+        // Update the order field for each category in the new array
+        const updatedCategoriesWithOrder = newCategories.map((category, index) => ({
+          ...category,
+          order: index * 10 // Use increments of 10 to allow easy insertion
+        }));
+        
+        // Update local state immediately (optimistic update)
+        setCategories(updatedCategoriesWithOrder);
+        
+        // Update order in Firestore
+        try {
+          // Update each category's order in Firestore
+          await Promise.all(
+            updatedCategoriesWithOrder.map(category => 
+              updateCategory(effectiveBudgetId, category.id, currentUser.uid, { 
+                order: category.order 
+              })
+            )
+          );
+          
+          showSuccess('Ordre des catégories mis à jour');
+        } catch (error) {
+          // Revert on error
+          forceRefresh();
+          showError('Erreur lors de la mise à jour de l\'ordre');
+          logger.error('CategoriesPage', 'handleDragEnd', 'Error updating category order', {
+            error: error.message,
+            budgetId: effectiveBudgetId
+          });
+        }
+      }
+    }
+  };
+
   // If no budget is selected, show a message
   if (!effectiveBudgetId) {
     return (
@@ -502,6 +709,7 @@ function CategoriesPage() {
             className="btn btn-secondary sort-toggle"
             onClick={toggleSorting}
             style={{ marginRight: '10px' }}
+            title={sortAlphabetically ? 'Activer le glisser-déposer' : 'Désactiver le glisser-déposer'}
           >
             {sortAlphabetically ? 'Trier par ordre personnalisé' : 'Trier par ordre alphabétique'}
           </button>
@@ -515,6 +723,12 @@ function CategoriesPage() {
           )}
         </div>
       </div>
+
+      {/* Universal Date Picker */}
+      <UniversalDatePicker 
+        showViewModeToggle={true}
+        style={{ marginBottom: '24px' }}
+      />
       
       {showForm && (
         <div className="simple-category-form">
@@ -651,48 +865,30 @@ function CategoriesPage() {
           {selectedBudget && (
             <p className="selected-budget">Budget: {selectedBudget.name}</p>
           )}
-          <ul className="category-list">
-            {sortedCategories.map(category => {
-              const categoryColor = category.color || defaultNewCategoryColor;
-              
-              return (
-                <li 
-                  key={category.id} 
-                  className="category-item" 
-                  style={{ '--color-dot-bg': categoryColor }}
-                >
-                  <span 
-                    className="category-color-dot" 
-                    style={{ backgroundColor: categoryColor }}
-                  ></span>
-                  <div className="category-info">
-                    <span className="category-name">{category.name}</span>
-                    <span className="category-type-tag">
-                      {category.type === 'expense' ? 'Dépense' : 'Revenu'}
-                    </span>
-                  </div>
-                  <div className="category-actions">
-                    <button 
-                      onClick={() => handleEditClick(category)}
-                      className="category-edit-button"
-                      aria-label="Edit category"
-                      title="Modifier"
-                    >
-                      ✎
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteClick(category)}
-                      className="category-delete-button"
-                      aria-label="Delete category"
-                      title="Supprimer"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <DndContext 
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext 
+              items={sortedCategories.map(cat => cat.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="category-list">
+                {sortedCategories.map(category => (
+                  <SortableItem
+                    key={category.id}
+                    category={category}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
+                    isDragging={isDragging}
+                    dragDisabled={sortAlphabetically}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         </div>
       )}
       

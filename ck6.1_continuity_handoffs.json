@@ -1,0 +1,59 @@
+{
+  "module_id": "ck6.1",
+  "title": "Technical Integration Patterns",
+  "category": "reference",
+  "version": "2.0",
+  "optimized": true,
+  "token_target": 1100,
+  "usage_frequency": "medium",
+  "trigger_keywords": [
+    "technical",
+    "integration",
+    "patterns",
+    "firebase"
+  ],
+  "content": {
+    "purpose": "CK must include integration context in handoffs for CG implementation",
+    "firebase_integration_patterns": {
+      "firestore_operations": {
+        "set_document": "firestore_set_document_with_id(collection, documentId, data)",
+        "get_document": "firestore_get_document_by_id(collection, documentId)",
+        "list_documents": "firestore_list_documents(collection, filters, limit)"
+      },
+      "storage_operations": {
+        "upload_file": "storage_upload(filePath, content, contentType)",
+        "get_file_info": "storage_get_file_info(filePath)",
+        "list_files": "storage_list_files(directoryPath)"
+      }
+    },
+    "taskmaster_integration_patterns": {
+      "project_management": {
+        "get_tasks": "get_tasks(projectRoot)",
+        "get_task": "get_task(id, projectRoot)",
+        "set_status": "set_task_status(projectRoot, id, status)",
+        "add_task": "add_task(projectRoot, description, priority)"
+      }
+    },
+    "integration_requirements_for_handoffs": {
+      "error_handling": "Include retry logic and fallback procedures",
+      "data_consistency": "Specify transaction patterns and eventual consistency",
+      "performance_optimization": "Include batching, pagination, caching strategies",
+      "security_validation": "Define input validation, authentication, authorization"
+    },
+    "ck_integration_responsibilities": [
+      "Technical Context: Include relevant integration patterns",
+      "Tool Requirements: Specify MCP tools CG will need", 
+      "Integration Points: Identify system connections",
+      "Quality Standards: Include technical validation criteria"
+    ]
+  },
+  "integration_points": [
+    "Handoff creation",
+    "Technical guidance",
+    "System integration"
+  ],
+  "performance_metrics": {
+    "load_time_target": "<10s",
+    "token_reduction": "75%"
+  }
+}
