@@ -4,10 +4,10 @@
  * SECURE VERSION - Uses environment variables only
  */
 
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const fs = require('fs');
-const path = require('path');
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import fs from 'fs';
+import path from 'path';
 
 class FirebaseHelper {
   constructor() {
@@ -134,14 +134,14 @@ class FirebaseHelper {
 // Export singleton instance
 const firebaseHelper = new FirebaseHelper();
 
-module.exports = {
+export {
   FirebaseHelper,
-  firebaseHelper,
-  
-  // Direct function exports for easy use
-  getDocument: (collection, documentId) => firebaseHelper.getDocument(collection, documentId),
-  setDocument: (collection, documentId, data, merge) => firebaseHelper.setDocument(collection, documentId, data, merge),
-  getTaskContent: (taskId, options) => firebaseHelper.getTaskContent(taskId, options),
-  getBibleSection: (documentId) => firebaseHelper.getBibleSection(documentId),
-  getCKModule: (moduleId) => firebaseHelper.getCKModule(moduleId)
+  firebaseHelper
 };
+
+// Direct function exports for easy use
+export const getDocument = (collection, documentId) => firebaseHelper.getDocument(collection, documentId);
+export const setDocument = (collection, documentId, data, merge) => firebaseHelper.setDocument(collection, documentId, data, merge);
+export const getTaskContent = (taskId, options) => firebaseHelper.getTaskContent(taskId, options);
+export const getBibleSection = (documentId) => firebaseHelper.getBibleSection(documentId);
+export const getCKModule = (moduleId) => firebaseHelper.getCKModule(moduleId);

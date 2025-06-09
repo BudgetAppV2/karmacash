@@ -5,6 +5,9 @@
  * SECURE VERSION - No hardcoded credentials
  */
 
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 async function testMCPConnectivity() {
   console.log('🔍 Testing MCP Tool Connectivity...\n');
   
@@ -66,7 +69,7 @@ async function testMCPConnectivity() {
             return false;
           }
           
-          const { firebaseHelper } = require('./agent-firebase-helper.js');
+          const { firebaseHelper } = await import('./agent-firebase-helper.js');
           await firebaseHelper.initialize();
           console.log('  ✅ Fallback Firebase SDK: Ready');
           return true;
@@ -125,8 +128,9 @@ async function testMCPConnectivity() {
 }
 
 // Run if called directly
-if (require.main === module) {
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] === __filename) {
   testMCPConnectivity().catch(console.error);
 }
 
-module.exports = { testMCPConnectivity };
+export { testMCPConnectivity };
