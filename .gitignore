@@ -42,5 +42,6 @@ firestore-debug.log
 
 # MCP and API keys
 **/mcp.json
+!.cursor/mcp.template.json
 **/*credentials*.json
 **/*serviceAccount*.json
