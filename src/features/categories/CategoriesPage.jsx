@@ -17,6 +17,11 @@ import StatusMessage from '../../components/ui/StatusMessage';
 import ConfirmationDialog from '../../components/ui/ConfirmationDialog';
 import SwipeActions from '../../components/ui/SwipeActions';
 import UniversalDatePicker from '../../components/ui/UniversalDatePicker';
+import TransactionList from '../transactions/components/TransactionList';
+import { useDateRange } from '../../contexts/DateContext';
+import { useTransactions } from '../../hooks/useTransactions';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import logger from '../../services/logger';
 
 // DnD Kit imports - testing with proper npm installation
@@ -39,8 +44,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-// Sortable Category Item Component 
-function SortableItem({ category, onEdit, onDelete, isDragging: globalIsDragging, dragDisabled }) {
+// Sortable Category Item Component with Transaction Integration
+function SortableItem({ category, onEdit, onDelete, isDragging: globalIsDragging, dragDisabled, expandedCategories, onToggleExpanded }) {
   const {
     attributes,
     listeners,
@@ -49,6 +54,31 @@ function SortableItem({ category, onEdit, onDelete, isDragging: globalIsDragging
     transition,
     isDragging,
   } = useSortable({ id: category.id });
+
+  const { startDate, endDate } = useDateRange();
+  const isExpanded = expandedCategories?.includes(category.id) || false;
+  
+  // Fetch transactions for this category (always enabled for amount calculation)
+  const { transactions, isLoading: transactionsLoading } = useTransactions(
+    startDate, 
+    endDate, 
+    { 
+      categoryId: category.id,
+      enabled: true // Always fetch for amount calculation
+    }
+  );
+
+  // Calculate net spending for this category in the date range
+  const categoryAmount = useMemo(() => {
+    if (!transactions || transactions.length === 0) return 0;
+    
+    const total = transactions.reduce((sum, transaction) => {
+      const amount = transaction.amount || 0;
+      return sum + amount;
+    }, 0);
+    
+    return total;
+  }, [transactions]);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -60,13 +90,43 @@ function SortableItem({ category, onEdit, onDelete, isDragging: globalIsDragging
 
   const categoryColor = category.color || '#C8AD9B'; // Default neutral color
 
+  // Handle category expand/collapse
+  const handleToggleExpanded = (e) => {
+    // Prevent triggering when dragging or disabled
+    if (isDragging || globalIsDragging || dragDisabled) return;
+    
+    e.stopPropagation();
+    if (onToggleExpanded) {
+      onToggleExpanded(category.id);
+    }
+  };
+
+  // Animation variants for expand/collapse
+  const contentVariants = {
+    hidden: { 
+      height: 0,
+      opacity: 0,
+      transition: { duration: 0.3, ease: "easeInOut" }
+    },
+    visible: { 
+      height: "auto",
+      opacity: 1,
+      transition: { duration: 0.3, ease: "easeInOut" }
+    }
+  };
+
+  const chevronVariants = {
+    collapsed: { rotate: 0, transition: { duration: 0.3 } },
+    expanded: { rotate: 180, transition: { duration: 0.3 } }
+  };
+
   return (
     <li 
       ref={setNodeRef}
-      className={`category-item-wrapper ${isDragging ? 'dragging' : ''}`}
+      className={`category-item-wrapper ${isDragging ? 'dragging' : ''} ${isExpanded ? 'expanded' : ''}`}
       style={{ 
         ...style,
-        '--color-dot-bg': categoryColor,
+        '--category-color': categoryColor,
       }}
     >
       <div 
@@ -76,8 +136,7 @@ function SortableItem({ category, onEdit, onDelete, isDragging: globalIsDragging
         style={{
           position: 'absolute',
           left: '8px',
-          top: '50%',
-          transform: 'translateY(-50%)',
+          top: '12px', // Adjusted for better positioning with expand button
           width: '20px',
           height: '20px',
           cursor: dragDisabled ? 'default' : (isDragging ? 'grabbing' : 'grab'),
@@ -112,45 +171,128 @@ function SortableItem({ category, onEdit, onDelete, isDragging: globalIsDragging
           }
         ]}
         swipeThreshold={70}
-        disabled={isDragging || globalIsDragging}
+        disabled={isDragging || globalIsDragging || isExpanded}
       >
-        <div 
-          className="category-item"
-          style={{ 
-            paddingLeft: '36px', // Space for drag handle
-            pointerEvents: isDragging ? 'none' : 'auto',
-          }}
-        >
-          <span 
-            className="category-color-dot" 
-            style={{ backgroundColor: categoryColor }}
-          ></span>
-          <div className="category-info">
-            <span className="category-name">{category.name}</span>
-            <span className="category-type-tag">
-              {category.type === 'expense' ? 'Dépense' : 'Revenu'}
-            </span>
+        <div className="category-card">
+          {/* Main Category Item */}
+          <div 
+            className="category-item"
+            style={{ 
+              paddingLeft: '36px', // Space for drag handle
+              pointerEvents: isDragging ? 'none' : 'auto',
+            }}
+          >
+            <div className="category-content">
+              <span 
+                className="category-color-dot" 
+                style={{ backgroundColor: categoryColor }}
+              ></span>
+              <div className="category-info">
+                <span className="category-name">{category.name}</span>
+                <div className="category-bottom-row">
+                  <span className="category-type-tag">
+                    {category.type === 'expense' ? 'Dépense' : 'Revenu'}
+                  </span>
+                  <span 
+                    className={`category-amount-pill ${categoryAmount < 0 ? 'negative' : categoryAmount > 0 ? 'positive' : 'zero'}`}
+                    style={{ '--category-color': categoryColor }}
+                  >
+                    {transactionsLoading ? (
+                      <span className="amount-loading">...</span>
+                    ) : (
+                      formatCurrency(Math.abs(categoryAmount), 'CAD')
+                    )}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Transaction count indicator */}
+              {isExpanded && (
+                <div className="transaction-count">
+                  {transactionsLoading ? (
+                    <span className="loading-text">...</span>
+                  ) : (
+                    <span className="count-badge">
+                      {transactions.length} transaction{transactions.length !== 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div className="category-actions-row">
+              <div className="category-actions desktop-only">
+                <button 
+                  onClick={() => onEdit(category)}
+                  className="category-edit-button"
+                  aria-label="Edit category"
+                  title="Modifier"
+                  disabled={isDragging || globalIsDragging}
+                >
+                  ✎
+                </button>
+                <button 
+                  onClick={() => onDelete(category)}
+                  className="category-delete-button"
+                  aria-label="Delete category"
+                  title="Supprimer"
+                  disabled={isDragging || globalIsDragging}
+                >
+                  ×
+                </button>
+              </div>
+              
+              {/* Expand/Collapse Button */}
+              <button
+                className="expand-button"
+                onClick={handleToggleExpanded}
+                disabled={isDragging || globalIsDragging}
+                aria-label={isExpanded ? 'Masquer les transactions' : 'Afficher les transactions'}
+                title={isExpanded ? 'Masquer les transactions' : 'Afficher les transactions'}
+              >
+                <motion.div
+                  animate={isExpanded ? "expanded" : "collapsed"}
+                  variants={chevronVariants}
+                >
+                  <ChevronDownIcon width={20} height={20} />
+                </motion.div>
+              </button>
+            </div>
           </div>
-          <div className="category-actions desktop-only">
-            <button 
-              onClick={() => onEdit(category)}
-              className="category-edit-button"
-              aria-label="Edit category"
-              title="Modifier"
-              disabled={isDragging || globalIsDragging}
-            >
-              ✎
-            </button>
-            <button 
-              onClick={() => onDelete(category)}
-              className="category-delete-button"
-              aria-label="Delete category"
-              title="Supprimer"
-              disabled={isDragging || globalIsDragging}
-            >
-              ×
-            </button>
-          </div>
+
+          {/* Expandable Transactions Section */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                className="category-transactions-section"
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                variants={contentVariants}
+              >
+                <div className="transactions-container" style={{ pointerEvents: 'auto', position: 'relative', zIndex: 100 }}>
+                  {transactionsLoading ? (
+                    <div className="transactions-loading">
+                      <span>Chargement des transactions...</span>
+                    </div>
+                  ) : transactions.length === 0 ? (
+                    <div className="transactions-empty">
+                      <span>Aucune transaction pour cette catégorie dans la période sélectionnée</span>
+                    </div>
+                  ) : (
+                    <TransactionList
+                      transactions={transactions}
+                      onTransactionDeleted={(transactionId) => {
+                        // Refresh transaction data when a transaction is deleted
+                        // The useTransactions hook will automatically refetch
+                      }}
+                      currency="CAD"
+                    />
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </SwipeActions>
     </li>
@@ -161,6 +303,7 @@ function CategoriesPage() {
   const { currentUser } = useAuth();
   const { showSuccess, showError } = useToast();
   const { selectedBudgetId, selectedBudget, userBudgets } = useBudgets();
+  const { startDate, endDate } = useDateRange();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -171,6 +314,9 @@ function CategoriesPage() {
   
   // Drag and drop state
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Expanded categories state for transaction display
+  const [expandedCategories, setExpandedCategories] = useState([]);
   
   // Form state
   const [showForm, setShowForm] = useState(false);
@@ -686,6 +832,23 @@ function CategoriesPage() {
     }
   };
 
+  // Handle category expand/collapse
+  const handleToggleExpanded = (categoryId) => {
+    setExpandedCategories(prev => {
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId);
+      } else {
+        return [...prev, categoryId];
+      }
+    });
+  };
+
+  // Clear expanded categories when date range changes (to refresh transaction data)
+  useEffect(() => {
+    setExpandedCategories([]);
+  }, [startDate, endDate]);
+
+
   // If no budget is selected, show a message
   if (!effectiveBudgetId) {
     return (
@@ -729,6 +892,7 @@ function CategoriesPage() {
         showViewModeToggle={true}
         style={{ marginBottom: '24px' }}
       />
+
       
       {showForm && (
         <div className="simple-category-form">
@@ -884,6 +1048,8 @@ function CategoriesPage() {
                     onDelete={handleDeleteClick}
                     isDragging={isDragging}
                     dragDisabled={sortAlphabetically}
+                    expandedCategories={expandedCategories}
+                    onToggleExpanded={handleToggleExpanded}
                   />
                 ))}
               </ul>

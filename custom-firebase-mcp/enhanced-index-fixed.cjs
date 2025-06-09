@@ -2,6 +2,7 @@
 
 const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const DocumentIdMapper = require('./document-id-mapper.cjs');
 const { 
   CallToolRequestSchema,
   ErrorCode,
@@ -39,6 +40,7 @@ class BibleAccessModule {
   constructor() {
     this.cache = new Map();
     this.crossReferences = new Map();
+    this.documentMapper = new DocumentIdMapper();
     this.metrics = {
       documentsRetrieved: 0,
       crossReferencesFollowed: 0,
@@ -130,24 +132,86 @@ class BibleAccessModule {
     }
     
     try {
-      let query = db.collection('bible_cross_references')
-        .where('source_document_id', '==', documentId);
+      let references = [];
       
-      if (referenceType !== 'all') {
-        query = query.where('reference_type', '==', referenceType);
+      // First try Firestore (legacy approach)
+      try {
+        // **FIX: Map API document ID to storage document ID**
+        const storageDocumentId = this.documentMapper.apiToStorage(documentId);
+        const variations = this.documentMapper.getAllVariations(documentId);
+        
+        console.log(`[DEBUG] Cross-reference lookup: API ID="${documentId}" → Storage ID="${storageDocumentId}", Variations:`, variations);
+        
+        // Try primary storage ID first
+        let query = db.collection('bible_cross_references')
+          .where('source_document_id', '==', storageDocumentId);
+        
+        if (referenceType !== 'all') {
+          query = query.where('reference_type', '==', referenceType);
+        }
+        
+        let snapshot = await query.limit(50).get();
+        
+        // If no results with primary ID, try variations
+        if (snapshot.empty && variations.length > 1) {
+          console.log(`[DEBUG] No results with primary ID, trying variations...`);
+          for (const variation of variations) {
+            if (variation === storageDocumentId) continue; // Already tried
+            
+            let variationQuery = db.collection('bible_cross_references')
+              .where('source_document_id', '==', variation);
+            
+            if (referenceType !== 'all') {
+              variationQuery = variationQuery.where('reference_type', '==', referenceType);
+            }
+            
+            const variationSnapshot = await variationQuery.limit(50).get();
+            if (!variationSnapshot.empty) {
+              console.log(`[DEBUG] Found results with variation: "${variation}"`);
+              snapshot = variationSnapshot;
+              // Update mapper with successful variation
+              this.documentMapper.addMapping(documentId, variation);
+              break;
+            }
+          }
+        }
+        
+        snapshot.forEach(doc => {
+          references.push({
+            id: doc.id,
+            ...doc.data()
+          });
+        });
+      } catch (firestoreError) {
+        console.warn(`[DEBUG] Firestore lookup failed:`, firestoreError.message);
+      }
+
+      // Then try Firebase Storage (new approach)
+      try {
+        const section = documentId.toLowerCase().match(/^b(\d+)/)?.[1] || '1';
+        const filePath = `bible/sections/b${section}/cross_references/${documentId.toLowerCase()}_cross_references.json`;
+        
+        const bucket = storage.bucket();
+        const file = bucket.file(filePath);
+        const [exists] = await file.exists();
+        
+        if (exists) {
+          console.log(`[DEBUG] Found cross-references in Storage at ${filePath}`);
+          const [content] = await file.download();
+          const storageRefs = JSON.parse(content.toString());
+          
+          // Filter by reference type if specified
+          const filteredRefs = referenceType === 'all' 
+            ? storageRefs.references
+            : storageRefs.references.filter(ref => ref.type === referenceType);
+            
+          references.push(...filteredRefs);
+        }
+      } catch (storageError) {
+        console.warn(`[DEBUG] Storage lookup failed:`, storageError.message);
       }
       
-      const snapshot = await query.limit(50).get();
-      const references = [];
-      
-      snapshot.forEach(doc => {
-        references.push({
-          id: doc.id,
-          ...doc.data()
-        });
-      });
-      
-      // Cache the results
+      // Cache the combined results
       this.crossReferences.set(cacheKey, {
         data: references,
         timestamp: Date.now()
@@ -160,6 +224,30 @@ class BibleAccessModule {
       console.warn(`Error getting cross-references for ${documentId}:`, error.message);
       return [];
     }
+  }
+
+  /**
+   * Validate document ID mapping for debugging
+   * @param {string} documentId - API document ID to validate
+   * @returns {Object} Validation details
+   */
+  async validateDocumentMapping(documentId) {
+    const mapping = this.documentMapper.validateMapping(documentId);
+    
+    // Test if mapped ID exists in cross-references
+    try {
+      const query = db.collection('bible_cross_references')
+        .where('source_document_id', '==', mapping.storageId)
+        .limit(1);
+      const snapshot = await query.get();
+      mapping.hasReferences = !snapshot.empty;
+      mapping.referenceCount = snapshot.size;
+    } catch (error) {
+      mapping.hasReferences = false;
+      mapping.error = error.message;
+    }
+    
+    return mapping;
   }
 
   async searchContent(query, options = {}) {
@@ -530,6 +618,247 @@ class CGModuleAccess {
 // Initialize CG Module Access
 const cgModule = new CGModuleAccess();
 
+// NEW: Task Storage Access Module (following Bible Access pattern)
+class TaskStorageModule {
+  constructor() {
+    this.cache = new Map();
+    this.crossReferences = new Map();
+    this.metrics = {
+      tasksRetrieved: 0,
+      crossReferencesFollowed: 0,
+      contextBuilds: 0,
+      cacheHits: 0,
+      cacheMisses: 0
+    };
+  }
+
+  async getTaskContent(taskId, options = {}) {
+    const {
+      version = 'optimized',
+      includeCrossReferences = true,
+      includeDocumentationRefs = true,
+      includeImplementationGuidance = true
+    } = options;
+
+    // Create cache key based on all parameters
+    const cacheKey = `${taskId}-${version}-${includeCrossReferences}-${includeDocumentationRefs}-${includeImplementationGuidance}`;
+    
+    // Check cache first
+    if (this.cache.has(cacheKey)) {
+      const cached = this.cache.get(cacheKey);
+      if (Date.now() - cached.timestamp < 300000) { // 5 minutes
+        this.metrics.cacheHits++;
+        return cached.data;
+      }
+      this.cache.delete(cacheKey);
+    }
+
+    this.metrics.cacheMisses++;
+    
+    try {
+      // Extract section from task ID (e.g., 'test_t1.1_validation' -> 'test_t1')
+      const section = taskId.split('.')[0];
+      
+      // Build file paths
+      const paths = {
+        optimized: `tasks/sections/${section}/optimized/${taskId}.optimized.json`,
+        raw: `tasks/sections/${section}/raw/${taskId}.md`,
+        crossRefs: `tasks/sections/${section}/cross_references/${taskId}_cross_references.json`
+      };
+
+      // Prepare content structure
+      const taskContent = {
+        content: null,
+        crossReferences: includeCrossReferences ? null : undefined,
+        documentation: includeDocumentationRefs ? null : undefined,
+        implementation: includeImplementationGuidance ? null : undefined
+      };
+
+      // Parallel content fetching
+      const fetchPromises = [
+        this._fetchTaskContent(paths[version])
+      ];
+
+      if (includeCrossReferences) {
+        fetchPromises.push(this._fetchCrossReferences(paths.crossRefs));
+      }
+
+      if (includeDocumentationRefs || includeImplementationGuidance) {
+        fetchPromises.push(this._fetchRelatedContent(taskId, includeDocumentationRefs, includeImplementationGuidance));
+      }
+
+      const results = await Promise.allSettled(fetchPromises);
+
+      // Assemble content
+      taskContent.content = results[0].status === 'fulfilled' ? results[0].value : null;
+      
+      if (includeCrossReferences && results[1]) {
+        taskContent.crossReferences = results[1].status === 'fulfilled' ? results[1].value : [];
+      }
+
+      if ((includeDocumentationRefs || includeImplementationGuidance) && results[2]) {
+        if (results[2].status === 'fulfilled') {
+          const relatedContent = results[2].value;
+          if (includeDocumentationRefs) taskContent.documentation = relatedContent.documentation;
+          if (includeImplementationGuidance) taskContent.implementation = relatedContent.implementation;
+        }
+      }
+
+      // Cache the result
+      this.cache.set(cacheKey, {
+        data: taskContent,
+        timestamp: Date.now()
+      });
+      
+      this.metrics.tasksRetrieved++;
+      return taskContent;
+      
+    } catch (error) {
+      throw new Error(`Failed to retrieve task content ${taskId}: ${error.message}`);
+    }
+  }
+
+  async _fetchTaskContent(filePath) {
+    const bucket = storage.bucket();
+    const file = bucket.file(filePath);
+    const [exists] = await file.exists();
+    
+    if (!exists) {
+      throw new Error(`Task content not found at ${filePath}`);
+    }
+    
+    const [content] = await file.download();
+    const contentStr = content.toString();
+    
+    if (filePath.endsWith('.json')) {
+      return JSON.parse(contentStr);
+    } else {
+      return contentStr;
+    }
+  }
+
+  async _fetchCrossReferences(filePath) {
+    try {
+      const bucket = storage.bucket();
+      const file = bucket.file(filePath);
+      const [exists] = await file.exists();
+      
+      if (!exists) {
+        console.warn(`Cross-references not found at ${filePath}`);
+        return [];
+      }
+      
+      const [content] = await file.download();
+      const crossRefData = JSON.parse(content.toString());
+      
+      this.metrics.crossReferencesFollowed += crossRefData.references?.length || 0;
+      return crossRefData.references || [];
+      
+    } catch (error) {
+      console.warn(`Error fetching cross-references: ${error.message}`);
+      return [];
+    }
+  }
+
+  async _fetchRelatedContent(taskId, includeDocumentation, includeImplementation) {
+    const relatedContent = {};
+
+    try {
+      // If we need documentation or implementation, first get cross-references to find related docs
+      const section = taskId.split('.')[0];
+      const crossRefsPath = `tasks/sections/${section}/cross_references/${taskId}_cross_references.json`;
+      
+      let relatedDocIds = [];
+      try {
+        const bucket = storage.bucket();
+        const file = bucket.file(crossRefsPath);
+        const [exists] = await file.exists();
+        
+        if (exists) {
+          const [content] = await file.download();
+          const crossRefData = JSON.parse(content.toString());
+          relatedDocIds = crossRefData.references?.map(ref => ref.target_id) || [];
+        }
+      } catch (error) {
+        console.warn(`Could not fetch cross-references for related content: ${error.message}`);
+      }
+
+      // Fetch related Bible documentation
+      if (includeDocumentation && relatedDocIds.length > 0) {
+        const bibleRefs = relatedDocIds.filter(id => id.match(/^B\d+\.\d+$/i));
+        if (bibleRefs.length > 0) {
+          try {
+            // Use existing Bible Access Module to fetch related docs
+            const bibleContent = await Promise.allSettled(
+              bibleRefs.slice(0, 3).map(docId => bibleModule.getDocument(docId))
+            );
+            
+            relatedContent.documentation = {
+              bibleRefs: bibleRefs,
+              content: bibleContent
+                .filter(result => result.status === 'fulfilled')
+                .map(result => result.value)
+            };
+          } catch (error) {
+            console.warn(`Error fetching Bible documentation: ${error.message}`);
+            relatedContent.documentation = { bibleRefs: bibleRefs, content: [] };
+          }
+        }
+      }
+
+      // Fetch implementation guidance from CK/CG modules
+      if (includeImplementation) {
+        try {
+          // Look for relevant CK/CG modules based on task content or patterns
+          const guidanceModules = [];
+          
+          // Basic implementation guidance modules
+          if (taskId.includes('validation') || taskId.includes('test')) {
+            guidanceModules.push('ck2.1'); // HD Validation Protocol
+          }
+          
+          const guidance = await Promise.allSettled([
+            ...guidanceModules.map(moduleId => ckModule.getModule(moduleId)),
+            cgModule.getModule('cg_essentials_lite') // Always include CG essentials
+          ]);
+
+          relatedContent.implementation = {
+            ckGuidance: guidance
+              .filter(result => result.status === 'fulfilled')
+              .map(result => result.value)
+              .slice(0, -1), // CK modules
+            cgGuidance: guidance[guidance.length - 1]?.status === 'fulfilled' 
+              ? guidance[guidance.length - 1].value 
+              : null
+          };
+        } catch (error) {
+          console.warn(`Error fetching implementation guidance: ${error.message}`);
+          relatedContent.implementation = { ckGuidance: [], cgGuidance: null };
+        }
+      }
+
+    } catch (error) {
+      console.warn(`Error in _fetchRelatedContent: ${error.message}`);
+    }
+
+    return relatedContent;
+  }
+
+  getMetrics() {
+    return {
+      module: {
+        ...this.metrics,
+        cacheEfficiency: this.metrics.cacheHits / (this.metrics.cacheHits + this.metrics.cacheMisses) * 100 || 0,
+        cacheSize: this.cache.size,
+        crossRefCacheSize: this.crossReferences.size
+      }
+    };
+  }
+}
+
+// Initialize Task Storage Module
+const taskModule = new TaskStorageModule();
+
 // Create MCP server
 const server = new Server({
   name: 'enhanced-firebase-mcp',
@@ -657,6 +986,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: []
         }
       },
+      {
+        name: 'validateDocumentMapping',
+        description: 'Validate document ID mapping for cross-reference system debugging',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            documentId: { type: 'string', description: 'API document ID to validate (e.g., "B3.4")' }
+          },
+          required: ['documentId']
+        }
+      },
       // NEW: CK Module Access tool
       {
         name: 'getCKModule',
@@ -681,6 +1021,22 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             cacheSession: { type: 'boolean', description: 'Whether to cache the module for session reuse', default: true }
           },
           required: ['moduleId']
+        }
+      },
+      // NEW: Task Storage Access tool
+      {
+        name: 'getTaskContent',
+        description: 'Get task content with unified access to task data, cross-references, documentation, and implementation guidance',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            taskId: { type: 'string', description: 'Task ID (e.g., "test_t1.1_validation")' },
+            version: { type: 'string', description: 'Content version: "optimized" or "raw"', enum: ['optimized', 'raw'], default: 'optimized' },
+            includeCrossReferences: { type: 'boolean', description: 'Include task cross-references', default: true },
+            includeDocumentationRefs: { type: 'boolean', description: 'Include related Bible documentation', default: true },
+            includeImplementationGuidance: { type: 'boolean', description: 'Include CK/CG implementation guidance', default: true }
+          },
+          required: ['taskId']
         }
       }
     ]
@@ -867,6 +1223,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
+      case 'validateDocumentMapping': {
+        const { documentId } = args;
+        const result = await bibleModule.validateDocumentMapping(documentId);
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify({
+              success: true,
+              documentId,
+              mapping: result
+            }, null, 2)
+          }]
+        };
+      }
+
       // NEW: CK Module Access handler
       case 'getCKModule': {
         const { moduleId, cacheSession = true } = args;
@@ -895,6 +1266,41 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               success: true,
               moduleId,
               cached: cacheSession,
+              data: result
+            }, null, 2)
+          }]
+        };
+      }
+
+      // NEW: Task Storage Access handler
+      case 'getTaskContent': {
+        const { 
+          taskId, 
+          version = 'optimized',
+          includeCrossReferences = true,
+          includeDocumentationRefs = true,
+          includeImplementationGuidance = true
+        } = args;
+        
+        const result = await taskModule.getTaskContent(taskId, {
+          version,
+          includeCrossReferences,
+          includeDocumentationRefs,
+          includeImplementationGuidance
+        });
+        
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify({
+              success: true,
+              taskId,
+              version,
+              options: {
+                includeCrossReferences,
+                includeDocumentationRefs,
+                includeImplementationGuidance
+              },
               data: result
             }, null, 2)
           }]

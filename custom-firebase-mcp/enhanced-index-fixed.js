@@ -2,6 +2,7 @@
 
 const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const DocumentIdMapper = require('./document-id-mapper.js');
 const { 
   CallToolRequestSchema,
   ErrorCode,
@@ -39,6 +40,7 @@ class BibleAccessModule {
   constructor() {
     this.cache = new Map();
     this.crossReferences = new Map();
+    this.documentMapper = new DocumentIdMapper();
     this.metrics = {
       documentsRetrieved: 0,
       crossReferencesFollowed: 0,
@@ -130,15 +132,46 @@ class BibleAccessModule {
     }
     
     try {
+      // **FIX: Map API document ID to storage document ID**
+      const storageDocumentId = this.documentMapper.apiToStorage(documentId);
+      const variations = this.documentMapper.getAllVariations(documentId);
+      
+      console.log(`[DEBUG] Cross-reference lookup: API ID="${documentId}" → Storage ID="${storageDocumentId}", Variations:`, variations);
+      
+      // Try primary storage ID first
       let query = db.collection('bible_cross_references')
-        .where('source_document_id', '==', documentId);
+        .where('source_document_id', '==', storageDocumentId);
       
       if (referenceType !== 'all') {
         query = query.where('reference_type', '==', referenceType);
       }
       
-      const snapshot = await query.limit(50).get();
-      const references = [];
+      let snapshot = await query.limit(50).get();
+      let references = [];
+      
+      // If no results with primary ID, try variations
+      if (snapshot.empty && variations.length > 1) {
+        console.log(`[DEBUG] No results with primary ID, trying variations...`);
+        for (const variation of variations) {
+          if (variation === storageDocumentId) continue; // Already tried
+          
+          let variationQuery = db.collection('bible_cross_references')
+            .where('source_document_id', '==', variation);
+          
+          if (referenceType !== 'all') {
+            variationQuery = variationQuery.where('reference_type', '==', referenceType);
+          }
+          
+          const variationSnapshot = await variationQuery.limit(50).get();
+          if (!variationSnapshot.empty) {
+            console.log(`[DEBUG] Found results with variation: "${variation}"`);
+            snapshot = variationSnapshot;
+            // Update mapper with successful variation
+            this.documentMapper.addMapping(documentId, variation);
+            break;
+          }
+        }
+      }
       
       snapshot.forEach(doc => {
         references.push({
@@ -160,6 +193,30 @@ class BibleAccessModule {
       console.warn(`Error getting cross-references for ${documentId}:`, error.message);
       return [];
     }
+  }
+
+  /**
+   * Validate document ID mapping for debugging
+   * @param {string} documentId - API document ID to validate
+   * @returns {Object} Validation details
+   */
+  async validateDocumentMapping(documentId) {
+    const mapping = this.documentMapper.validateMapping(documentId);
+    
+    // Test if mapped ID exists in cross-references
+    try {
+      const query = db.collection('bible_cross_references')
+        .where('source_document_id', '==', mapping.storageId)
+        .limit(1);
+      const snapshot = await query.get();
+      mapping.hasReferences = !snapshot.empty;
+      mapping.referenceCount = snapshot.size;
+    } catch (error) {
+      mapping.hasReferences = false;
+      mapping.error = error.message;
+    }
+    
+    return mapping;
   }
 
   async searchContent(query, options = {}) {
@@ -507,6 +564,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: 'object',
           properties: {},
           required: []
+        }
+      },
+      {
+        name: 'validateDocumentMapping',
+        description: 'Validate document ID mapping for cross-reference system debugging',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            documentId: { type: 'string', description: 'API document ID to validate (e.g., "B3.4")' }
+          },
+          required: ['documentId']
         }
       },
       // NEW: CK Module Access tool

@@ -20,9 +20,12 @@ export const useTransactions = (startDate, endDate, options = {}) => {
   const [error, setError] = useState(null);
   const { selectedBudgetId } = useBudgets();
 
+  // Extract individual options to avoid object reference issues in useEffect
+  const { enabled = true, categoryId, limit: queryLimit = 100, orderDirection = 'desc' } = options;
+
   useEffect(() => {
-    // Return early if no budget is selected
-    if (!selectedBudgetId) {
+    // Return early if disabled or no budget is selected
+    if (!enabled || !selectedBudgetId) {
       setTransactions([]);
       setIsLoading(false);
       setError(null);
@@ -69,7 +72,7 @@ export const useTransactions = (startDate, endDate, options = {}) => {
           selectedBudgetId,
           start,
           adjustedEnd,
-          options
+          { categoryId, limit: queryLimit, orderDirection }
         );
         
         logger.info('useTransactions', 'fetchTransactions', 'Transactions fetched successfully', {
@@ -99,7 +102,7 @@ export const useTransactions = (startDate, endDate, options = {}) => {
     };
     
     fetchTransactions();
-  }, [selectedBudgetId, startDate, endDate, options]);
+  }, [selectedBudgetId, startDate, endDate, enabled, categoryId, queryLimit, orderDirection]);
   
   return { transactions, isLoading, error };
 };

@@ -609,7 +609,8 @@ export const getTransactionsInRange = async (budgetId, startDate, endDate, optio
     
     const { 
       limit: queryLimit = 100,
-      orderDirection = 'desc'
+      orderDirection = 'desc',
+      categoryId
     } = options;
     
     // Ensure dates are Firestore Timestamps
@@ -626,16 +627,22 @@ export const getTransactionsInRange = async (budgetId, startDate, endDate, optio
     logger.debug('TransactionService', 'getTransactionsInRange', 'Accessing transactions path', { path: transactionsPath });
     const transactionsCollection = collection(db, transactionsPath);
     
-    // Build query
-    const q = query(
-      transactionsCollection,
+    // Build query with optional category filtering
+    let queryConstraints = [
       where('date', '>=', startTimestamp),
-      where('date', '<=', endTimestamp),
-      orderBy('date', orderDirection),
-      limit(queryLimit)
-    );
+      where('date', '<=', endTimestamp)
+    ];
     
-    // TODO: M4a - Implement additional filtering options (by category, creator, etc.)
+    // Add category filter if specified
+    if (categoryId) {
+      queryConstraints.push(where('categoryId', '==', categoryId));
+    }
+    
+    // Add ordering and limit
+    queryConstraints.push(orderBy('date', orderDirection));
+    queryConstraints.push(limit(queryLimit));
+    
+    const q = query(transactionsCollection, ...queryConstraints);
     
     const querySnapshot = await getDocs(q);
     
