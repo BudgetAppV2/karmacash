@@ -1,0 +1,298 @@
+/* SafeCard Component Styles */
+/* Mobile-first responsive design with accessibility focus */
+
+.safe-card {
+  /* Base styles */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-background, #ffffff);
+  border-radius: var(--card-border-radius, 12px);
+  border: 1px solid var(--card-border-color, #e1e5e9);
+  box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  
+  /* Ensure accessibility focus is visible */
+  outline: none;
+  
+  /* Mobile-first sizing */
+  width: 100%;
+  min-height: 120px;
+  padding: 16px;
+  margin: 8px 0;
+}
+
+/* Focus indicators for accessibility */
+.safe-card:focus-visible,
+.safe-card--interactive:focus-visible {
+  outline: 2px solid var(--focus-color, #0066cc);
+  outline-offset: 2px;
+  box-shadow: 
+    var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.1)),
+    0 0 0 4px var(--focus-ring-color, rgba(0, 102, 204, 0.2));
+}
+
+.safe-card__focus-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Card Variants */
+.safe-card--default {
+  background-color: var(--card-background, #ffffff);
+  border: 1px solid var(--card-border-color, #e1e5e9);
+}
+
+.safe-card--elevated {
+  border: none;
+  box-shadow: var(--card-elevated-shadow, 0 4px 16px rgba(0, 0, 0, 0.15));
+  background-color: var(--card-elevated-background, #ffffff);
+}
+
+.safe-card--outlined {
+  background-color: transparent;
+  border: 2px solid var(--card-outline-color, #d1d5db);
+  box-shadow: none;
+}
+
+.safe-card--filled {
+  background-color: var(--card-filled-background, #f8fafc);
+  border: 1px solid var(--card-filled-border, #e2e8f0);
+}
+
+/* Size Variants - Mobile First */
+.safe-card--sm {
+  padding: 12px;
+  min-height: 80px;
+  border-radius: var(--card-border-radius-sm, 8px);
+}
+
+.safe-card--md {
+  padding: 16px;
+  min-height: 120px;
+  border-radius: var(--card-border-radius, 12px);
+}
+
+.safe-card--lg {
+  padding: 24px;
+  min-height: 160px;
+  border-radius: var(--card-border-radius-lg, 16px);
+}
+
+/* Interactive States */
+.safe-card--interactive {
+  cursor: pointer;
+  user-select: none;
+  
+  /* Ensure hover states work on touch devices */
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .safe-card--interactive:hover:not(.safe-card--disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--card-hover-shadow, 0 8px 24px rgba(0, 0, 0, 0.15));
+    border-color: var(--card-hover-border, #cbd5e1);
+  }
+}
+
+.safe-card--interactive:active:not(.safe-card--disabled) {
+  transform: scale(0.98);
+}
+
+/* State Classes */
+.safe-card--loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.safe-card--error {
+  border-color: var(--error-color, #ef4444);
+  background-color: var(--error-background, #fef2f2);
+}
+
+.safe-card--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Card Sections */
+.safe-card__header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--card-divider-color, #e2e8f0);
+}
+
+.safe-card__content {
+  flex: 1;
+  position: relative;
+  min-height: 40px;
+}
+
+.safe-card__footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--card-divider-color, #e2e8f0);
+}
+
+/* Loading Spinner */
+.safe-card__loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60px;
+}
+
+.safe-card__spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--spinner-track-color, #e2e8f0);
+  border-top: 2px solid var(--spinner-color, #0066cc);
+  border-radius: 50%;
+  animation: safe-card-spin 1s linear infinite;
+}
+
+@keyframes safe-card-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error Display */
+.safe-card__error-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: var(--error-light-background, #fef2f2);
+  border: 1px solid var(--error-light-border, #fecaca);
+  border-radius: 8px;
+  color: var(--error-text-color, #dc2626);
+}
+
+.safe-card__error-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.safe-card__error-text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Responsive Design - Tablet */
+@media (min-width: 768px) {
+  .safe-card {
+    margin: 12px 0;
+  }
+  
+  .safe-card--sm {
+    padding: 16px;
+    min-height: 100px;
+  }
+  
+  .safe-card--md {
+    padding: 20px;
+    min-height: 140px;
+  }
+  
+  .safe-card--lg {
+    padding: 32px;
+    min-height: 200px;
+  }
+}
+
+/* Responsive Design - Desktop */
+@media (min-width: 1024px) {
+  .safe-card {
+    margin: 16px 0;
+  }
+  
+  .safe-card--lg {
+    padding: 40px;
+    min-height: 240px;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .safe-card {
+    --card-background: #1f2937;
+    --card-border-color: #374151;
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --card-elevated-background: #111827;
+    --card-elevated-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --card-filled-background: #374151;
+    --card-filled-border: #4b5563;
+    --card-divider-color: #4b5563;
+    --card-hover-border: #6b7280;
+    --card-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    color: var(--text-color-dark, #f9fafb);
+  }
+  
+  .safe-card--outlined {
+    --card-outline-color: #6b7280;
+  }
+  
+  .safe-card__error-display {
+    --error-light-background: #451a03;
+    --error-light-border: #92400e;
+    --error-text-color: #fed7aa;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .safe-card {
+    border-width: 2px;
+    border-color: currentColor;
+  }
+  
+  .safe-card:focus-visible {
+    outline-width: 3px;
+    outline-color: currentColor;
+  }
+  
+  .safe-card__error-display {
+    border-width: 2px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .safe-card,
+  .safe-card__spinner,
+  .safe-card--interactive {
+    transition: none;
+    animation: none;
+  }
+  
+  .safe-card__spinner {
+    animation: none;
+    border-top-color: var(--spinner-color, #0066cc);
+    border-right-color: var(--spinner-color, #0066cc);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .safe-card {
+    box-shadow: none;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    page-break-inside: avoid;
+  }
+  
+  .safe-card__loading-spinner,
+  .safe-card__focus-indicator {
+    display: none;
+  }
+}
