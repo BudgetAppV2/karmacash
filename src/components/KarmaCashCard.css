@@ -1,0 +1,317 @@
+/*
+ * KarmaCash Card Component Styles
+ * Based on actual design standards: B2.1, B3.4, B3.8, B3.11
+ */
+
+:root {
+  /* KarmaCash Color System (B3.4) */
+  --kc-color-trust-blue: #2563eb;
+  --kc-color-growth-green: #059669;
+  --kc-color-attention-amber: #d97706;
+  --kc-color-alert-red: #dc2626;
+  --kc-color-balanced-gray: #64748b;
+  
+  /* KarmaCash Spacing System (B3.4) */
+  --kc-spacing-base: 8px;
+  --kc-spacing-component-sm: 16px;
+  --kc-spacing-component-md: 24px;
+  --kc-spacing-component-lg: 32px;
+  
+  /* KarmaCash Border Radius System (B3.8) */
+  --kc-radius-compact: 8px;
+  --kc-radius-standard: 12px;
+  --kc-radius-prominent: 16px;
+  
+  /* KarmaCash Shadow System (B3.8) */
+  --kc-shadow-default: 0 2px 8px rgba(0,0,0,0.1);
+  --kc-shadow-elevated: 0 4px 16px rgba(0,0,0,0.15);
+  --kc-shadow-interactive: 0 8px 24px rgba(0,0,0,0.2);
+  
+  /* KarmaCash Animation System (B3.11) */
+  --kc-duration-micro: 200ms;
+  --kc-duration-standard: 300ms;
+  --kc-easing-karma: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Touch targets (B3.4) */
+  --kc-touch-target-min: 44px;
+}
+
+/* Base Card Styles */
+.karmacash-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: var(--kc-radius-standard);
+  box-shadow: var(--kc-shadow-default);
+  padding: var(--kc-spacing-component-md);
+  transition: all var(--kc-duration-standard) var(--kc-easing-karma);
+  cursor: pointer;
+  
+  /* Ensure minimum touch target size (B3.4) */
+  min-height: var(--kc-touch-target-min);
+  min-width: var(--kc-touch-target-min);
+  
+  /* Trust indicator border */
+  border-top: 3px solid var(--kc-color-trust-blue);
+}
+
+/* Variant Styles (B3.8 Border Radius Hierarchy) */
+.karmacash-card--compact {
+  border-radius: var(--kc-radius-compact);
+  padding: var(--kc-spacing-component-sm);
+}
+
+.karmacash-card--prominent {
+  border-radius: var(--kc-radius-prominent);
+  padding: var(--kc-spacing-component-lg);
+  box-shadow: var(--kc-shadow-elevated);
+}
+
+/* Karma State Colors (B3.4) */
+.karmacash-card--neutral {
+  border-top-color: var(--kc-color-balanced-gray);
+}
+
+.karmacash-card--positive {
+  border-top-color: var(--kc-color-trust-blue);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.karmacash-card--growth {
+  border-top-color: var(--kc-color-growth-green);
+}
+
+.karmacash-card--attention {
+  border-top-color: var(--kc-color-attention-amber);
+}
+
+/* Interactive States (B3.11) */
+.karmacash-card:hover {
+  box-shadow: var(--kc-shadow-interactive);
+  transform: translateY(-2px);
+}
+
+.karmacash-card:focus {
+  outline: 2px solid var(--kc-color-trust-blue);
+  outline-offset: 2px;
+}
+
+.karmacash-card:active {
+  transform: scale(0.98);
+}
+
+/* Trust Indicator */
+.karmacash-card__trust-indicator {
+  position: absolute;
+  top: 0;
+  left: var(--kc-spacing-component-md);
+  width: var(--kc-spacing-component-lg);
+  height: 3px;
+  background: linear-gradient(90deg, 
+    var(--kc-color-trust-blue) 0%, 
+    var(--kc-color-growth-green) 100%);
+  border-radius: 0 0 2px 2px;
+}
+
+/* Content Styles */
+.karmacash-card__content {
+  position: relative;
+  z-index: 1;
+}
+
+.karmacash-card__title {
+  margin: 0 0 var(--kc-spacing-base) 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.karmacash-card__description {
+  margin: 0 0 var(--kc-spacing-component-sm) 0;
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.karmacash-card__value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--kc-color-trust-blue);
+  margin: var(--kc-spacing-base) 0;
+}
+
+/* Action Area with Transparent Intentions (B2.1) */
+.karmacash-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--kc-spacing-component-sm);
+  padding: var(--kc-spacing-base) 0;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  color: var(--kc-color-trust-blue);
+  font-weight: 500;
+}
+
+.karmacash-card__action-label {
+  flex: 1;
+}
+
+.karmacash-card__action-indicator {
+  transition: transform var(--kc-duration-micro) var(--kc-easing-karma);
+}
+
+/* Emotional Intelligence Error Handling (B2.1) */
+.karmacash-card__error {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1px solid #fecaca;
+  border-radius: var(--kc-radius-compact);
+  padding: var(--kc-spacing-component-sm);
+  margin-top: var(--kc-spacing-component-sm);
+}
+
+.karmacash-card__error-message {
+  color: var(--kc-color-alert-red);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: var(--kc-spacing-base);
+}
+
+.karmacash-card__error-suggestion {
+  color: #7c2d12;
+  font-size: 0.8125rem;
+  margin-bottom: var(--kc-spacing-base);
+}
+
+.karmacash-card__error-recovery {
+  background: var(--kc-color-trust-blue);
+  color: white;
+  border: none;
+  border-radius: var(--kc-radius-compact);
+  padding: var(--kc-spacing-base) var(--kc-spacing-component-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--kc-duration-micro) var(--kc-easing-karma);
+}
+
+.karmacash-card__error-recovery:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Progress Indicator (Trust Building) */
+.karmacash-card__progress {
+  margin-top: var(--kc-spacing-component-sm);
+}
+
+.karmacash-card__progress-bar {
+  height: 3px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.karmacash-card__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    var(--kc-color-trust-blue) 0%, 
+    var(--kc-color-growth-green) 100%);
+}
+
+/* Karma Feedback Indicator */
+.karmacash-card__karma-indicator {
+  position: absolute;
+  top: var(--kc-spacing-base);
+  right: var(--kc-spacing-base);
+  z-index: 2;
+}
+
+.karmacash-card__karma-positive {
+  color: var(--kc-color-growth-green);
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* Dark Mode Support (B3.8) */
+@media (prefers-color-scheme: dark) {
+  .karmacash-card {
+    background: #1e293b;
+    color: #f1f5f9;
+  }
+  
+  .karmacash-card__title {
+    color: #f1f5f9;
+  }
+  
+  .karmacash-card__description {
+    color: #94a3b8;
+  }
+  
+  .karmacash-card--positive {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  }
+}
+
+/* Reduced Motion Support (B3.11) */
+@media (prefers-reduced-motion: reduce) {
+  .karmacash-card,
+  .karmacash-card *,
+  .karmacash-card *::before,
+  .karmacash-card *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .karmacash-card:hover {
+    transform: none;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .karmacash-card {
+    border: 2px solid currentColor;
+  }
+  
+  .karmacash-card__trust-indicator {
+    background: currentColor;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .karmacash-card {
+    box-shadow: none;
+    border: 1px solid #000;
+    break-inside: avoid;
+  }
+  
+  .karmacash-card__karma-indicator {
+    display: none;
+  }
+}
+
+/* Mobile Optimization */
+@media (max-width: 767px) {
+  .karmacash-card {
+    padding: var(--kc-spacing-component-sm);
+    margin-bottom: var(--kc-spacing-component-sm);
+  }
+  
+  .karmacash-card__title {
+    font-size: 1.125rem;
+  }
+  
+  .karmacash-card__value {
+    font-size: 1.5rem;
+  }
+  
+  /* Ensure touch targets remain accessible */
+  .karmacash-card__action,
+  .karmacash-card__error-recovery {
+    min-height: var(--kc-touch-target-min);
+  }
+}
