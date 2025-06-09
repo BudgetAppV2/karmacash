@@ -7,8 +7,25 @@
       "persistent": true
     },
     {
+      "name": "mcp_firebase",
+      "command": "cd /Users/benoitarchambault/Desktop/KarmaCash && node custom-firebase-mcp/enhanced-index-fixed.cjs",
+      "persistent": true,
+      "env": {
+        "SERVICE_ACCOUNT_KEY_PATH": "${SERVICE_ACCOUNT_KEY_PATH}",
+        "FIREBASE_STORAGE_BUCKET": "${FIREBASE_STORAGE_BUCKET}"
+      }
+    },
+    {
+      "name": "mcp_taskmaster",
+      "command": "npx -y --package=task-master-ai task-master-ai",
+      "persistent": true,
+      "env": {
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
+      }
+    },
+    {
       "name": "agent_workspace",
-      "command": "echo 'Background Agent workspace ready'",
+      "command": "echo 'Background Agent workspace ready - MCP servers starting in parallel'",
       "persistent": false
     }
   ],
@@ -16,5 +33,45 @@
     "NODE_ENV": "development",
     "AUTONOMOUS_AGENT_TEST": "true",
     "KARMACASH_PROJECT_ROOT": "/Users/benoitarchambault/Desktop/KarmaCash"
+  },
+  "mcp_servers": {
+    "firebase": {
+      "command": "node",
+      "args": ["/Users/benoitarchambault/Desktop/KarmaCash/custom-firebase-mcp/enhanced-index-fixed.cjs"],
+      "env": {
+        "SERVICE_ACCOUNT_KEY_PATH": "${SERVICE_ACCOUNT_KEY_PATH}",
+        "FIREBASE_STORAGE_BUCKET": "${FIREBASE_STORAGE_BUCKET}"
+      }
+    },
+    "taskmaster-ai": {
+      "command": "npx",
+      "args": ["-y", "--package=task-master-ai", "task-master-ai"],
+      "env": {
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "browser-tools": {
+      "command": "npx",
+      "args": ["-y", "@agentdeskai/browser-tools-mcp@latest"]
+    }
+  },
+  "agent_configuration": {
+    "mcp_support": true,
+    "required_tools": [
+      "firestore_get_document_by_id",
+      "getTaskContent",
+      "validateDocumentMapping",
+      "getBibleSection",
+      "getCKModule"
+    ],
+    "fallback_mode": "native_firebase_sdk"
   }
 }
