@@ -25,6 +25,22 @@ dist-ssr
 .env.local
 src/.env.local
 
-# Sensitive files
+# Sensitive files - CRITICAL SECURITY
+.env
+.env.*
+*.env
 mcp.json
-.env.local
+firebase-credentials.json
+config/serviceAccountKey.json
+serviceAccountKey.json
+*credentials*.json
+*serviceAccount*.json
+
+# Firebase sensitive files
+firebase-debug*.log
+firestore-debug.log
+
+# MCP and API keys
+**/mcp.json
+**/*credentials*.json
+**/*serviceAccount*.json
